@@ -1,0 +1,54 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Nevergreen.Data
+{
+    /// <summary>
+    /// Defines a character template (marionette or enemy).
+    /// Stats are resolved at runtime via statPerLevel[currentLevel - 1].
+    /// </summary>
+    [CreateAssetMenu(fileName = "NewCharacter", menuName = "Nevergreen/Data/Character Data")]
+    public class CharacterData : ScriptableObject
+    {
+        [Tooltip("Unique identifier for this character.")]
+        public string characterId;
+
+        [Tooltip("Display name shown in UI.")]
+        public string displayName;
+
+        [Tooltip("Whether this is a player unit or enemy unit.")]
+        public CharacterTeamType teamType = CharacterTeamType.Enemy;
+
+        [Tooltip("Number of actions this character gets per round. Most characters = 1, some bosses = 2.")]
+        [Min(1)]
+        public int actionsPerRound = 1;
+
+        [Tooltip("Stat block for each level. Index 0 = level 1, index 1 = level 2, etc.")]
+        public List<StatBlockData> statPerLevel = new List<StatBlockData>();
+
+        [Tooltip("Skills available to this character. Up to 4 can be used in battle.")]
+        public List<SkillData> availableSkills = new List<SkillData>();
+
+        /// <summary>
+        /// Resolves the stat block for the given level using current_level - 1 indexing.
+        /// Clamps to valid range.
+        /// </summary>
+        public StatBlockData GetStatsForLevel(int level)
+        {
+            if (statPerLevel == null || statPerLevel.Count == 0)
+            {
+                Debug.LogError($"[CharacterData] '{displayName}' has no stat entries.");
+                return null;
+            }
+
+            int index = Mathf.Clamp(level - 1, 0, statPerLevel.Count - 1);
+            return statPerLevel[index];
+        }
+    }
+
+    public enum CharacterTeamType
+    {
+        Player,
+        Enemy
+    }
+}

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: StoneGolem
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: stone_golem
+  displayName: Stone Golem
+  teamType: 1
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: a5566ad2fc500544984870d0ba53c1b5, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: 1eaaf41a0f0978e4da5bf64ada6a4d82, type: 2}
