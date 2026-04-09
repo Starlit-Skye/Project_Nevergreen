@@ -35,7 +35,7 @@ Build the character data system, core combat mechanics, and a prototype combat s
 
 ## Verification
 - [ ] Teams spawn at correct rank positions in play mode
-- [ ] Player can select skills and targets
+- [x] Player can select skills and targets
 - [ ] Combat resolves turns in speed order
 - [ ] HP changes reflect correctly
 - [ ] Battle ends when one side is eliminated

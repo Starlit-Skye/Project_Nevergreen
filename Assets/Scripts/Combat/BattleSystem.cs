@@ -28,9 +28,7 @@ namespace Nevergreen.Combat
         private System.Random _rng;
 
         // Player input state
-        private SkillData _selectedSkill;
         private bool _waitingForPlayerInput = false;
-        private bool _moveSelected = false;
 
         // --- Events ---
         public event Action OnBattleStarted;
@@ -218,8 +216,6 @@ namespace Nevergreen.Combat
         private IEnumerator WaitForPlayerAction()
         {
             _waitingForPlayerInput = true;
-            _selectedSkill = null;
-            _moveSelected = false;
             OnWaitingForPlayerInput?.Invoke();
 
             // Wait until player submits an action

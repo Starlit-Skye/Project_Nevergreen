@@ -25,6 +25,8 @@ namespace Nevergreen.Prototype
             if (oldWorldCanvas) Object.DestroyImmediate(oldWorldCanvas);
             var oldBattleSystem = GameObject.Find("BattleSystem");
             if (oldBattleSystem) Object.DestroyImmediate(oldBattleSystem);
+            var oldEventSystem = GameObject.Find("EventSystem");
+            if (oldEventSystem) Object.DestroyImmediate(oldEventSystem);
             var oldBootstrap = GameObject.Find("CombatSceneBootstrap");
             if (oldBootstrap)
             {
@@ -79,6 +81,11 @@ namespace Nevergreen.Prototype
 
             // --- HP Bar Prefab ---
             var hpBarPrefab = CreateHPBarPrefab();
+
+            // --- Event System ---
+            var eventSystemGO = new GameObject("EventSystem");
+            eventSystemGO.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystemGO.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
 
             // --- Screen Space UI Canvas ---
             var uiCanvasGO = new GameObject("UICanvas");
