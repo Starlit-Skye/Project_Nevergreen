@@ -29,6 +29,7 @@ namespace Nevergreen.Prototype
         public Button[] skillButtons = new Button[4];
         public TextMeshProUGUI[] skillButtonLabels = new TextMeshProUGUI[4];
         public Button moveButton;
+        public Button passButton;
 
         [Header("HP Bar Prefab")]
         public GameObject hpBarPrefab;
@@ -82,6 +83,12 @@ namespace Nevergreen.Prototype
             {
                 moveButton.onClick.AddListener(OnMoveButtonClicked);
                 moveButton.gameObject.SetActive(false);
+            }
+
+            if (passButton != null)
+            {
+                passButton.onClick.AddListener(OnPassButtonClicked);
+                passButton.gameObject.SetActive(false);
             }
 
             if (battleEndPanel != null)
@@ -142,6 +149,12 @@ namespace Nevergreen.Prototype
         {
             if (turnText != null)
                 turnText.text = $"{actor.DisplayName}'s Turn";
+
+            // Failsafe: Refresh all HP bars at start of turn
+            foreach (var bar in _hpBars.Values)
+            {
+                if (bar != null) bar.Refresh();
+            }
         }
 
         private void HandleWaitingForInput()
@@ -168,21 +181,11 @@ namespace Nevergreen.Prototype
             {
                 AddLog($"{actor.DisplayName} -> {targetNames}: MISS!");
             }
-
-            // Update HP bars
-            foreach (var t in targets)
-            {
-                if (_hpBars.TryGetValue(t, out HPBar bar))
-                    bar.Refresh();
-            }
         }
 
         private void HandleCharacterDefeated(CombatCharacter character)
         {
             AddLog($"{character.DisplayName} defeated!");
-
-            if (_hpBars.TryGetValue(character, out HPBar bar))
-                bar.Refresh();
 
             // Grey out defeated character
             var sr = character.GetComponentInChildren<SpriteRenderer>();
@@ -233,6 +236,8 @@ namespace Nevergreen.Prototype
 
             if (moveButton != null)
                 moveButton.gameObject.SetActive(true);
+            if (passButton != null)
+                passButton.gameObject.SetActive(true);
         }
 
         private void HideSkillButtons()
@@ -242,6 +247,7 @@ namespace Nevergreen.Prototype
                 if (btn != null) btn.gameObject.SetActive(false);
             }
             if (moveButton != null) moveButton.gameObject.SetActive(false);
+            if (passButton != null) passButton.gameObject.SetActive(false);
         }
 
         private void OnSkillButtonClicked(int index)
@@ -302,6 +308,13 @@ namespace Nevergreen.Prototype
             {
                 AddLog("No adjacent ally to swap with!");
             }
+        }
+
+        private void OnPassButtonClicked()
+        {
+            _battleSystem.SubmitPassAction();
+            HideSkillButtons();
+            AddLog($"{_battleSystem.CurrentActor.DisplayName} passes.");
         }
 
         private void TrySelectTarget()

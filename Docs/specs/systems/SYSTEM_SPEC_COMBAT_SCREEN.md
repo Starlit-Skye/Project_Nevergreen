@@ -32,6 +32,7 @@ boss-room outcome transitions.
 - Display HP bars above each combat character.
 - Display bottom combat UI with skill selection section and stats section.
 - Show currently acting player character skills in the skill selection section.
+- Provide "Move" and "Pass" buttons for positioning swaps and turn skipping.
 - Show hovered character stats in the stats section, including effective values after trinkets,
   perfections, imperfections, buffs, and debuffs.
 - Present battle completion routing to one of three route choices where applicable.
@@ -55,13 +56,13 @@ boss-room outcome transitions.
   |   [^]    [^]    [^]    [^]                                [^]    [^]    [^]    [^]
   |   feet target indicator appears here for valid targets                              |
   +----------------------------------------------------------------------------------+
-  | [Skill1] [Skill2] [Skill3] [Skill4]            [        Stats Display         ] |
+  | [Skill1] [Skill2] [Skill3] [Skill4] [Move] [Pass] [        Stats Display         ] |
   +----------------------------------------------------------------------------------+
   ```
 - Layout semantics:
   player team block is left side, enemy team block is right side; HP bars render above each character;
-  skill selection row is bottom-left; stats display panel is bottom-right; valid-target indicator sprite
-  renders at feet of valid targets
+  skill selection row is bottom-left, including Skill 1-4, Move, and Pass buttons; stats display
+  panel is bottom-right; valid-target indicator sprite renders at feet of valid targets
 - Persistence keys: Unknown
 
 ## Event Contracts
@@ -78,7 +79,7 @@ boss-room outcome transitions.
 - Event: `combat_skill_selected`
 - Producer: combat input layer
 - Consumers: combat UI controller, target-highlight subsystem
-- Payload schema: actor id, skill id or move action id, valid target ids
+- Payload schema: actor id, skill id or move/pass action id, valid target ids
 
 - Event: `combat_target_hover_changed`
 - Producer: cursor/hover subsystem
@@ -123,8 +124,8 @@ boss-room outcome transitions.
 - Automated: Unknown (test paths not provided)
 - Playtest: verify first-room marionette reward path, post-battle 1-of-3 route selection, non-true
   boss fade/statistics return flow, true-boss cutscene trigger flow, HP bars above characters,
-  active-actor skill list rendering, hovered effective stat display updates, and layout placement
-  fidelity against the combat mockup model
+  active-actor skill list rendering, Move and Pass button visibility, hovered effective stat
+  display updates, and layout placement fidelity against the combat mockup model
 
 ## Missing Evidence
 - Combat screen implementation path(s) and state machine symbols

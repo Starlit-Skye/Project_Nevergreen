@@ -7,11 +7,12 @@ Verified commit: Unknown
 Target build: Unity 6000.3.9f1 + Standalone/Android
 
 ## Purpose
-Define how `Parts` and `Scraps` are granted when a battle ends, including randomization and elite
-reward differentiation.
+Define how `Parts`, `Scraps`, and `Trinkets` are granted when a battle ends, including
+randomization, elite reward differentiation, and guaranteed trinket drops from elite encounters.
 
 ## Scope
-- In scope: battle-end currency grant, normal-vs-elite reward difference, reward event emission
+- In scope: battle-end currency grant, normal-vs-elite reward difference, guaranteed elite trinket
+  drop, reward event emission
 - Out of scope: shop spending, event-specific reward mechanics, level-up spending logic
 
 ## Source of Truth
@@ -53,8 +54,10 @@ Transitions:
 ## Formulas
 ```txt
 # abstract battle reward model
-parts_granted  = Randomized(BaseParts[battle_type])
-scraps_granted = Randomized(BaseScraps[battle_type])
+parts_granted   = Randomized(BaseParts[battle_type])
+scraps_granted  = Randomized(BaseScraps[battle_type])
+trinket_granted = 1   if battle_type == elite
+                  0   otherwise
 
 # constraint
 BaseParts[elite]  > BaseParts[normal]
@@ -73,6 +76,8 @@ BaseScraps[elite] > BaseScraps[normal]
 - Reward should not be applied more than once for the same battle id.
 - If battle type is missing/invalid, reward behavior is Unknown.
 - Elite reward outputs must remain higher than normal reward outputs.
+- Elite battles always grant exactly 1 trinket. Normal battles never grant trinkets.
+- If the trinket pool is empty or exhausted, behavior is Unknown.
 
 ## Failure Modes
 - Duplicate reward application for same battle
@@ -81,12 +86,13 @@ BaseScraps[elite] > BaseScraps[normal]
 
 ## Event Hooks
 - Event: `battle_rewards_granted`, Trigger: reward commit, Payload: battle id, battle type, parts
-  granted, scraps granted, random roll context
+  granted, scraps granted, trinket granted (id or null), random roll context
 
 ## Acceptance Tests
 - Automated: Unknown (test paths not provided)
-- Playtest: verify end-of-battle reward grant for normal and elite battles, verify elite > normal, and
-  verify slight variance between runs with same battle type
+- Playtest: verify end-of-battle reward grant for normal and elite battles, verify elite > normal,
+  verify slight variance between runs with same battle type, and verify elite battles always grant
+  exactly 1 trinket while normal battles grant 0
 
 ## Missing Evidence
 - Numeric reward ranges for normal and elite encounters

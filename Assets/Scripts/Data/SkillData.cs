@@ -81,6 +81,8 @@ namespace Nevergreen.Data
     public class SkillStatusEntry
     {
         public StatusType statusType;
+        [Tooltip("Which stat this buff/debuff targets. Only used for Buff and Debuff types.")]
+        public StatTarget targetStat = StatTarget.Speed;
         [Range(0, 100)]
         public float applicationChance = 100f;
         public int amplitude = 1;
@@ -99,5 +101,24 @@ namespace Nevergreen.Data
         Riposte,
         Restore,
         Move
+    }
+
+    /// <summary>
+    /// Which stat a Buff or Debuff status effect modifies.
+    /// </summary>
+    public enum StatTarget
+    {
+        Attack,
+        Defense,
+        Accuracy,
+        Dodge,
+        CritChance,
+        Speed,
+        MaxHP,
+        BleedResist,
+        BlightResist,
+        StunResist,
+        DebuffResist,
+        MoveResist
     }
 }

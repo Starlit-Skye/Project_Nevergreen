@@ -11,6 +11,8 @@ namespace Nevergreen.Prototype
     public class HPBar : MonoBehaviour
     {
         [Header("References")]
+        public Slider hpSlider;
+        [Tooltip("Optional. Assigned to recolor the bar based on health ratio.")]
         public Image fillImage;
         public TextMeshProUGUI nameText;
         public TextMeshProUGUI hpText;
@@ -24,13 +26,50 @@ namespace Nevergreen.Prototype
 
         public void SetTarget(CombatCharacter target)
         {
+            if (_target != null)
+            {
+                Unsubscribe();
+            }
+
             _target = target;
 
             if (nameText != null)
                 nameText.text = target.DisplayName;
 
+            if (_target != null)
+            {
+                Subscribe();
+            }
+
             Refresh();
             UpdatePosition();
+        }
+
+        private void Subscribe()
+        {
+            if (_target == null) return;
+            _target.OnDamageTaken += HandleDamage;
+            _target.OnHealed += HandleHeal;
+            _target.OnStatsChanged += HandleStatsChanged;
+            _target.OnDefeated += HandleStatsChanged;
+        }
+
+        private void Unsubscribe()
+        {
+            if (_target == null) return;
+            _target.OnDamageTaken -= HandleDamage;
+            _target.OnHealed -= HandleHeal;
+            _target.OnStatsChanged -= HandleStatsChanged;
+            _target.OnDefeated -= HandleStatsChanged;
+        }
+
+        private void HandleDamage(CombatCharacter c, int amount) { Refresh(); }
+        private void HandleHeal(CombatCharacter c, int amount) { Refresh(); }
+        private void HandleStatsChanged(CombatCharacter c) { Refresh(); }
+
+        private void OnDestroy()
+        {
+            Unsubscribe();
         }
 
         public void Refresh()
@@ -41,9 +80,17 @@ namespace Nevergreen.Prototype
                 ? (float)_target.currentHP / _target.baseStats.maxHP
                 : 0f;
 
-            if (fillImage != null)
+            if (hpSlider != null)
+            {
+                hpSlider.value = ratio;
+            }
+            else if (fillImage != null)
             {
                 fillImage.fillAmount = ratio;
+            }
+
+            if (fillImage != null)
+            {
                 fillImage.color = Color.Lerp(lowColor, fullColor, ratio);
             }
 

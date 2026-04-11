@@ -15,7 +15,7 @@ namespace Nevergreen.Data
 
         [Tooltip("Base accuracy percentage.")]
         [Range(0, 100)]
-        public int accuracy = 80;
+        public int accuracy = 95;
 
         [Tooltip("Base critical hit chance percentage.")]
         [Range(0, 100)]

@@ -24,12 +24,15 @@ namespace Nevergreen.Combat
         [HideInInspector] public int currentHP;
         [HideInInspector] public int rank; // 1-4, 1 = front
         [HideInInspector] public Team team;
+        [HideInInspector] public CombatConfig combatConfig;
         [HideInInspector] public CombatStats baseStats;
         [HideInInspector] public List<SkillData> equippedSkills = new List<SkillData>();
         [HideInInspector] public List<StatusEffectInstance> statusEffects = new List<StatusEffectInstance>();
-        [HideInInspector] public int actionsPerRound = 1;
+
         [HideInInspector] public bool isStunned = false;
         [HideInInspector] public int skillUsesThisBattle_count = 0;
+
+
 
         // Track per-skill uses this battle (skill id -> uses)
         private Dictionary<string, int> _skillUseTracker = new Dictionary<string, int>();
@@ -59,7 +62,7 @@ namespace Nevergreen.Combat
 
             team = assignedTeam;
             rank = assignedRank;
-            actionsPerRound = characterData.actionsPerRound;
+
 
             // Resolve stats from level
             StatBlockData statBlock = characterData.GetStatsForLevel(currentLevel);
@@ -97,19 +100,44 @@ namespace Nevergreen.Combat
                 switch (status.type)
                 {
                     case StatusType.Buff:
-                        // Buff amplitude adds to speed (generic buff for prototype)
-                        effective.speed += status.amplitude;
+                        ApplyStatModifier(effective, status.targetStat, status.amplitude);
                         break;
                     case StatusType.Debuff:
-                        effective.speed -= status.amplitude;
+                        ApplyStatModifier(effective, status.targetStat, -status.amplitude);
                         break;
                 }
             }
 
-            // Aggregate stun resistance bonus
-            // (already handled when stun expires via AddStunRecoveryResist)
+            // Enforce hard caps
+            if (combatConfig != null)
+            {
+                effective.defense = Mathf.Min(effective.defense, combatConfig.defenseCap);
+                effective.dodge = Mathf.Min(effective.dodge, combatConfig.dodgeCap);
+            }
 
             return effective;
+        }
+
+        /// <summary>
+        /// Apply a signed modifier to the specified stat on a CombatStats instance.
+        /// </summary>
+        private void ApplyStatModifier(CombatStats stats, StatTarget target, int value)
+        {
+            switch (target)
+            {
+                case StatTarget.Attack:      stats.attack += value; break;
+                case StatTarget.Defense:     stats.defense += value; break;
+                case StatTarget.Accuracy:    stats.accuracy += value; break;
+                case StatTarget.Dodge:       stats.dodge += value; break;
+                case StatTarget.CritChance:  stats.critChance += value; break;
+                case StatTarget.Speed:       stats.speed += value; break;
+                case StatTarget.MaxHP:       stats.maxHP += value; break;
+                case StatTarget.BleedResist: stats.bleedResist += value; break;
+                case StatTarget.BlightResist:stats.blightResist += value; break;
+                case StatTarget.StunResist:  stats.stunResist += value; break;
+                case StatTarget.DebuffResist:stats.debuffResist += value; break;
+                case StatTarget.MoveResist:  stats.moveResist += value; break;
+            }
         }
 
         /// <summary>
@@ -159,9 +187,10 @@ namespace Nevergreen.Combat
         }
 
         /// <summary>
-        /// Process start-of-turn status effects (bleed, blight, restore).
+        /// Phase 1 of start-of-turn: apply DOT/HOT effects from active statuses.
+        /// Called before stun check so bleed/blight still apply to stunned characters.
         /// </summary>
-        public void ProcessStartOfTurnStatuses()
+        public void ApplyStartOfTurnEffects()
         {
             int totalBleedDamage = 0;
             int totalBlightDamage = 0;
@@ -185,17 +214,16 @@ namespace Nevergreen.Combat
                 }
             }
 
-            // Apply aggregated DOT/HOT
             if (totalBleedDamage > 0) TakeDamage(totalBleedDamage);
             if (totalBlightDamage > 0) TakeDamage(totalBlightDamage);
             if (totalRestore > 0) Heal(totalRestore);
         }
 
         /// <summary>
-        /// Tick all status durations and remove expired ones.
-        /// Call at end of this character's turn.
+        /// Phase 2 of start-of-turn: tick all status durations and remove expired ones.
+        /// Called after stun check so stun correctly skips the turn before expiring.
         /// </summary>
-        public void TickStatuses(int stunRecoveryResistBonus)
+        public void TickStatusDurations(int stunRecoveryResistBonus)
         {
             for (int i = statusEffects.Count - 1; i >= 0; i--)
             {
@@ -203,11 +231,12 @@ namespace Nevergreen.Combat
 
                 if (statusEffects[i].IsExpired)
                 {
-                    // If stun just expired, grant stun resist bonus
+                    // If stun just expired, apply a Buff granting stun resist (1-turn duration)
                     if (statusEffects[i].type == StatusType.Stun)
                     {
                         isStunned = false;
-                        baseStats.stunResist += stunRecoveryResistBonus;
+                        AddStatus(new StatusEffectInstance(StatusType.Buff,
+                            StatTarget.StunResist, stunRecoveryResistBonus, 1));
                     }
 
                     statusEffects.RemoveAt(i);

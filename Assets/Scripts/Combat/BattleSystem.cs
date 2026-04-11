@@ -54,9 +54,10 @@ namespace Nevergreen.Combat
             _rng = new System.Random();
             CurrentRound = 0;
 
-            // Subscribe to defeat events
+            // Subscribe to defeat events and inject config
             foreach (var c in _playerTeam.Concat(_enemyTeam))
             {
+                c.combatConfig = combatConfig;
                 c.OnDefeated += HandleCharacterDefeated;
             }
 
@@ -113,7 +114,7 @@ namespace Nevergreen.Combat
             foreach (var c in _playerTeam.Where(c => c.IsAlive))
             {
                 CombatStats stats = c.GetEffectiveStats();
-                for (int a = 0; a < c.actionsPerRound; a++)
+                for (int a = 0; a < c.characterData.actionsPerRound; a++)
                 {
                     _turnOrder.Add(new TurnEntry(c, stats.speed));
                 }
@@ -122,7 +123,7 @@ namespace Nevergreen.Combat
             foreach (var c in _enemyTeam.Where(c => c.IsAlive))
             {
                 CombatStats stats = c.GetEffectiveStats();
-                for (int a = 0; a < c.actionsPerRound; a++)
+                for (int a = 0; a < c.characterData.actionsPerRound; a++)
                 {
                     _turnOrder.Add(new TurnEntry(c, stats.speed));
                 }
@@ -172,24 +173,28 @@ namespace Nevergreen.Combat
             OnTurnStarted?.Invoke(CurrentActor);
             Debug.Log($"[BattleSystem] Turn: {CurrentActor.DisplayName} (Rank {CurrentActor.rank})");
 
-            // Process start-of-turn statuses (bleed, blight, restore DOT/HOT)
-            CurrentActor.ProcessStartOfTurnStatuses();
+            // Phase 1: Apply DOT/HOT effects (bleed/blight still hurt stunned characters)
+            CurrentActor.ApplyStartOfTurnEffects();
 
             // Check if died from DOT
             if (!CurrentActor.IsAlive)
             {
+                CurrentActor.TickStatusDurations(combatConfig.stunRecoveryResistBonus);
                 _currentTurnIndex++;
                 yield break;
             }
 
-            // Check stun
+            // Check stun (before ticking durations so stun correctly skips the turn)
             if (CurrentActor.isStunned)
             {
                 Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} is stunned! Skipping turn.");
-                CurrentActor.TickStatuses(combatConfig.stunRecoveryResistBonus);
+                CurrentActor.TickStatusDurations(combatConfig.stunRecoveryResistBonus);
                 _currentTurnIndex++;
                 yield break;
             }
+
+            // Phase 2: Tick status durations and remove expired
+            CurrentActor.TickStatusDurations(combatConfig.stunRecoveryResistBonus);
 
             // Player or Enemy action
             if (CurrentActor.IsPlayerTeam)
@@ -206,9 +211,6 @@ namespace Nevergreen.Combat
             {
                 yield break;
             }
-
-            // Tick statuses at end of turn
-            CurrentActor.TickStatuses(combatConfig.stunRecoveryResistBonus);
 
             _currentTurnIndex++;
         }
@@ -250,6 +252,17 @@ namespace Nevergreen.Combat
             Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} swapped to rank {CurrentActor.rank}," +
                       $" {swapTarget.DisplayName} swapped to rank {swapTarget.rank}");
 
+            _waitingForPlayerInput = false;
+        }
+
+        /// <summary>
+        /// Called by UI when player chooses to pass their turn.
+        /// </summary>
+        public void SubmitPassAction()
+        {
+            if (!_waitingForPlayerInput) return;
+
+            Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} passes their turn.");
             _waitingForPlayerInput = false;
         }
 

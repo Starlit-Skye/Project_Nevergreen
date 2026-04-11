@@ -122,6 +122,10 @@ namespace Nevergreen.Prototype
             var moveBtn = CreateSkillButton(skillPanel.transform, "Move", 4);
             moveBtn.SetActive(false);
 
+            // Pass Button
+            var passBtn = CreateSkillButton(skillPanel.transform, "Pass", 5);
+            passBtn.SetActive(false);
+
             // --- Stats Panel (right side of bottom) ---
             var statsPanel = CreateUIPanel(bottomPanel.transform, "StatsPanel",
                 new Vector2(0.55f, 0), new Vector2(1, 1),
@@ -171,6 +175,7 @@ namespace Nevergreen.Prototype
             combatUI.skillButtons = skillButtons;
             combatUI.skillButtonLabels = skillLabels;
             combatUI.moveButton = moveBtn.GetComponent<Button>();
+            combatUI.passButton = passBtn.GetComponent<Button>();
             combatUI.hpBarPrefab = hpBarPrefab;
             combatUI.worldSpaceCanvas = worldCanvas;
 

@@ -16,10 +16,18 @@ namespace Nevergreen.Data
         [Tooltip("Maximum multiplier for attack roll (GDD: 1.2).")]
         public float attackRollMax = 1.2f;
 
-        [Header("Accuracy")]
+        [Header("Accuracy & Defense")]
         [Tooltip("Maximum accuracy cap in percent (GDD: 95).")]
         [Range(0, 100)]
         public int accuracyCap = 95;
+
+        [Tooltip("Maximum defense cap in percent (User Request: 95).")]
+        [Range(0, 100)]
+        public int defenseCap = 95;
+
+        [Tooltip("Maximum dodge cap in percent (User Request: 95).")]
+        [Range(0, 100)]
+        public int dodgeCap = 95;
 
         [Header("Critical")]
         [Tooltip("Damage multiplier on critical hit (GDD: 1.5).")]

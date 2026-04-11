@@ -31,6 +31,9 @@ namespace Nevergreen.Combat
             // Skill scaling (damage percent is like 1.0 = 100%)
             int scaled = Mathf.RoundToInt(ctx.baseAttackRoll * ctx.skillScaling);
 
+            // Apply damage multiplier from buffs/effects
+            scaled = Mathf.RoundToInt(scaled * ctx.damageMultiplier);
+
             // Crit check
             float critChance = userStats.critChance + ctx.skill.modifier.criticalMod;
             ctx.isCritical = (float)ctx.rng.NextDouble() * 100f < critChance;
@@ -39,9 +42,6 @@ namespace Nevergreen.Combat
             {
                 scaled = Mathf.RoundToInt(scaled * ctx.critMultiplier);
             }
-
-            // Apply damage multiplier from buffs/effects
-            scaled = Mathf.RoundToInt(scaled * ctx.damageMultiplier);
 
             // Defense reduction (unless ignoresDefense)
             if (!ctx.ignoresDefense && ctx.primaryTarget != null)

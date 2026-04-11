@@ -10,6 +10,7 @@ namespace Nevergreen.Combat
     public class StatusEffectInstance
     {
         public Data.StatusType type;
+        public Data.StatTarget targetStat;
         public int amplitude;
         public int remainingDuration;
 
@@ -19,6 +20,18 @@ namespace Nevergreen.Combat
         public StatusEffectInstance(Data.StatusType type, int amplitude, int duration)
         {
             this.type = type;
+            this.targetStat = Data.StatTarget.Speed;
+            this.amplitude = amplitude;
+            this.remainingDuration = duration;
+        }
+
+        /// <summary>
+        /// Constructor for Buff/Debuff statuses that target a specific stat.
+        /// </summary>
+        public StatusEffectInstance(Data.StatusType type, Data.StatTarget targetStat, int amplitude, int duration)
+        {
+            this.type = type;
+            this.targetStat = targetStat;
             this.amplitude = amplitude;
             this.remainingDuration = duration;
         }
