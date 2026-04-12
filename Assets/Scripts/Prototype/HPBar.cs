@@ -23,6 +23,17 @@ namespace Nevergreen.Prototype
         public Color lowColor = new Color(0.8f, 0.2f, 0.2f);
 
         private CombatCharacter _target;
+        private AnimationQueueProcessor _animationQueue;
+
+        /// <summary>
+        /// Initialize with target and animation queue reference.
+        /// Used by CombatUI to inject the shared queue.
+        /// </summary>
+        public void Initialize(CombatCharacter target, AnimationQueueProcessor queue)
+        {
+            _animationQueue = queue;
+            SetTarget(target);
+        }
 
         public void SetTarget(CombatCharacter target)
         {
@@ -63,9 +74,33 @@ namespace Nevergreen.Prototype
             _target.OnDefeated -= HandleStatsChanged;
         }
 
-        private void HandleDamage(CombatCharacter c, int amount) { Refresh(); }
-        private void HandleHeal(CombatCharacter c, int amount) { Refresh(); }
+        private void HandleDamage(CombatCharacter c, int amount)
+        {
+            EnqueueHPAnimation("damage");
+            Refresh();
+        }
+
+        private void HandleHeal(CombatCharacter c, int amount)
+        {
+            EnqueueHPAnimation("heal");
+            Refresh();
+        }
+
         private void HandleStatsChanged(CombatCharacter c) { Refresh(); }
+
+        /// <summary>
+        /// Enqueue a short UI animation entry so the input lock stays active
+        /// while HP bar visuals update after a skill animation.
+        /// </summary>
+        private void EnqueueHPAnimation(string type)
+        {
+            if (_animationQueue == null || _target == null) return;
+
+            _animationQueue.Enqueue(
+                $"ui_hp_{type}",
+                $"{_target.DisplayName} HP {type}",
+                0.5f);
+        }
 
         private void OnDestroy()
         {

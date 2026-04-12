@@ -16,6 +16,9 @@ namespace Nevergreen.Combat
         [Header("Config")]
         public CombatConfig combatConfig;
 
+        [Tooltip("Animation queue processor. Auto-created at runtime if not assigned.")]
+        public AnimationQueueProcessor animationQueue;
+
         // --- Runtime State ---
         public BattleState CurrentState { get; private set; } = BattleState.Inactive;
         public int CurrentRound { get; private set; } = 0;
@@ -53,6 +56,12 @@ namespace Nevergreen.Combat
             _enemyTeam = enemyTeam;
             _rng = new System.Random();
             CurrentRound = 0;
+
+            // Ensure animation queue exists
+            if (animationQueue == null)
+            {
+                animationQueue = gameObject.AddComponent<AnimationQueueProcessor>();
+            }
 
             // Subscribe to defeat events and inject config
             foreach (var c in _playerTeam.Concat(_enemyTeam))
@@ -206,6 +215,15 @@ namespace Nevergreen.Combat
                 yield return ExecuteEnemyAction();
             }
 
+            // Wait for all queued animations to finish before advancing
+            if (animationQueue != null)
+            {
+                while (animationQueue.IsBusy)
+                {
+                    yield return null;
+                }
+            }
+
             // Check battle end
             if (CheckBattleEnd())
             {
@@ -257,6 +275,15 @@ namespace Nevergreen.Combat
             Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} swapped to rank {CurrentActor.rank}," +
                       $" {swapTarget.DisplayName} swapped to rank {swapTarget.rank}");
 
+            // Enqueue visual move animation length
+            if (animationQueue != null)
+            {
+                animationQueue.Enqueue(
+                    "action_move",
+                    $"{CurrentActor.DisplayName} Move",
+                    0.4f);
+            }
+
             _waitingForPlayerInput = false;
         }
 
@@ -268,6 +295,16 @@ namespace Nevergreen.Combat
             if (!_waitingForPlayerInput) return;
 
             Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} passes their turn.");
+
+            // Enqueue visual pass animation length
+            if (animationQueue != null)
+            {
+                animationQueue.Enqueue(
+                    "action_pass",
+                    $"{CurrentActor.DisplayName} Pass",
+                    0.3f);
+            }
+
             _waitingForPlayerInput = false;
         }
 
@@ -313,6 +350,15 @@ namespace Nevergreen.Combat
 
             Debug.Log($"[BattleSystem] {user.DisplayName} uses {skill.displayName}" +
                       $" on {string.Join(", ", targets.Select(t => t.DisplayName))}");
+
+            // Enqueue skill animation (prototype: 1s flat duration)
+            if (animationQueue != null)
+            {
+                animationQueue.Enqueue(
+                    skill.skillId,
+                    $"{user.DisplayName}:{skill.displayName}",
+                    1.0f);
+            }
 
             for (int hit = 0; hit < ctx.totalHits; hit++)
             {

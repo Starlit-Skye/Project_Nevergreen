@@ -39,6 +39,7 @@ namespace Nevergreen.Prototype
         private List<CombatCharacter> _playerTeam;
         private List<CombatCharacter> _enemyTeam;
         private Dictionary<CombatCharacter, HPBar> _hpBars = new Dictionary<CombatCharacter, HPBar>();
+        private AnimationQueueProcessor _animationQueue;
 
         // Input state
         private SkillData _selectedAction;
@@ -57,6 +58,9 @@ namespace Nevergreen.Prototype
             _playerTeam = playerTeam;
             _enemyTeam = enemyTeam;
 
+            // Cache animation queue reference
+            _animationQueue = system.animationQueue;
+
             // Subscribe to events
             _battleSystem.OnBattleStarted += HandleBattleStarted;
             _battleSystem.OnRoundStarted += HandleRoundStarted;
@@ -65,6 +69,12 @@ namespace Nevergreen.Prototype
             _battleSystem.OnActionResolved += HandleActionResolved;
             _battleSystem.OnBattleEnded += HandleBattleEnded;
             _battleSystem.OnCharacterDefeated += HandleCharacterDefeated;
+
+            // Subscribe to animation queue lock state
+            if (_animationQueue != null)
+            {
+                _animationQueue.OnInputLockChanged += HandleAnimationLockChanged;
+            }
 
             // Create HP bars
             CreateHPBars();
@@ -111,7 +121,7 @@ namespace Nevergreen.Prototype
                 HPBar bar = barGo.GetComponent<HPBar>();
                 if (bar != null)
                 {
-                    bar.SetTarget(c);
+                    bar.Initialize(c, _animationQueue);
                     _hpBars[c] = bar;
                 }
             }
@@ -208,6 +218,23 @@ namespace Nevergreen.Prototype
             }
 
             AddLog($"Battle ended: {outcome}");
+        }
+
+        /// <summary>
+        /// Handles the animation queue locking/unlocking input.
+        /// When locked: disable all combat buttons.
+        /// When unlocked: re-show buttons if we're still waiting for player input.
+        /// </summary>
+        private void HandleAnimationLockChanged(AnimationQueueState state)
+        {
+            if (state.isInputLocked)
+            {
+                HideSkillButtons();
+            }
+            else if (_battleSystem.IsWaitingForPlayerInput)
+            {
+                ShowSkillButtons(_battleSystem.CurrentActor);
+            }
         }
 
         private void ShowSkillButtons(CombatCharacter actor)
@@ -430,6 +457,11 @@ namespace Nevergreen.Prototype
                 _battleSystem.OnActionResolved -= HandleActionResolved;
                 _battleSystem.OnBattleEnded -= HandleBattleEnded;
                 _battleSystem.OnCharacterDefeated -= HandleCharacterDefeated;
+            }
+
+            if (_animationQueue != null)
+            {
+                _animationQueue.OnInputLockChanged -= HandleAnimationLockChanged;
             }
         }
     }
