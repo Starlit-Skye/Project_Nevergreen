@@ -278,23 +278,6 @@ namespace Nevergreen.Prototype
                 return;
             }
 
-            // If single target or self, auto-execute on single valid target
-            if (_selectedAction.targetScope == TargetScope.Self ||
-                (_validTargets.Count == 1 && _selectedAction.maxTargets == 1))
-            {
-                _battleSystem.SubmitPlayerAction(_selectedAction, _validTargets);
-                HideSkillButtons();
-                return;
-            }
-
-            // If AOE hits all valid targets
-            if (_selectedAction.maxTargets >= _validTargets.Count)
-            {
-                _battleSystem.SubmitPlayerAction(_selectedAction, _validTargets);
-                HideSkillButtons();
-                return;
-            }
-
             // Need target selection
             _selecting = true;
             HighlightValidTargets(true);
@@ -354,7 +337,21 @@ namespace Nevergreen.Prototype
                     }
                     else
                     {
-                        var selected = new List<CombatCharacter> { clicked };
+                        List<CombatCharacter> selected;
+                        if (_selectedAction.maxTargets > 1)
+                        {
+                            selected = new List<CombatCharacter>(_validTargets);
+                            if (selected.Count > _selectedAction.maxTargets)
+                            {
+                                selected.Remove(clicked);
+                                selected = selected.Take(_selectedAction.maxTargets - 1).ToList();
+                                selected.Insert(0, clicked);
+                            }
+                        }
+                        else
+                        {
+                            selected = new List<CombatCharacter> { clicked };
+                        }
                         _battleSystem.SubmitPlayerAction(_selectedAction, selected);
                     }
                     
