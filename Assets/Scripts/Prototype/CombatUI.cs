@@ -44,6 +44,7 @@ namespace Nevergreen.Prototype
         private SkillData _selectedAction;
         private List<CombatCharacter> _validTargets = new List<CombatCharacter>();
         private bool _selecting = false;
+        private bool _isSelectingMove = false;
 
         // Log
         private List<string> _logLines = new List<string>();
@@ -252,6 +253,9 @@ namespace Nevergreen.Prototype
 
         private void OnSkillButtonClicked(int index)
         {
+            if (_selecting) HighlightValidTargets(false);
+            _isSelectingMove = false;
+
             CombatCharacter actor = _battleSystem.CurrentActor;
             if (index >= actor.equippedSkills.Count) return;
 
@@ -289,20 +293,23 @@ namespace Nevergreen.Prototype
 
         private void OnMoveButtonClicked()
         {
+            if (_selecting) HighlightValidTargets(false);
+            
             CombatCharacter actor = _battleSystem.CurrentActor;
 
             // Find adjacent ally to swap with
             var allies = actor.IsPlayerTeam ? _playerTeam : _enemyTeam;
-            var adjacent = allies
+            _validTargets = allies
                 .Where(a => a.IsAlive && a != actor &&
                             Mathf.Abs(a.rank - actor.rank) == 1)
-                .FirstOrDefault();
+                .ToList();
 
-            if (adjacent != null)
+            if (_validTargets.Count > 0)
             {
-                _battleSystem.SubmitMoveAction(adjacent);
-                HideSkillButtons();
-                AddLog($"{actor.DisplayName} swaps with {adjacent.DisplayName}");
+                _selecting = true;
+                _isSelectingMove = true;
+                HighlightValidTargets(true);
+                AddLog($"Select adjacent ally to swap with...");
             }
             else
             {
@@ -312,6 +319,10 @@ namespace Nevergreen.Prototype
 
         private void OnPassButtonClicked()
         {
+            if (_selecting) HighlightValidTargets(false);
+            _selecting = false;
+            _isSelectingMove = false;
+            
             _battleSystem.SubmitPassAction();
             HideSkillButtons();
             AddLog($"{_battleSystem.CurrentActor.DisplayName} passes.");
@@ -327,9 +338,18 @@ namespace Nevergreen.Prototype
                 CombatCharacter clicked = hit.collider.GetComponent<CombatCharacter>();
                 if (clicked != null && _validTargets.Contains(clicked))
                 {
-                    var selected = new List<CombatCharacter> { clicked };
-                    _battleSystem.SubmitPlayerAction(_selectedAction, selected);
+                    if (_isSelectingMove)
+                    {
+                        _battleSystem.SubmitMoveAction(clicked);
+                    }
+                    else
+                    {
+                        var selected = new List<CombatCharacter> { clicked };
+                        _battleSystem.SubmitPlayerAction(_selectedAction, selected);
+                    }
+                    
                     _selecting = false;
+                    _isSelectingMove = false;
                     HighlightValidTargets(false);
                     HideSkillButtons();
                 }

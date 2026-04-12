@@ -249,6 +249,11 @@ namespace Nevergreen.Combat
             CurrentActor.rank = swapTarget.rank;
             swapTarget.rank = tempRank;
 
+            // Visually swap characters' positions
+            Vector3 tempPos = CurrentActor.transform.position;
+            CurrentActor.transform.position = swapTarget.transform.position;
+            swapTarget.transform.position = tempPos;
+
             Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} swapped to rank {CurrentActor.rank}," +
                       $" {swapTarget.DisplayName} swapped to rank {swapTarget.rank}");
 
