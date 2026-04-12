@@ -76,20 +76,23 @@ namespace Nevergreen.Prototype
                 if (skillButtons[i] != null)
                 {
                     skillButtons[i].onClick.AddListener(() => OnSkillButtonClicked(idx));
-                    skillButtons[i].gameObject.SetActive(false);
+                    skillButtons[i].gameObject.SetActive(true);
+                    skillButtons[i].interactable = false;
                 }
             }
 
             if (moveButton != null)
             {
                 moveButton.onClick.AddListener(OnMoveButtonClicked);
-                moveButton.gameObject.SetActive(false);
+                moveButton.gameObject.SetActive(true);
+                moveButton.interactable = false;
             }
 
             if (passButton != null)
             {
                 passButton.onClick.AddListener(OnPassButtonClicked);
-                passButton.gameObject.SetActive(false);
+                passButton.gameObject.SetActive(true);
+                passButton.interactable = false;
             }
 
             if (battleEndPanel != null)
@@ -211,10 +214,13 @@ namespace Nevergreen.Prototype
         {
             for (int i = 0; i < skillButtons.Length; i++)
             {
+                if (skillButtons[i] == null) continue;
+
+                skillButtons[i].gameObject.SetActive(true);
+
                 if (i < actor.equippedSkills.Count)
                 {
                     var skill = actor.equippedSkills[i];
-                    skillButtons[i].gameObject.SetActive(true);
                     skillButtons[i].interactable =
                         actor.CanUseSkillFromRank(skill) && actor.HasRemainingUses(skill);
 
@@ -231,24 +237,28 @@ namespace Nevergreen.Prototype
                 }
                 else
                 {
-                    skillButtons[i].gameObject.SetActive(false);
+                    skillButtons[i].interactable = false;
+                    if (skillButtonLabels[i] != null)
+                    {
+                        skillButtonLabels[i].text = "";
+                    }
                 }
             }
 
             if (moveButton != null)
-                moveButton.gameObject.SetActive(true);
+                moveButton.interactable = true;
             if (passButton != null)
-                passButton.gameObject.SetActive(true);
+                passButton.interactable = true;
         }
 
         private void HideSkillButtons()
         {
             foreach (var btn in skillButtons)
             {
-                if (btn != null) btn.gameObject.SetActive(false);
+                if (btn != null) btn.interactable = false;
             }
-            if (moveButton != null) moveButton.gameObject.SetActive(false);
-            if (passButton != null) passButton.gameObject.SetActive(false);
+            if (moveButton != null) moveButton.interactable = false;
+            if (passButton != null) passButton.interactable = false;
         }
 
         private void OnSkillButtonClicked(int index)
