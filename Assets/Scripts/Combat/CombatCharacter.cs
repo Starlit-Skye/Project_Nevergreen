@@ -32,7 +32,7 @@ namespace Nevergreen.Combat
         [HideInInspector] public bool isStunned = false;
         [HideInInspector] public int skillUsesThisBattle_count = 0;
 
-
+        public Animator animator { get; private set; }
 
         // Track per-skill uses this battle (skill id -> uses)
         private Dictionary<string, int> _skillUseTracker = new Dictionary<string, int>();
@@ -84,6 +84,12 @@ namespace Nevergreen.Combat
             statusEffects.Clear();
             _skillUseTracker.Clear();
             isStunned = false;
+
+            animator = GetComponentInChildren<Animator>();
+            if (animator == null)
+            {
+                Debug.LogWarning($"[CombatCharacter] {DisplayName} - No Animator found in children! Animations will be skipped.");
+            }
         }
 
         /// <summary>

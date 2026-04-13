@@ -47,6 +47,19 @@ namespace Nevergreen.Combat
         public List<CombatCharacter> EnemyTeam => _enemyTeam;
         public bool IsWaitingForPlayerInput => _waitingForPlayerInput;
 
+        private void Awake()
+        {
+            // Ensure animation queue exists early so UI can bind to it
+            if (animationQueue == null)
+            {
+                animationQueue = GetComponent<AnimationQueueProcessor>();
+                if (animationQueue == null)
+                {
+                    animationQueue = gameObject.AddComponent<AnimationQueueProcessor>();
+                }
+            }
+        }
+
         /// <summary>
         /// Start a battle with the given teams.
         /// </summary>
@@ -56,12 +69,6 @@ namespace Nevergreen.Combat
             _enemyTeam = enemyTeam;
             _rng = new System.Random();
             CurrentRound = 0;
-
-            // Ensure animation queue exists
-            if (animationQueue == null)
-            {
-                animationQueue = gameObject.AddComponent<AnimationQueueProcessor>();
-            }
 
             // Subscribe to defeat events and inject config
             foreach (var c in _playerTeam.Concat(_enemyTeam))
@@ -275,13 +282,12 @@ namespace Nevergreen.Combat
             Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} swapped to rank {CurrentActor.rank}," +
                       $" {swapTarget.DisplayName} swapped to rank {swapTarget.rank}");
 
-            // Enqueue visual move animation length
+            // Enqueue movement animation timer (prototype: 0.4s)
             if (animationQueue != null)
             {
-                animationQueue.Enqueue(
-                    "action_move",
+                animationQueue.Enqueue(new WaitTimerStep(
                     $"{CurrentActor.DisplayName} Move",
-                    0.4f);
+                    0.4f));
             }
 
             _waitingForPlayerInput = false;
@@ -299,10 +305,9 @@ namespace Nevergreen.Combat
             // Enqueue visual pass animation length
             if (animationQueue != null)
             {
-                animationQueue.Enqueue(
-                    "action_pass",
+                animationQueue.Enqueue(new WaitTimerStep(
                     $"{CurrentActor.DisplayName} Pass",
-                    0.3f);
+                    0.3f));
             }
 
             _waitingForPlayerInput = false;
@@ -351,13 +356,27 @@ namespace Nevergreen.Combat
             Debug.Log($"[BattleSystem] {user.DisplayName} uses {skill.displayName}" +
                       $" on {string.Join(", ", targets.Select(t => t.DisplayName))}");
 
-            // Enqueue skill animation (prototype: 1s flat duration)
+            // Create parallel container for simultaneous skill animations
+            ParallelStep skillAnimParallel = null;
             if (animationQueue != null)
             {
-                animationQueue.Enqueue(
-                    skill.skillId,
-                    $"{user.DisplayName}:{skill.displayName}",
-                    1.0f);
+                skillAnimParallel = new ParallelStep($"{user.DisplayName}:{skill.displayName}");
+                
+                if (user.animator != null)
+                {
+                    string stateName = (skill.targetScope == TargetScope.Self || skill.targetScope == TargetScope.Allies) 
+                        ? "Cast" 
+                        : "Attack";
+                    skillAnimParallel.AddStep(new AnimatorStep($"{user.DisplayName}:{skill.displayName}_act", user.animator, stateName, 1.0f));
+                }
+                else
+                {
+                    // Fallback
+                    skillAnimParallel.AddStep(new WaitTimerStep($"{user.DisplayName}:{skill.displayName}_wait", 1.0f));
+                }
+                
+                // Enqueue parallel group now (it will gather steps before starting next frame)
+                animationQueue.Enqueue(skillAnimParallel);
             }
 
             for (int hit = 0; hit < ctx.totalHits; hit++)
@@ -379,6 +398,12 @@ namespace Nevergreen.Combat
                         {
                             int damage = CombatCalculator.CalculateDamage(ctx, combatConfig);
                             target.TakeDamage(damage);
+
+                            // Trigger hit animation inside the parallel structure
+                            if (skillAnimParallel != null && target.animator != null)
+                            {
+                                skillAnimParallel.AddStep(new AnimatorStep($"hit_{target.DisplayName}", target.animator, "TakeDamage", 0.5f));
+                            }
 
                             string critStr = ctx.isCritical ? " CRIT!" : "";
                             Debug.Log($"  -> {target.DisplayName} takes {damage} damage{critStr}" +

@@ -18,9 +18,8 @@ namespace Nevergreen.Combat
         private const float LOCK_OVERTIME_BUFFER = 5.0f;
 
         // --- Queue state ---
-        private readonly Queue<AnimationQueueEntry> _queue = new Queue<AnimationQueueEntry>();
-        private AnimationQueueEntry? _currentEntry;
-        private float _currentEntryElapsed;
+        private readonly Queue<IAnimationStep> _queue = new Queue<IAnimationStep>();
+        private IAnimationStep _currentStep;
 
         // --- Lock tracking ---
         private bool _isInputLocked;
@@ -30,10 +29,10 @@ namespace Nevergreen.Combat
         // --- Events matching spec contracts ---
 
         /// <summary>combat_animation_enqueued: fired after an entry is added to the queue.</summary>
-        public event Action<AnimationQueueEntry, int> OnAnimationEnqueued;
+        public event Action<IAnimationStep, int> OnAnimationEnqueued;
 
         /// <summary>combat_animation_finished: fired when one entry finishes playback.</summary>
-        public event Action<AnimationQueueEntry, float> OnAnimationFinished;
+        public event Action<IAnimationStep, float> OnAnimationFinished;
 
         /// <summary>combat_input_lock_changed: fired when the lock state transitions.</summary>
         public event Action<AnimationQueueState> OnInputLockChanged;
@@ -42,7 +41,7 @@ namespace Nevergreen.Combat
         public event Action<SafeguardType, AnimationQueueState> OnSafeguardTriggered;
 
         /// <summary>True while any animations are queued or playing.</summary>
-        public bool IsBusy => _currentEntry.HasValue || _queue.Count > 0;
+        public bool IsBusy => _currentStep != null || _queue.Count > 0;
 
         /// <summary>True while the queue is locking input.</summary>
         public bool IsInputLocked => _isInputLocked;
@@ -52,20 +51,21 @@ namespace Nevergreen.Combat
         // -----------------------------------------------------------------------
 
         /// <summary>
-        /// Enqueue a new animation. Automatically locks input on first entry.
+        /// Enqueue a new animation step. Automatically locks input on first entry.
         /// </summary>
-        public void Enqueue(string id, string name, float durationSeconds)
+        public void Enqueue(IAnimationStep step)
         {
+            if (step == null) return;
+
             // Queue-cap safeguard: if already at cap, trigger and bail
-            if (_queue.Count + (_currentEntry.HasValue ? 1 : 0) >= QUEUE_CAP)
+            if (_queue.Count + (_currentStep != null ? 1 : 0) >= QUEUE_CAP)
             {
                 TriggerSafeguard(SafeguardType.QueueCap);
                 return;
             }
 
-            var entry = new AnimationQueueEntry(id, name, Mathf.Max(0f, durationSeconds));
-            _queue.Enqueue(entry);
-            _expectedTotalLength += entry.durationSeconds;
+            _queue.Enqueue(step);
+            _expectedTotalLength += step.ExpectedDuration;
 
             // Lock input on first enqueue
             if (!_isInputLocked)
@@ -73,10 +73,16 @@ namespace Nevergreen.Combat
                 SetInputLocked(true);
             }
 
-            int totalCount = _queue.Count + (_currentEntry.HasValue ? 1 : 0);
-            OnAnimationEnqueued?.Invoke(entry, totalCount);
+            int totalCount = _queue.Count + (_currentStep != null ? 1 : 0);
+            OnAnimationEnqueued?.Invoke(step, totalCount);
 
-            Debug.Log($"[AnimQueue] Enqueued '{name}' ({durationSeconds:F2}s) | queue:{totalCount}");
+            Debug.Log($"[AnimQueue] Enqueued '{step.Name}' ({step.ExpectedDuration:F2}s expected) | queue:{totalCount}");
+        }
+
+        // Backward compatibility method for code that still expects strings and floats (e.g. UI/timers)
+        public void Enqueue(string id, string name, float durationSeconds)
+        {
+            Enqueue(new WaitTimerStep(name, Mathf.Max(0f, durationSeconds)));
         }
 
         // -----------------------------------------------------------------------
@@ -101,18 +107,16 @@ namespace Nevergreen.Combat
             _lockElapsedSeconds += Time.deltaTime;
 
             // Progress current animation
-            if (_currentEntry.HasValue)
+            if (_currentStep != null)
             {
-                _currentEntryElapsed += Time.deltaTime;
-
-                if (_currentEntryElapsed >= _currentEntry.Value.durationSeconds)
+                if (_currentStep.IsFinished())
                 {
                     FinishCurrentEntry();
                 }
             }
 
             // Start next entry if none is playing
-            if (!_currentEntry.HasValue && _queue.Count > 0)
+            if (_currentStep == null && _queue.Count > 0)
             {
                 StartNextEntry();
             }
@@ -131,19 +135,19 @@ namespace Nevergreen.Combat
 
         private void StartNextEntry()
         {
-            _currentEntry = _queue.Dequeue();
-            _currentEntryElapsed = 0f;
+            _currentStep = _queue.Dequeue();
+            _currentStep.Start();
 
-            Debug.Log($"[AnimQueue] Playing '{_currentEntry.Value.animationName}'");
+            Debug.Log($"[AnimQueue] Playing '{_currentStep.Name}'");
         }
 
         private void FinishCurrentEntry()
         {
-            var finished = _currentEntry.Value;
-            _currentEntry = null;
+            var finished = _currentStep;
+            _currentStep = null;
 
-            OnAnimationFinished?.Invoke(finished, finished.durationSeconds);
-            Debug.Log($"[AnimQueue] Finished '{finished.animationName}'");
+            OnAnimationFinished?.Invoke(finished, finished.ExpectedDuration);
+            Debug.Log($"[AnimQueue] Finished '{finished.Name}'");
         }
 
         private void SetInputLocked(bool locked)
@@ -171,8 +175,7 @@ namespace Nevergreen.Combat
 
             // Clear everything
             _queue.Clear();
-            _currentEntry = null;
-            _currentEntryElapsed = 0f;
+            _currentStep = null;
 
             SetInputLocked(false);
             ResetLockTracking();
@@ -181,7 +184,7 @@ namespace Nevergreen.Combat
         private AnimationQueueState BuildState()
         {
             return new AnimationQueueState(
-                _queue.Count + (_currentEntry.HasValue ? 1 : 0),
+                _queue.Count + (_currentStep != null ? 1 : 0),
                 _isInputLocked,
                 _expectedTotalLength,
                 _lockElapsedSeconds

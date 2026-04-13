@@ -17,3 +17,8 @@ Based on `Docs/specs/systems/SYSTEM_SPEC_ANIMATION_RUNTIME.md`
 ### Phase 4: Verification
 - [x] Compile check via Unity — PASSED (no errors)
 - [x] Review all changes for correctness
+
+### Phase 5: Animator Integration
+- [x] Refactor AnimationQueueProcessor to use IAnimationStep interface
+- [x] Wire up Attack and Cast AnimatorStep for Combat Skills
+- [x] Wire up TakeDamage AnimatorStep for HPBars

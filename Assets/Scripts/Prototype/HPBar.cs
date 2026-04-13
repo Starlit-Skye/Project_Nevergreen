@@ -96,10 +96,9 @@ namespace Nevergreen.Prototype
         {
             if (_animationQueue == null || _target == null) return;
 
-            _animationQueue.Enqueue(
-                $"ui_hp_{type}",
-                $"{_target.DisplayName} HP {type}",
-                0.5f);
+            _animationQueue.Enqueue(new WaitTimerStep(
+                $"{_target.DisplayName} UI HP Update",
+                0.5f));
         }
 
         private void OnDestroy()

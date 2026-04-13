@@ -1,22 +1,100 @@
 using System;
+using UnityEngine;
 
 namespace Nevergreen.Combat
 {
-    /// <summary>
-    /// Represents a single animation entry in the combat animation queue.
-    /// Stores the identity and expected duration of one animation step.
-    /// </summary>
-    public struct AnimationQueueEntry
+    public interface IAnimationStep
     {
-        public readonly string animationId;
-        public readonly string animationName;
-        public readonly float durationSeconds;
+        string Name { get; }
+        float ExpectedDuration { get; }
+        void Start();
+        bool IsFinished();
+    }
 
-        public AnimationQueueEntry(string id, string name, float duration)
+    /// <summary>
+    /// A simple time-based delay step.
+    /// </summary>
+    public class WaitTimerStep : IAnimationStep
+    {
+        public string Name { get; }
+        public float ExpectedDuration { get; }
+
+        private float _elapsed;
+
+        public WaitTimerStep(string name, float durationSeconds)
         {
-            animationId = id;
-            animationName = name;
-            durationSeconds = duration;
+            Name = name;
+            ExpectedDuration = durationSeconds;
+        }
+
+        public void Start()
+        {
+            _elapsed = 0f;
+        }
+
+        public bool IsFinished()
+        {
+            _elapsed += Time.deltaTime;
+            return _elapsed >= ExpectedDuration;
+        }
+    }
+
+    /// <summary>
+    /// Plays an Animator state and waits for it to complete.
+    /// Includes a maximum timeout safeguard.
+    /// </summary>
+    public class AnimatorStep : IAnimationStep
+    {
+        public string Name { get; }
+        public float ExpectedDuration { get; }
+
+        private Animator _animator;
+        private string _stateName;
+        private float _elapsed;
+        private bool _hasStartedPlaying;
+
+        public AnimatorStep(string name, Animator animator, string stateName, float expectedDuration = 1f)
+        {
+            Name = name;
+            _animator = animator;
+            _stateName = stateName;
+            ExpectedDuration = expectedDuration;
+        }
+
+        public void Start()
+        {
+            _elapsed = 0f;
+            _hasStartedPlaying = false;
+            if (_animator != null)
+            {
+                _animator.Play(_stateName, 0, 0f);
+            }
+        }
+
+        public bool IsFinished()
+        {
+            _elapsed += Time.deltaTime;
+
+            if (_animator == null) return true;
+
+            // Failsafe timeout 
+            if (_elapsed >= ExpectedDuration + 2.0f) return true;
+
+            AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+
+            // Wait until the animator actually enters the target state (transitioning takes a frame or two)
+            if (stateInfo.IsName(_stateName))
+            {
+                _hasStartedPlaying = true;
+            }
+
+            // If we have started playing it, and normalized time reaches 1, it's done. 
+            if (_hasStartedPlaying && stateInfo.normalizedTime >= 1.0f)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 
@@ -37,6 +115,65 @@ namespace Nevergreen.Combat
             isInputLocked = locked;
             expectedLengthSeconds = expected;
             lockElapsedSeconds = elapsed;
+        }
+    }
+
+    /// <summary>
+    /// Executes multiple animation steps concurrently.
+    /// Useful for playing attacks and hit reactions at the same time.
+    /// </summary>
+    public class ParallelStep : IAnimationStep
+    {
+        public string Name { get; }
+        
+        public float ExpectedDuration 
+        { 
+            get 
+            {
+                float max = 0f;
+                foreach (var step in _steps)
+                {
+                    if (step.ExpectedDuration > max)
+                        max = step.ExpectedDuration;
+                }
+                return max;
+            } 
+        }
+
+        private System.Collections.Generic.List<IAnimationStep> _steps = new System.Collections.Generic.List<IAnimationStep>();
+
+        public ParallelStep(string name)
+        {
+            Name = name;
+        }
+
+        public void AddStep(IAnimationStep step)
+        {
+            if (step != null)
+            {
+                _steps.Add(step);
+            }
+        }
+
+        public void Start()
+        {
+            foreach (var step in _steps)
+            {
+                step.Start();
+            }
+        }
+
+        public bool IsFinished()
+        {
+            bool allFinished = true;
+            foreach (var step in _steps)
+            {
+                if (!step.IsFinished())
+                {
+                    allFinished = false;
+                }
+            }
+            return allFinished;
         }
     }
 
