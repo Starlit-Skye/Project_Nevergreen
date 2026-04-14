@@ -379,6 +379,11 @@ namespace Nevergreen.Combat
                 animationQueue.Enqueue(skillAnimParallel);
             }
 
+            if (animationQueue != null)
+            {
+                animationQueue.BeginBatch($"{user.DisplayName}:{skill.displayName}_UI_Batch");
+            }
+
             for (int hit = 0; hit < ctx.totalHits; hit++)
             {
                 ctx.currentHitIndex = hit;
@@ -438,6 +443,11 @@ namespace Nevergreen.Combat
                         ApplySkillStatuses(ctx, target);
                     }
                 }
+            }
+
+            if (animationQueue != null)
+            {
+                animationQueue.EndBatch();
             }
         }
 

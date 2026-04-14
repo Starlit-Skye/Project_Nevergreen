@@ -26,6 +26,9 @@ namespace Nevergreen.Combat
         private float _expectedTotalLength;
         private float _lockElapsedSeconds;
 
+        // --- Batch tracking ---
+        private ParallelStep _activeBatch;
+
         // --- Events matching spec contracts ---
 
         /// <summary>combat_animation_enqueued: fired after an entry is added to the queue.</summary>
@@ -51,11 +54,41 @@ namespace Nevergreen.Combat
         // -----------------------------------------------------------------------
 
         /// <summary>
+        /// Begin combining subsequent Enqueue calls into a single ParallelStep.
+        /// </summary>
+        public void BeginBatch(string batchName)
+        {
+            if (_activeBatch == null)
+            {
+                _activeBatch = new ParallelStep(batchName);
+            }
+        }
+
+        /// <summary>
+        /// End the current batch and enqueue it as a single parallel group.
+        /// </summary>
+        public void EndBatch()
+        {
+            if (_activeBatch != null)
+            {
+                var batchToEnqueue = _activeBatch;
+                _activeBatch = null;
+                Enqueue(batchToEnqueue);
+            }
+        }
+
+        /// <summary>
         /// Enqueue a new animation step. Automatically locks input on first entry.
         /// </summary>
         public void Enqueue(IAnimationStep step)
         {
             if (step == null) return;
+
+            if (_activeBatch != null)
+            {
+                _activeBatch.AddStep(step);
+                return;
+            }
 
             // Queue-cap safeguard: if already at cap, trigger and bail
             if (_queue.Count + (_currentStep != null ? 1 : 0) >= QUEUE_CAP)

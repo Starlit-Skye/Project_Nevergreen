@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using DG.Tweening;
 
 namespace Nevergreen.Combat
 {
@@ -174,6 +175,37 @@ namespace Nevergreen.Combat
                 }
             }
             return allFinished;
+        }
+    }
+
+    /// <summary>
+    /// Executes a DOTween and waits for it to complete.
+    /// </summary>
+    public class DOTweenStep : IAnimationStep
+    {
+        public string Name { get; }
+        public float ExpectedDuration { get; }
+
+        private Tween _tween;
+        private bool _isStarted;
+
+        public DOTweenStep(string name, Tween tween, float duration)
+        {
+            Name = name;
+            _tween = tween;
+            _tween.Pause(); // Ensure it doesn't start until the queue is ready
+            ExpectedDuration = duration;
+        }
+
+        public void Start()
+        {
+            _tween.Play();
+            _isStarted = true;
+        }
+
+        public bool IsFinished()
+        {
+            return _isStarted && (!_tween.IsActive() || _tween.IsComplete());
         }
     }
 

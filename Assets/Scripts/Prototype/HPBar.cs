@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 using Nevergreen.Combat;
 
 namespace Nevergreen.Prototype
@@ -62,7 +63,6 @@ namespace Nevergreen.Prototype
             _target.OnDamageTaken += HandleDamage;
             _target.OnHealed += HandleHeal;
             _target.OnStatsChanged += HandleStatsChanged;
-            _target.OnDefeated += HandleStatsChanged;
         }
 
         private void Unsubscribe()
@@ -71,34 +71,75 @@ namespace Nevergreen.Prototype
             _target.OnDamageTaken -= HandleDamage;
             _target.OnHealed -= HandleHeal;
             _target.OnStatsChanged -= HandleStatsChanged;
-            _target.OnDefeated -= HandleStatsChanged;
         }
 
         private void HandleDamage(CombatCharacter c, int amount)
         {
-            EnqueueHPAnimation("damage");
-            Refresh();
+            AnimateHPChange();
         }
 
         private void HandleHeal(CombatCharacter c, int amount)
         {
-            EnqueueHPAnimation("heal");
-            Refresh();
+            AnimateHPChange();
         }
 
         private void HandleStatsChanged(CombatCharacter c) { Refresh(); }
 
-        /// <summary>
-        /// Enqueue a short UI animation entry so the input lock stays active
-        /// while HP bar visuals update after a skill animation.
-        /// </summary>
-        private void EnqueueHPAnimation(string type)
+        private void AnimateHPChange()
         {
-            if (_animationQueue == null || _target == null) return;
+            if (_target == null) return;
 
-            _animationQueue.Enqueue(new WaitTimerStep(
-                $"{_target.DisplayName} UI HP Update",
-                0.5f));
+            float targetRatio = _target.baseStats != null && _target.baseStats.maxHP > 0
+                ? (float)_target.currentHP / _target.baseStats.maxHP
+                : 0f;
+
+            Tween tween = null;
+            float duration = 0.5f;
+
+            if (hpSlider != null)
+            {
+                tween = hpSlider.DOValue(targetRatio, duration);
+            }
+            else if (fillImage != null)
+            {
+                tween = fillImage.DOFillAmount(targetRatio, duration);
+            }
+
+            if (tween != null)
+            {
+                int maxHP = _target.baseStats?.maxHP ?? 0;
+                tween.OnUpdate(() =>
+                {
+                    float currentRatio = hpSlider != null ? hpSlider.value : (fillImage != null ? fillImage.fillAmount : targetRatio);
+                    if (fillImage != null)
+                    {
+                        fillImage.color = Color.Lerp(lowColor, fullColor, currentRatio);
+                    }
+                    if (hpText != null)
+                    {
+                        int displayedHP = Mathf.RoundToInt(currentRatio * maxHP);
+                        hpText.text = $"{displayedHP}/{maxHP}";
+                    }
+                });
+
+                tween.OnComplete(() =>
+                {
+                    Refresh();
+                });
+
+                if (_animationQueue != null)
+                {
+                    _animationQueue.Enqueue(new DOTweenStep($"{_target.DisplayName} UI HP Update", tween, duration));
+                }
+                else
+                {
+                    tween.Play();
+                }
+            }
+            else
+            {
+                Refresh();
+            }
         }
 
         private void OnDestroy()
