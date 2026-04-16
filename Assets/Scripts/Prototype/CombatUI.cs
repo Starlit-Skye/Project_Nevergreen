@@ -317,11 +317,10 @@ namespace Nevergreen.Prototype
             
             CombatCharacter actor = _battleSystem.CurrentActor;
 
-            // Find adjacent ally to swap with
+            // Find all alive allies to swap with/move to
             var allies = actor.IsPlayerTeam ? _playerTeam : _enemyTeam;
             _validTargets = allies
-                .Where(a => a.IsAlive && a != actor &&
-                            Mathf.Abs(a.rank - actor.rank) == 1)
+                .Where(a => a.IsAlive && a != actor)
                 .ToList();
 
             if (_validTargets.Count > 0)
@@ -329,11 +328,11 @@ namespace Nevergreen.Prototype
                 _selecting = true;
                 _isSelectingMove = true;
                 HighlightValidTargets(true);
-                AddLog($"Select adjacent ally to swap with...");
+                AddLog($"Select an ally to move to their rank...");
             }
             else
             {
-                AddLog("No adjacent ally to swap with!");
+                AddLog("No ally to swap with!");
             }
         }
 

@@ -264,33 +264,91 @@ namespace Nevergreen.Combat
         }
 
         /// <summary>
-        /// Called by UI when player uses the Move action (swap ranks with adjacent ally).
+        /// Called by UI when player uses the Move action. Selects target rank to move to.
         /// </summary>
-        public void SubmitMoveAction(CombatCharacter swapTarget)
+        public void SubmitMoveAction(CombatCharacter target)
         {
             if (!_waitingForPlayerInput) return;
 
-            int tempRank = CurrentActor.rank;
-            CurrentActor.rank = swapTarget.rank;
-            swapTarget.rank = tempRank;
+            ExecuteMoveAndShift(CurrentActor, target.rank);
+            _waitingForPlayerInput = false;
+        }
 
-            // Visually swap characters' positions
-            Vector3 tempPos = CurrentActor.transform.position;
-            CurrentActor.transform.position = swapTarget.transform.position;
-            swapTarget.transform.position = tempPos;
+        private void ExecuteMoveAndShift(CombatCharacter mover, int targetRank)
+        {
+            int startRank = mover.rank;
+            if (startRank == targetRank) return;
 
-            Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} swapped to rank {CurrentActor.rank}," +
-                      $" {swapTarget.DisplayName} swapped to rank {swapTarget.rank}");
+            bool movingForward = targetRank < startRank;
 
-            // Enqueue movement animation timer (prototype: 0.4s)
-            if (animationQueue != null)
+            // 1. Capture current X positions of the affected team mapped to their current ranks
+            var team = mover.IsPlayerTeam ? _playerTeam : _enemyTeam;
+            Dictionary<int, float> rankToPosX = new Dictionary<int, float>();
+            foreach (var character in team)
             {
-                animationQueue.Enqueue(new WaitTimerStep(
-                    $"{CurrentActor.DisplayName} Move",
-                    0.4f));
+                if (character.IsAlive)
+                {
+                    rankToPosX[character.rank] = character.transform.position.x;
+                }
             }
 
-            _waitingForPlayerInput = false;
+            // 2. Identify characters that will shift to make room
+            List<CombatCharacter> shiftingCharacters = new List<CombatCharacter>();
+            foreach (var character in team)
+            {
+                if (!character.IsAlive || character == mover) continue;
+
+                if (movingForward)
+                {
+                    // Moving from 4 to 1. Ranks 1, 2, 3 must shift back (+1)
+                    if (character.rank >= targetRank && character.rank < startRank)
+                    {
+                        shiftingCharacters.Add(character);
+                    }
+                }
+                else
+                {
+                    // Moving from 1 to 4. Ranks 2, 3, 4 must shift forward (-1)
+                    if (character.rank <= targetRank && character.rank > startRank)
+                    {
+                        shiftingCharacters.Add(character);
+                    }
+                }
+            }
+
+            // 3. Update logical ranks
+            mover.rank = targetRank;
+            foreach (var character in shiftingCharacters)
+            {
+                character.rank += movingForward ? 1 : -1;
+            }
+
+            // 4. Create and enqueue tweens based on captured positions
+            if (animationQueue != null)
+            {
+                float moveDuration = 0.5f;
+                ParallelStep moveParallel = new ParallelStep($"{mover.DisplayName} MoveAndShift");
+
+                // Tween the mover to the target rank's original X position
+                if (rankToPosX.TryGetValue(targetRank, out float targetX))
+                {
+                    var tween = DG.Tweening.ShortcutExtensions.DOMoveX(mover.transform, targetX, moveDuration);
+                    moveParallel.AddStep(new DOTweenStep($"Move_{mover.DisplayName}", tween, moveDuration));
+                }
+
+                // Tween each shifting character to their new rank's original X position
+                foreach (var character in shiftingCharacters)
+                {
+                    if (rankToPosX.TryGetValue(character.rank, out float shiftTargetX))
+                    {
+                        var tween = DG.Tweening.ShortcutExtensions.DOMoveX(character.transform, shiftTargetX, moveDuration);
+                        moveParallel.AddStep(new DOTweenStep($"Shift_{character.DisplayName}", tween, moveDuration));
+                    }
+                }
+
+                animationQueue.Enqueue(moveParallel);
+                Debug.Log($"[BattleSystem] {mover.DisplayName} moved to rank {targetRank}. Shifting {shiftingCharacters.Count} allies.");
+            }
         }
 
         /// <summary>
