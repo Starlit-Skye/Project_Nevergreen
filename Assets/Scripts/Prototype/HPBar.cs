@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 using Nevergreen.Combat;
 
 namespace Nevergreen.Prototype
@@ -23,6 +24,17 @@ namespace Nevergreen.Prototype
         public Color lowColor = new Color(0.8f, 0.2f, 0.2f);
 
         private CombatCharacter _target;
+        private AnimationQueueProcessor _animationQueue;
+
+        /// <summary>
+        /// Initialize with target and animation queue reference.
+        /// Used by CombatUI to inject the shared queue.
+        /// </summary>
+        public void Initialize(CombatCharacter target, AnimationQueueProcessor queue)
+        {
+            _animationQueue = queue;
+            SetTarget(target);
+        }
 
         public void SetTarget(CombatCharacter target)
         {
@@ -51,7 +63,6 @@ namespace Nevergreen.Prototype
             _target.OnDamageTaken += HandleDamage;
             _target.OnHealed += HandleHeal;
             _target.OnStatsChanged += HandleStatsChanged;
-            _target.OnDefeated += HandleStatsChanged;
         }
 
         private void Unsubscribe()
@@ -60,12 +71,76 @@ namespace Nevergreen.Prototype
             _target.OnDamageTaken -= HandleDamage;
             _target.OnHealed -= HandleHeal;
             _target.OnStatsChanged -= HandleStatsChanged;
-            _target.OnDefeated -= HandleStatsChanged;
         }
 
-        private void HandleDamage(CombatCharacter c, int amount) { Refresh(); }
-        private void HandleHeal(CombatCharacter c, int amount) { Refresh(); }
+        private void HandleDamage(CombatCharacter c, int amount)
+        {
+            AnimateHPChange();
+        }
+
+        private void HandleHeal(CombatCharacter c, int amount)
+        {
+            AnimateHPChange();
+        }
+
         private void HandleStatsChanged(CombatCharacter c) { Refresh(); }
+
+        private void AnimateHPChange()
+        {
+            if (_target == null) return;
+
+            float targetRatio = _target.baseStats != null && _target.baseStats.maxHP > 0
+                ? (float)_target.currentHP / _target.baseStats.maxHP
+                : 0f;
+
+            Tween tween = null;
+            float duration = 0.5f;
+
+            if (hpSlider != null)
+            {
+                tween = hpSlider.DOValue(targetRatio, duration);
+            }
+            else if (fillImage != null)
+            {
+                tween = fillImage.DOFillAmount(targetRatio, duration);
+            }
+
+            if (tween != null)
+            {
+                int maxHP = _target.baseStats?.maxHP ?? 0;
+                tween.OnUpdate(() =>
+                {
+                    float currentRatio = hpSlider != null ? hpSlider.value : (fillImage != null ? fillImage.fillAmount : targetRatio);
+                    if (fillImage != null)
+                    {
+                        fillImage.color = Color.Lerp(lowColor, fullColor, currentRatio);
+                    }
+                    if (hpText != null)
+                    {
+                        int displayedHP = Mathf.RoundToInt(currentRatio * maxHP);
+                        hpText.text = $"{displayedHP}/{maxHP}";
+                    }
+                });
+
+                tween.OnComplete(() =>
+                {
+                    Refresh();
+                });
+
+                if (_animationQueue != null)
+                {
+                    _animationQueue.Enqueue(new DOTweenStep($"{_target.DisplayName} UI HP Update", tween, duration));
+                }
+                else
+                {
+                    tween.Play();
+                }
+            }
+            else
+            {
+                Refresh();
+            }
+        }
 
         private void OnDestroy()
         {

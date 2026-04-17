@@ -16,6 +16,9 @@ namespace Nevergreen.Combat
         [Header("Config")]
         public CombatConfig combatConfig;
 
+        [Tooltip("Animation queue processor. Auto-created at runtime if not assigned.")]
+        public AnimationQueueProcessor animationQueue;
+
         // --- Runtime State ---
         public BattleState CurrentState { get; private set; } = BattleState.Inactive;
         public int CurrentRound { get; private set; } = 0;
@@ -43,6 +46,19 @@ namespace Nevergreen.Combat
         public List<CombatCharacter> PlayerTeam => _playerTeam;
         public List<CombatCharacter> EnemyTeam => _enemyTeam;
         public bool IsWaitingForPlayerInput => _waitingForPlayerInput;
+
+        private void Awake()
+        {
+            // Ensure animation queue exists early so UI can bind to it
+            if (animationQueue == null)
+            {
+                animationQueue = GetComponent<AnimationQueueProcessor>();
+                if (animationQueue == null)
+                {
+                    animationQueue = gameObject.AddComponent<AnimationQueueProcessor>();
+                }
+            }
+        }
 
         /// <summary>
         /// Start a battle with the given teams.
@@ -206,6 +222,15 @@ namespace Nevergreen.Combat
                 yield return ExecuteEnemyAction();
             }
 
+            // Wait for all queued animations to finish before advancing
+            if (animationQueue != null)
+            {
+                while (animationQueue.IsBusy)
+                {
+                    yield return null;
+                }
+            }
+
             // Check battle end
             if (CheckBattleEnd())
             {
@@ -239,25 +264,91 @@ namespace Nevergreen.Combat
         }
 
         /// <summary>
-        /// Called by UI when player uses the Move action (swap ranks with adjacent ally).
+        /// Called by UI when player uses the Move action. Selects target rank to move to.
         /// </summary>
-        public void SubmitMoveAction(CombatCharacter swapTarget)
+        public void SubmitMoveAction(CombatCharacter target)
         {
             if (!_waitingForPlayerInput) return;
 
-            int tempRank = CurrentActor.rank;
-            CurrentActor.rank = swapTarget.rank;
-            swapTarget.rank = tempRank;
-
-            // Visually swap characters' positions
-            Vector3 tempPos = CurrentActor.transform.position;
-            CurrentActor.transform.position = swapTarget.transform.position;
-            swapTarget.transform.position = tempPos;
-
-            Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} swapped to rank {CurrentActor.rank}," +
-                      $" {swapTarget.DisplayName} swapped to rank {swapTarget.rank}");
-
+            ExecuteMoveAndShift(CurrentActor, target.rank);
             _waitingForPlayerInput = false;
+        }
+
+        private void ExecuteMoveAndShift(CombatCharacter mover, int targetRank)
+        {
+            int startRank = mover.rank;
+            if (startRank == targetRank) return;
+
+            bool movingForward = targetRank < startRank;
+
+            // 1. Capture current X positions of the affected team mapped to their current ranks
+            var team = mover.IsPlayerTeam ? _playerTeam : _enemyTeam;
+            Dictionary<int, float> rankToPosX = new Dictionary<int, float>();
+            foreach (var character in team)
+            {
+                if (character.IsAlive)
+                {
+                    rankToPosX[character.rank] = character.transform.position.x;
+                }
+            }
+
+            // 2. Identify characters that will shift to make room
+            List<CombatCharacter> shiftingCharacters = new List<CombatCharacter>();
+            foreach (var character in team)
+            {
+                if (!character.IsAlive || character == mover) continue;
+
+                if (movingForward)
+                {
+                    // Moving from 4 to 1. Ranks 1, 2, 3 must shift back (+1)
+                    if (character.rank >= targetRank && character.rank < startRank)
+                    {
+                        shiftingCharacters.Add(character);
+                    }
+                }
+                else
+                {
+                    // Moving from 1 to 4. Ranks 2, 3, 4 must shift forward (-1)
+                    if (character.rank <= targetRank && character.rank > startRank)
+                    {
+                        shiftingCharacters.Add(character);
+                    }
+                }
+            }
+
+            // 3. Update logical ranks
+            mover.rank = targetRank;
+            foreach (var character in shiftingCharacters)
+            {
+                character.rank += movingForward ? 1 : -1;
+            }
+
+            // 4. Create and enqueue tweens based on captured positions
+            if (animationQueue != null)
+            {
+                float moveDuration = 0.5f;
+                ParallelStep moveParallel = new ParallelStep($"{mover.DisplayName} MoveAndShift");
+
+                // Tween the mover to the target rank's original X position
+                if (rankToPosX.TryGetValue(targetRank, out float targetX))
+                {
+                    var tween = DG.Tweening.ShortcutExtensions.DOMoveX(mover.transform, targetX, moveDuration);
+                    moveParallel.AddStep(new DOTweenStep($"Move_{mover.DisplayName}", tween, moveDuration));
+                }
+
+                // Tween each shifting character to their new rank's original X position
+                foreach (var character in shiftingCharacters)
+                {
+                    if (rankToPosX.TryGetValue(character.rank, out float shiftTargetX))
+                    {
+                        var tween = DG.Tweening.ShortcutExtensions.DOMoveX(character.transform, shiftTargetX, moveDuration);
+                        moveParallel.AddStep(new DOTweenStep($"Shift_{character.DisplayName}", tween, moveDuration));
+                    }
+                }
+
+                animationQueue.Enqueue(moveParallel);
+                Debug.Log($"[BattleSystem] {mover.DisplayName} moved to rank {targetRank}. Shifting {shiftingCharacters.Count} allies.");
+            }
         }
 
         /// <summary>
@@ -268,6 +359,15 @@ namespace Nevergreen.Combat
             if (!_waitingForPlayerInput) return;
 
             Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} passes their turn.");
+
+            // Enqueue visual pass animation length
+            if (animationQueue != null)
+            {
+                animationQueue.Enqueue(new WaitTimerStep(
+                    $"{CurrentActor.DisplayName} Pass",
+                    0.3f));
+            }
+
             _waitingForPlayerInput = false;
         }
 
@@ -314,6 +414,34 @@ namespace Nevergreen.Combat
             Debug.Log($"[BattleSystem] {user.DisplayName} uses {skill.displayName}" +
                       $" on {string.Join(", ", targets.Select(t => t.DisplayName))}");
 
+            // Create parallel container for simultaneous skill animations
+            ParallelStep skillAnimParallel = null;
+            if (animationQueue != null)
+            {
+                skillAnimParallel = new ParallelStep($"{user.DisplayName}:{skill.displayName}");
+                
+                if (user.animator != null)
+                {
+                    string stateName = (skill.targetScope == TargetScope.Self || skill.targetScope == TargetScope.Allies) 
+                        ? "Cast" 
+                        : "Attack";
+                    skillAnimParallel.AddStep(new AnimatorStep($"{user.DisplayName}:{skill.displayName}_act", user.animator, stateName, 1.0f));
+                }
+                else
+                {
+                    // Fallback
+                    skillAnimParallel.AddStep(new WaitTimerStep($"{user.DisplayName}:{skill.displayName}_wait", 1.0f));
+                }
+                
+                // Enqueue parallel group now (it will gather steps before starting next frame)
+                animationQueue.Enqueue(skillAnimParallel);
+            }
+
+            if (animationQueue != null)
+            {
+                animationQueue.BeginBatch($"{user.DisplayName}:{skill.displayName}_UI_Batch");
+            }
+
             for (int hit = 0; hit < ctx.totalHits; hit++)
             {
                 ctx.currentHitIndex = hit;
@@ -333,6 +461,12 @@ namespace Nevergreen.Combat
                         {
                             int damage = CombatCalculator.CalculateDamage(ctx, combatConfig);
                             target.TakeDamage(damage);
+
+                            // Trigger hit animation inside the parallel structure
+                            if (skillAnimParallel != null && target.animator != null)
+                            {
+                                skillAnimParallel.AddStep(new AnimatorStep($"hit_{target.DisplayName}", target.animator, "TakeDamage", 0.5f));
+                            }
 
                             string critStr = ctx.isCritical ? " CRIT!" : "";
                             Debug.Log($"  -> {target.DisplayName} takes {damage} damage{critStr}" +
@@ -367,6 +501,11 @@ namespace Nevergreen.Combat
                         ApplySkillStatuses(ctx, target);
                     }
                 }
+            }
+
+            if (animationQueue != null)
+            {
+                animationQueue.EndBatch();
             }
         }
 
