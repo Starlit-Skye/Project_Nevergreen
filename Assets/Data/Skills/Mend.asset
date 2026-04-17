@@ -15,6 +15,8 @@ MonoBehaviour:
   skillId: mend
   displayName: Mend
   description: Restore an ally's vitality.
+  effects:
+  - rid: 8181408146430099580
   modifier:
     damagePercent: 0
     healPercent: 0.8
@@ -31,3 +33,10 @@ MonoBehaviour:
   hitCount: 1
   statusEffects: []
   maxUsesPerBattle: -1
+  references:
+    version: 2
+    RefIds:
+    - rid: 8181408146430099580
+      type: {class: HealEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        healPercent: 0.8

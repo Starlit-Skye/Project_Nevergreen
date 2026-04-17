@@ -37,8 +37,7 @@ namespace Nevergreen.Combat
         public event Action OnBattleStarted;
         public event Action<int> OnRoundStarted; // round number
         public event Action<CombatCharacter> OnTurnStarted;
-        public event Action<CombatCharacter, SkillData, List<CombatCharacter>, bool, bool, int>
-            OnActionResolved; // actor, skill, targets, didHit, isCrit, damage
+        public event Action<CombatCharacter, SkillData, SkillContext> OnActionResolved; // actor, skill, context
         public event Action<BattleOutcome> OnBattleEnded;
         public event Action OnWaitingForPlayerInput;
         public event Action<CombatCharacter> OnCharacterDefeated;
@@ -451,55 +450,27 @@ namespace Nevergreen.Combat
                     if (!target.IsAlive) continue;
 
                     ctx.primaryTarget = target;
-
-                    if (skill.modifier.IsDamage)
+                    
+                    // The pure strategy approach: Execute modular effects
+                    foreach (var effect in skill.effects)
                     {
-                        // Hit check
-                        bool didHit = CombatCalculator.ResolveHit(ctx, target, combatConfig);
-
-                        if (didHit)
+                        if (effect != null)
                         {
-                            int damage = CombatCalculator.CalculateDamage(ctx, combatConfig);
-                            target.TakeDamage(damage);
-
-                            // Trigger hit animation inside the parallel structure
-                            if (skillAnimParallel != null && target.animator != null)
-                            {
-                                skillAnimParallel.AddStep(new AnimatorStep($"hit_{target.DisplayName}", target.animator, "TakeDamage", 0.5f));
-                            }
-
-                            string critStr = ctx.isCritical ? " CRIT!" : "";
-                            Debug.Log($"  -> {target.DisplayName} takes {damage} damage{critStr}" +
-                                      $" (HP: {target.currentHP}/{target.baseStats.maxHP})");
-
-                            OnActionResolved?.Invoke(user, skill, targets, true, ctx.isCritical, damage);
-                        }
-                        else
-                        {
-                            Debug.Log($"  -> MISS on {target.DisplayName}!" +
-                                      $" (accuracy: {ctx.finalAccuracy:F0}%)");
-
-                            OnActionResolved?.Invoke(user, skill, targets, false, false, 0);
-                        }
-
-                        // Apply status effects on hit
-                        if (didHit)
-                        {
-                            ApplySkillStatuses(ctx, target);
+                        effect.Execute(ctx, target);
                         }
                     }
-                    else if (skill.modifier.IsHeal)
+                    
+                    // Check if taking damage killed the target or if we need to do UI syncing post-hit
+                    if (ctx.didHit && !skill.modifier.IsHeal && skillAnimParallel != null && target.animator != null)
                     {
-                        int healAmount = CombatCalculator.CalculateHeal(ctx);
-                        target.Heal(healAmount);
-
-                        Debug.Log($"  -> {target.DisplayName} healed for {healAmount}" +
-                                  $" (HP: {target.currentHP}/{target.baseStats.maxHP})");
-
-                        OnActionResolved?.Invoke(user, skill, targets, true, false, healAmount);
-
-                        ApplySkillStatuses(ctx, target);
+                        // NOTE: If an effect wasn't damage but still wants to trigger a hit anim, 
+                        // you might need a more sophisticated system, but for now we tie anim to didHit
+                        skillAnimParallel.AddStep(new AnimatorStep($"hit_{target.DisplayName}", target.animator, "TakeDamage", 0.5f));
                     }
+                    
+                    // Note: Event emission here could be tied to context data at the end of the effect resolution.
+                    // For the sake of the combat ui prototype reacting, we synthesize the event.
+                    OnActionResolved?.Invoke(user, skill, ctx);
                 }
             }
 
@@ -509,27 +480,7 @@ namespace Nevergreen.Combat
             }
         }
 
-        private void ApplySkillStatuses(SkillContext ctx, CombatCharacter target)
-        {
-            foreach (var statusEntry in ctx.skill.statusEffects)
-            {
-                int resistance = target.GetResistance(statusEntry.statusType);
-                bool applied = CombatCalculator.ResolveStatusApplication(
-                    statusEntry.applicationChance, resistance, ctx.rng);
 
-                if (applied)
-                {
-                    var instance = new StatusEffectInstance(
-                        statusEntry.statusType,
-                        statusEntry.amplitude,
-                        statusEntry.duration);
-
-                    target.AddStatus(instance);
-                    Debug.Log($"  -> {target.DisplayName} afflicted with {statusEntry.statusType}" +
-                              $" (amp:{statusEntry.amplitude}, dur:{statusEntry.duration})");
-                }
-            }
-        }
 
         /// <summary>
         /// Get valid targets for a skill based on scope and rank constraints.

@@ -15,6 +15,9 @@ MonoBehaviour:
   skillId: bite
   displayName: Bite
   description: A vicious bite attack.
+  effects:
+  - rid: 8181408146430099576
+  - rid: 8181408146430099577
   modifier:
     damagePercent: 0.9
     healPercent: 0
@@ -31,7 +34,24 @@ MonoBehaviour:
   hitCount: 1
   statusEffects:
   - statusType: 0
+    targetStat: 5
     applicationChance: 40
     amplitude: 2
     duration: 3
   maxUsesPerBattle: -1
+  references:
+    version: 2
+    RefIds:
+    - rid: 8181408146430099576
+      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        damagePercent: 0.9
+    - rid: 8181408146430099577
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 0
+        targetStat: 5
+        applicationChance: 40
+        amplitude: 2
+        duration: 3
+        ignoreMiss: 0
