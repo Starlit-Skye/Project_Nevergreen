@@ -177,23 +177,23 @@ namespace Nevergreen.Prototype
             ShowSkillButtons(actor);
         }
 
-        private void HandleActionResolved(CombatCharacter actor, SkillData skill,
-                                          List<CombatCharacter> targets, bool hit, bool crit, int value)
+        private void HandleActionResolved(CombatCharacter actor, SkillData skill, SkillContext context)
         {
-            string targetNames = string.Join(", ", targets.Select(t => t.DisplayName));
+            var target = context.primaryTarget;
+            if (target == null) return;
 
             if (skill.modifier.IsHeal)
             {
-                AddLog($"{actor.DisplayName} heals {targetNames} for {value} HP");
+                AddLog($"{actor.DisplayName} heals {target.DisplayName} for {context.calculatedValue} HP");
             }
-            else if (hit)
+            else if (context.didHit)
             {
-                string critStr = crit ? " (CRIT!)" : "";
-                AddLog($"{actor.DisplayName} -> {targetNames}: {value} dmg{critStr}");
+                string critStr = context.isCritical ? " (CRIT!)" : "";
+                AddLog($"{actor.DisplayName} -> {target.DisplayName}: {context.calculatedValue} dmg{critStr}");
             }
             else
             {
-                AddLog($"{actor.DisplayName} -> {targetNames}: MISS!");
+                AddLog($"{actor.DisplayName} -> {target.DisplayName}: MISS!");
             }
         }
 

@@ -21,7 +21,7 @@ namespace Nevergreen.Combat
         public int currentLevel = 1;
 
         // --- Runtime State (set during combat setup) ---
-        [HideInInspector] public int currentHP;
+         public int currentHP;
         [HideInInspector] public int rank; // 1-4, 1 = front
         [HideInInspector] public Team team;
         [HideInInspector] public CombatConfig combatConfig;

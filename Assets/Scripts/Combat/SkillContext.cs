@@ -18,7 +18,7 @@ namespace Nevergreen.Combat
         // --- Combat Calculation ---
         public int baseAttackRoll;
         public float skillScaling;
-        public int calculatedDamage;
+        public int calculatedValue;
         public float damageMultiplier = 1f;
 
         // --- Critical System ---

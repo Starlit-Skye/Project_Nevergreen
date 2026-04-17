@@ -11,7 +11,7 @@ namespace Nevergreen.Combat
         /// <summary>
         /// Roll attack damage: round_to_int(base_attack * random_uniform(0.8, 1.2))
         /// </summary>
-        public static int RollAttack(int baseAttack, CombatConfig config, System.Random rng)
+        public static int RollAttackDamage(int baseAttack, CombatConfig config, System.Random rng)
         {
             float roll = (float)(config.attackRollMin +
                                   rng.NextDouble() * (config.attackRollMax - config.attackRollMin));
@@ -26,7 +26,7 @@ namespace Nevergreen.Combat
             CombatStats userStats = ctx.user.GetEffectiveStats();
 
             // Base roll
-            ctx.baseAttackRoll = RollAttack(userStats.attack, config, ctx.rng);
+            ctx.baseAttackRoll = RollAttackDamage(userStats.attack, config, ctx.rng);
 
             // Skill scaling (damage percent is like 1.0 = 100%)
             int scaled = Mathf.RoundToInt(ctx.baseAttackRoll * ctx.skillScaling);
@@ -51,8 +51,8 @@ namespace Nevergreen.Combat
                 scaled = Mathf.RoundToInt(scaled * reduction);
             }
 
-            ctx.calculatedDamage = Mathf.Max(0, scaled);
-            return ctx.calculatedDamage;
+            ctx.calculatedValue = Mathf.Max(0, scaled);
+            return ctx.calculatedValue;
         }
 
         /// <summary>
@@ -62,7 +62,8 @@ namespace Nevergreen.Combat
         {
             CombatStats userStats = ctx.user.GetEffectiveStats();
             int baseHeal = Mathf.RoundToInt(userStats.attack * ctx.skillScaling);
-            return Mathf.Max(0, baseHeal);
+            ctx.calculatedValue = Mathf.Max(0, baseHeal);
+            return ctx.calculatedValue;
         }
 
         /// <summary>

@@ -21,9 +21,14 @@ namespace Nevergreen.Data
         [TextArea(2, 4)]
         public string description;
 
-        [Header("Modifiers")]
-        [Tooltip("Stat-scaling modifiers applied during execution.")]
+        [Header("Skill Modifier")]
+        [Tooltip("Stat-scaling modifiers applied when this skill executes (damage%, heal%, accuracy+, crit+).")]
         public SkillModifier modifier = new SkillModifier();
+
+        [Header("Effects Strategy")]
+        [Tooltip("The modular effects executed by this skill.")]
+        [SerializeReference]
+        public List<Nevergreen.Combat.ISkillEffect> effects = new List<Nevergreen.Combat.ISkillEffect>();
 
         [Header("Rank Constraints")]
         [Tooltip("Which ranks the user must be in to use this skill (1-4).")]
@@ -57,10 +62,6 @@ namespace Nevergreen.Data
         [Tooltip("Number of hits this skill performs. Default 1.")]
         [Min(1)]
         public int hitCount = 1;
-
-        [Header("Status Effects")]
-        [Tooltip("Status effects this skill can apply.")]
-        public List<SkillStatusEntry> statusEffects = new List<SkillStatusEntry>();
 
         [Header("Uses")]
         [Tooltip("Max uses per battle. -1 = unlimited.")]

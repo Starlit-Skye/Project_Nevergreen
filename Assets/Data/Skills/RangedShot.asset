@@ -15,6 +15,8 @@ MonoBehaviour:
   skillId: ranged_shot
   displayName: Ranged Shot
   description: A precise shot from the backline.
+  effects:
+  - rid: 8181408146430099578
   modifier:
     damagePercent: 0.9
     healPercent: 0
@@ -31,3 +33,10 @@ MonoBehaviour:
   hitCount: 1
   statusEffects: []
   maxUsesPerBattle: -1
+  references:
+    version: 2
+    RefIds:
+    - rid: 8181408146430099578
+      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        damagePercent: 0.9

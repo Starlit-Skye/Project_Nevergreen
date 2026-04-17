@@ -20,14 +20,21 @@ MonoBehaviour:
     healPercent: 0
     accuracyMod: -10
     criticalMod: 5
+  effects:
+  - rid: 8181408146430099579
   useRanks: 0100000002000000
   targetRanks: 0100000002000000
   targetScope: 2
-  maxTargets: 1
+  maxTargets: 3
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
   hitCount: 1
-  statusEffects: []
   maxUsesPerBattle: -1
+  references:
+    version: 2
+    RefIds:
+    - rid: 8181408146430099579
+      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 
