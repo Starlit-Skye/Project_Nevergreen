@@ -18,7 +18,7 @@ namespace Nevergreen.Combat
         public StatTarget targetStat = StatTarget.Speed;
 
         [Tooltip("Chance to apply before target resistance is considered.")]
-        [Range(0, 100)]
+        [Range(0, 300)]
         public float applicationChance = 100f;
 
         [Tooltip("Power/Stack size of the status.")]
