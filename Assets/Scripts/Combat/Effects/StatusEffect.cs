@@ -47,6 +47,8 @@ namespace Nevergreen.Combat
                 target.AddStatus(instance);
                 Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (amp:{amplitude}, dur:{duration})");
             }
+
+            target.TriggerStatusApplied(statusType, applied);
         }
     }
 }

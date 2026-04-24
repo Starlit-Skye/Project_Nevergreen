@@ -45,6 +45,8 @@ namespace Nevergreen.Combat
         // --- Events ---
         public event Action<CombatCharacter, int> OnDamageTaken; // character, amount
         public event Action<CombatCharacter, int> OnHealed;      // character, amount
+        public event Action<CombatCharacter, StatusType, bool> OnStatusApplied;
+        public event Action<CombatCharacter, StatusType, int> OnPeriodicEffectApplied;
         public event Action<CombatCharacter> OnDefeated;
         public event Action<CombatCharacter> OnStatsChanged;
 
@@ -192,6 +194,11 @@ namespace Nevergreen.Combat
             OnStatsChanged?.Invoke(this);
         }
 
+        public void TriggerStatusApplied(StatusType type, bool succeeded)
+        {
+            OnStatusApplied?.Invoke(this, type, succeeded);
+        }
+
         /// <summary>
         /// Phase 1 of start-of-turn: apply DOT/HOT effects from active statuses.
         /// Called before stun check so bleed/blight still apply to stunned characters.
@@ -220,9 +227,21 @@ namespace Nevergreen.Combat
                 }
             }
 
-            if (totalBleedDamage > 0) TakeDamage(totalBleedDamage);
-            if (totalBlightDamage > 0) TakeDamage(totalBlightDamage);
-            if (totalRestore > 0) Heal(totalRestore);
+            if (totalBleedDamage > 0)
+            {
+                TakeDamage(totalBleedDamage);
+                OnPeriodicEffectApplied?.Invoke(this, StatusType.Bleed, totalBleedDamage);
+            }
+            if (totalBlightDamage > 0)
+            {
+                TakeDamage(totalBlightDamage);
+                OnPeriodicEffectApplied?.Invoke(this, StatusType.Blight, totalBlightDamage);
+            }
+            if (totalRestore > 0)
+            {
+                Heal(totalRestore);
+                OnPeriodicEffectApplied?.Invoke(this, StatusType.Restore, totalRestore);
+            }
         }
 
         /// <summary>

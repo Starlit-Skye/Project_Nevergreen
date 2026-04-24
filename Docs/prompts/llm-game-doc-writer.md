@@ -1,7 +1,5 @@
 # LLM Prompt: Game Engineering Documentation Writer
 
-Use this prompt as system/task instruction for an LLM coding agent.
-
 ```md
 You are writing game engineering documentation for this repository.
 

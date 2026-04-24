@@ -124,6 +124,10 @@ namespace Nevergreen.Prototype
                     bar.Initialize(c, _animationQueue);
                     _hpBars[c] = bar;
                 }
+
+                // Subscribe to status events for logging
+                c.OnStatusApplied += HandleStatusApplied;
+                c.OnPeriodicEffectApplied += HandlePeriodicEffectApplied;
             }
         }
 
@@ -204,6 +208,31 @@ namespace Nevergreen.Prototype
             // Grey out defeated character
             var sr = character.GetComponentInChildren<SpriteRenderer>();
             if (sr != null) sr.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        }
+
+        private void HandleStatusApplied(CombatCharacter target, StatusType type, bool succeeded)
+        {
+            if (succeeded)
+            {
+                AddLog($"{target.DisplayName} afflicted with {type}!");
+            }
+            else
+            {
+                AddLog($"{target.DisplayName} resisted {type}.");
+            }
+        }
+
+        private void HandlePeriodicEffectApplied(CombatCharacter target, StatusType type, int amount)
+        {
+            string effectName = type.ToString();
+            if (type == StatusType.Restore)
+            {
+                AddLog($"{target.DisplayName} restored {amount} HP from {effectName}");
+            }
+            else
+            {
+                AddLog($"{target.DisplayName} takes {amount} {effectName} damage");
+            }
         }
 
         private void HandleBattleEnded(BattleOutcome outcome)
@@ -457,6 +486,15 @@ namespace Nevergreen.Prototype
                 _battleSystem.OnActionResolved -= HandleActionResolved;
                 _battleSystem.OnBattleEnded -= HandleBattleEnded;
                 _battleSystem.OnCharacterDefeated -= HandleCharacterDefeated;
+            }
+
+            foreach (var c in _playerTeam.Concat(_enemyTeam))
+            {
+                if (c != null)
+                {
+                    c.OnStatusApplied -= HandleStatusApplied;
+                    c.OnPeriodicEffectApplied -= HandlePeriodicEffectApplied;
+                }
             }
 
             if (_animationQueue != null)

@@ -191,6 +191,12 @@ namespace Nevergreen.Combat
             // Phase 1: Apply DOT/HOT effects (bleed/blight still hurt stunned characters)
             CurrentActor.ApplyStartOfTurnEffects();
 
+            // Wait for DOT/HOT animations to finish before proceeding to stun check or action
+            if (animationQueue != null)
+            {
+                while (animationQueue.IsBusy) yield return null;
+            }
+
             // Check if died from DOT
             if (!CurrentActor.IsAlive)
             {
