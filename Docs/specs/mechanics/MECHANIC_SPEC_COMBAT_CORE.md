@@ -79,6 +79,11 @@ final_hit_chance_percent = min(95, attacker_accuracy_percent - target_dodge_perc
 
 # status application
 final_status_chance_percent = source_status_chance_percent - target_resistance_percent
+
+# effective stat calculation (percentage stacking)
+# all active buffs and debuffs for a stat are summed as a flat percentage of the base stat
+stat_multiplier = 1.0 + sum(buff_amplitudes_percent) - sum(debuff_amplitudes_percent)
+effective_stat = round_to_int(base_stat * stat_multiplier)
 ```
 
 ## Resistances
@@ -114,7 +119,9 @@ is subtracted from the source's application chance when resolving status effects
 - If a character is stunned, it skips its turn.
 - After stun expires, target receives a `Buff` status effect targeting `StunResist` (`+300%`,
   1-turn duration). Buff/Debuff statuses use the `StatTarget` enum to specify which stat they
-  modify, applied generically through `GetEffectiveStats()`.
+  modify, applied as additive percentage multipliers of the base stat.
+- Buff/Debuff Stacking: Multiple modifiers to the same stat are added together before being applied
+  to the base stat (e.g., a +10% buff and a +20% buff result in a 1.3x multiplier, not 1.32x).
 - Guard breaks when guardian is stunned, re-guards, or guard target changes.
 - AOE that hits both guarded and guardian bypasses guard redirect.
 - Some enemies can act more than once per round; each action still enters turn order.

@@ -96,24 +96,39 @@ namespace Nevergreen.Combat
 
         /// <summary>
         /// Get effective stats after applying all active buff/debuff status effects.
+        /// Buffs/Debuffs are percentage multipliers of the base stat, stacked additively.
+        /// Formula: effective = round(base * (1.0 + sum(buff_amplitudes/100) - sum(debuff_amplitudes/100)))
         /// </summary>
         public CombatStats GetEffectiveStats()
         {
-            CombatStats effective = baseStats.Clone();
+            // Accumulate net percentage modifier per stat target
+            Dictionary<StatTarget, float> netPercent = new Dictionary<StatTarget, float>();
 
             foreach (var status in statusEffects)
             {
                 if (status.IsExpired) continue;
 
-                switch (status.type)
-                {
-                    case StatusType.Buff:
-                        ApplyStatModifier(effective, status.targetStat, status.amplitude);
-                        break;
-                    case StatusType.Debuff:
-                        ApplyStatModifier(effective, status.targetStat, -status.amplitude);
-                        break;
-                }
+                float sign;
+                if (status.type == StatusType.Buff)
+                    sign = 1f;
+                else if (status.type == StatusType.Debuff)
+                    sign = -1f;
+                else
+                    continue;
+
+                if (!netPercent.ContainsKey(status.targetStat))
+                    netPercent[status.targetStat] = 0f;
+
+                netPercent[status.targetStat] += sign * (status.amplitude / 100f);
+            }
+
+            CombatStats effective = baseStats.Clone();
+
+            // Apply each accumulated multiplier to the base stat
+            foreach (var kvp in netPercent)
+            {
+                float multiplier = 1f + kvp.Value;
+                ApplyPercentageMultiplier(effective, baseStats, kvp.Key, multiplier);
             }
 
             // Enforce hard caps
@@ -127,24 +142,26 @@ namespace Nevergreen.Combat
         }
 
         /// <summary>
-        /// Apply a signed modifier to the specified stat on a CombatStats instance.
+        /// Apply a percentage multiplier to the specified stat, using the base stat as reference.
+        /// Result is rounded to nearest integer.
         /// </summary>
-        private void ApplyStatModifier(CombatStats stats, StatTarget target, int value)
+        private void ApplyPercentageMultiplier(CombatStats effective, CombatStats baseStat,
+                                                StatTarget target, float multiplier)
         {
             switch (target)
             {
-                case StatTarget.Attack:      stats.attack += value; break;
-                case StatTarget.Defense:     stats.defense += value; break;
-                case StatTarget.Accuracy:    stats.accuracy += value; break;
-                case StatTarget.Dodge:       stats.dodge += value; break;
-                case StatTarget.CritChance:  stats.critChance += value; break;
-                case StatTarget.Speed:       stats.speed += value; break;
-                case StatTarget.MaxHP:       stats.maxHP += value; break;
-                case StatTarget.BleedResist: stats.bleedResist += value; break;
-                case StatTarget.BlightResist:stats.blightResist += value; break;
-                case StatTarget.StunResist:  stats.stunResist += value; break;
-                case StatTarget.DebuffResist:stats.debuffResist += value; break;
-                case StatTarget.MoveResist:  stats.moveResist += value; break;
+                case StatTarget.Attack:      effective.attack = Mathf.RoundToInt(baseStat.attack * multiplier); break;
+                case StatTarget.Defense:     effective.defense = Mathf.RoundToInt(baseStat.defense * multiplier); break;
+                case StatTarget.Accuracy:    effective.accuracy = Mathf.RoundToInt(baseStat.accuracy * multiplier); break;
+                case StatTarget.Dodge:       effective.dodge = Mathf.RoundToInt(baseStat.dodge * multiplier); break;
+                case StatTarget.CritChance:  effective.critChance = Mathf.RoundToInt(baseStat.critChance * multiplier); break;
+                case StatTarget.Speed:       effective.speed = Mathf.RoundToInt(baseStat.speed * multiplier); break;
+                case StatTarget.MaxHP:       effective.maxHP = Mathf.RoundToInt(baseStat.maxHP * multiplier); break;
+                case StatTarget.BleedResist: effective.bleedResist = Mathf.RoundToInt(baseStat.bleedResist * multiplier); break;
+                case StatTarget.BlightResist:effective.blightResist = Mathf.RoundToInt(baseStat.blightResist * multiplier); break;
+                case StatTarget.StunResist:  effective.stunResist = Mathf.RoundToInt(baseStat.stunResist * multiplier); break;
+                case StatTarget.DebuffResist:effective.debuffResist = Mathf.RoundToInt(baseStat.debuffResist * multiplier); break;
+                case StatTarget.MoveResist:  effective.moveResist = Mathf.RoundToInt(baseStat.moveResist * multiplier); break;
             }
         }
 
