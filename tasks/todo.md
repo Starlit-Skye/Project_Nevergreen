@@ -1,48 +1,40 @@
-# Implementation Plan: Character System + Combat Core + Test Combat Screen
+# Task: List Mechanics Requiring Testing Suites
 
-## Overview
-Build the character data system, core combat mechanics, and a prototype combat scene per the GDD and spec docs.
+## Plan
+1. [x] Analyze `Docs` directory for mechanic and system specifications.
+2. [x] Read Lead QA agent profile to understand testing suite requirements.
+3. [x] Filter out economy-related mechanics (linked to `SYSTEM_SPEC_ECONOMY_RUNTIME.md`).
+4. [x] Identify core mechanics requiring automation based on "Acceptance Tests" sections.
+5. [x] Generate the final list of mechanics and their testing requirements.
 
-## Phase 1: Data Layer (ScriptableObjects)
-- [x] 1.1 Create `StatBlockData` ScriptableObject (Attack, Defense, Accuracy, Dodge, CritChance, Speed, MaxHP)
-- [x] 1.2 Create `CharacterData` ScriptableObject (id, displayName, statPerLevel list)
-- [x] 1.3 Create `SkillModifier` data class (Damage%, Heal%, Accuracy+, Critical+)
-- [x] 1.4 Create `SkillData` ScriptableObject (id, displayName, modifiers, useRanks, targetRanks, maxTargets, targetScope)
-- [x] 1.5 Create `CombatConfig` ScriptableObject (tuning variables)
+## Results
+- **Final List**: [mechanics_testing_suites.md](file:///C:/Users/Admin/.gemini/antigravity/brain/21a3b76b-899f-4af3-ab0f-83f98a5e5c40/mechanics_testing_suites.md)
 
-## Phase 2: Runtime Character
-- [x] 2.1 Create `CombatStats` runtime class (resolved stats with buff/debuff modifiers)
-- [x] 2.2 Create `CombatCharacter` MonoBehaviour (runtime combat entity)
-- [x] 2.3 Create `StatusEffectInstance` data model (type, amplitude, duration)
+## Mechanics to be included:
+- **Buffs & Debuffs**: Additive percentage multipliers (10% + 20% = 30% of base), duration stacking/ticking.
+- **Hit & Crit Chance**: Base accuracy vs dodge, crit chance additives, final damage scaling.
+- **Stun Mechanics**: Turn skip behavior, stun resistance checks, post-stun resistance buff (+300%).
+- **Damage Over Time (DoT)**: Resistance, duration, turn-start ticks, lethal DoT.
+- **Combat Core**: Turn order (Speed), Ranks, Speed ties.
+- **Combat Input & Targeting**: Skill selection, target validation, animation locks, safeguards.
+- **Skill Context Runtime**: Multi-hit resolution, status queueing.
+- **Character Database**: Level-based stat resolution, global max level enforcement.
+- **Skills Database**: Rank use/target constraints, target scope, modifier rules.
+- **Animation Runtime**: FIFO queueing, input lock consistency, system state gating (pausing events/changes), overflow/overtime safeguards.
 
-## Phase 3: Combat Core
-- [x] 3.1 Create `SkillContext` runtime class (per-execution mutable data container)
-- [x] 3.2 Create `BattleSystem` MonoBehaviour (round/turn state machine)
-- [x] 3.3 Create `CombatCalculator` static utility (damage/hit/crit formulas)
-- [x] 3.4 Create `ISkillEffect` strategy interface + default implementations (deferred - not needed for prototype)
+## Excluded (Economy-related):
+- Battle Reward Drops
+- Parts Level-Up
+- Economy Runtime System
+- Guard Mechanics (Bypass, redirection)
 
-## Phase 4: Combat Screen Prototype
-- [x] 4.1 Create `CombatSceneBootstrap` MonoBehaviour (spawns teams from prefab lists)
-- [x] 4.2 Create `CombatPrototype` Unity scene with spawn points and UI
-- [x] 4.3 Create `CombatUI` + `HPBar` (skill buttons, stats panel, HP bars, battle log)
-- [x] 4.4 Wire input: skill select -> target select -> execute
-- [x] 4.5 Enemy AI: random valid skill selection
+## Test Implementation
+- [x] **Buff & Debuff Tests** (14 tests) — `Assets/Editor/Tests/BuffDebuffTests.cs`
+  - Percentage-based modification, additive stacking, debuff resistance, duration ticking
+  - Implementation fix: refactored `GetEffectiveStats()` from flat addition to percentage multipliers
+- [x] **Hit & Crit Tests** (10 tests) — `Assets/Editor/Tests/HitCritTests.cs`
+  - Accuracy vs dodge, 95% cap, skill mods, guaranteed hit, crit multiplier, defense pipeline
+- [x] **Stun Tests** (9 tests) — `Assets/Editor/Tests/StunTests.cs`
+  - Turn skip, duration timing, +300% recovery buff, stun resistance checks
 
-## Phase 5: Test Data
-- [x] 5.1 Create sample ScriptableObject assets (stats, skills, characters)
-- [x] 5.2 Create character prefabs with CombatCharacter configured
-- [x] 5.3 Set up CombatSceneBootstrap with test prefab lists
-
-## Verification
-- [x] Teams spawn at correct rank positions in play mode
-- [x] Player can select skills and targets
-- [x] Combat resolves turns in speed order
-- [x] HP changes reflect correctly
-- [x] Battle ends when one side is eliminated
-
-## Phase 6: Damage over Time Refactor (Decoupled Architecture)
-- [x] 6.1 Create `StatusProcessor.cs` utility.
-- [x] 6.2 Refactor `CombatCharacter.cs` to remove bloated tick logic and replace with event triggers.
-- [x] 6.3 Update `BattleSystem.cs` to call `StatusProcessor` for turn start ticks and duration management.
-- [x] 6.4 Ensure grouping logic is stateless (using LINQ GroupBy) to maintain application order sequence.
-- [x] 6.5 Ensure expired statuses are explicitly removed from `statusEffects` for proper GC memory cleanup.
+**Result: 33/33 tests passing** ✅
