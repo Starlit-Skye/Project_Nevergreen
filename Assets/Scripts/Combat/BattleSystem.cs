@@ -189,7 +189,7 @@ namespace Nevergreen.Combat
             Debug.Log($"[BattleSystem] Turn: {CurrentActor.DisplayName} (Rank {CurrentActor.rank})");
 
             // Phase 1: Apply DOT/HOT effects (bleed/blight still hurt stunned characters)
-            CurrentActor.ApplyStartOfTurnEffects();
+            StatusProcessor.ProcessPeriodicEffects(CurrentActor);
 
             // Wait for DOT/HOT animations to finish before proceeding to stun check or action
             if (animationQueue != null)
@@ -200,7 +200,7 @@ namespace Nevergreen.Combat
             // Check if died from DOT
             if (!CurrentActor.IsAlive)
             {
-                CurrentActor.TickStatusDurations(combatConfig.stunRecoveryResistBonus);
+                StatusProcessor.TickDurations(CurrentActor, combatConfig.stunRecoveryResistBonus);
                 _currentTurnIndex++;
                 yield break;
             }
@@ -209,13 +209,13 @@ namespace Nevergreen.Combat
             if (CurrentActor.isStunned)
             {
                 Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} is stunned! Skipping turn.");
-                CurrentActor.TickStatusDurations(combatConfig.stunRecoveryResistBonus);
+                StatusProcessor.TickDurations(CurrentActor, combatConfig.stunRecoveryResistBonus);
                 _currentTurnIndex++;
                 yield break;
             }
 
             // Phase 2: Tick status durations and remove expired
-            CurrentActor.TickStatusDurations(combatConfig.stunRecoveryResistBonus);
+            StatusProcessor.TickDurations(CurrentActor, combatConfig.stunRecoveryResistBonus);
 
             // Player or Enemy action
             if (CurrentActor.IsPlayerTeam)

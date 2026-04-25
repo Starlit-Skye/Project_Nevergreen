@@ -199,77 +199,13 @@ namespace Nevergreen.Combat
             OnStatusApplied?.Invoke(this, type, succeeded);
         }
 
-        /// <summary>
-        /// Phase 1 of start-of-turn: apply DOT/HOT effects from active statuses.
-        /// Called before stun check so bleed/blight still apply to stunned characters.
-        /// </summary>
-        public void ApplyStartOfTurnEffects()
+        public void TriggerPeriodicEffectApplied(StatusType type, int amount)
         {
-            int totalBleedDamage = 0;
-            int totalBlightDamage = 0;
-            int totalRestore = 0;
-
-            foreach (var status in statusEffects)
-            {
-                if (status.IsExpired) continue;
-
-                switch (status.type)
-                {
-                    case StatusType.Bleed:
-                        totalBleedDamage += status.amplitude;
-                        break;
-                    case StatusType.Blight:
-                        totalBlightDamage += status.amplitude;
-                        break;
-                    case StatusType.Restore:
-                        totalRestore += status.amplitude;
-                        break;
-                }
-            }
-
-            if (totalBleedDamage > 0)
-            {
-                TakeDamage(totalBleedDamage);
-                OnPeriodicEffectApplied?.Invoke(this, StatusType.Bleed, totalBleedDamage);
-            }
-            if (totalBlightDamage > 0)
-            {
-                TakeDamage(totalBlightDamage);
-                OnPeriodicEffectApplied?.Invoke(this, StatusType.Blight, totalBlightDamage);
-            }
-            if (totalRestore > 0)
-            {
-                Heal(totalRestore);
-                OnPeriodicEffectApplied?.Invoke(this, StatusType.Restore, totalRestore);
-            }
+            OnPeriodicEffectApplied?.Invoke(this, type, amount);
         }
 
-        /// <summary>
-        /// Phase 2 of start-of-turn: tick all status durations and remove expired ones.
-        /// Called after stun check so stun correctly skips the turn before expiring.
-        /// </summary>
-        public void TickStatusDurations(int stunRecoveryResistBonus)
+        public void TriggerStatsChanged()
         {
-            for (int i = statusEffects.Count - 1; i >= 0; i--)
-            {
-                statusEffects[i].TickDuration();
-
-                if (statusEffects[i].IsExpired)
-                {
-                    // If stun just expired, apply a Buff granting stun resist (1-turn duration)
-                    if (statusEffects[i].type == StatusType.Stun)
-                    {
-                        isStunned = false;
-                        AddStatus(new StatusEffectInstance(StatusType.Buff,
-                            StatTarget.StunResist, stunRecoveryResistBonus, 1));
-                    }
-
-                    statusEffects.RemoveAt(i);
-                }
-            }
-
-            // Re-check stun state
-            isStunned = statusEffects.Any(s => s.type == StatusType.Stun && !s.IsExpired);
             OnStatsChanged?.Invoke(this);
         }
 

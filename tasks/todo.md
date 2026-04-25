@@ -39,3 +39,10 @@ Build the character data system, core combat mechanics, and a prototype combat s
 - [x] Combat resolves turns in speed order
 - [x] HP changes reflect correctly
 - [x] Battle ends when one side is eliminated
+
+## Phase 6: Damage over Time Refactor (Decoupled Architecture)
+- [x] 6.1 Create `StatusProcessor.cs` utility.
+- [x] 6.2 Refactor `CombatCharacter.cs` to remove bloated tick logic and replace with event triggers.
+- [x] 6.3 Update `BattleSystem.cs` to call `StatusProcessor` for turn start ticks and duration management.
+- [x] 6.4 Ensure grouping logic is stateless (using LINQ GroupBy) to maintain application order sequence.
+- [x] 6.5 Ensure expired statuses are explicitly removed from `statusEffects` for proper GC memory cleanup.
