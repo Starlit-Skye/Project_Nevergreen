@@ -15,15 +15,16 @@ MonoBehaviour:
   skillId: crush
   displayName: Crush
   description: A crushing slam hitting multiple targets.
-  effects:
-  - rid: 8181408146430099581
   modifier:
     damagePercent: 0.7
     healPercent: 0
-    accuracyMod: -5
+    accuracyMod: 300
     criticalMod: 0
+  effects:
+  - rid: 8181408146430099581
+  - rid: 8181408396358713420
   useRanks: 0100000002000000
-  targetRanks: 010000000200000003000000
+  targetRanks: 0100000002000000
   targetScope: 2
   maxTargets: 2
   ignoresDefense: 0
@@ -31,12 +32,13 @@ MonoBehaviour:
   guaranteedHit: 0
   bypassGuard: 0
   hitCount: 1
-  statusEffects: []
   maxUsesPerBattle: -1
   references:
     version: 2
     RefIds:
     - rid: 8181408146430099581
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
-        damagePercent: 0.7
+      data: 
+    - rid: 8181408396358713420
+      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 

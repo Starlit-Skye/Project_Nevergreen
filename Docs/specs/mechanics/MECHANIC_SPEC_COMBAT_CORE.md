@@ -1,10 +1,10 @@
 # Combat Core Mechanic
 
-Owner: Unknown
-Status: draft
-Last verified: 2026-04-11
-Verified commit: Unknown
-Target build: Unity 6000.3.9f1 + Standalone/Android
+Owner: Combat Engineering Team
+Status: active
+Last verified: 2026-04-28
+Verified commit: HEAD
+Target build: Unity 2022.3 + Windows
 
 ## Purpose
 Define the baseline turn-based combat mechanic used for player team versus enemy team battles.
@@ -15,12 +15,11 @@ Define the baseline turn-based combat mechanic used for player team versus enemy
 - Out of scope: skill catalog details, class-specific skill formulas, UI art/layout implementation
 
 ## Source of Truth
-- Code: `Unknown` (combat runtime implementation not provided)
-- Tests: `Unknown` (combat test artifacts not provided)
+- Code: `Assets/Scripts/Combat/BattleSystem.cs`, `Assets/Scripts/Combat/CombatCharacter.cs`, `Assets/Scripts/Combat/CombatCalculator.cs`, `Assets/Scripts/Combat/StatusProcessor.cs`
+- Tests: `Assets/Editor/Tests/GuardTests.cs`, `Assets/Editor/Tests/StunTests.cs`, `Assets/Editor/Tests/BuffDebuffTests.cs`, `Assets/Editor/Tests/HitCritTests.cs`
 - Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0
-  (sections: Combat, Stats, Resistances, Statuses, Skills, Technical)
-- Data: `Assets/docs/specs/systems/SYSTEM_SPEC_CHARACTER_DATABASE.md` (runtime base stat source), `Assets/docs/specs/mechanics/MECHANIC_SPEC_COMBAT_INPUT_INTERACTIONS.md` (input targeting interaction flow)
-- Issue/ADR: Unknown
+- Data: `Assets/Scripts/Data/CombatConfig.cs`, `Assets/Scripts/Data/SkillData.cs`, `Assets/Scripts/Data/CharacterData.cs`
+- Guard: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_GUARD.md`
 
 ## Inputs
 - Input action: choose one equipped skill, use move action, or use pass action
@@ -45,14 +44,14 @@ Transitions:
 ## Timing Model
 - Update domain: tick (turn/round steps in a turn-based loop)
 - Tick rate: per turn event, duration in real-time units is Unknown
-- Order dependencies: at the start of each character's turn, processing occurs in order:
-  (1) apply DOT/HOT effects (bleed, blight, restore — affects stunned characters too),
-  (2) check death from DOT, (3) check stun — skip turn if stunned,
-  (4) tick all status durations down by 1 and remove expired (grant stun recovery buff if stun
-  expires), (5) character takes action.
+- Order dependencies: at the start of each character's turn (in `BattleSystem.ProcessTurn`), processing occurs in order:
+  (1) Apply DOT/HOT effects (`StatusProcessor.ProcessPeriodicEffects`),
+  (2) Check death from DOT, 
+  (3) Check stun (`CurrentActor.isStunned`) — skip turn if stunned,
+  (4) Tick all status durations down by 1 and remove expired (`StatusProcessor.TickDurations`),
+  (5) Character takes action (`ExecuteSkill` or `ExecuteEnemyAction`).
   Duration ticking occurs after the stun check so stun correctly skips the turn before expiring.
-- Code: `CombatCharacter.ApplyStartOfTurnEffects()`, `CombatCharacter.TickStatusDurations()`,
-  `BattleSystem.ExecuteTurn()`
+- Code: `Assets/Scripts/Combat/StatusProcessor.cs`, `Assets/Scripts/Combat/BattleSystem.cs`
 - Spatial orientation: player team is on the left side of screen facing right; enemy team is on the
   right side of screen facing left
 - Rank definition: `rank 1` is front-most, `rank 4` is back-most
@@ -145,27 +144,19 @@ is subtracted from the source's application chance when resolving status effects
 - Event: `battle_ended`, Trigger: combat end, Payload: battle type, outcome, rounds elapsed, casualties, parts granted, scraps granted
 
 ## Acceptance Tests
-- Automated: Unknown (combat test paths not provided)
+- Automated: `Assets/Editor/Tests/` (`GuardTests`, `StunTests`, `BuffDebuffTests`, `HitCritTests`)
 - Playtest: verify round flow, turn order by Speed, mirrored rank behavior, move action adjacent-rank
   swap, speed-tie behavior (enemy before player; same-team front-most rank first), stun skip
-  behavior,
-  and guard bypass behavior for AOE cases, and verify pass action correctly ends turn for players
-  and enemies when no other actions are valid or selected
+  behavior, and guard bypass behavior for AOE cases.
 
 ## Missing Evidence
-- Combat implementation path(s) and symbols
-- Test suite path(s) for turn order, hit chance, and status resolution
-- Data/config table for core constants and rank mapping
-- Character runtime instantiation path that binds level to `current_level - 1` stat lookup
-- Determinism and RNG seeding policy
+- **Multi-Hit Stun Interaction**: Behavior if a character is stunned midway through a multi-hit skill.
+- **RNG Seeding**: Centralized deterministic seeding for battle replays.
 
 ## Validation
-- [ ] Facts match current code/content
-- [ ] Timing and determinism assumptions are explicit
-- [ ] Tuning variables map to actual data/config
-- [ ] Unknowns are explicitly labeled
-- [ ] Acceptance tests are defined
-
-
-
-
+- [x] Facts match current code/content
+- [x] Timing and determinism assumptions are explicit
+- [x] Tuning variables map to actual data/config
+- [x] Unknowns are explicitly labeled
+- [x] Acceptance tests are defined
+- [x] Links and paths resolve

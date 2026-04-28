@@ -1,5 +1,6 @@
 using Nevergreen.Data;
 using UnityEngine;
+using System.Linq;
 
 namespace Nevergreen.Combat
 {
@@ -104,6 +105,28 @@ namespace Nevergreen.Combat
 
             float roll = (float)rng.NextDouble() * 100f;
             return roll < finalChance;
+        }
+
+        public static CombatCharacter GetEffectiveTarget(CombatCharacter target, SkillContext context)
+        {
+            if (context.bypassGuard) return target;
+
+            // Only redirect hostile actions (targeting Enemies). 
+            // Buffs, heals, and other ally-targeted skills bypass guard.
+            if (context.skill != null && context.skill.targetScope != TargetScope.Enemies)
+                return target;
+
+            // Find the active guard status on the intended target
+            var guard = target.statusEffects.OfType<GuardStatusInstance>()
+                .FirstOrDefault(s => !s.IsExpired);
+
+            if (guard == null || guard.Source == null || !guard.Source.IsAlive || guard.Source.isStunned) return target;
+
+            // AOE Bypass Check: No redirection if both target and guardian are targeted.
+            if (context.targets != null && context.targets.Contains(target) && context.targets.Contains(guard.Source))
+                return target;
+
+            return guard.Source;
         }
     }
 }

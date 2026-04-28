@@ -43,7 +43,17 @@ namespace Nevergreen.Combat
 
             if (applied)
             {
-                var instance = new StatusEffectInstance(statusType, amplitude, duration);
+                StatusEffectInstance instance;
+                if (statusType == StatusType.Guard)
+                {
+                    instance = new GuardStatusInstance(context.user, duration);
+                }
+                else
+                {
+                    instance = new StatusEffectInstance(statusType, targetStat, amplitude, duration);
+                    instance.Source = context.user;
+                }
+
                 target.AddStatus(instance);
                 Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (amp:{amplitude}, dur:{duration})");
             }

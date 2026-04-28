@@ -58,14 +58,10 @@ namespace Nevergreen.Combat
                             StatTarget.StunResist, stunRecoveryResistBonus, 1));
                     }
 
-                    // Explicitly remove the reference, freeing memory
-                    character.statusEffects.RemoveAt(i);
+                    // Use the centralized removal path to trigger OnRemoved
+                    character.RemoveStatus(status);
                 }
             }
-
-            // Re-check stun state
-            character.isStunned = character.statusEffects.Any(s => s.type == StatusType.Stun && !s.IsExpired);
-            character.TriggerStatsChanged();
         }
     }
 }

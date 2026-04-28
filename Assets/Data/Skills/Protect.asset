@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
+  m_Name: Protect
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
+  skillId: PROTOTYPE_protect
+  displayName: Protect
+  description: 
+  modifier:
+    damagePercent: 0
+    healPercent: 0
+    accuracyMod: 300
+    criticalMod: 0
+  effects:
+  - rid: 8181408396358713426
+  - rid: 8181408396358713427
+  useRanks: 01000000020000000300000004000000
+  targetRanks: 01000000020000000300000004000000
+  targetScope: 1
+  maxTargets: 1
+  ignoresDefense: 0
+  ignoresDodge: 0
+  guaranteedHit: 1
+  bypassGuard: 1
+  hitCount: 1
+  maxUsesPerBattle: -1
+  references:
+    version: 2
+    RefIds:
+    - rid: 8181408396358713426
+      type: {class: HealEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 
+    - rid: 8181408396358713427
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 6
+        targetStat: 5
+        applicationChance: 300
+        amplitude: 0
+        duration: 3
+        ignoreMiss: 0
