@@ -202,6 +202,7 @@ namespace Nevergreen.Combat
         public void AddStatus(StatusEffectInstance status)
         {
             statusEffects.Add(status);
+            status.OnAdded(this);
 
             if (status.type == StatusType.Stun)
             {
@@ -209,6 +210,22 @@ namespace Nevergreen.Combat
             }
 
             OnStatsChanged?.Invoke(this);
+        }
+
+        public void RemoveStatus(StatusEffectInstance status)
+        {
+            if (statusEffects.Remove(status))
+            {
+                status.OnRemoved();
+                
+                // Re-check stun state if a stun was removed
+                if (status.type == StatusType.Stun)
+                {
+                    isStunned = statusEffects.Any(s => s.type == StatusType.Stun && !s.IsExpired);
+                }
+                
+                TriggerStatsChanged();
+            }
         }
 
         public void TriggerStatusApplied(StatusType type, bool succeeded)

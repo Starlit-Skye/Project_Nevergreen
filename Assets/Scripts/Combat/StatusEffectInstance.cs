@@ -14,6 +14,9 @@ namespace Nevergreen.Combat
         public int amplitude;
         public int remainingDuration;
 
+        public CombatCharacter Source { get; set; }
+        public CombatCharacter Host { get; set; }
+
         /// <summary>True if this status has expired.</summary>
         public bool IsExpired => remainingDuration <= 0;
 
@@ -40,6 +43,15 @@ namespace Nevergreen.Combat
         public void TickDuration()
         {
             remainingDuration--;
+        }
+
+        public virtual void OnAdded(CombatCharacter host)
+        {
+            Host = host;
+        }
+
+        public virtual void OnRemoved()
+        {
         }
     }
 }

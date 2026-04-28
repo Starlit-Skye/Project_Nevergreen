@@ -455,23 +455,33 @@ namespace Nevergreen.Combat
                 {
                     if (!target.IsAlive) continue;
 
-                    ctx.primaryTarget = target;
+                    // 1. Resolve Target
+                    CombatCharacter finalTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
+                    ctx.primaryTarget = finalTarget;
                     
                     // The pure strategy approach: Execute modular effects
                     foreach (var effect in skill.effects)
                     {
                         if (effect != null)
                         {
-                        effect.Execute(ctx, target);
+                            effect.Execute(ctx, finalTarget);
                         }
                     }
                     
                     // Check if taking damage killed the target or if we need to do UI syncing post-hit
-                    if (ctx.didHit && !skill.modifier.IsHeal && skillAnimParallel != null && target.animator != null)
+                    if (ctx.didHit && !skill.modifier.IsHeal && skillAnimParallel != null)
                     {
-                        // NOTE: If an effect wasn't damage but still wants to trigger a hit anim, 
-                        // you might need a more sophisticated system, but for now we tie anim to didHit
-                        skillAnimParallel.AddStep(new AnimatorStep($"hit_{target.DisplayName}", target.animator, "TakeDamage", 0.5f));
+                        // The Guardian always flinches and takes the effects
+                        if (finalTarget.animator != null)
+                        {
+                            skillAnimParallel.AddStep(new AnimatorStep($"hit_{finalTarget.DisplayName}", finalTarget.animator, "TakeDamage", 0.5f));
+                        }
+
+                        // The Protected ally also flinches if they were the original target
+                        if (finalTarget != target && target.animator != null)
+                        {
+                            skillAnimParallel.AddStep(new AnimatorStep($"guard_flinch_{target.DisplayName}", target.animator, "TakeDamage", 0.5f));
+                        }
                     }
                     
                     // Note: Event emission here could be tied to context data at the end of the effect resolution.

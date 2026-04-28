@@ -20,4 +20,3 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 85404b6020d4a0d4294c588495779862, type: 2}
   availableSkills:
   - {fileID: 11400000, guid: 9b6e7379e25791e48a5da29251883b7e, type: 2}
-  - {fileID: 11400000, guid: 1eaaf41a0f0978e4da5bf64ada6a4d82, type: 2}
