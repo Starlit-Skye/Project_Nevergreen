@@ -18,14 +18,15 @@ MonoBehaviour:
   modifier:
     damagePercent: 1.5
     healPercent: 0
-    accuracyMod: -10
+    accuracyMod: 100
     criticalMod: 5
   effects:
   - rid: 8181408146430099579
+  - rid: 356130822747324491
   useRanks: 0100000002000000
   targetRanks: 0100000002000000
   targetScope: 2
-  maxTargets: 3
+  maxTargets: 1
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -35,6 +36,15 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: 356130822747324491
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 9
+        targetStat: 5
+        applicationChance: 300
+        amplitude: -5
+        duration: 0
+        ignoreMiss: 1
     - rid: 8181408146430099579
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 

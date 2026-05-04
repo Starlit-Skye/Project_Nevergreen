@@ -279,23 +279,26 @@ namespace Nevergreen.Combat
             _waitingForPlayerInput = false;
         }
 
-        private void ExecuteMoveAndShift(CombatCharacter mover, int targetRank)
+        public void ExecuteMoveAndShift(CombatCharacter mover, int targetRank)
         {
+            var team = mover.IsPlayerTeam ? _playerTeam : _enemyTeam;
+            int maxRank = Mathf.Clamp(team.Count, 1, 4); // Max ranks is 4, but limited by team size
+            targetRank = Mathf.Clamp(targetRank, 1, maxRank);
+            
             int startRank = mover.rank;
             if (startRank == targetRank) return;
 
             bool movingForward = targetRank < startRank;
 
             // 1. Capture current X positions of the affected team mapped to their current ranks
-            var team = mover.IsPlayerTeam ? _playerTeam : _enemyTeam;
             Dictionary<int, float> rankToPosX = new Dictionary<int, float>();
+            
+            // Capture positions of ALL characters in the team (alive or dead) to get rank anchors
             foreach (var character in team)
             {
-                if (character.IsAlive)
-                {
-                    rankToPosX[character.rank] = character.transform.position.x;
-                }
+                rankToPosX[character.rank] = character.transform.position.x;
             }
+
 
             // 2. Identify characters that will shift to make room
             List<CombatCharacter> shiftingCharacters = new List<CombatCharacter>();
