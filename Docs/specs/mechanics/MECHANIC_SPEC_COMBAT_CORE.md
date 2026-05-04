@@ -111,10 +111,11 @@ is subtracted from the source's application chance when resolving status effects
 | `accuracy_cap` | 95 | 0 | 95 | percent | GDD Stats |
 | `crit_damage_multiplier` | 1.5 | 1.5 | Unknown | multiplier | GDD Stats |
 | `stun_recovery_resist_bonus` | 300 | 300 | Unknown | percent | GDD Statuses |
-| `rank_count_per_team` | 4 | 4 | 4 | ranks | GDD Combat |
+| `rank_count_max` | 4 | 1 | 4 | ranks | GDD Combat |
 | `max_targets_per_skill` | 4 | 1 | 4 | targets | GDD Skills |
 
 ## Edge Cases
+- **Compact Formation**: Combat ranks are always contiguous from Rank 1 to Rank `team.Count`. The system does not allow "empty" slots between characters. If a character moves or dies, the formation shifts to maintain this state.
 - If a character is stunned, it skips its turn.
 - After stun expires, target receives a `Buff` status effect targeting `StunResist` (`+300%`,
   1-turn duration). Buff/Debuff statuses use the `StatTarget` enum to specify which stat they
@@ -144,10 +145,10 @@ is subtracted from the source's application chance when resolving status effects
 - Event: `battle_ended`, Trigger: combat end, Payload: battle type, outcome, rounds elapsed, casualties, parts granted, scraps granted
 
 ## Acceptance Tests
-- Automated: `Assets/Editor/Tests/` (`GuardTests`, `StunTests`, `BuffDebuffTests`, `HitCritTests`)
+- Automated: `Assets/Editor/Tests/` (`GuardTests`, `StunTests`, `BuffDebuffTests`, `HitCritTests`, `MoveTests`)
 - Playtest: verify round flow, turn order by Speed, mirrored rank behavior, move action adjacent-rank
   swap, speed-tie behavior (enemy before player; same-team front-most rank first), stun skip
-  behavior, and guard bypass behavior for AOE cases.
+  behavior, and guard bypass behavior for AOE cases. Verify compact formation logic in small teams.
 
 ## Missing Evidence
 - **Multi-Hit Stun Interaction**: Behavior if a character is stunned midway through a multi-hit skill.

@@ -1,40 +1,28 @@
-# Task: List Mechanics Requiring Testing Suites
+# Task: Implement "Move" Status Effect Information Gathering
 
-## Plan
-1. [x] Analyze `Docs` directory for mechanic and system specifications.
-2. [x] Read Lead QA agent profile to understand testing suite requirements.
-3. [x] Filter out economy-related mechanics (linked to `SYSTEM_SPEC_ECONOMY_RUNTIME.md`).
-4. [x] Identify core mechanics requiring automation based on "Acceptance Tests" sections.
-5. [x] Generate the final list of mechanics and their testing requirements.
+## Status
+- [x] Research "Move" Status Effect from Google Doc <!-- id: 0 -->
+- [x] Analyze existing status effect system for integration <!-- id: 1 -->
+- [x] Create specification for "Move" Status Effect <!-- id: 2 -->
+- [x] Implement "Move" Status Effect logic <!-- id: 3 -->
+- [x] Verify implementation with tests <!-- id: 4 -->
 
-## Results
-- **Final List**: [mechanics_testing_suites.md](file:///C:/Users/Admin/.gemini/antigravity/brain/21a3b76b-899f-4af3-ab0f-83f98a5e5c40/mechanics_testing_suites.md)
+## Research Notes
+- Google Doc URL: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?usp=sharing
+- **Move Status Effect Details:**
+    - **Effect:** Moves a character forward or backward in ranks.
+    - **Amplitude:** Number of spaces to move.
+    - **Duration:** 0 (Instantaneous).
+    - **Resistance:** `MoveResist` stat.
+    - **Interaction:** `Final Chance = Application Chance - Move Resist`.
+    - **Special Case:** "Pile" (corpse) has 300% Move Resistance.
+    - **Context:** Used by skills to disrupt formations (e.g., Novellite's Eldritch Grasp, Final Boss's Spirit Chaser attacks).
 
-## Mechanics to be included:
-- **Buffs & Debuffs**: Additive percentage multipliers (10% + 20% = 30% of base), duration stacking/ticking.
-- **Hit & Crit Chance**: Base accuracy vs dodge, crit chance additives, final damage scaling.
-- **Stun Mechanics**: Turn skip behavior, stun resistance checks, post-stun resistance buff (+300%).
-- **Damage Over Time (DoT)**: Resistance, duration, turn-start ticks, lethal DoT.
-- **Combat Core**: Turn order (Speed), Ranks, Speed ties.
-- **Combat Input & Targeting**: Skill selection, target validation, animation locks, safeguards.
-- **Skill Context Runtime**: Multi-hit resolution, status queueing.
-- **Character Database**: Level-based stat resolution, global max level enforcement.
-- **Skills Database**: Rank use/target constraints, target scope, modifier rules.
-- **Animation Runtime**: FIFO queueing, input lock consistency, system state gating (pausing events/changes), overflow/overtime safeguards.
+## Implementation Plan
+1. Create `MoveEffect` scriptable object effect (implementing `ISkillEffect`).
+2. Update `BattleSystem` or `CombatCharacter` to handle rank swapping/reordering.
+3. Ensure Move Resistance is correctly factored in `CombatCalculator`.
+4. Add unit tests for moving allies/enemies and resistance checks.
 
-## Excluded (Economy-related):
-- Battle Reward Drops
-- Parts Level-Up
-- Economy Runtime System
-- Guard Mechanics (Bypass, redirection)
-
-## Test Implementation
-- [x] **Buff & Debuff Tests** (14 tests) — `Assets/Editor/Tests/BuffDebuffTests.cs`
-  - Percentage-based modification, additive stacking, debuff resistance, duration ticking
-  - Implementation fix: refactored `GetEffectiveStats()` from flat addition to percentage multipliers
-- [x] **Hit & Crit Tests** (10 tests) — `Assets/Editor/Tests/HitCritTests.cs`
-  - Accuracy vs dodge, 95% cap, skill mods, guaranteed hit, crit multiplier, defense pipeline
-- [x] **Stun Tests** (9 tests) — `Assets/Editor/Tests/StunTests.cs`
-  - Turn skip, duration timing, +300% recovery buff, stun resistance checks
-
-**Result: 33/33 tests passing** ✅
+## Review Section
+*TBD*

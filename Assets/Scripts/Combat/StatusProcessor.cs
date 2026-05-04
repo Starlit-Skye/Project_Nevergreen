@@ -62,6 +62,10 @@ namespace Nevergreen.Combat
                     character.RemoveStatus(status);
                 }
             }
+
+            // Re-check stun state
+            character.isStunned = character.statusEffects.Any(s => s.type == StatusType.Stun && !s.IsExpired);
+            character.TriggerStatsChanged();
         }
     }
 }
