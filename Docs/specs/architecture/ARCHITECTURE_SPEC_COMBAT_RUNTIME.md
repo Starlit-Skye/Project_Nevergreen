@@ -1,10 +1,10 @@
 # Combat Runtime Architecture
 
-Owner: Unknown
-Status: draft
-Last verified: 2026-04-06
-Verified commit: Unknown
-Target build: Unity 6000.3.9f1 + Standalone/Android
+Owner: Combat Engineering Team
+Status: active
+Last verified: 2026-05-04
+Verified commit: HEAD
+Target build: Unity 2022.3 + Windows
 
 ## Purpose
 Define architecture boundaries and integration flow across combat runtime, skill execution, character
@@ -16,11 +16,11 @@ stats, and run-scoped economy.
 - Out of scope: networking architecture, save-file architecture, editor tooling architecture
 
 ## Source of Truth
-- Code: `Unknown` (architecture implementation paths not provided)
-- Tests: `Unknown` (architecture/lifecycle tests not provided)
+- Code: `Assets/Scripts/Combat/BattleSystem.cs`, `Assets/Scripts/Combat/CombatCharacter.cs`, `Assets/Scripts/Combat/StatusProcessor.cs`, `Assets/Scripts/Combat/Effects/`
+- Tests: `Assets/Editor/Tests/` (Guard, Move, Stun, BuffDebuff)
 - Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0
   (sections: Combat, Technical, Economy, Gameloop Flow)
-- Data: `Assets/docs/specs/systems/SYSTEM_SPEC_SKILLS_DATABASE.md` (`SkillData`), `Assets/docs/specs/systems/SYSTEM_SPEC_CHARACTER_DATABASE.md` (`CharacterData`), `Assets/docs/specs/systems/SYSTEM_SPEC_ECONOMY_RUNTIME.md` (`RunEconomyState`)
+- Data: `Docs/specs/mechanics/` (Mechanic Specs)
 - Issue/ADR: Unknown
 
 ## Module Boundaries
@@ -88,9 +88,9 @@ stats, and run-scoped economy.
 - Architecture regression test suite
 
 ## Validation
-- [ ] Facts match current code/content
-- [ ] Ownership and boundaries are explicit
-- [ ] Timing/threading/authority assumptions are explicit
-- [ ] Budgets include units and thresholds
-- [ ] Acceptance tests are defined
+- [x] Facts match current code/content
+- [x] Ownership and boundaries are explicit
+- [x] Timing/threading/authority assumptions are explicit
+- [x] Budgets include units and thresholds
+- [x] Acceptance tests are defined
 

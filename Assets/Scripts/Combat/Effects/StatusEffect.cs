@@ -48,6 +48,11 @@ namespace Nevergreen.Combat
                 {
                     instance = new GuardStatusInstance(context.user, duration);
                 }
+                else if (statusType == StatusType.Move)
+                {
+                    instance = new MoveStatusInstance(context.battleSystem, amplitude);
+                    instance.Source = context.user;
+                }
                 else
                 {
                     instance = new StatusEffectInstance(statusType, targetStat, amplitude, duration);

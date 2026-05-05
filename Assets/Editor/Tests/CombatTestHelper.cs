@@ -84,6 +84,7 @@ namespace Nevergreen.Tests
             int attack = 100, int defense = 0, int accuracy = 95,
             int dodge = 5, int critChance = 5, int speed = 5,
             int maxHP = 100, int stunResist = 0, int debuffResist = 0,
+            int moveResist = 0,
             CombatConfig config = null)
         {
             var go = new GameObject($"TestCharacter_{id}");
@@ -91,7 +92,7 @@ namespace Nevergreen.Tests
 
             var stats = CreateStatBlock(attack, defense, accuracy, dodge,
                                         critChance, speed, maxHP,
-                                        stunResist: stunResist, debuffResist: debuffResist);
+                                        stunResist: stunResist, debuffResist: debuffResist, moveResist: moveResist);
             var charData = CreateCharacterData(id, id, stats,
                 team == Team.Player ? CharacterTeamType.Player : CharacterTeamType.Enemy);
 
