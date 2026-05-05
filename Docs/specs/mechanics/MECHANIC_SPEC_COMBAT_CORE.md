@@ -81,10 +81,14 @@ final_hit_chance_percent = min(95, attacker_accuracy_percent - target_dodge_perc
 # status application
 final_status_chance_percent = source_status_chance_percent - target_resistance_percent
 
-# effective stat calculation (percentage stacking)
-# all active buffs and debuffs for a stat are summed as a flat percentage of the base stat
-stat_multiplier = 1.0 + sum(buff_amplitudes_percent) - sum(debuff_amplitudes_percent)
-effective_stat = round_to_int(base_stat * stat_multiplier)
+# effective stat calculation
+# Core Stats (Attack, Defense, MaxHP, Speed, etc.) use percentage stacking:
+core_multiplier = 1.0 + (sum(buff_amplitudes) - sum(debuff_amplitudes)) / 100.0
+effective_core_stat = round_to_int(base_stat * core_multiplier)
+
+# Flat Stats (CritChance and all Resistances) use flat additive stacking:
+net_flat_modifier = sum(buff_amplitudes) - sum(debuff_amplitudes)
+effective_flat_stat = base_stat + net_flat_modifier
 ```
 
 ## Resistances

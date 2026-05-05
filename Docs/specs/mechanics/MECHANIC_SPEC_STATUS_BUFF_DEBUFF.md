@@ -52,13 +52,15 @@ Transitions:
 # status application resolution
 final_application_chance = source_chance - target_resistance
 
-# effective stat calculation (additive percentage stacking)
-# all active buffs and debuffs for a specific stat target are summed first
+# effective stat calculation
+# Core Stats (Attack, Defense, MaxHP, Speed, etc.) use percentage stacking:
 net_percentage_modifier = sum(buff_amplitudes) - sum(debuff_amplitudes)
 stat_multiplier = 1.0 + (net_percentage_modifier / 100.0)
+effective_core_stat = round_to_int(base_stat * stat_multiplier)
 
-# final rounding
-effective_stat = round_to_int(base_stat * stat_multiplier)
+# Flat Stats (CritChance and all Resistances) use flat additive stacking:
+net_flat_modifier = sum(buff_amplitudes) - sum(debuff_amplitudes)
+effective_flat_stat = base_stat + net_flat_modifier
 ```
 
 ## Tuning Variables
@@ -74,7 +76,7 @@ effective_stat = round_to_int(base_stat * stat_multiplier)
 - **Stat Target Coverage**: Supported targets include Attack, Defense, Accuracy, Dodge, CritChance, Speed, MaxHP, and all Resistances (Bleed, Blight, Stun, Debuff, Move).
 - **Additive Stacking**: Two +10% buffs result in +20% (1.2x), not 1.21x (compounded).
 - **Duration 0**: If a status is added with 0 duration, it is considered immediately expired and does not modify stats.
-- **Stun Recovery**: Characters receive a `Buff(StunResist, +300%, 1)` immediately upon a Stun status expiring to prevent "stun-locking".
+- **Stun Recovery**: Characters receive a `Buff(StunResist, +300, 1)` immediately upon a Stun status expiring to prevent "stun-locking". This is applied as a flat additive bonus.
 
 ## Failure Modes
 - **Null Reference**: If `CharacterData` is missing during initialization, stats default to 0 and status application may fail.

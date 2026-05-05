@@ -101,34 +101,44 @@ namespace Nevergreen.Combat
         /// </summary>
         public CombatStats GetEffectiveStats()
         {
-            // Accumulate net percentage modifier per stat target
+            // Accumulate modifiers: percentage multipliers for core stats, flat additions for others (resistances/crit)
             Dictionary<StatTarget, float> netPercent = new Dictionary<StatTarget, float>();
+            Dictionary<StatTarget, int> netFlat = new Dictionary<StatTarget, int>();
 
             foreach (var status in statusEffects)
             {
                 if (status.IsExpired) continue;
 
-                float sign;
-                if (status.type == StatusType.Buff)
-                    sign = 1f;
-                else if (status.type == StatusType.Debuff)
-                    sign = -1f;
+                float sign = (status.type == StatusType.Buff) ? 1f : (status.type == StatusType.Debuff) ? -1f : 0f;
+                if (sign == 0f) continue;
+
+                if (IsFlatStat(status.targetStat))
+                {
+                    if (!netFlat.ContainsKey(status.targetStat))
+                        netFlat[status.targetStat] = 0;
+                    netFlat[status.targetStat] += Mathf.RoundToInt(sign * status.amplitude);
+                }
                 else
-                    continue;
-
-                if (!netPercent.ContainsKey(status.targetStat))
-                    netPercent[status.targetStat] = 0f;
-
-                netPercent[status.targetStat] += sign * (status.amplitude / 100f);
+                {
+                    if (!netPercent.ContainsKey(status.targetStat))
+                        netPercent[status.targetStat] = 0f;
+                    netPercent[status.targetStat] += sign * (status.amplitude / 100f);
+                }
             }
 
             CombatStats effective = baseStats.Clone();
 
-            // Apply each accumulated multiplier to the base stat
+            // Apply percentage multipliers to core stats
             foreach (var kvp in netPercent)
             {
                 float multiplier = 1f + kvp.Value;
                 ApplyPercentageMultiplier(effective, baseStats, kvp.Key, multiplier);
+            }
+
+            // Apply flat additive modifiers
+            foreach (var kvp in netFlat)
+            {
+                ApplyFlatModifier(effective, kvp.Key, kvp.Value);
             }
 
             // Enforce hard caps
@@ -139,6 +149,16 @@ namespace Nevergreen.Combat
             }
 
             return effective;
+        }
+
+        private bool IsFlatStat(StatTarget target)
+        {
+            return target == StatTarget.CritChance ||
+                   target == StatTarget.BleedResist ||
+                   target == StatTarget.BlightResist ||
+                   target == StatTarget.StunResist ||
+                   target == StatTarget.DebuffResist ||
+                   target == StatTarget.MoveResist;
         }
 
         /// <summary>
@@ -154,14 +174,21 @@ namespace Nevergreen.Combat
                 case StatTarget.Defense:     effective.defense = Mathf.RoundToInt(baseStat.defense * multiplier); break;
                 case StatTarget.Accuracy:    effective.accuracy = Mathf.RoundToInt(baseStat.accuracy * multiplier); break;
                 case StatTarget.Dodge:       effective.dodge = Mathf.RoundToInt(baseStat.dodge * multiplier); break;
-                case StatTarget.CritChance:  effective.critChance = Mathf.RoundToInt(baseStat.critChance * multiplier); break;
                 case StatTarget.Speed:       effective.speed = Mathf.RoundToInt(baseStat.speed * multiplier); break;
                 case StatTarget.MaxHP:       effective.maxHP = Mathf.RoundToInt(baseStat.maxHP * multiplier); break;
-                case StatTarget.BleedResist: effective.bleedResist = Mathf.RoundToInt(baseStat.bleedResist * multiplier); break;
-                case StatTarget.BlightResist:effective.blightResist = Mathf.RoundToInt(baseStat.blightResist * multiplier); break;
-                case StatTarget.StunResist:  effective.stunResist = Mathf.RoundToInt(baseStat.stunResist * multiplier); break;
-                case StatTarget.DebuffResist:effective.debuffResist = Mathf.RoundToInt(baseStat.debuffResist * multiplier); break;
-                case StatTarget.MoveResist:  effective.moveResist = Mathf.RoundToInt(baseStat.moveResist * multiplier); break;
+            }
+        }
+
+        private void ApplyFlatModifier(CombatStats effective, StatTarget target, int amount)
+        {
+            switch (target)
+            {
+                case StatTarget.CritChance:  effective.critChance += amount; break;
+                case StatTarget.BleedResist: effective.bleedResist += amount; break;
+                case StatTarget.BlightResist:effective.blightResist += amount; break;
+                case StatTarget.StunResist:  effective.stunResist += amount; break;
+                case StatTarget.DebuffResist:effective.debuffResist += amount; break;
+                case StatTarget.MoveResist:  effective.moveResist += amount; break;
             }
         }
 
