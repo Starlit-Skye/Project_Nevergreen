@@ -131,5 +131,34 @@ namespace Nevergreen.Tests
             Assert.IsFalse(CombatCalculator.ResolveStatusApplication(80f, 100, rng),
                 "100% resist blocks 80% stun.");
         }
+
+        [Test]
+        public void StunnedCharacter_OtherStatusEffects_TickDownCorrectlyDuringSkip()
+        {
+            var c = Track("hero");
+            // Arrange: A 2-turn buff and a 1-turn stun
+            c.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 10, 2));
+            c.AddStatus(new StatusEffectInstance(StatusType.Stun, 1, 1));
+
+            Assert.IsTrue(c.isStunned, "Should be stunned initially.");
+            Assert.AreEqual(2, c.statusEffects.Count, "Should have 2 status effects.");
+
+            // Act: Simulate turn skip tick
+            StatusProcessor.TickDurations(c, _config.stunRecoveryResistBonus);
+
+            // Assert:
+            // 1. Stun should be gone (expiry)
+            Assert.IsFalse(c.isStunned, "Stun should have expired.");
+            
+            // 2. Buff should have 1 turn remaining
+            var buff = c.statusEffects.Find(s => s.type == StatusType.Buff && s.targetStat == StatTarget.Attack);
+            Assert.IsNotNull(buff, "Buff should still be present.");
+            Assert.AreEqual(1, buff.remainingDuration, "Buff duration should have ticked down even though turn was 'skipped'.");
+
+            // 3. One more tick should expire the buff
+            StatusProcessor.TickDurations(c, _config.stunRecoveryResistBonus);
+            Assert.IsFalse(c.statusEffects.Any(s => s.type == StatusType.Buff && s.targetStat == StatTarget.Attack), 
+                "Buff should have expired on second tick.");
+        }
     }
 }
