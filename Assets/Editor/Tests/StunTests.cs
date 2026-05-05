@@ -87,8 +87,8 @@ namespace Nevergreen.Tests
             c.AddStatus(new StatusEffectInstance(StatusType.Stun, 1, 1));
             StatusProcessor.TickDurations(c, _config.stunRecoveryResistBonus);
             CombatStats effective = c.GetEffectiveStats();
-            Assert.Greater(effective.stunResist, c.baseStats.stunResist,
-                "Post-stun recovery should increase stun resistance above base.");
+            Assert.AreEqual(310, effective.stunResist,
+                "Post-stun recovery should apply a flat +300 to stun resistance (10 + 300 = 310).");
         }
 
         [Test]
