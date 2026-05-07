@@ -62,7 +62,25 @@ namespace Nevergreen.Tests
             // Assert
             Assert.IsTrue(isOver);
             Assert.AreEqual(BattleState.BattleEnd, _battleSystem.CurrentState);
-            // We can't easily check the event without subscribing, but the state change confirms it.
+        }
+
+        [Test]
+        public void CheckBattleEnd_CeciliaIsPile_TriggersDefeat()
+        {
+            // Arrange
+            var cecilia = CombatTestHelper.CreateCombatCharacter("ceci", Team.Player, 1);
+            _playerTeam.Add(cecilia);
+
+            // Set to Pile state
+            cecilia.state = LifeState.Pile;
+
+            // Act
+            MethodInfo checkBattleEnd = typeof(BattleSystem).GetMethod("CheckBattleEnd", BindingFlags.NonPublic | BindingFlags.Instance);
+            bool isOver = (bool)checkBattleEnd.Invoke(_battleSystem, null);
+
+            // Assert
+            Assert.IsTrue(isOver, "Battle should end if Cecilia is a Pile.");
+            Assert.AreEqual(BattleState.BattleEnd, _battleSystem.CurrentState);
         }
 
         [Test]
@@ -147,7 +165,7 @@ namespace Nevergreen.Tests
 
             // Act
             MethodInfo handleDefeated = typeof(BattleSystem).GetMethod("HandleCharacterDefeated", BindingFlags.NonPublic | BindingFlags.Instance);
-            handleDefeated.Invoke(_battleSystem, new object[] { cecilia });
+            handleDefeated.Invoke(_battleSystem, new object[] { cecilia, false });
 
             // Assert
             Assert.AreEqual(BattleState.BattleEnd, _battleSystem.CurrentState);

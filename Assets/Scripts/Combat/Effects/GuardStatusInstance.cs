@@ -26,8 +26,8 @@ namespace Nevergreen.Combat
             // 2. Nested Guarding Rule
             BreakGuardsMaintainedBy(host);
 
-            // 3. Prevent application if Guardian is already dead or stunned
-            if (Source == null || !Source.IsAlive || Source.isStunned)
+            // 3. Prevent application if Guardian or Host is already dead or stunned
+            if (Source == null || !Source.IsAlive || Source.isStunned || !host.IsAlive)
             {
                 host.RemoveStatus(this);
                 return;
@@ -52,12 +52,12 @@ namespace Nevergreen.Combat
             }
         }
 
-        private void HandleGuardianDefeated(CombatCharacter c)
+        private void HandleGuardianDefeated(CombatCharacter c, bool wasCritical)
         {
             Host.RemoveStatus(this); // Immediate break on Guardian Death
         }
 
-        private void HandleHostDefeated(CombatCharacter c)
+        private void HandleHostDefeated(CombatCharacter c, bool wasCritical)
         {
             Host.RemoveStatus(this); // Immediate break on Host Death
         }

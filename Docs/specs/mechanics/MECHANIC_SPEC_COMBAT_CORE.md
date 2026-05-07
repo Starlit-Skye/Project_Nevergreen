@@ -21,6 +21,7 @@ Define the baseline turn-based combat mechanic used for player team versus enemy
 - Data: `Assets/Scripts/Data/CombatConfig.cs`, `Assets/Scripts/Data/SkillData.cs`, `Assets/Scripts/Data/CharacterData.cs`
 - Guard: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_GUARD.md`
 - Buff/Debuff: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_BUFF_DEBUFF.md`
+- Pile: `Docs/specs/mechanics/MECHANIC_SPEC_PILE.md`
 
 
 ## Inputs
@@ -127,7 +128,7 @@ is subtracted from the source's application chance when resolving status effects
 | `max_targets_per_skill` | 4 | 1 | 4 | targets | GDD Skills |
 
 ## Edge Cases
-- **Compact Formation**: Combat ranks are always contiguous from Rank 1 to Rank `team.Count`. The system does not allow "empty" slots between characters. If a character moves or dies, the formation shifts to maintain this state.
+- **Compact Formation**: Combat ranks are always contiguous from Rank 1 to Rank `team.Count`. The system does not allow "empty" slots between characters. When a character dies, it leaves behind a **Pile** (see [Pile Mechanic](MECHANIC_SPEC_PILE.md)) which continues to occupy the rank, preventing immediate formation collapse unless the killing blow was a Critical Hit.
 - If a character is stunned, it skips its turn.
 - After stun expires, target receives a `Buff` status effect targeting `StunResist` (`+300%`,
   1-turn duration). Buff/Debuff statuses use the `StatTarget` enum to specify which stat they

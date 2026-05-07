@@ -7,6 +7,17 @@ using Nevergreen.Data;
 namespace Nevergreen.Combat
 {
     /// <summary>
+    /// Tracks the lifecycle state of a combat entity.
+    /// </summary>
+    public enum LifeState
+    {
+        Alive,      // Active participant, takes turns.
+        Dying,      // Intermediate state during death animation.
+        Pile,       // Spatial anchor, 50% HP, no turns, decay-based.
+        Destroyed   // Removed from formation/logic.
+    }
+
+    /// <summary>
     /// Runtime combat entity. Attached to each character prefab in the combat scene.
     /// Holds current HP, resolved stats, rank, skills, and active status effects.
     /// </summary>
@@ -22,7 +33,22 @@ namespace Nevergreen.Combat
 
         // --- Runtime State (set during combat setup) ---
          public int currentHP;
-        [HideInInspector] public int rank; // 1-4, 1 = front
+        [HideInInspector] public int rank;
+        [HideInInspector] 
+        public LifeState state 
+        { 
+            get => _state; 
+            set 
+            {
+                if (_state != value)
+                {
+                    _state = value;
+                    OnStateChanged?.Invoke(this, _state);
+                }
+            }
+        }
+        private LifeState _state = LifeState.Alive;
+        [HideInInspector] public int pileDuration; // Turns remaining before Pile decays
         [HideInInspector] public Team team;
         [HideInInspector] public CombatConfig combatConfig;
         [HideInInspector] public CombatStats baseStats;
@@ -39,7 +65,8 @@ namespace Nevergreen.Combat
 
         public string DisplayName => characterData != null ? characterData.displayName : gameObject.name;
         public string CharacterId => characterData != null ? characterData.characterId : "";
-        public bool IsAlive => currentHP > 0;
+        public bool IsAlive => state == LifeState.Alive;
+        public bool IsPile => state == LifeState.Pile;
         public bool IsPlayerTeam => team == Team.Player;
 
         // --- Events ---
@@ -47,8 +74,9 @@ namespace Nevergreen.Combat
         public event Action<CombatCharacter, int> OnHealed;      // character, amount
         public event Action<CombatCharacter, StatusType, bool> OnStatusApplied;
         public event Action<CombatCharacter, StatusType, int> OnPeriodicEffectApplied;
-        public event Action<CombatCharacter> OnDefeated;
+        public event Action<CombatCharacter, bool> OnDefeated; // character, wasCritical
         public event Action<CombatCharacter> OnStatsChanged;
+        public event Action<CombatCharacter, LifeState> OnStateChanged;
 
         /// <summary>
         /// Initialize this character for combat from its CharacterData.
@@ -86,6 +114,7 @@ namespace Nevergreen.Combat
             statusEffects.Clear();
             _skillUseTracker.Clear();
             isStunned = false;
+            state = LifeState.Alive;
 
             animator = GetComponentInChildren<Animator>();
             if (animator == null)
@@ -148,6 +177,12 @@ namespace Nevergreen.Combat
                 effective.dodge = Mathf.Min(effective.dodge, combatConfig.dodgeCap);
             }
 
+            // Apply innate Pile bonuses
+            if (state == LifeState.Pile)
+            {
+                effective.moveResist += 300;
+            }
+
             return effective;
         }
 
@@ -195,18 +230,26 @@ namespace Nevergreen.Combat
         /// <summary>
         /// Apply damage to this character.
         /// </summary>
-        public void TakeDamage(int amount)
+        public void TakeDamage(int amount, bool isCritical = false)
         {
-            if (!IsAlive) return;
+            if (!IsAlive && !IsPile) return;
 
             int actual = Mathf.Max(0, amount);
             currentHP = Mathf.Max(0, currentHP - actual);
 
             OnDamageTaken?.Invoke(this, actual);
 
-            if (!IsAlive)
+            if (currentHP <= 0)
             {
-                OnDefeated?.Invoke(this);
+                if (state == LifeState.Pile)
+                {
+                    state = LifeState.Destroyed;
+                }
+                else
+                {
+                    state = LifeState.Dying;
+                    OnDefeated?.Invoke(this, isCritical);
+                }
             }
         }
 

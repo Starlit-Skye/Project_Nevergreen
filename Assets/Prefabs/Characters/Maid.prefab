@@ -209,6 +209,7 @@ MonoBehaviour:
   characterData: {fileID: 11400000, guid: 18b402bedc2c235459d585ab791f2f39, type: 2}
   currentLevel: 1
   currentHP: 0
+  state: 0
   rank: 0
   team: 0
   combatConfig: {fileID: 0}

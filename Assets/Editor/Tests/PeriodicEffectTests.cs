@@ -79,6 +79,7 @@ namespace Nevergreen.Tests
         public void Restore_DoesNotHealDeadCharacter()
         {
             var c = Track("hero", maxHP: 100, currentHP: 0); // HP 0 = Dead
+            c.state = LifeState.Dying; // Simulate death state
             c.AddStatus(new StatusEffectInstance(StatusType.Restore, StatTarget.MaxHP, 20, 3));
             
             StatusProcessor.ProcessPeriodicEffects(c);
