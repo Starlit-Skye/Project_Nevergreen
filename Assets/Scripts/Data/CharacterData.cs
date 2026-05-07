@@ -29,6 +29,9 @@ namespace Nevergreen.Data
         [Tooltip("Skills available to this character. Up to 4 can be used in battle.")]
         public List<SkillData> availableSkills = new List<SkillData>();
 
+        [Tooltip("If true, this character leaves a Pile (corpse) on non-critical death. If false, they are destroyed immediately.")]
+        public bool leavesPileOnDeath = true;
+
         /// <summary>
         /// Resolves the stat block for the given level using current_level - 1 indexing.
         /// Clamps to valid range.

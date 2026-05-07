@@ -20,11 +20,14 @@ namespace Nevergreen.Prototype
 
         [Header("Settings")]
         public Vector3 offset = new Vector3(0f, 1.5f, 0f);
-        public Color fullColor = new Color(0.2f, 0.8f, 0.2f);
-        public Color lowColor = new Color(0.8f, 0.2f, 0.2f);
+        public Color aliveColor = new Color(0.8f, 0.2f, 0.2f); // Red
+        public Color pileColor = new Color(0.4f, 0.4f, 0.4f);  // Gray
 
         private CombatCharacter _target;
         private AnimationQueueProcessor _animationQueue;
+
+        private int _currentMaxHP;
+        private Color _currentColor;
 
         /// <summary>
         /// Initialize with target and animation queue reference.
@@ -53,6 +56,7 @@ namespace Nevergreen.Prototype
                 Subscribe();
             }
 
+            UpdateStateConfig();
             Refresh();
             UpdatePosition();
         }
@@ -63,6 +67,7 @@ namespace Nevergreen.Prototype
             _target.OnDamageTaken += HandleDamage;
             _target.OnHealed += HandleHeal;
             _target.OnStatsChanged += HandleStatsChanged;
+            _target.OnStateChanged += HandleStateChanged;
         }
 
         private void Unsubscribe()
@@ -71,6 +76,7 @@ namespace Nevergreen.Prototype
             _target.OnDamageTaken -= HandleDamage;
             _target.OnHealed -= HandleHeal;
             _target.OnStatsChanged -= HandleStatsChanged;
+            _target.OnStateChanged -= HandleStateChanged;
         }
 
         private void HandleDamage(CombatCharacter c, int amount)
@@ -83,14 +89,42 @@ namespace Nevergreen.Prototype
             AnimateHPChange();
         }
 
-        private void HandleStatsChanged(CombatCharacter c) { Refresh(); }
+        private void HandleStatsChanged(CombatCharacter c) 
+        { 
+            Refresh(); 
+        }
+
+        private void HandleStateChanged(CombatCharacter c, LifeState state) 
+        { 
+            UpdateStateConfig();
+            Refresh(); 
+        }
+
+        private void UpdateStateConfig()
+        {
+            if (_target == null) return;
+
+            _currentMaxHP = _target.baseStats?.maxHP ?? 0;
+            if (_target.IsPile)
+            {
+                _currentMaxHP /= 2;
+                _currentColor = pileColor;
+            }
+            else
+            {
+                _currentColor = aliveColor;
+            }
+
+            if (fillImage != null)
+                fillImage.color = _currentColor;
+        }
 
         private void AnimateHPChange()
         {
             if (_target == null) return;
 
-            float targetRatio = _target.baseStats != null && _target.baseStats.maxHP > 0
-                ? (float)_target.currentHP / _target.baseStats.maxHP
+            float targetRatio = _currentMaxHP > 0
+                ? (float)_target.currentHP / _currentMaxHP
                 : 0f;
 
             Tween tween = null;
@@ -107,18 +141,13 @@ namespace Nevergreen.Prototype
 
             if (tween != null)
             {
-                int maxHP = _target.baseStats?.maxHP ?? 0;
                 tween.OnUpdate(() =>
                 {
                     float currentRatio = hpSlider != null ? hpSlider.value : (fillImage != null ? fillImage.fillAmount : targetRatio);
-                    if (fillImage != null)
-                    {
-                        fillImage.color = Color.Lerp(lowColor, fullColor, currentRatio);
-                    }
                     if (hpText != null)
                     {
-                        int displayedHP = Mathf.RoundToInt(currentRatio * maxHP);
-                        hpText.text = $"{displayedHP}/{maxHP}";
+                        int displayedHP = Mathf.RoundToInt(currentRatio * _currentMaxHP);
+                        hpText.text = $"{displayedHP}/{_currentMaxHP}";
                     }
                 });
 
@@ -151,8 +180,8 @@ namespace Nevergreen.Prototype
         {
             if (_target == null) return;
 
-            float ratio = _target.baseStats != null && _target.baseStats.maxHP > 0
-                ? (float)_target.currentHP / _target.baseStats.maxHP
+            float ratio = _currentMaxHP > 0
+                ? (float)_target.currentHP / _currentMaxHP
                 : 0f;
 
             if (hpSlider != null)
@@ -164,20 +193,16 @@ namespace Nevergreen.Prototype
                 fillImage.fillAmount = ratio;
             }
 
-            if (fillImage != null)
-            {
-                fillImage.color = Color.Lerp(lowColor, fullColor, ratio);
-            }
-
             if (hpText != null)
             {
-                hpText.text = _target.baseStats != null
-                    ? $"{_target.currentHP}/{_target.baseStats.maxHP}"
+                hpText.text = _currentMaxHP > 0
+                    ? $"{_target.currentHP}/{_currentMaxHP}"
                     : "0/0";
             }
 
-            // Hide if dead
-            gameObject.SetActive(_target.IsAlive);
+            // Hide if destroyed or dying (if we want dying to hide immediately)
+            // But keep it for Alive and Pile.
+            gameObject.SetActive(_target.IsAlive || _target.IsPile);
         }
 
         public void UpdatePosition()

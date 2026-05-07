@@ -241,6 +241,19 @@ namespace Nevergreen.Combat
                 }
             }
 
+            // Tick durations for all Piles after every character action
+            foreach (var c in _playerTeam.Concat(_enemyTeam).Where(c => c.IsPile).ToList())
+            {
+                c.pileDuration--;
+                
+                // If the Pile has decayed, move to Destroyed state
+                if (c.pileDuration <= 0)
+                {
+                    c.state = LifeState.Destroyed;
+                    Debug.Log($"[BattleSystem] {c.DisplayName} Pile has decayed and is now Destroyed.");
+                }
+            }
+
             // The battle end is now handled by the OnDefeated event, but we check here 
             // to ensure the coroutine stops if defeat occurred during the action.
             if (CurrentState == BattleState.BattleEnd)
@@ -310,7 +323,7 @@ namespace Nevergreen.Combat
             List<CombatCharacter> shiftingCharacters = new List<CombatCharacter>();
             foreach (var character in team)
             {
-                if (!character.IsAlive || character == mover) continue;
+                if (character == mover) continue;
 
                 if (movingForward)
                 {
@@ -462,7 +475,7 @@ namespace Nevergreen.Combat
 
                 foreach (var target in targets)
                 {
-                    if (!target.IsAlive) continue;
+                    if (!target.IsAlive && !target.IsPile) continue;
 
                     // 1. Resolve Target
                     CombatCharacter finalTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
@@ -529,8 +542,10 @@ namespace Nevergreen.Combat
                     break;
             }
 
+            bool isHealingSkill = skill.effects.Any(e => e is HealEffect);
+
             return pool
-                .Where(c => c.IsAlive && skill.targetRanks.Contains(c.rank))
+                .Where(c => (c.IsAlive || (c.IsPile && !isHealingSkill)) && skill.targetRanks.Contains(c.rank))
                 .ToList();
         }
 
@@ -538,9 +553,9 @@ namespace Nevergreen.Combat
         {
             if (CurrentState == BattleState.BattleEnd) return true;
             // Cecilia (ceci) is the primary character; her defeat is a battle loss.
-            bool ceciliaDefeated = _playerTeam.Any(c => c.CharacterId == "ceci" && !c.IsAlive);
-            bool allPlayersDead = _playerTeam.Count > 0 && _playerTeam.All(c => !c.IsAlive);
-            bool allEnemiesDead = _enemyTeam.Count > 0 && _enemyTeam.All(c => !c.IsAlive);
+            bool ceciliaDefeated = _playerTeam.Any(c => c.CharacterId == "ceci" && c.state != LifeState.Alive);
+            bool allPlayersDead = _playerTeam.Count > 0 && _playerTeam.All(c => c.state != LifeState.Alive);
+            bool allEnemiesDead = _enemyTeam.Count > 0 && _enemyTeam.All(c => c.state != LifeState.Alive);
 
             if (ceciliaDefeated || allPlayersDead)
             {
@@ -568,11 +583,55 @@ namespace Nevergreen.Combat
             CurrentState = BattleState.RoundStart;
         }
 
-        private void HandleCharacterDefeated(CombatCharacter character)
+        private void HandleCharacterDefeated(CombatCharacter character, bool wasCritical)
         {
-            Debug.Log($"[BattleSystem] {character.DisplayName} has been defeated!");
+            Debug.Log($"[BattleSystem] {character.DisplayName} has been defeated!{(wasCritical ? " (CRITICAL KILL)" : "")}");
+
+            // Character is already in Dying state (set by TakeDamage)
+
+            // 1. Enqueue the death animation
+            if (animationQueue != null && character.animator != null)
+            {
+                animationQueue.Enqueue(new AnimatorStep($"{character.DisplayName} Die", character.animator, "Die", 1.5f));
+            }
+
+            // 3. Enqueue deferred transition (runs right after death animation finishes)
+            if (animationQueue != null)
+            {
+                animationQueue.Enqueue(new ActionStep($"{character.DisplayName} Spawn Pile", () =>
+                {
+                    FinalizeCharacterDefeat(character, wasCritical);
+                }));
+            }
+            else
+            {
+                FinalizeCharacterDefeat(character, wasCritical);
+            }
+
             OnCharacterDefeated?.Invoke(character);
             CheckBattleEnd();
+        }
+
+        private void FinalizeCharacterDefeat(CombatCharacter character, bool wasCritical)
+        {
+            bool canFormPile = character.characterData != null && character.characterData.leavesPileOnDeath;
+
+            if (wasCritical || !canFormPile)
+            {
+                character.state = LifeState.Destroyed;
+                Debug.Log($"[BattleSystem] {character.DisplayName} is destroyed (no Pile formed).");
+            }
+            else
+            {
+                character.state = LifeState.Pile;
+                character.currentHP = character.baseStats.maxHP / 2;
+                character.pileDuration = 4; // Decay after 4 character actions
+                
+                // Clear all previous status effects (Bleeds, Buffs, etc.)
+                character.statusEffects.Clear();
+
+                Debug.Log($"[BattleSystem] {character.DisplayName} has become a Pile. HP: {character.currentHP}, Duration: {character.pileDuration}");
+            }
         }
 
         private void OnDestroy()

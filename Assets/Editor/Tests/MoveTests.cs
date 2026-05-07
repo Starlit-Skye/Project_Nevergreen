@@ -236,5 +236,15 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(e3.gameObject);
             Object.DestroyImmediate(bs.gameObject);
         }
+
+        [Test]
+        public void Pile_InnateMoveResist_Is300()
+        {
+            var target = CombatTestHelper.CreateCombatCharacter("Pile", Team.Enemy, 1);
+            target.state = LifeState.Pile;
+
+            CombatStats stats = target.GetEffectiveStats();
+            Assert.IsTrue(stats.moveResist >= 300, $"Pile should have high move resist. Actual: {stats.moveResist}");
+        }
     }
 }

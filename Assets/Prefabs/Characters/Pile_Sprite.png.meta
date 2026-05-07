@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d0dc1af7b8ae9d44f9de7421c0398406
+guid: fc4341695529a5148941553b4d537b77
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5542857369475096237
-    second: Ceci_Sprite_0
+      213: -4224100260332743836
+    second: Maid_Sprite_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ceci_Sprite_0
+      name: Maid_Sprite_0
       rect:
         serializedVersion: 2
-        x: 7
-        y: 1
-        width: 19
-        height: 31
+        x: 6
+        y: 0
+        width: 21
+        height: 32
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 13, z: 0, w: 0}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dae1834096f2cec40800000000000000
-      internalID: 5542857369475096237
+      spriteID: 4635b37813bf065c0800000000000000
+      internalID: -4224100260332743836
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: bf6722c573c263d459a0f2382cefc05c
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Ceci_Sprite_0: 5542857369475096237
+      Maid_Sprite_0: -4224100260332743836
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 4308528512723724323}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.6, z: 0}
+  m_LocalPosition: {x: 0, y: 0.05, z: 0}
   m_LocalScale: {x: 2, y: 2.4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -209,6 +209,7 @@ MonoBehaviour:
   characterData: {fileID: 11400000, guid: f0df3e6e0c95dbe4fbba011a33480f83, type: 2}
   currentLevel: 1
   currentHP: 0
+  state: 0
   rank: 0
   team: 0
   combatConfig: {fileID: 0}
