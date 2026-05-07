@@ -43,6 +43,12 @@ Transitions:
 4. `RoundEnd` -> `RoundStart` when battle continues
 5. `CharacterTurn` -> `BattleEnd` when victory/defeat condition is reached
 
+## Win/Loss Conditions
+- **Victory**: All characters on the enemy team are defeated (`IsAlive == false`).
+- **Defeat**: Triggered if either:
+  1. **Cecilia** (identified by `CharacterId == "ceci"`) is defeated.
+  2. **All players** on the player team are defeated (fallback for cases where Cecilia is not present).
+
 ## Timing Model
 - Update domain: tick (turn/round steps in a turn-based loop)
 - Tick rate: per turn event, duration in real-time units is Unknown
@@ -154,7 +160,8 @@ is subtracted from the source's application chance when resolving status effects
 - Automated: `Assets/Editor/Tests/` (`GuardTests`, `StunTests`, `BuffDebuffTests`, `HitCritTests`, `MoveTests`)
 - Playtest: verify round flow, turn order by Speed, mirrored rank behavior, move action adjacent-rank
   swap, speed-tie behavior (enemy before player; same-team front-most rank first), stun skip
-  behavior, and guard bypass behavior for AOE cases. Verify compact formation logic in small teams.
+  behavior, and guard bypass behavior for AOE cases. Verify compact formation logic in small teams. 
+  **Verify defeat condition triggers immediately upon Cecilia's death.**
 
 ## Missing Evidence
 - **Multi-Hit Stun Interaction**: Behavior if a character is stunned midway through a multi-hit skill.

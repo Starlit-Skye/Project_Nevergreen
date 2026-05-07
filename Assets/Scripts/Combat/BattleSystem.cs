@@ -169,6 +169,8 @@ namespace Nevergreen.Combat
 
         private IEnumerator ProcessTurn()
         {
+            if (CheckBattleEnd()) yield break;
+
             if (_currentTurnIndex >= _turnOrder.Count)
             {
                 CurrentState = BattleState.RoundEnd;
@@ -191,13 +193,16 @@ namespace Nevergreen.Combat
             // Phase 1: Apply DOT/HOT effects (bleed/blight still hurt stunned characters)
             StatusProcessor.ProcessPeriodicEffects(CurrentActor);
 
-            // Wait for DOT/HOT animations to finish before proceeding to stun check or action
+            // Wait for DOT/HOT animations to finish before proceeding
             if (animationQueue != null)
             {
                 while (animationQueue.IsBusy) yield return null;
             }
 
-            // Check if died from DOT
+            // Check if died from DOT or if battle ended during animations
+            if (CheckBattleEnd()) yield break;
+
+            // Check death from DOT (redundant with CheckBattleEnd but kept for turn index increment)
             if (!CurrentActor.IsAlive)
             {
                 StatusProcessor.TickDurations(CurrentActor, combatConfig.stunRecoveryResistBonus);
@@ -236,8 +241,9 @@ namespace Nevergreen.Combat
                 }
             }
 
-            // Check battle end
-            if (CheckBattleEnd())
+            // The battle end is now handled by the OnDefeated event, but we check here 
+            // to ensure the coroutine stops if defeat occurred during the action.
+            if (CurrentState == BattleState.BattleEnd)
             {
                 yield break;
             }
@@ -530,13 +536,17 @@ namespace Nevergreen.Combat
 
         private bool CheckBattleEnd()
         {
-            bool allPlayersDead = _playerTeam.All(c => !c.IsAlive);
-            bool allEnemiesDead = _enemyTeam.All(c => !c.IsAlive);
+            if (CurrentState == BattleState.BattleEnd) return true;
+            // Cecilia (ceci) is the primary character; her defeat is a battle loss.
+            bool ceciliaDefeated = _playerTeam.Any(c => c.CharacterId == "ceci" && !c.IsAlive);
+            bool allPlayersDead = _playerTeam.Count > 0 && _playerTeam.All(c => !c.IsAlive);
+            bool allEnemiesDead = _enemyTeam.Count > 0 && _enemyTeam.All(c => !c.IsAlive);
 
-            if (allPlayersDead)
+            if (ceciliaDefeated || allPlayersDead)
             {
                 CurrentState = BattleState.BattleEnd;
-                Debug.Log("[BattleSystem] === DEFEAT ===");
+                string reason = ceciliaDefeated ? "CECILIA DEFEATED" : "ALL PLAYERS DEFEATED";
+                Debug.Log($"[BattleSystem] === DEFEAT ({reason}) ===");
                 OnBattleEnded?.Invoke(BattleOutcome.Defeat);
                 return true;
             }
@@ -562,6 +572,7 @@ namespace Nevergreen.Combat
         {
             Debug.Log($"[BattleSystem] {character.DisplayName} has been defeated!");
             OnCharacterDefeated?.Invoke(character);
+            CheckBattleEnd();
         }
 
         private void OnDestroy()
