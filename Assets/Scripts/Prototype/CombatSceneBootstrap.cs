@@ -123,6 +123,12 @@ namespace Nevergreen.Prototype
                 combatUI.Initialize(battleSystem, _spawnedPlayerTeam, _spawnedEnemyTeam);
             }
 
+            // Inject layout settings for rank shifting
+            battleSystem.playerBaseX = playerBasePosition.x;
+            battleSystem.playerSpacingX = playerRankSpacing;
+            battleSystem.enemyBaseX = enemyBasePosition.x;
+            battleSystem.enemySpacingX = enemyRankSpacing;
+
             battleSystem.StartBattle(_spawnedPlayerTeam, _spawnedEnemyTeam);
         }
     }

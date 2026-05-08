@@ -24,6 +24,12 @@ namespace Nevergreen.Combat
         public int CurrentRound { get; private set; } = 0;
         public CombatCharacter CurrentActor { get; private set; }
 
+        // Layout configuration (injected by Bootstrap or set in Inspector)
+        [HideInInspector] public float playerBaseX = -3f;
+        [HideInInspector] public float playerSpacingX = -2f;
+        [HideInInspector] public float enemyBaseX = 3f;
+        [HideInInspector] public float enemySpacingX = 2f;
+
         private List<CombatCharacter> _playerTeam = new List<CombatCharacter>();
         private List<CombatCharacter> _enemyTeam = new List<CombatCharacter>();
         private List<TurnEntry> _turnOrder = new List<TurnEntry>();
@@ -41,6 +47,7 @@ namespace Nevergreen.Combat
         public event Action<BattleOutcome> OnBattleEnded;
         public event Action OnWaitingForPlayerInput;
         public event Action<CombatCharacter> OnCharacterDefeated;
+        public event Action<CombatCharacter> OnCharacterRemoved;
 
         public List<CombatCharacter> PlayerTeam => _playerTeam;
         public List<CombatCharacter> EnemyTeam => _enemyTeam;
@@ -74,6 +81,7 @@ namespace Nevergreen.Combat
             {
                 c.combatConfig = combatConfig;
                 c.OnDefeated += HandleCharacterDefeated;
+                c.OnStateChanged += HandleCharacterStateChanged;
             }
 
             CurrentState = BattleState.RoundStart;
@@ -309,16 +317,6 @@ namespace Nevergreen.Combat
 
             bool movingForward = targetRank < startRank;
 
-            // 1. Capture current X positions of the affected team mapped to their current ranks
-            Dictionary<int, float> rankToPosX = new Dictionary<int, float>();
-            
-            // Capture positions of ALL characters in the team (alive or dead) to get rank anchors
-            foreach (var character in team)
-            {
-                rankToPosX[character.rank] = character.transform.position.x;
-            }
-
-
             // 2. Identify characters that will shift to make room
             List<CombatCharacter> shiftingCharacters = new List<CombatCharacter>();
             foreach (var character in team)
@@ -350,31 +348,39 @@ namespace Nevergreen.Combat
                 character.rank += movingForward ? 1 : -1;
             }
 
-            // 4. Create and enqueue tweens based on captured positions
+            // 4. Create and enqueue tweens
             if (animationQueue != null)
             {
                 float moveDuration = 0.5f;
                 ParallelStep moveParallel = new ParallelStep($"{mover.DisplayName} MoveAndShift");
 
-                // Tween the mover to the target rank's original X position
-                if (rankToPosX.TryGetValue(targetRank, out float targetX))
-                {
-                    var tween = DG.Tweening.ShortcutExtensions.DOMoveX(mover.transform, targetX, moveDuration);
-                    moveParallel.AddStep(new DOTweenStep($"Move_{mover.DisplayName}", tween, moveDuration));
-                }
+                // Tween the mover
+                float targetX = GetXPositionForRank(mover.team, mover.rank);
+                var tween = DG.Tweening.ShortcutExtensions.DOMoveX(mover.transform, targetX, moveDuration);
+                moveParallel.AddStep(new DOTweenStep($"Move_{mover.DisplayName}", tween, moveDuration));
 
-                // Tween each shifting character to their new rank's original X position
+                // Tween each shifting character
                 foreach (var character in shiftingCharacters)
                 {
-                    if (rankToPosX.TryGetValue(character.rank, out float shiftTargetX))
-                    {
-                        var tween = DG.Tweening.ShortcutExtensions.DOMoveX(character.transform, shiftTargetX, moveDuration);
-                        moveParallel.AddStep(new DOTweenStep($"Shift_{character.DisplayName}", tween, moveDuration));
-                    }
+                    float shiftTargetX = GetXPositionForRank(character.team, character.rank);
+                    var sTween = DG.Tweening.ShortcutExtensions.DOMoveX(character.transform, shiftTargetX, moveDuration);
+                    moveParallel.AddStep(new DOTweenStep($"Shift_{character.DisplayName}", sTween, moveDuration));
                 }
 
                 animationQueue.Enqueue(moveParallel);
                 Debug.Log($"[BattleSystem] {mover.DisplayName} moved to rank {targetRank}. Shifting {shiftingCharacters.Count} allies.");
+            }
+        }
+
+        public float GetXPositionForRank(Team team, int rank)
+        {
+            if (team == Team.Player)
+            {
+                return playerBaseX + (rank - 1) * playerSpacingX;
+            }
+            else
+            {
+                return enemyBaseX + (rank - 1) * enemySpacingX;
             }
         }
 
@@ -554,8 +560,8 @@ namespace Nevergreen.Combat
             if (CurrentState == BattleState.BattleEnd) return true;
             // Cecilia (ceci) is the primary character; her defeat is a battle loss.
             bool ceciliaDefeated = _playerTeam.Any(c => c.CharacterId == "ceci" && c.state != LifeState.Alive);
-            bool allPlayersDead = _playerTeam.Count > 0 && _playerTeam.All(c => c.state != LifeState.Alive);
-            bool allEnemiesDead = _enemyTeam.Count > 0 && _enemyTeam.All(c => c.state != LifeState.Alive);
+            bool allPlayersDead = _playerTeam.Count == 0 || _playerTeam.All(c => c.state != LifeState.Alive);
+            bool allEnemiesDead = _enemyTeam.Count == 0 || _enemyTeam.All(c => c.state != LifeState.Alive);
 
             if (ceciliaDefeated || allPlayersDead)
             {
@@ -634,11 +640,78 @@ namespace Nevergreen.Combat
             }
         }
 
+        private void HandleCharacterStateChanged(CombatCharacter character, LifeState newState)
+        {
+            if (newState == LifeState.Destroyed)
+            {
+                HandleCharacterDestroyed(character);
+            }
+        }
+
+        private void HandleCharacterDestroyed(CombatCharacter character)
+        {
+            Debug.Log($"[BattleSystem] {character.DisplayName} has been destroyed and removed from battle.");
+            
+            var team = character.IsPlayerTeam ? _playerTeam : _enemyTeam;
+            int removedRank = character.rank;
+
+            // 1. Remove from team list
+            team.Remove(character);
+
+            // 2. Shift ranks of characters behind
+            ShiftRanksAfterRemoval(team, removedRank);
+
+            // 3. Enqueue physical destruction (after small delay for any lingering effects/animations)
+            if (animationQueue != null)
+            {
+                animationQueue.Enqueue(new ActionStep($"{character.DisplayName} Cleanup", () =>
+                {
+                    if (Application.isPlaying) Destroy(character.gameObject);
+                    else DestroyImmediate(character.gameObject);
+                }));
+            }
+            else
+            {
+                if (Application.isPlaying) Destroy(character.gameObject);
+                else DestroyImmediate(character.gameObject);
+            }
+
+            // 4. Notify external systems
+            OnCharacterRemoved?.Invoke(character);
+
+            // 5. Check battle end (in case this was the last character)
+            CheckBattleEnd();
+        }
+
+        private void ShiftRanksAfterRemoval(List<CombatCharacter> team, int gapRank)
+        {
+            List<CombatCharacter> shifting = team.Where(c => c.rank > gapRank).ToList();
+            if (shifting.Count == 0) return;
+
+            ParallelStep shiftParallel = new ParallelStep("Rank Shift After Removal");
+            float shiftDuration = 0.4f;
+
+            foreach (var character in shifting)
+            {
+                character.rank -= 1;
+                float targetX = GetXPositionForRank(character.team, character.rank);
+                
+                var tween = DG.Tweening.ShortcutExtensions.DOMoveX(character.transform, targetX, shiftDuration);
+                shiftParallel.AddStep(new DOTweenStep($"Shift_{character.DisplayName}", tween, shiftDuration));
+            }
+
+            if (animationQueue != null)
+            {
+                animationQueue.Enqueue(shiftParallel);
+            }
+        }
+
         private void OnDestroy()
         {
             foreach (var c in _playerTeam.Concat(_enemyTeam))
             {
                 c.OnDefeated -= HandleCharacterDefeated;
+                c.OnStateChanged -= HandleCharacterStateChanged;
             }
         }
     }

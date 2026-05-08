@@ -2,7 +2,7 @@
 
 Owner: Combat Engineering Team
 Status: active
-Last verified: 2026-05-07
+Last verified: 2026-05-08
 Verified commit: HEAD
 Target build: Unity 2022.3 + Windows
 
@@ -36,13 +36,16 @@ States:
 - `Alive`: Character is active and participating in combat.
 - `Dying`: Intermediate state during death animation; non-interactable.
 - `Pile`: Character is defeated (`HP <= 0`) but still occupies a rank. 
-- `Destroyed`: Character/Pile is removed from the rank and the team formation.
+- `Destroyed`: Character/Pile is removed from the team list and their GameObject is destroyed.
+  Triggers immediate **Rank Shifting** for all characters in higher ranks.
 
 Transitions:
 1. `Alive` -> `Dying` immediately when `HP` reaches 0.
 2. `Dying` -> `Pile` when death animation finishes AND `isCritical == false` AND `leavesPileOnDeath == true`.
 3. `Dying` -> `Destroyed` when death animation finishes AND (`isCritical == true` OR `leavesPileOnDeath == false`).
 4. `Pile` -> `Destroyed` when `HP` reaches 0 (as a Pile) OR after 4 turn actions.
+5. Entering `Destroyed` state triggers `BattleSystem.HandleCharacterDestroyed` which removes the
+   character from the `_playerTeam` or `_enemyTeam` list and initiates rank-shifting tweens.
 
 ## Timing Model
 - Update domain: Turn-based.

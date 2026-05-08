@@ -2,7 +2,7 @@
 
 Owner: Combat Engineering Team
 Status: active
-Last verified: 2026-04-28
+Last verified: 2026-05-08
 Verified commit: HEAD
 Target build: Unity 2022.3 + Windows
 
@@ -45,10 +45,12 @@ Transitions:
 5. `CharacterTurn` -> `BattleEnd` when victory/defeat condition is reached
 
 ## Win/Loss Conditions
-- **Victory**: All characters on the enemy team are defeated (`IsAlive == false`).
+- **Victory**: All characters on the enemy team are defeated (`IsAlive == false`) or the enemy team
+  list is empty (`_enemyTeam.Count == 0`).
 - **Defeat**: Triggered if either:
-  1. **Cecilia** (identified by `CharacterId == "ceci"`) is defeated.
-  2. **All players** on the player team are defeated (fallback for cases where Cecilia is not present).
+  1. **Cecilia** (identified by `CharacterId == "ceci"`) is defeated (`state != LifeState.Alive`).
+     This check occurs immediately upon defeat, before she is removed from the battle.
+  2. **All players** on the player team are defeated or the player team list is empty.
 
 ## Timing Model
 - Update domain: tick (turn/round steps in a turn-based loop)
@@ -128,7 +130,16 @@ is subtracted from the source's application chance when resolving status effects
 | `max_targets_per_skill` | 4 | 1 | 4 | targets | GDD Skills |
 
 ## Edge Cases
-- **Compact Formation**: Combat ranks are always contiguous from Rank 1 to Rank `team.Count`. The system does not allow "empty" slots between characters. When a character dies, it leaves behind a **Pile** (see [Pile Mechanic](MECHANIC_SPEC_PILE.md)) which continues to occupy the rank, preventing immediate formation collapse unless the killing blow was a Critical Hit.
+- **Compact Formation**: Combat ranks are always contiguous from Rank 1 to Rank `team.Count`. The
+  system does not allow "empty" slots between characters. 
+- **Rank Shifting**: When a character's state becomes `LifeState.Destroyed`, they are removed from
+  the battle team list. Any allies in ranks behind the removed character (higher rank numbers)
+  automatically decrement their rank by 1 and slide forward to fill the gap.
+- **Positioning Logic**: Rank positions are determined deterministically based on team-specific
+  layout configuration: `BaseX + (Rank - 1) * SpacingX`.
+- **Pile Interaction**: A **Pile** (see [Pile Mechanic](MECHANIC_SPEC_PILE.md)) continues to occupy
+  a rank, preventing immediate formation collapse unless the killing blow was a Critical Hit or
+  the Pile expires/is destroyed.
 - If a character is stunned, it skips its turn.
 - After stun expires, target receives a `Buff` status effect targeting `StunResist` (`+300%`,
   1-turn duration). Buff/Debuff statuses use the `StatTarget` enum to specify which stat they
@@ -148,11 +159,12 @@ is subtracted from the source's application chance when resolving status effects
 - Missing combat formulas per skill: `Unknown`
 - Missing full operation order for status vs hit vs death checks: `Unknown`
 
-## Event Hooks
+- **Event Hooks**
 - Event: `battle_started`, Trigger: room enters combat, Payload: run id, room id, team size
 - Event: `round_started`, Trigger: new combat round, Payload: round index, turn list snapshot
 - Event: `character_moved_rank`, Trigger: move action resolves, Payload: actor, old rank, new rank
 - Event: `character_passed_turn`, Trigger: pass action resolves, Payload: actor
+- Event: `character_removed`, Trigger: character state becomes `Destroyed`, Payload: character
 - Event: `character_action_resolved`, Trigger: action completion, Payload: actor, skill, target(s),
   hit/miss, crit, status results
 - Event: `battle_ended`, Trigger: combat end, Payload: battle type, outcome, rounds elapsed, casualties, parts granted, scraps granted

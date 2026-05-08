@@ -21,6 +21,20 @@ Reference: `Docs/proposals/IMPLEMENTATION_PROPOSAL_PILE.md`
 - [x] **Step 15**: Add `state = LifeState.Alive` reset in `InitializeForCombat`
 - [x] **Step 16**: Compile and verify — **75/75 tests pass**
 
-## Remaining TODOs (in code)
-- `FinalizeCharacterDefeat`: Apply Move Resist +300% and Pile Expiry status (4 turns)
-- Visual handling for Destroyed state (hide character)
+## Character Removal & Rank Shifting
+
+- [x] **Step 1**: Add configuration layout values and `OnCharacterRemoved` event to `BattleSystem.cs`.
+- [x] **Step 2**: Create `GetXPositionForRank` and refactor `ExecuteMoveAndShift`.
+- [x] **Step 3**: Inject layout configurations in `CombatSceneBootstrap.cs`.
+- [x] **Step 4**: Add `HandleCharacterStateChanged` and `HandleCharacterDestroyed` to `BattleSystem.cs`.
+- [x] **Step 5**: Subscribe to `OnStateChanged` in `BattleSystem.StartBattle`.
+- [x] **Step 6**: Add `ShiftRanksAfterRemoval` to `BattleSystem.cs`.
+- [x] **Step 7**: Update `CheckBattleEnd` to handle empty teams.
+- [x] **Step 8**: Write unit tests in `FormationTests.cs` and verify they pass.
+
+### Review Section
+The automated character removal and rank-shifting logic has been successfully implemented and tested.
+* When a character's state changes to `LifeState.Destroyed`, the system automatically captures its current rank, removes the character from the active team list, and evaluates remaining characters in that team.
+* Allies stationed behind the removed character are shifted forward by one rank, and visual `DOMoveX` tweens are queued to reflect their new deterministic positions (based on centralized base X and spacing settings).
+* External systems can now hook into the `OnCharacterRemoved` event.
+* Extensive testing covering empty teams, full shifts, and team counts verified the resilience of the update. All tests successfully passed.
