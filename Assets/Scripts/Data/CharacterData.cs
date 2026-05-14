@@ -32,6 +32,9 @@ namespace Nevergreen.Data
         [Tooltip("If true, this character leaves a Pile (corpse) on non-critical death. If false, they are destroyed immediately.")]
         public bool leavesPileOnDeath = true;
 
+        [Tooltip("The default AI Profile to use if this character is an enemy. Ignored for Player characters.")]
+        public Nevergreen.Combat.AI.EnemyAIProfile defaultAIProfile;
+
         /// <summary>
         /// Resolves the stat block for the given level using current_level - 1 indexing.
         /// Clamps to valid range.

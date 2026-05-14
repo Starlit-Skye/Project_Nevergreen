@@ -19,3 +19,10 @@
 
 ### 4. IsAlive Over-usage
 - **Rule**: Avoid using `!character.IsAlive` as a blanket filter for turn logic, status logic, AND spatial logic. Spatial logic should usually consider all entities in the formation to maintain spatial integrity.
+
+## Technical & Project Structure
+
+### 5. C# Namespace Visibility in Subfolders
+- **Pattern**: Creating new sub-namespaces (e.g., `Nevergreen.Combat.AI`) inside a parent folder (`Nevergreen.Combat`).
+- **Rule**: Even if a namespace is a sub-namespace of another, you must explicitly include `using` directives for the parent namespace if they reside in different files or folders. Don't assume visibility based on folder structure alone.
+- **Verification**: Always check for `CS0246` (type or namespace not found) immediately after creating new files in new directories.

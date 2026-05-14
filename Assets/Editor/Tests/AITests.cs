@@ -1,0 +1,234 @@
+using System.Collections.Generic;
+using NUnit.Framework;
+using UnityEngine;
+using Nevergreen.Combat;
+using Nevergreen.Combat.AI;
+using Nevergreen.Combat.AI.Nodes;
+
+namespace Nevergreen.Tests
+{
+    public class AITests
+    {
+        private GameObject _battleGo;
+        private BattleSystem _battleSystem;
+        private CombatCharacter _brainChar;
+        private AIBrain _brain;
+
+        [SetUp]
+        public void Setup()
+        {
+            _battleGo = new GameObject("BattleSystem");
+            _battleSystem = _battleGo.AddComponent<BattleSystem>();
+
+            // Setup a dummy character to host the brain
+            _brainChar = CombatTestHelper.CreateCombatCharacter("enemy_1", Team.Enemy, 1, maxHP: 100);
+            _brain = _brainChar.gameObject.GetComponent<AIBrain>();
+            if (_brain == null) _brain = _brainChar.gameObject.AddComponent<AIBrain>();
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            Object.DestroyImmediate(_battleGo);
+            if (_brainChar != null && _brainChar.gameObject != null)
+            {
+                Object.DestroyImmediate(_brainChar.gameObject);
+            }
+        }
+
+        private void SetPlayerTeam(List<CombatCharacter> team)
+        {
+            typeof(BattleSystem).GetField("_playerTeam", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .SetValue(_battleSystem, team);
+        }
+
+        private void SetEnemyTeam(List<CombatCharacter> team)
+        {
+            typeof(BattleSystem).GetField("_enemyTeam", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .SetValue(_battleSystem, team);
+        }
+
+        [Test]
+        public void AIBrain_EmptyProfile_ReturnsPassTurn()
+        {
+            _brain.profile = ScriptableObject.CreateInstance<EnemyAIProfile>();
+            
+            AIDecision decision = _brain.EvaluateTurn(_battleSystem);
+            
+            Assert.IsTrue(decision.isPass);
+            Assert.IsNull(decision.skill);
+            Assert.IsNull(decision.targets);
+        }
+
+        [Test]
+        public void HealthCondition_SelfLessThan_EvaluatesCorrectly()
+        {
+            var condition = new HealthCondition
+            {
+                target = HealthCondition.ComparisonTarget.Self,
+                comparison = HealthCondition.ComparisonOp.LessThan,
+                threshold = 50f,
+                usePercentage = true
+            };
+
+            // HP is 100/100, should be false
+            Assert.IsFalse(condition.IsMet(_brain, _battleSystem));
+
+            // HP is 40/100, should be true
+            _brainChar.currentHP = 40;
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem));
+        }
+
+        [Test]
+        public void HealthCondition_AnyAllyLessThan_EvaluatesCorrectly()
+        {
+            var condition = new HealthCondition
+            {
+                target = HealthCondition.ComparisonTarget.AnyAlly,
+                comparison = HealthCondition.ComparisonOp.LessThanOrEqual,
+                threshold = 30f,
+                usePercentage = false // Test absolute HP
+            };
+
+            var ally1 = CombatTestHelper.CreateCombatCharacter("ally_1", Team.Enemy, 2, maxHP: 100);
+            var ally2 = CombatTestHelper.CreateCombatCharacter("ally_2", Team.Enemy, 3, maxHP: 100);
+            ally1.currentHP = 100;
+            ally2.currentHP = 50;
+
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar, ally1, ally2 });
+
+            // Lowest ally HP is 50, condition is <= 30
+            Assert.IsFalse(condition.IsMet(_brain, _battleSystem));
+
+            // Drop ally2 to 20
+            ally2.currentHP = 20;
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem));
+
+            Object.DestroyImmediate(ally1.gameObject);
+            Object.DestroyImmediate(ally2.gameObject);
+        }
+
+        [Test]
+        public void SimpleTargeting_LowestHP_FindsCorrectTarget()
+        {
+            var targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.LowestHP };
+            
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            var p2 = CombatTestHelper.CreateCombatCharacter("p2", Team.Player, 2, maxHP: 100);
+            var p3 = CombatTestHelper.CreateCombatCharacter("p3", Team.Player, 3, maxHP: 100);
+            
+            p1.currentHP = 80;
+            p2.currentHP = 20; // Lowest
+            p3.currentHP = 50;
+
+            SetPlayerTeam(new List<CombatCharacter> { p1, p2, p3 });
+            
+            var skill = CombatTestHelper.CreateDamageSkill();
+            skill.maxTargets = 1;
+
+            bool success = targeting.TryResolveTargets(_brain, _battleSystem, skill, out var targets);
+            
+            Assert.IsTrue(success);
+            Assert.AreEqual(1, targets.Count);
+            Assert.AreEqual(p2, targets[0]);
+
+            Object.DestroyImmediate(p1.gameObject);
+            Object.DestroyImmediate(p2.gameObject);
+            Object.DestroyImmediate(p3.gameObject);
+        }
+
+        [Test]
+        public void RuleBasedBehavior_ConditionMet_ReturnsDecision()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            skill.maxTargets = 1;
+
+            // Make sure the character actually has the skill and is in a valid rank
+            _brainChar.equippedSkills.Add(skill);
+
+            var rule = new RuleBasedBehavior
+            {
+                skillToUse = skill,
+                conditions = new List<AIConditionNode>
+                {
+                    new HealthCondition { target = HealthCondition.ComparisonTarget.Self, comparison = HealthCondition.ComparisonOp.LessThan, threshold = 50f, usePercentage = true }
+                },
+                targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.HighestHP }
+            };
+
+            // Set up brain char state
+            _brainChar.currentHP = 30; // Condition met (< 50%)
+            
+            bool success = rule.TryGetDecision(_brain, _battleSystem, out AIDecision decision);
+            
+            Assert.IsTrue(success);
+            Assert.IsFalse(decision.isPass);
+            Assert.AreEqual(skill, decision.skill);
+            Assert.AreEqual(p1, decision.targets[0]);
+
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void AIBrain_Priority_SelectsFirstValidBehavior()
+        {
+            var profile = ScriptableObject.CreateInstance<EnemyAIProfile>();
+            
+            var skill1 = CombatTestHelper.CreateDamageSkill();
+            skill1.skillId = "skill_1";
+            var skill2 = CombatTestHelper.CreateDamageSkill();
+            skill2.skillId = "skill_2";
+
+            _brainChar.equippedSkills.Add(skill1);
+            _brainChar.equippedSkills.Add(skill2);
+
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+
+            // Behavior 1: Only works if self HP < 20%
+            var rule1 = new RuleBasedBehavior
+            {
+                skillToUse = skill1,
+                conditions = new List<AIConditionNode>
+                {
+                    new HealthCondition { target = HealthCondition.ComparisonTarget.Self, comparison = HealthCondition.ComparisonOp.LessThan, threshold = 20f }
+                },
+                targeting = new SimpleTargeting()
+            };
+
+            // Behavior 2: Fallback random
+            var rule2 = new RandomSkillBehavior();
+
+            profile.behaviors.Add(rule1);
+            profile.behaviors.Add(rule2);
+            _brain.profile = profile;
+
+            // HP is 100, rule 1 should fail, rule 2 should run
+            _brainChar.currentHP = 100;
+            var decision = _brain.EvaluateTurn(_battleSystem);
+            
+            Assert.IsFalse(decision.isPass);
+            
+            var strictRule2 = new RuleBasedBehavior
+            {
+                skillToUse = skill2,
+                conditions = new List<AIConditionNode>(), // No conditions
+                targeting = new SimpleTargeting()
+            };
+            profile.behaviors[1] = strictRule2;
+
+            var decision2 = _brain.EvaluateTurn(_battleSystem);
+            Assert.AreEqual(skill2, decision2.skill, "Should fallback to rule 2 since rule 1 conditions failed.");
+
+            // Now make rule 1 succeed
+            _brainChar.currentHP = 10;
+            var decision3 = _brain.EvaluateTurn(_battleSystem);
+            Assert.AreEqual(skill1, decision3.skill, "Should select rule 1 since conditions are now met.");
+
+            Object.DestroyImmediate(p1.gameObject);
+        }
+    }
+}

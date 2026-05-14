@@ -110,6 +110,16 @@ namespace Nevergreen.Combat
                     equippedSkills.Add(characterData.availableSkills[i]);
             }
 
+            if (team == Team.Enemy)
+            {
+                var brain = GetComponent<Nevergreen.Combat.AI.AIBrain>();
+                if (brain == null)
+                {
+                    brain = gameObject.AddComponent<Nevergreen.Combat.AI.AIBrain>();
+                }
+                brain.profile = characterData.defaultAIProfile;
+            }
+
             // Reset status tracking
             statusEffects.Clear();
             _skillUseTracker.Clear();
