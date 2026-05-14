@@ -2,7 +2,7 @@
 
 Owner: Combat Team
 Status: active
-Last verified: 2026-05-09
+Last verified: 2026-05-14
 Verified commit: Unknown
 Target build: Unity 6 (6000.3.9f1) + PC
 
@@ -15,7 +15,10 @@ Provides a utility-driven, priority-based evaluation system for determining enem
 
 ## Source of Truth
 - Code: `Assets/Scripts/Combat/AI/AIBrain.cs` (Core evaluator)
+- Code: `Assets/Scripts/Combat/AI/AIHistory.cs` (Historical state tracking)
 - Code: `Assets/Scripts/Combat/AI/EnemyAIProfile.cs` (Data container)
+- Code: `Assets/Scripts/Combat/AI/Nodes/SequenceBehavior.cs` (Deterministic sequencing)
+- Code: `Assets/Scripts/Combat/AI/Nodes/RandomSkillBehavior.cs` (Repetition control)
 - Code: `Assets/Scripts/Combat/BattleSystem.cs` (Integration point `ExecuteEnemyAction`)
 - Code: `Assets/Scripts/Editor/Drawers/SubclassSelectorDrawer.cs` (Editor tooling)
 - Design: `Docs/guides/DESIGNER_GUIDE_ENEMY_AI.md`
@@ -24,17 +27,19 @@ Provides a utility-driven, priority-based evaluation system for determining enem
 - Evaluate combat environment and state (health, ranks, active members).
 - Select the highest-priority valid action from an assigned profile.
 - Filter out actions that cannot be performed due to rank constraints or cooldowns/uses.
+- Enforce repetition limits on randomized behaviors to prevent skill spam.
+- Execute deterministic skill sequences with per-brain state persistence.
 - Determine the optimal targets for the selected action based on configured strategies.
 - Track decision history to provide context for future decisions.
 - Pass the turn gracefully if no actions are valid.
 
 ## Data Model
 - `EnemyAIProfile` (ScriptableObject): Contains an ordered `List<AIBehaviorNode> behaviors`.
-- `AIBehaviorNode` (Abstract): Base for nodes like `RuleBasedBehavior` and `RandomSkillBehavior`.
+- `AIBehaviorNode` (Abstract): Base for nodes like `RuleBasedBehavior`, `RandomSkillBehavior`, and `SequenceBehavior`.
 - `AIConditionNode` (Abstract): Base for rules like `HealthCondition`.
 - `AITargetingNode` (Abstract): Base for target resolution like `SimpleTargeting`.
 - `AIDecision` (Struct): Contains `SkillData skill`, `List<CombatCharacter> targets`, and `bool isPassTurn`.
-- `AIHistory` (Class): Stores a stack of past `AIDecision` records per character.
+- `AIHistory` (Class): Stores a stack of past `AIDecision` records and a `Dictionary<string, int> _sequenceIndices` for sequencing state.
 
 ## Event Contracts
 - Event: Turn Execution Hook
@@ -49,7 +54,7 @@ Provides a utility-driven, priority-based evaluation system for determining enem
 
 ## Determinism
 - Required: yes
-- Strategy: Ordered iteration of behaviors (top-to-bottom priority). Target resolution strategies (like Lowest/Highest HP) use deterministic comparisons. Random selections (like RandomSkillBehavior or Random targeting) rely on `UnityEngine.Random` which can be seeded for predictable replays.
+- Strategy: Ordered iteration of behaviors (top-to-bottom priority). Target resolution strategies (like Lowest/Highest HP) use deterministic comparisons. `SequenceBehavior` provides deterministic skill rotations (A->B->C). `RandomSkillBehavior` repetition limits enforce non-random constraints on randomized pools. Random selections rely on `UnityEngine.Random` which can be seeded for predictable replays.
 - Known exceptions: Tie-breaking in simple targeting (e.g., two characters with identical HP) currently resolves based on list index order, which is deterministic but implicitly tied to formation setup.
 
 ## Authority Model
@@ -72,11 +77,12 @@ Provides a utility-driven, priority-based evaluation system for determining enem
 - Traces/profilers: N/A
 
 ## Acceptance Tests
-- Automated: Existing combat tests (`Assets/Editor/Tests/`) ensure that the introduction of `AIBrain` does not regress target resolution, damage calculation, or battle sequence integrity.
+- Automated: Unit tests in `Assets/Editor/Tests/AIRuleTests.cs` verify `SequenceBehavior` (cycling, skipping, per-brain state) and `RandomSkillBehavior` (repetition blocking, recovery after pass). Existing combat tests ensure no regressions in battle flow.
 - Playtest: An enemy with `HealthCondition` set to "Heal when Ally HP < 50%" should ignore the heal skill while all allies are above 50% HP, and should cast the heal skill immediately on their turn once an ally drops below the threshold.
+- Playtest: A character with a `SequenceBehavior` should strictly follow the defined A->B->C order across consecutive turns, skipping B if forced into an invalid rank for that specific skill.
 
 ## Missing Evidence
-- Specific unit tests for isolated `AIBrain` execution paths and node validation are missing (`Unknown`).
+- None. `AIBrain` execution paths and rule nodes are covered by the `AIRuleTests` suite.
 
 ## Validation
 - [x] Facts match current code/content

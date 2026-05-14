@@ -45,6 +45,7 @@ Cycles through a fixed list of skills in order: A → B → C → A → ...
 
 ### 🎲 Random Skill Behavior (The Safety Net)
 Usually placed at the very bottom of your list. It will look at all valid skills for the current rank and pick one at random. If no skills are usable, the enemy will pass their turn.
+*   **Max Consecutive Uses**: Prevents the AI from picking the *same* skill too many times in a row. For example, setting this to `2` means if the AI randomly picks "Fireball" twice in a row, "Fireball" is removed from the random pool for the third turn.
 
 ---
 
@@ -56,8 +57,6 @@ When using a **Rule Based Behavior**, you can fine-tune exactly when and who it 
     *   **Source**: Self, Any Ally, or Any Enemy.
     *   **Threshold**: The % value (0 to 1).
     *   **Operator**: Less than, Greater than, etc.
-*   **Repetition Condition**: Prevents a skill from being spammed.
-    *   **Max Consecutive Uses**: The maximum number of times this skill can be used in a row before the condition blocks it. (e.g., set to `2` to allow the skill twice, then force the AI to do something else).
 
 ### Targeting (Who?)
 *   **Simple Targeting**: 
@@ -83,12 +82,9 @@ An archer who always hunts the weakest player character.
     *   Targeting: `SimpleTargeting` (Strategy: LowestHP)
 
 ### The "Burst Limiter"
-A boss who uses a powerful nuke skill, but never more than 2 turns in a row.
-1.  **Behavior 1 (Top)**: `RuleBasedBehavior`
-    *   Skill: `Nuke_Skill`
-    *   Condition: `RepetitionCondition` (MaxConsecutiveUses: 2)
-    *   Targeting: `SimpleTargeting` (Strategy: Random)
-2.  **Behavior 2 (Bottom)**: `RandomSkillBehavior`
+A boss who just uses random attacks, but you want to ensure it never uses its "Nuke" skill (or any other skill) more than 2 times in a row.
+1.  **Behavior 1**: `RandomSkillBehavior`
+    *   Max Consecutive Uses: `2`
 
 ### The "Combo Dancer"
 An enemy that follows a strict pattern: Buff Self → Heavy Attack → Rest.

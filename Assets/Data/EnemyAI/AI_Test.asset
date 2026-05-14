@@ -13,18 +13,11 @@ MonoBehaviour:
   m_Name: AI_Test
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.AI.EnemyAIProfile
   behaviors:
-  - rid: 356131040506937440
+  - rid: 356131040506937475
   references:
     version: 2
     RefIds:
-    - rid: 356131040506937440
-      type: {class: RuleBasedBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+    - rid: 356131040506937475
+      type: {class: RandomSkillBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
       data:
-        skillToUse: {fileID: 0}
-        targeting:
-          rid: 356131040506937441
-        conditions: []
-    - rid: 356131040506937441
-      type: {class: SimpleTargeting, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
-      data:
-        strategy: 3
+        maxConsecutiveUses: 2

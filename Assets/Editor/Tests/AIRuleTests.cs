@@ -49,87 +49,11 @@ namespace Nevergreen.Tests
         }
 
         // ===================================================================
-        // RepetitionCondition Tests
+        // RandomSkillBehavior (Repetition Limit) Tests
         // ===================================================================
 
         [Test]
-        public void RepetitionCondition_AllowsFirstUse()
-        {
-            var skill = CombatTestHelper.CreateDamageSkill();
-            var condition = new RepetitionCondition { maxConsecutiveUses = 2 };
-
-            // Fresh history — no skill used yet
-            Assert.IsTrue(condition.IsMet(_brain, _battleSystem, skill));
-        }
-
-        [Test]
-        public void RepetitionCondition_AllowsUseBelowLimit()
-        {
-            var skill = CombatTestHelper.CreateDamageSkill();
-            var condition = new RepetitionCondition { maxConsecutiveUses = 3 };
-
-            // Simulate using the skill twice
-            _brain.History.RecordDecision(AIDecision.UseSkill(skill, new List<CombatCharacter>()));
-            _brain.History.RecordDecision(AIDecision.UseSkill(skill, new List<CombatCharacter>()));
-
-            // 2 consecutive uses, limit is 3 — should be allowed
-            Assert.IsTrue(condition.IsMet(_brain, _battleSystem, skill));
-        }
-
-        [Test]
-        public void RepetitionCondition_BlocksAtLimit()
-        {
-            var skill = CombatTestHelper.CreateDamageSkill();
-            var condition = new RepetitionCondition { maxConsecutiveUses = 2 };
-
-            // Simulate using the skill twice (hitting the limit)
-            _brain.History.RecordDecision(AIDecision.UseSkill(skill, new List<CombatCharacter>()));
-            _brain.History.RecordDecision(AIDecision.UseSkill(skill, new List<CombatCharacter>()));
-
-            // 2 consecutive uses, limit is 2 — should be blocked
-            Assert.IsFalse(condition.IsMet(_brain, _battleSystem, skill));
-        }
-
-        [Test]
-        public void RepetitionCondition_ResetsAfterDifferentSkill()
-        {
-            var skillA = CombatTestHelper.CreateDamageSkill();
-            skillA.skillId = "skill_a";
-            var skillB = CombatTestHelper.CreateDamageSkill();
-            skillB.skillId = "skill_b";
-            var condition = new RepetitionCondition { maxConsecutiveUses = 2 };
-
-            // Use skill A twice (hits limit)
-            _brain.History.RecordDecision(AIDecision.UseSkill(skillA, new List<CombatCharacter>()));
-            _brain.History.RecordDecision(AIDecision.UseSkill(skillA, new List<CombatCharacter>()));
-            Assert.IsFalse(condition.IsMet(_brain, _battleSystem, skillA));
-
-            // Use a different skill — should reset consecutive tracking
-            _brain.History.RecordDecision(AIDecision.UseSkill(skillB, new List<CombatCharacter>()));
-
-            // Now skill A should be allowed again
-            Assert.IsTrue(condition.IsMet(_brain, _battleSystem, skillA));
-        }
-
-        [Test]
-        public void RepetitionCondition_DoesNotBlockDifferentSkill()
-        {
-            var skillA = CombatTestHelper.CreateDamageSkill();
-            skillA.skillId = "skill_a";
-            var skillB = CombatTestHelper.CreateDamageSkill();
-            skillB.skillId = "skill_b";
-            var condition = new RepetitionCondition { maxConsecutiveUses = 2 };
-
-            // Use skill A twice (hits limit for A)
-            _brain.History.RecordDecision(AIDecision.UseSkill(skillA, new List<CombatCharacter>()));
-            _brain.History.RecordDecision(AIDecision.UseSkill(skillA, new List<CombatCharacter>()));
-
-            // Skill B should not be blocked by skill A's repetition
-            Assert.IsTrue(condition.IsMet(_brain, _battleSystem, skillB));
-        }
-
-        [Test]
-        public void RepetitionCondition_IntegrationWithRuleBasedBehavior()
+        public void RandomSkillBehavior_AllowsFirstUse()
         {
             var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
             SetPlayerTeam(new List<CombatCharacter> { p1 });
@@ -138,26 +62,106 @@ namespace Nevergreen.Tests
             var skill = CombatTestHelper.CreateDamageSkill();
             _brainChar.equippedSkills.Add(skill);
 
-            var rule = new RuleBasedBehavior
-            {
-                skillToUse = skill,
-                conditions = new List<AIConditionNode>
-                {
-                    new RepetitionCondition { maxConsecutiveUses = 2 }
-                },
-                targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random }
-            };
+            var behavior = new RandomSkillBehavior { maxConsecutiveUses = 2 };
 
-            // First use — should succeed
-            Assert.IsTrue(rule.TryGetDecision(_brain, _battleSystem, out AIDecision d1));
-            _brain.RecordDecision(d1);
+            // Fresh history — no skill used yet
+            Assert.IsTrue(behavior.TryGetDecision(_brain, _battleSystem, out AIDecision d));
+            Assert.AreEqual(skill, d.skill);
 
-            // Second use — should still succeed (limit is 2)
-            Assert.IsTrue(rule.TryGetDecision(_brain, _battleSystem, out AIDecision d2));
-            _brain.RecordDecision(d2);
+            Object.DestroyImmediate(p1.gameObject);
+        }
 
-            // Third use — should be blocked (consecutive uses = 2, limit is 2)
-            Assert.IsFalse(rule.TryGetDecision(_brain, _battleSystem, out _));
+        [Test]
+        public void RandomSkillBehavior_AllowsUseBelowLimit()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            _brainChar.equippedSkills.Add(skill);
+
+            var behavior = new RandomSkillBehavior { maxConsecutiveUses = 3 };
+
+            // Simulate using the skill twice
+            _brain.History.RecordDecision(AIDecision.UseSkill(skill, new List<CombatCharacter>()));
+            _brain.History.RecordDecision(AIDecision.UseSkill(skill, new List<CombatCharacter>()));
+
+            // 2 consecutive uses, limit is 3 — should be allowed
+            Assert.IsTrue(behavior.TryGetDecision(_brain, _battleSystem, out AIDecision d));
+            Assert.AreEqual(skill, d.skill);
+
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void RandomSkillBehavior_BlocksAtLimitAndPassesIfNoOtherSkills()
+        {
+            var skill = CombatTestHelper.CreateDamageSkill();
+            _brainChar.equippedSkills.Add(skill);
+
+            var behavior = new RandomSkillBehavior { maxConsecutiveUses = 2 };
+
+            // Simulate using the skill twice (hitting the limit)
+            _brain.History.RecordDecision(AIDecision.UseSkill(skill, new List<CombatCharacter>()));
+            _brain.History.RecordDecision(AIDecision.UseSkill(skill, new List<CombatCharacter>()));
+
+            // 2 consecutive uses, limit is 2. Skill should be removed from valid skills.
+            // Since it's the only skill, it should return Pass.
+            Assert.IsTrue(behavior.TryGetDecision(_brain, _battleSystem, out AIDecision d));
+            Assert.IsTrue(d.isPass);
+        }
+
+        [Test]
+        public void RandomSkillBehavior_PicksAlternativeSkillAtLimit()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var skillA = CombatTestHelper.CreateDamageSkill();
+            skillA.skillId = "skill_a";
+            var skillB = CombatTestHelper.CreateDamageSkill();
+            skillB.skillId = "skill_b";
+            _brainChar.equippedSkills.Add(skillA);
+            _brainChar.equippedSkills.Add(skillB);
+
+            var behavior = new RandomSkillBehavior { maxConsecutiveUses = 2 };
+
+            // Use skill A twice (hits limit for A)
+            _brain.History.RecordDecision(AIDecision.UseSkill(skillA, new List<CombatCharacter>()));
+            _brain.History.RecordDecision(AIDecision.UseSkill(skillA, new List<CombatCharacter>()));
+
+            // Skill A is blocked, must pick Skill B
+            Assert.IsTrue(behavior.TryGetDecision(_brain, _battleSystem, out AIDecision d));
+            Assert.AreEqual(skillB, d.skill);
+
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void RandomSkillBehavior_ResetsLimitAfterPassing()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            _brainChar.equippedSkills.Add(skill);
+
+            var behavior = new RandomSkillBehavior { maxConsecutiveUses = 1 };
+
+            // 1. Use skill once (hits limit of 1)
+            _brain.RecordDecision(AIDecision.UseSkill(skill, new List<CombatCharacter> { p1 }));
+            
+            // 2. Next turn should be a Pass
+            Assert.IsTrue(behavior.TryGetDecision(_brain, _battleSystem, out AIDecision dPass));
+            Assert.IsTrue(dPass.isPass);
+            _brain.RecordDecision(dPass);
+
+            // 3. Following turn, the limit should be reset because the last action was a Pass (not the skill)
+            Assert.IsTrue(behavior.TryGetDecision(_brain, _battleSystem, out AIDecision dSkill));
+            Assert.AreEqual(skill, dSkill.skill);
 
             Object.DestroyImmediate(p1.gameObject);
         }

@@ -6,8 +6,8 @@ This document tracks the implementation of history-based AI rules and determinis
 
 ### Phase 1: Repetition Control
 - [x] **Contextual Conditions**: Update `AIConditionNode.IsMet` to accept `SkillData contextSkill`.
-- [x] **Implementation**: Create `RepetitionCondition.cs` in `Nodes/`.
-- [x] **Validation**: Verify `RuleBasedBehavior` correctly passes its `skillToUse` to the condition.
+- [x] **Pivot to RandomSkillBehavior**: Per user request, move `maxConsecutiveUses` logic into `RandomSkillBehavior` to prevent spamming random skills, instead of using a specific Condition Node.
+- [x] **Implementation**: Update `RandomSkillBehavior.cs` to filter out the last used skill if it exceeds the limit.
 
 ### Phase 2: Sequence Logic
 - [x] **History Update**: Add `sequenceIndex` tracking to `AIHistory.cs`.
@@ -23,11 +23,11 @@ This document tracks the implementation of history-based AI rules and determinis
 
 ## 🛠️ Technical Specifications
 
-### RepetitionCondition
-- **Goal**: Prevent a skill from being used more than `N` times in a row.
-- **Node Type**: `AIConditionNode`
+### Repetition Control (RandomSkillBehavior)
+- **Goal**: Prevent the AI from picking the *same* random skill more than `N` times in a row.
+- **Node Type**: Modification to `RandomSkillBehavior`
 - **Fields**: `int maxConsecutiveUses`
-- **Logic**: Returns `false` if `brain.History.lastSkillUsed == contextSkill` AND `brain.History.consecutiveSkillUses >= maxConsecutiveUses`.
+- **Logic**: If `brain.History.consecutiveSkillUses >= maxConsecutiveUses`, removes `brain.History.lastSkillUsed` from the pool of valid skills before picking a random one.
 
 ### SequenceBehavior
 - **Goal**: Cycle through a fixed skill order (A → B → C → A → ...).

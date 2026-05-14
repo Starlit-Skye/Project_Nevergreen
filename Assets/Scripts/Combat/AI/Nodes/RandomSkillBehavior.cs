@@ -15,6 +15,9 @@ namespace Nevergreen.Combat.AI.Nodes
     [Serializable]
     public class RandomSkillBehavior : AIBehaviorNode
     {
+        [Tooltip("If greater than 0, prevents the AI from picking the same skill more than this many times in a row.")]
+        public int maxConsecutiveUses = 0;
+
         public override bool TryGetDecision(AIBrain brain, BattleSystem battle, out AIDecision decision)
         {
             decision = default;
@@ -24,6 +27,15 @@ namespace Nevergreen.Combat.AI.Nodes
             var validSkills = self.equippedSkills
                 .Where(s => self.CanUseSkillFromRank(s) && self.HasRemainingUses(s))
                 .ToList();
+
+            // Enforce repetition limit
+            if (maxConsecutiveUses > 0 && brain.History.lastSkillUsed != null)
+            {
+                if (brain.History.consecutiveSkillUses >= maxConsecutiveUses)
+                {
+                    validSkills.Remove(brain.History.lastSkillUsed);
+                }
+            }
 
             if (validSkills.Count == 0)
             {
