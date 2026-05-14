@@ -17,7 +17,7 @@ MonoBehaviour:
   critChance: 8
   maxHP: 60
   defense: 10
-  dodge: 10
+  dodge: 0
   speed: 6
   bleedResist: 20
   blightResist: 20

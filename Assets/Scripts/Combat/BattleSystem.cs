@@ -408,34 +408,32 @@ namespace Nevergreen.Combat
         {
             yield return new WaitForSeconds(0.5f); // Brief delay for readability
 
-            // Pick a random valid skill
-            var validSkills = CurrentActor.equippedSkills
-                .Where(s => CurrentActor.CanUseSkillFromRank(s) && CurrentActor.HasRemainingUses(s))
-                .ToList();
-
-            if (validSkills.Count == 0)
+            var brain = CurrentActor.GetComponent<Nevergreen.Combat.AI.AIBrain>();
+            if (brain == null)
             {
-                Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} has no valid skills. Passing.");
+                Debug.LogError($"[BattleSystem] {CurrentActor.DisplayName} is missing an AIBrain component. Passing.");
                 yield break;
             }
 
-            SkillData chosen = validSkills[_rng.Next(validSkills.Count)];
+            var decision = brain.EvaluateTurn(this);
+            
+            // Record the decision in the character's history
+            brain.RecordDecision(decision);
 
-            // Pick targets
-            List<CombatCharacter> targets = GetValidTargets(CurrentActor, chosen);
-            if (targets.Count == 0)
+            if (decision.isPass)
             {
-                Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} has no valid targets. Passing.");
-                yield break;
+                Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} AI decided to pass.");
+                
+                // Enqueue visual pass animation length
+                if (animationQueue != null)
+                {
+                    animationQueue.Enqueue(new WaitTimerStep($"{CurrentActor.DisplayName} Pass", 0.3f));
+                }
             }
-
-            // Limit to max targets
-            while (targets.Count > chosen.maxTargets)
+            else
             {
-                targets.RemoveAt(_rng.Next(targets.Count));
+                ExecuteSkill(CurrentActor, decision.skill, decision.targets);
             }
-
-            ExecuteSkill(CurrentActor, chosen, targets);
         }
 
         private void ExecuteSkill(CombatCharacter user, SkillData skill, List<CombatCharacter> targets)

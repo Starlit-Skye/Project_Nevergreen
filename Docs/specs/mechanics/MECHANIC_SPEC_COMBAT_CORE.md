@@ -22,6 +22,7 @@ Define the baseline turn-based combat mechanic used for player team versus enemy
 - Guard: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_GUARD.md`
 - Buff/Debuff: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_BUFF_DEBUFF.md`
 - Pile: `Docs/specs/mechanics/MECHANIC_SPEC_PILE.md`
+- AI Rules: `Docs/specs/mechanics/MECHANIC_SPEC_AI_RULES.md`
 
 
 ## Inputs
@@ -70,10 +71,9 @@ Transitions:
   on the same team, the front-most rank acts first
 
 ## Determinism
-- Deterministic across clients: no (multiplayer behavior is not specified; random enemy skill picks
-  are documented)
-- Sources of nondeterminism: enemy random skill selection, attack damage range roll
-- Mitigation: Unknown
+- Deterministic across clients: Partially. Enemy skill selection can be deterministic if using `SequenceBehavior` or seeded `UnityEngine.Random`. Logic for repetition blocking is deterministic based on local history.
+- Sources of nondeterminism: randomized skill selection (if not seeded), attack damage range roll.
+- Mitigation: Deterministic AI rules (Sequencing), seeded RNG for damage/selection (planned).
 
 ## Formulas
 ```txt

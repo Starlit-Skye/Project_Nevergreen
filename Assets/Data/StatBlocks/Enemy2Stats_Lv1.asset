@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Enemy2Stats_Lv1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
   attack: 10
-  accuracy: 70
+  accuracy: 100
   critChance: 3
   maxHP: 65
   defense: 20

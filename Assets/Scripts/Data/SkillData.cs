@@ -28,6 +28,7 @@ namespace Nevergreen.Data
         [Header("Effects Strategy")]
         [Tooltip("The modular effects executed by this skill.")]
         [SerializeReference]
+        [Nevergreen.Attributes.SubclassSelector]
         public List<Nevergreen.Combat.ISkillEffect> effects = new List<Nevergreen.Combat.ISkillEffect>();
 
         [Header("Rank Constraints")]
