@@ -93,3 +93,11 @@ Venom Bite Status Debugging
 - `StatusEffect.Execute` only logs to console on success.
 - `CombatUI` handles both success and resistance logs via `OnStatusApplied`.
 - If no log appears, `OnStatusApplied` might not be firing or `StatusEffect.Execute` is returning early.
+
+# Audio System Implementation
+
+## Phase 1: Specification
+- [x] Draft `Docs/specs/systems/SYSTEM_SPEC_AUDIO.md` based on requirements <!-- id: 10 -->
+- [ ] Define `AudioManager` service responsibilities <!-- id: 11 -->
+- [ ] Define BGM state machine (Exploration, Battle, Boss, Victory) <!-- id: 12 -->
+- [ ] Define SFX integration with `SkillData` and `BattleSystem` <!-- id: 13 -->

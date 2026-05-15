@@ -67,6 +67,10 @@ namespace Nevergreen.Data
         [Header("Uses")]
         [Tooltip("Max uses per battle. -1 = unlimited.")]
         public int maxUsesPerBattle = -1;
+
+        [Header("Audio")]
+        [Tooltip("Sound effect played when this skill is used.")]
+        public AudioClip sfx;
     }
 
     public enum TargetScope

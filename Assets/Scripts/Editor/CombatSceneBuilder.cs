@@ -54,6 +54,7 @@ namespace Nevergreen.Prototype
             // --- BattleSystem ---
             var battleSystemGO = new GameObject("BattleSystem");
             var battleSystem = battleSystemGO.AddComponent<Combat.BattleSystem>();
+            battleSystemGO.AddComponent<Combat.BattleMusicController>();
 
             // --- Combat Config asset ---
             // We'll create it via ScriptableObject

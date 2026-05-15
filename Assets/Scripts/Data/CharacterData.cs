@@ -50,6 +50,13 @@ namespace Nevergreen.Data
             int index = Mathf.Clamp(level - 1, 0, statPerLevel.Count - 1);
             return statPerLevel[index];
         }
+
+        [Header("Audio")]
+        [Tooltip("Sound effect played when this character is defeated.")]
+        public AudioClip deathSFX;
+
+        [Tooltip("If set, this music will play when a battle starts with this character in the enemy team.")]
+        public AudioClip bossMusicOverride;
     }
 
     public enum CharacterTeamType
