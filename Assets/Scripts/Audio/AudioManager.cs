@@ -37,6 +37,7 @@ namespace Nevergreen.Audio
         }
 
         private Coroutine _musicRoutine;
+        private Coroutine _crossfadeRoutine;
 
         public void TransitionToBGM(AudioClip clip, float duration = 1.5f)
         {
@@ -50,13 +51,19 @@ namespace Nevergreen.Audio
             if (_bgmSourceMain.clip == clip && _bgmSourceMain.isPlaying) return;
 
             if (_musicRoutine != null) StopCoroutine(_musicRoutine);
+            if (_crossfadeRoutine != null) StopCoroutine(_crossfadeRoutine);
+            
             _musicRoutine = StartCoroutine(MusicLoopRoutine(clip, duration));
         }
 
         public void StopMusic(float fadeDuration = 1.0f)
         {
             if (_musicRoutine != null) StopCoroutine(_musicRoutine);
+            if (_crossfadeRoutine != null) StopCoroutine(_crossfadeRoutine);
+            
             _musicRoutine = null;
+            _crossfadeRoutine = null;
+            
             StartCoroutine(FadeOutSource(_bgmSourceMain, fadeDuration));
             StartCoroutine(FadeOutSource(_bgmSourceFade, fadeDuration));
         }
@@ -66,7 +73,7 @@ namespace Nevergreen.Audio
             while (true)
             {
                 // Start crossfade (don't yield)
-                StartCoroutine(CrossfadeRoutine(clip, fadeDuration));
+                _crossfadeRoutine = StartCoroutine(CrossfadeRoutine(clip, fadeDuration));
 
                 // Wait until the source is playing and we are before the crossfade point
                 // (We need to wait for it to actually start playing to get valid time)

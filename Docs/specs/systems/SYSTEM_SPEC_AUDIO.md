@@ -3,7 +3,7 @@
 Owner: Engineering
 Status: active
 Last verified: 2026-05-15
-Verified commit: 11ffc2162f9f059c644a723e608adfd24364f503
+Verified commit: 4ea78565e7d646b5a59f1f7d7510b3765ed680ee
 Target build: Unity 6000.3.9f1 (Windows)
 
 ## Purpose
@@ -11,35 +11,38 @@ Provide immersive audio feedback through dynamic background music (BGM) transiti
 
 ## Scope
 - In scope:
-  - BGM playback and crossfading.
-  - Battle/Exploration music transitions.
-  - Boss-specific music overrides.
+  - BGM playback and manual crossfade-looping.
+  - Battle/Exploration music transitions via `BattleMusicController`.
+  - Boss-specific music overrides via `CharacterData`.
   - Skill-based and event-based SFX.
   - Victory jingle playback.
+  - Debug tools for BGM testing (Track skipping).
 - Out of scope:
   - Dynamic MIDI generation.
   - 3D spatial audio (system uses 2D/global sound).
   - Voice acting/dialogue system.
 
 ## Source of Truth
-- Code: `Nevergreen.Audio.AudioManager` (Proposed)
-- Tests: `Tests/Editor/AudioSystemTests.cs` (Proposed)
+- Code: `Assets/Scripts/Audio/AudioManager.cs` (`Nevergreen.Audio.AudioManager`)
+- Integration: `Assets/Scripts/Combat/BattleMusicController.cs` (`Nevergreen.Combat.BattleMusicController`)
+- Tests: `Assets/Editor/Tests/AudioManagerTests.cs`, `Assets/Editor/Tests/BattleMusicControllerTests.cs`
 - Design: `Docs/specs/mechanics/MECHANIC_SPEC_COMBAT_CORE.md` (Event hooks)
-- Data: `Assets/Data/AudioConfig.asset` (Proposed)
+- Data: `Assets/Data/AudioConfig.asset` (BGM/Mixer configuration)
 
 ## Responsibilities
-- **BGM Management**: Handle seamless transitions between exploration and combat music.
-- **SFX Playback**: Execute one-shot sounds for character actions and UI.
-- **State Control**: React to `BattleSystem` events to trigger state-appropriate music.
-- **Audio Mixing**: Route audio through specific channels (Master, BGM, SFX) for balanced output.
-- **Settings Management**: Provide logarithmic volume control and persistent player preferences.
+- **BGM Management**: Handle seamless transitions using a dual-source overlapping crossfade.
+- **Manual Looping**: Detect track end proximity via polling and trigger crossfades to circumvent native Unity loop cuts.
+- **SFX Playback**: Execute one-shot sounds for character actions and UI using `PlayOneShot` on a dedicated SFX source.
+- **State Control**: React to `BattleSystem.OnBattleStarted` and `OnBattleEnded` events via the `BattleMusicController`.
+- **Audio Mixing**: Convert linear volume (0-1) to logarithmic decibels (-80dB to 0dB) for `AudioMixer` parameters.
+- **Persistence**: Save and load volume settings to `PlayerPrefs` via the `AudioConfig` ScriptableObject.
 
 ## Data Model
 - **AudioConfig (SO)**:
   - `masterVolume`: float (0-1)
   - `bgmVolume`: float (0-1)
   - `sfxVolume`: float (0-1)
-  - `mainMixer`: AudioMixer (Reference to the Unity AudioMixer asset)
+  - `mainMixer`: AudioMixer (Reference to Unity AudioMixer asset)
   - `defaultExplorationMusic`: AudioClip
   - `defaultBattleMusic`: AudioClip
   - `victoryJingle`: AudioClip
@@ -47,60 +50,60 @@ Provide immersive audio feedback through dynamic background music (BGM) transiti
   - `sfx`: AudioClip (Played when user starts skill)
 - **CharacterData (SO Extension)**:
   - `deathSFX`: AudioClip
-  - `bossMusicOverride`: AudioClip (If set, used instead of default battle music)
+  - `bossMusicOverride`: AudioClip (Used instead of default battle music)
 
 ## Event Contracts
-- **BGM Transition Trigger**:
-  - Producer: `BattleSystem` (`OnBattleStarted`, `OnBattleEnded`)
-  - Consumer: `AudioManager`
-  - Payload: `BattleOutcome` (for victory jingle)
-- **SFX Trigger**:
-  - Producer: `BattleSystem.ExecuteSkill`, `CombatCharacter.HandleCharacterDefeated`
-  - Consumer: `AnimationQueueProcessor` via `PlaySoundStep`
-
-## Audio Mixing & Settings
-### AudioMixer Hierarchy
-- **Master Group**: Top-level gain control.
-- **BGM Group**: Routes all music tracks.
-- **SFX Group**: Routes all one-shot sound effects.
-
-### Volume Scaling
-The system uses **Logarithmic Scaling** for volume control to match human auditory perception. Linear slider values (0.0 to 1.0) are converted to decibels (-80dB to 0dB) before being applied to the AudioMixer.
-
-### Persistence
-Volume settings are saved to `PlayerPrefs` via the `AudioConfig` ScriptableObject upon modification, ensuring user preferences persist between sessions.
+- **Event**: `OnBattleStarted`
+  - Producer: `BattleSystem`
+  - Consumer: `BattleMusicController` -> `AudioManager`
+  - Payload: N/A
+- **Event**: `OnBattleEnded`
+  - Producer: `BattleSystem`
+  - Consumer: `BattleMusicController` -> `AudioManager`
+  - Payload: `BattleOutcome`
+- **Event**: `PlaySoundStep`
+  - Producer: `AnimationQueueProcessor`
+  - Consumer: `AudioManager.PlaySFX`
+  - Payload: `AudioClip`
 
 ## Timing Model
-- **Update domain**: `Update` for volume fades.
-- **Fade Duration**: Default 1500ms for crossfades.
-- **SFX Latency**: < 16ms (triggered immediately on animation step start).
+- **Update domain**: `Update` (Input polling), `Coroutine` (Volume fades/Loop monitoring).
+- **Loop Trigger**: Triggered when `AudioSource.time >= clip.length - fadeDuration`.
+- **Fade Duration**: Default 1500ms (BGM) / Variable (SFX).
+- **Update order**: SFX triggered immediately upon animation step execution.
 
 ## Determinism
 - **Required**: No. Audio is purely cosmetic and does not affect gameplay logic.
 - **Strategy**: N/A.
 
 ## Authority Model
-- Single-player/offline: `AudioManager` is a local singleton/service.
+- Single-player/offline: `AudioManager` is a local singleton service initialized by `CombatSceneBuilder`.
 
 ## Performance Budget
-- CPU: < 0.2ms per frame (fade calculations).
-- Memory: < 64MB for active audio buffers.
+- CPU: < 0.2ms per frame for fade calculations and time polling.
+- Memory: < 128MB for active audio buffers.
 - Entity scale target: Max 16 concurrent SFX voices.
 
 ## Error Handling and Recovery
-- **Missing AudioClip**: Log warning and skip playback; do not break execution.
-- **AudioDevice Lost**: Unity native handling; `AudioManager` continues state tracking.
+- **Missing AudioClip**: Log `Warning` and skip playback; no execution break.
+- **Overlapping Transitions**: `TransitionToBGM` stops existing `_crossfadeRoutine` to prevent volume fluttering.
+- **Invalid Mixers**: Fallback to default `AudioSource` output if `AudioMixer` references are null.
 
 ## Observability
-- Metrics: `active_voices`, `current_bgm_track`
-- Logs: `[Audio] Transitioning to BattleMusic`, `[Audio] Playing SFX: Cast_Fireball`
+- Metrics: `active_voices` (Unity Profiler), `current_bgm_track` (Inspector).
+- Logs: `[Audio] Transitioning to BattleMusic`, `[Audio] Loop triggered for: <ClipName>`.
 
 ## Acceptance Tests
-- Automated: `AudioTransitionTests` verifying `BGM_Source.clip` changes on `BattleSystem` events.
-- Playtest: Start battle and verify exploration music fades out while battle music fades in.
+- Automated: `AudioManagerTests` verifying routine cleanup and idempotency.
+- Automated: `BattleMusicControllerTests` verifying battle event integration.
+- Playtest: Trigger combat and verify exploration BGM fades into battle BGM.
+- Playtest: Wait for BGM end and verify seamless overlap-looping.
+
+## Missing Evidence
+- **Exploration System Integration**: The "Exploration" state is currently placeholder; integration with a real exploration controller is Unknown.
 
 ## Validation
-- [ ] Facts match current code/content
+- [x] Facts match current code/content
 - [x] Timing, authority, and determinism are explicit
 - [x] Performance budgets are stated with units
 - [x] Unknowns are explicitly labeled
