@@ -57,7 +57,6 @@ namespace Nevergreen.Prototype
             battleSystemGO.AddComponent<Combat.BattleMusicController>();
 
             // --- Combat Config asset ---
-            // We'll create it via ScriptableObject
             var configPath = "Assets/Data/CombatConfig.asset";
             var config = AssetDatabase.LoadAssetAtPath<Data.CombatConfig>(configPath);
             if (config == null)
@@ -68,6 +67,63 @@ namespace Nevergreen.Prototype
                 AssetDatabase.SaveAssets();
             }
             battleSystem.combatConfig = config;
+
+            // --- Audio Config asset ---
+            var audioConfigPath = "Assets/Data/GlobalAudioConfig.asset";
+            var audioConfig = AssetDatabase.LoadAssetAtPath<Data.AudioConfig>(audioConfigPath);
+            if (audioConfig == null)
+            {
+                audioConfig = ScriptableObject.CreateInstance<Data.AudioConfig>();
+                EnsureFolderExists("Assets/Data");
+                AssetDatabase.CreateAsset(audioConfig, audioConfigPath);
+                AssetDatabase.SaveAssets();
+            }
+
+            // --- AudioManager ---
+            var audioManagerGO = GameObject.Find("AudioManager");
+            if (audioManagerGO == null)
+            {
+                var prefabPath = "Assets/Prefabs/Managers/AudioManager.prefab";
+                var amPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+
+                if (amPrefab != null)
+                {
+                    audioManagerGO = (GameObject)PrefabUtility.InstantiatePrefab(amPrefab);
+                    var am = audioManagerGO.GetComponent<Audio.AudioManager>();
+                    if (am != null)
+                    {
+                        am.config = audioConfig;
+                        EditorUtility.SetDirty(am);
+                    }
+                    Debug.Log($"[CombatSceneBuilder] Instantiated AudioManager from prefab: {prefabPath}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[CombatSceneBuilder] AudioManager prefab not found at {prefabPath}. Falling back to manual creation.");
+                    audioManagerGO = new GameObject("AudioManager");
+                    var am = audioManagerGO.AddComponent<Audio.AudioManager>();
+                    am.config = audioConfig;
+
+                    // Fallback source creation
+                    var bgmMain = audioManagerGO.AddComponent<AudioSource>();
+                    bgmMain.playOnAwake = false; bgmMain.loop = true;
+                    var bgmFade = audioManagerGO.AddComponent<AudioSource>();
+                    bgmFade.playOnAwake = false; bgmFade.loop = true; bgmFade.volume = 0;
+                    var sfx = audioManagerGO.AddComponent<AudioSource>();
+                    sfx.playOnAwake = false;
+
+                    var so = new SerializedObject(am);
+                    so.FindProperty("_bgmSourceMain").objectReferenceValue = bgmMain;
+                    so.FindProperty("_bgmSourceFade").objectReferenceValue = bgmFade;
+                    so.FindProperty("_sfxSource").objectReferenceValue = sfx;
+                    so.ApplyModifiedProperties();
+                }
+            }
+            else
+            {
+                var am = audioManagerGO.GetComponent<Audio.AudioManager>();
+                if (am != null) am.config = audioConfig;
+            }
 
             // --- World Space Canvas for HP Bars ---
             var worldCanvasGO = new GameObject("WorldCanvas");

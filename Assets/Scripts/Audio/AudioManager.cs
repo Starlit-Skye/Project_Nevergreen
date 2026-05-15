@@ -57,6 +57,7 @@ namespace Nevergreen.Audio
 
             _bgmSourceMain.clip = newClip;
             _bgmSourceMain.volume = 0f;
+            _bgmSourceMain.loop = true; // Ensure BGM loops
             _bgmSourceMain.Play();
 
             float elapsed = 0f;
