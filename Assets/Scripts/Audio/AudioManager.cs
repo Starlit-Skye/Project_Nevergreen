@@ -36,16 +36,50 @@ namespace Nevergreen.Audio
             _sfxSource.PlayOneShot(clip);
         }
 
+        private Coroutine _musicRoutine;
+
         public void TransitionToBGM(AudioClip clip, float duration = 1.5f)
         {
-            if (clip == null || _bgmSourceMain.clip == clip) return;
+            if (clip == null)
+            {
+                StopMusic(duration);
+                return;
+            }
 
-            StartCoroutine(CrossfadeRoutine(clip, duration));
+            // If it's already playing the same clip, don't restart unless we are force-looping
+            if (_bgmSourceMain.clip == clip && _bgmSourceMain.isPlaying) return;
+
+            if (_musicRoutine != null) StopCoroutine(_musicRoutine);
+            _musicRoutine = StartCoroutine(MusicLoopRoutine(clip, duration));
         }
-        
+
         public void StopMusic(float fadeDuration = 1.0f)
         {
-             StartCoroutine(FadeOutSource(_bgmSourceMain, fadeDuration));
+            if (_musicRoutine != null) StopCoroutine(_musicRoutine);
+            _musicRoutine = null;
+            StartCoroutine(FadeOutSource(_bgmSourceMain, fadeDuration));
+            StartCoroutine(FadeOutSource(_bgmSourceFade, fadeDuration));
+        }
+
+        private IEnumerator MusicLoopRoutine(AudioClip clip, float fadeDuration)
+        {
+            while (true)
+            {
+                // Start crossfade (don't yield)
+                StartCoroutine(CrossfadeRoutine(clip, fadeDuration));
+
+                // Wait until the source is playing and we are before the crossfade point
+                // (We need to wait for it to actually start playing to get valid time)
+                yield return new WaitUntil(() => _bgmSourceMain.isPlaying);
+
+                // Wait until it's time to trigger the next loop's crossfade.
+                // Using a while loop with source.time makes this reactive to debug skips!
+                float triggerTime = clip.length - fadeDuration;
+                while (_bgmSourceMain.isPlaying && _bgmSourceMain.time < triggerTime)
+                {
+                    yield return null;
+                }
+            }
         }
 
         private IEnumerator CrossfadeRoutine(AudioClip newClip, float duration)
@@ -57,18 +91,20 @@ namespace Nevergreen.Audio
 
             _bgmSourceMain.clip = newClip;
             _bgmSourceMain.volume = 0f;
-            _bgmSourceMain.loop = true; // Ensure BGM loops
+            _bgmSourceMain.loop = false; // We handle looping manually with fades
             _bgmSourceMain.Play();
 
             float elapsed = 0f;
+            float startOldVol = _bgmSourceFade.volume;
+
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
                 float t = elapsed / duration;
-                
+
                 _bgmSourceMain.volume = Mathf.Lerp(0f, 1f, t);
-                _bgmSourceFade.volume = Mathf.Lerp(1f, 0f, t);
-                
+                _bgmSourceFade.volume = Mathf.Lerp(startOldVol, 0f, t);
+
                 yield return null;
             }
 
@@ -76,7 +112,7 @@ namespace Nevergreen.Audio
             _bgmSourceFade.volume = 0f;
             _bgmSourceFade.Stop();
         }
-        
+
         private IEnumerator FadeOutSource(AudioSource source, float duration)
         {
             float startVol = source.volume;
@@ -92,7 +128,7 @@ namespace Nevergreen.Audio
         }
 
         // --- Settings Management ---
-        
+
         public void ApplySavedVolumes()
         {
             if (config == null || config.mainMixer == null) return;
@@ -110,7 +146,7 @@ namespace Nevergreen.Audio
         public void SetVolume(string parameter, float linearValue)
         {
             if (config == null || config.mainMixer == null) return;
-            
+
             float dB = Mathf.Log10(Mathf.Max(0.0001f, linearValue)) * 20f;
             config.mainMixer.SetFloat(parameter, dB);
         }
