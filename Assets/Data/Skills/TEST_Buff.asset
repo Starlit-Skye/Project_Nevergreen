@@ -32,6 +32,7 @@ MonoBehaviour:
   bypassGuard: 1
   hitCount: 1
   maxUsesPerBattle: -1
+  sfx: {fileID: 0}
   references:
     version: 2
     RefIds:
@@ -42,5 +43,6 @@ MonoBehaviour:
         targetStat: 0
         applicationChance: 300
         amplitude: 40
+        amplitudeType: 2
         duration: 3
         ignoreMiss: 1
