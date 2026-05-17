@@ -348,5 +348,88 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(boss.gameObject);
             Object.DestroyImmediate(bs.gameObject);
         }
+
+        [Test]
+        public void ExecuteMoveAndShift_LargeEnemy_PushedBack_ClampsToBoundary()
+        {
+            var boss = CombatTestHelper.CreateCombatCharacter("Boss", Team.Enemy, 3, size: 2);
+            var m1 = CombatTestHelper.CreateCombatCharacter("M1", Team.Enemy, 1, size: 1);
+            var m2 = CombatTestHelper.CreateCombatCharacter("M2", Team.Enemy, 2, size: 1);
+            
+            var enemyTeam = new List<CombatCharacter> { m1, m2, boss };
+            var bs = CreateBattleSystem(new List<CombatCharacter>(), enemyTeam);
+            
+            // Try pushing Boss back to rank 4.
+            bs.ExecuteMoveAndShift(boss, 4);
+            
+            // The max anchor rank for Boss should be 3 (Total size is 4. Max anchor = 4 - 2 + 1 = 3).
+            // So targetRank should clamp to 3. Since Boss is already at 3, it shouldn't move.
+            Assert.AreEqual(3, boss.rank);
+            Assert.AreEqual(1, m1.rank);
+            Assert.AreEqual(2, m2.rank);
+
+            Object.DestroyImmediate(boss.gameObject);
+            Object.DestroyImmediate(m1.gameObject);
+            Object.DestroyImmediate(m2.gameObject);
+            Object.DestroyImmediate(bs.gameObject);
+        }
+
+        [Test]
+        public void ExecuteMoveAndShift_ShiftingLargeEnemy_ReordersCorrectly()
+        {
+            var boss = CombatTestHelper.CreateCombatCharacter("Boss", Team.Enemy, 1, size: 2);
+            var m1 = CombatTestHelper.CreateCombatCharacter("M1", Team.Enemy, 3, size: 1);
+            var m2 = CombatTestHelper.CreateCombatCharacter("M2", Team.Enemy, 4, size: 1);
+
+            var enemyTeam = new List<CombatCharacter> { boss, m1, m2 };
+            var bs = CreateBattleSystem(new List<CombatCharacter>(), enemyTeam);
+
+            // Push boss back to rank 2. (M1 is currently at 3).
+            // Expectation: M1 shifts to 1, Boss shifts to 2, M2 stays at 4.
+            bs.ExecuteMoveAndShift(boss, 2);
+
+            Assert.AreEqual(1, m1.rank, "M1 should shift forward to rank 1.");
+            Assert.AreEqual(2, boss.rank, "Boss should shift back to rank 2.");
+            Assert.AreEqual(4, m2.rank, "M2 should remain at rank 4.");
+
+            Object.DestroyImmediate(boss.gameObject);
+            Object.DestroyImmediate(m1.gameObject);
+            Object.DestroyImmediate(m2.gameObject);
+            Object.DestroyImmediate(bs.gameObject);
+        }
+
+        [Test]
+        public void PileDecay_LargeEnemy_TriggersFullCompaction()
+        {
+            var boss = CombatTestHelper.CreateCombatCharacter("Boss", Team.Enemy, 1, size: 2);
+            boss.state = LifeState.Pile;
+            boss.pileDuration = 1; // 1 duration remaining
+
+            var m1 = CombatTestHelper.CreateCombatCharacter("M1", Team.Enemy, 3, size: 1);
+            var m2 = CombatTestHelper.CreateCombatCharacter("M2", Team.Enemy, 4, size: 1);
+
+            var enemyTeam = new List<CombatCharacter> { boss, m1, m2 };
+            var bs = CreateBattleSystem(new List<CombatCharacter>(), enemyTeam);
+
+            // Wire up event to simulate BattleSystem observation
+            var method = typeof(BattleSystem).GetMethod("HandleCharacterStateChanged", BindingFlags.NonPublic | BindingFlags.Instance);
+            boss.OnStateChanged += (c, state) => method.Invoke(bs, new object[] { c, state });
+
+            // Simulate turn-based decay
+            boss.pileDuration--;
+            if (boss.pileDuration <= 0)
+            {
+                boss.state = LifeState.Destroyed;
+            }
+
+            Assert.AreEqual(2, enemyTeam.Count, "Team should drop to 2 after Boss is destroyed.");
+            Assert.AreEqual(1, m1.rank, "M1 should compact from 3 -> 1");
+            Assert.AreEqual(2, m2.rank, "M2 should compact from 4 -> 2");
+
+            if (boss != null) Object.DestroyImmediate(boss.gameObject);
+            if (m1 != null) Object.DestroyImmediate(m1.gameObject);
+            if (m2 != null) Object.DestroyImmediate(m2.gameObject);
+            if (bs != null) Object.DestroyImmediate(bs.gameObject);
+        }
     }
 }
