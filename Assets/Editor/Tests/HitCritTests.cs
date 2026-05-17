@@ -163,5 +163,26 @@ namespace Nevergreen.Tests
             int expected = Mathf.RoundToInt(ctx.baseAttackRoll * 2.0f);
             Assert.AreEqual(expected, damage, "200% scaling => 2x base roll.");
         }
+
+        [Test]
+        public void Heal_AppliesRandomRollAndScaling()
+        {
+            var a = Track("a", Team.Player, 1, attack: 100);
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.modifier = new SkillModifier
+            {
+                healPercent = 0.5f // 50% scaling
+            };
+            
+            var (_, ctx) = MakeCtx(a, a, skill, new System.Random(42));
+            int heal = CombatCalculator.CalculateHeal(ctx, _config);
+            
+            // Expected base roll using standard RollAttackDamage
+            int expectedBaseRoll = CombatCalculator.RollAttackDamage(100, _config, new System.Random(42));
+            int expectedHeal = Mathf.RoundToInt(expectedBaseRoll * 0.5f);
+            
+            Assert.AreEqual(expectedHeal, heal, "Heal should scale the rolled attack power correctly.");
+            Assert.AreEqual(expectedBaseRoll, ctx.baseAttackRoll, "Context baseAttackRoll should record the roll.");
+        }
     }
 }

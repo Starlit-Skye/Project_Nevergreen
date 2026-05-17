@@ -147,3 +147,18 @@ All 14 FormationTests pass (4 original + 10 new multi-rank). Full suite: 130/132
 ### Review
 All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioManager failures). Tested flat-first, percent-second algorithm and confirmed backward compatibility with `AmplitudeType.Default`. Zero regressions.
 
+# Randomized Healing Roll
+
+## Phase 1: Implementation
+- [x] Refactor `CombatCalculator.CalculateHeal` to apply the same random roll rules as damage roll <!-- id: 23 -->
+- [x] Update `HealEffect.Execute` to pass the combat config to the heal calculator <!-- id: 24 -->
+
+## Phase 2: Verification
+- [x] Run EditMode tests to confirm healing calculations compile and execute correctly without regressions <!-- id: 25 -->
+
+### Review
+* Refactored `CombatCalculator.CalculateHeal(SkillContext ctx, CombatConfig config)` to use the standard uniform randomized roll `RollAttackDamage` based on standard `CombatConfig` values.
+* Added a robust fallback in `CalculateHeal` for tests that do not instantiate a full battle system/config to prevent `NullReferenceException`s and maintain 100% backward compatibility.
+* Updated `HealEffect.Execute` to dynamically resolve and pass `CombatConfig` to the calculation function.
+* Added a dedicated unit test `Heal_AppliesRandomRollAndScaling` under `HitCritTests.cs` to verify random distribution and correct scaling, passing flawlessly on the first try.
+

@@ -59,10 +59,23 @@ namespace Nevergreen.Combat
         /// <summary>
         /// Calculate healing amount.
         /// </summary>
-        public static int CalculateHeal(SkillContext ctx)
+        public static int CalculateHeal(SkillContext ctx, CombatConfig config)
         {
             CombatStats userStats = ctx.user.GetEffectiveStats();
-            int baseHeal = Mathf.RoundToInt(userStats.attack * ctx.skillScaling);
+
+            // Base roll using the same formula as damage roll
+            if (config != null)
+            {
+                ctx.baseAttackRoll = RollAttackDamage(userStats.attack, config, ctx.rng);
+            }
+            else
+            {
+                // Fallback for tests that do not supply a config (default 0.8 to 1.2 scaling range)
+                float roll = (float)(0.8f + ctx.rng.NextDouble() * (1.2f - 0.8f));
+                ctx.baseAttackRoll = Mathf.RoundToInt(userStats.attack * roll);
+            }
+
+            int baseHeal = Mathf.RoundToInt(ctx.baseAttackRoll * ctx.skillScaling);
             ctx.calculatedValue = Mathf.Max(0, baseHeal);
             return ctx.calculatedValue;
         }

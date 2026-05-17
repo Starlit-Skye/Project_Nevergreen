@@ -17,7 +17,8 @@ namespace Nevergreen.Combat
             context.didHit = true; 
 
             // 1. Math Resolution
-            int healAmount = CombatCalculator.CalculateHeal(context);
+            CombatConfig config = context.battleSystem != null ? context.battleSystem.combatConfig : null;
+            int healAmount = CombatCalculator.CalculateHeal(context, config);
             
             // 2. Application
             target.Heal(healAmount);

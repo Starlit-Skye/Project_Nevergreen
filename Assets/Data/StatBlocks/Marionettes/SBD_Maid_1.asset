@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_Maid_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 4
+  attack: 10
   accuracy: 95
   critChance: 3
   maxHP: 17
