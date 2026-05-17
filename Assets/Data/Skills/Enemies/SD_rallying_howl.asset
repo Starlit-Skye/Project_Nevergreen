@@ -23,11 +23,11 @@ MonoBehaviour:
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 356131112683044951
+  - rid: 356131112683044961
   - rid: 356131112683044952
   - rid: 356131112683044953
   useRanks: 0300000004000000
-  targetRanks: 01000000
+  targetRanks: 01000000020000000300000004000000
   targetScope: 1
   maxTargets: 4
   ignoresDefense: 0
@@ -40,9 +40,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131112683044951
-      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data: 
     - rid: 356131112683044952
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
@@ -50,7 +47,7 @@ MonoBehaviour:
         targetStat: 5
         applicationChance: 300
         amplitude: 2
-        amplitudeType: 0
+        amplitudeType: 2
         duration: 3
         ignoreMiss: 0
     - rid: 356131112683044953
@@ -59,7 +56,10 @@ MonoBehaviour:
         statusType: 5
         targetStat: 0
         applicationChance: 300
-        amplitude: 1
-        amplitudeType: 0
+        amplitude: 20
+        amplitudeType: 1
         duration: 3
         ignoreMiss: 0
+    - rid: 356131112683044961
+      type: {class: HealEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 
