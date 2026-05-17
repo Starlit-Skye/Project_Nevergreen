@@ -85,7 +85,8 @@ namespace Nevergreen.Tests
             int dodge = 5, int critChance = 5, int speed = 5,
             int maxHP = 100, int stunResist = 0, int debuffResist = 0,
             int moveResist = 0,
-            CombatConfig config = null)
+            CombatConfig config = null,
+            int size = 1)
         {
             var go = new GameObject($"TestCharacter_{id}");
             var cc = go.AddComponent<CombatCharacter>();
@@ -95,6 +96,7 @@ namespace Nevergreen.Tests
                                         stunResist: stunResist, debuffResist: debuffResist, moveResist: moveResist);
             var charData = CreateCharacterData(id, id, stats,
                 team == Team.Player ? CharacterTeamType.Player : CharacterTeamType.Enemy);
+            charData.size = size;
 
             cc.characterData = charData;
             cc.currentLevel = 1;

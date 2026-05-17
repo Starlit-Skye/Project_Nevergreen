@@ -23,3 +23,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b068ff49135bac34a80c1866ed39a1f2, type: 2}
   - {fileID: 11400000, guid: 349454b7248e105438e439b9640e06b9, type: 2}
   - {fileID: 11400000, guid: 3bcc18195b974fd4595ee149d5c721de, type: 2}
+  size: 1
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 0}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

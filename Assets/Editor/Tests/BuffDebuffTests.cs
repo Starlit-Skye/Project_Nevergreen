@@ -101,6 +101,52 @@ namespace Nevergreen.Tests
         }
 
         [Test]
+        public void Buff_StunResist_AddsFlatValueToBase()
+        {
+            _character.baseStats.stunResist = 10;
+            _character.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.StunResist, 300, 3));
+            CombatStats effective = _character.GetEffectiveStats();
+            Assert.AreEqual(310, effective.stunResist, "300 flat bonus on base 10 => 310.");
+        }
+
+        [Test]
+        public void Buff_CritChance_AddsFlatValueToBase()
+        {
+            _character.baseStats.critChance = 5;
+            _character.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.CritChance, 10, 3));
+            CombatStats effective = _character.GetEffectiveStats();
+            Assert.AreEqual(15, effective.critChance, "10 flat bonus on base 5 => 15.");
+        }
+
+        [Test]
+        public void Debuff_BleedResist_SubtractsFlatValueFromBase()
+        {
+            _character.baseStats.bleedResist = 40;
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.BleedResist, 20, 3));
+            CombatStats effective = _character.GetEffectiveStats();
+            Assert.AreEqual(20, effective.bleedResist, "20 flat debuff on base 40 => 20.");
+        }
+
+        [Test]
+        public void MultipleBuffs_FlatStat_StackAdditively()
+        {
+            _character.baseStats.critChance = 5;
+            _character.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.CritChance, 10, 3));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.CritChance, 15, 3));
+            CombatStats effective = _character.GetEffectiveStats();
+            Assert.AreEqual(30, effective.critChance, "10 and 15 flat buffs on base 5 => 30.");
+        }
+
+        [Test]
+        public void Debuff_Resistance_CanGoBelowZero()
+        {
+            _character.baseStats.stunResist = 10;
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.StunResist, 30, 3));
+            CombatStats effective = _character.GetEffectiveStats();
+            Assert.AreEqual(-20, effective.stunResist, "30 flat debuff on base 10 => -20.");
+        }
+
+        [Test]
         public void DebuffResistance_ReducesApplicationChance()
         {
             var rng = CombatTestHelper.CreateFixedRng(42);

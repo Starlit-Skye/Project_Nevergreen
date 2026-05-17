@@ -20,6 +20,7 @@ targets forward or push dangerous front-line threats to less effective positions
 ## Source of Truth
 - Code: `Assets/Scripts/Data/SkillData.cs` (`StatusType.Move`), `Assets/Scripts/Combat/CombatCharacter.cs` (`rank`), `Assets/Scripts/Combat/BattleSystem.cs` (`ExecuteMoveAndShift`), `Assets/Scripts/Combat/Effects/MoveStatusInstance.cs`, `Assets/Scripts/Combat/Effects/StatusEffect.cs`
 - Design: [Google Doc](https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?usp=sharing)
+- Pile Mechanic: `Docs/specs/mechanics/MECHANIC_SPEC_PILE.md`
 - Data: `StatTarget.MoveResist` and `StatusType.Move` enums in `Assets/Scripts/Data/SkillData.cs`.
 
 ## Inputs
@@ -80,7 +81,7 @@ If ClampedTargetRank > CurrentRank:
   will clamp the target to Rank 3.
 - **Compact Formation**: The system maintains a compact formation by shifting other characters
   to fill gaps. There are never "empty" ranks between Rank 1 and Rank `team.Count`.
-- **Corpse (Pile) Movement**: Corpses are included in the team count for rank calculation and
+- **Corpse (Pile) Movement**: Corpses (see [Pile Mechanic](MECHANIC_SPEC_PILE.md)) are included in the team count for rank calculation and
   occupy rank space, but they have high Move Resistance (300%).
 - **Position Anchoring**: `BattleSystem` captures the X-coordinates of all characters (alive and
   dead) before shifting to ensure smooth transitions between valid rank positions.

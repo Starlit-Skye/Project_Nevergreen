@@ -22,7 +22,7 @@ namespace Nevergreen.Combat
                 int damage = CombatCalculator.CalculateDamage(context, context.battleSystem.combatConfig);
                 
                 // 3. Application
-                target.TakeDamage(damage);
+                target.TakeDamage(damage, context.isCritical);
 
                 string critStr = context.isCritical ? " CRIT!" : "";
                 Debug.Log($"  -> {target.DisplayName} takes {damage} damage{critStr} (HP: {target.currentHP}/{target.baseStats.maxHP})");

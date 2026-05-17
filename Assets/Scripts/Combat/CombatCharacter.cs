@@ -7,6 +7,17 @@ using Nevergreen.Data;
 namespace Nevergreen.Combat
 {
     /// <summary>
+    /// Tracks the lifecycle state of a combat entity.
+    /// </summary>
+    public enum LifeState
+    {
+        Alive,      // Active participant, takes turns.
+        Dying,      // Intermediate state during death animation.
+        Pile,       // Spatial anchor, 50% HP, no turns, decay-based.
+        Destroyed   // Removed from formation/logic.
+    }
+
+    /// <summary>
     /// Runtime combat entity. Attached to each character prefab in the combat scene.
     /// Holds current HP, resolved stats, rank, skills, and active status effects.
     /// </summary>
@@ -22,7 +33,22 @@ namespace Nevergreen.Combat
 
         // --- Runtime State (set during combat setup) ---
          public int currentHP;
-        [HideInInspector] public int rank; // 1-4, 1 = front
+        [HideInInspector] public int rank;
+        [HideInInspector] 
+        public LifeState state 
+        { 
+            get => _state; 
+            set 
+            {
+                if (_state != value)
+                {
+                    _state = value;
+                    OnStateChanged?.Invoke(this, _state);
+                }
+            }
+        }
+        private LifeState _state = LifeState.Alive;
+        [HideInInspector] public int pileDuration; // Turns remaining before Pile decays
         [HideInInspector] public Team team;
         [HideInInspector] public CombatConfig combatConfig;
         [HideInInspector] public CombatStats baseStats;
@@ -39,16 +65,34 @@ namespace Nevergreen.Combat
 
         public string DisplayName => characterData != null ? characterData.displayName : gameObject.name;
         public string CharacterId => characterData != null ? characterData.characterId : "";
-        public bool IsAlive => currentHP > 0;
+        public bool IsAlive => state == LifeState.Alive;
+        public bool IsPile => state == LifeState.Pile;
         public bool IsPlayerTeam => team == Team.Player;
+
+        /// <summary>
+        /// Returns all ranks this character currently occupies, based on anchor rank and size.
+        /// A size-1 character at rank 2 returns [2]. A size-2 character at rank 1 returns [1, 2].
+        /// </summary>
+        public List<int> OccupiedRanks
+        {
+            get
+            {
+                int charSize = (characterData != null) ? characterData.size : 1;
+                var ranks = new List<int>(charSize);
+                for (int i = 0; i < charSize; i++)
+                    ranks.Add(rank + i);
+                return ranks;
+            }
+        }
 
         // --- Events ---
         public event Action<CombatCharacter, int> OnDamageTaken; // character, amount
         public event Action<CombatCharacter, int> OnHealed;      // character, amount
         public event Action<CombatCharacter, StatusType, bool> OnStatusApplied;
         public event Action<CombatCharacter, StatusType, int> OnPeriodicEffectApplied;
-        public event Action<CombatCharacter> OnDefeated;
+        public event Action<CombatCharacter, bool> OnDefeated; // character, wasCritical
         public event Action<CombatCharacter> OnStatsChanged;
+        public event Action<CombatCharacter, LifeState> OnStateChanged;
 
         /// <summary>
         /// Initialize this character for combat from its CharacterData.
@@ -82,10 +126,21 @@ namespace Nevergreen.Combat
                     equippedSkills.Add(characterData.availableSkills[i]);
             }
 
+            if (team == Team.Enemy)
+            {
+                var brain = GetComponent<Nevergreen.Combat.AI.AIBrain>();
+                if (brain == null)
+                {
+                    brain = gameObject.AddComponent<Nevergreen.Combat.AI.AIBrain>();
+                }
+                brain.profile = characterData.defaultAIProfile;
+            }
+
             // Reset status tracking
             statusEffects.Clear();
             _skillUseTracker.Clear();
             isStunned = false;
+            state = LifeState.Alive;
 
             animator = GetComponentInChildren<Animator>();
             if (animator == null)
@@ -101,34 +156,44 @@ namespace Nevergreen.Combat
         /// </summary>
         public CombatStats GetEffectiveStats()
         {
-            // Accumulate net percentage modifier per stat target
+            // Accumulate modifiers: percentage multipliers for core stats, flat additions for others (resistances/crit)
             Dictionary<StatTarget, float> netPercent = new Dictionary<StatTarget, float>();
+            Dictionary<StatTarget, int> netFlat = new Dictionary<StatTarget, int>();
 
             foreach (var status in statusEffects)
             {
                 if (status.IsExpired) continue;
 
-                float sign;
-                if (status.type == StatusType.Buff)
-                    sign = 1f;
-                else if (status.type == StatusType.Debuff)
-                    sign = -1f;
+                float sign = (status.type == StatusType.Buff) ? 1f : (status.type == StatusType.Debuff) ? -1f : 0f;
+                if (sign == 0f) continue;
+
+                if (IsFlatStat(status.targetStat))
+                {
+                    if (!netFlat.ContainsKey(status.targetStat))
+                        netFlat[status.targetStat] = 0;
+                    netFlat[status.targetStat] += Mathf.RoundToInt(sign * status.amplitude);
+                }
                 else
-                    continue;
-
-                if (!netPercent.ContainsKey(status.targetStat))
-                    netPercent[status.targetStat] = 0f;
-
-                netPercent[status.targetStat] += sign * (status.amplitude / 100f);
+                {
+                    if (!netPercent.ContainsKey(status.targetStat))
+                        netPercent[status.targetStat] = 0f;
+                    netPercent[status.targetStat] += sign * (status.amplitude / 100f);
+                }
             }
 
             CombatStats effective = baseStats.Clone();
 
-            // Apply each accumulated multiplier to the base stat
+            // Apply percentage multipliers to core stats
             foreach (var kvp in netPercent)
             {
                 float multiplier = 1f + kvp.Value;
                 ApplyPercentageMultiplier(effective, baseStats, kvp.Key, multiplier);
+            }
+
+            // Apply flat additive modifiers
+            foreach (var kvp in netFlat)
+            {
+                ApplyFlatModifier(effective, kvp.Key, kvp.Value);
             }
 
             // Enforce hard caps
@@ -138,7 +203,23 @@ namespace Nevergreen.Combat
                 effective.dodge = Mathf.Min(effective.dodge, combatConfig.dodgeCap);
             }
 
+            // Apply innate Pile bonuses
+            if (state == LifeState.Pile)
+            {
+                effective.moveResist += 300;
+            }
+
             return effective;
+        }
+
+        private bool IsFlatStat(StatTarget target)
+        {
+            return target == StatTarget.CritChance ||
+                   target == StatTarget.BleedResist ||
+                   target == StatTarget.BlightResist ||
+                   target == StatTarget.StunResist ||
+                   target == StatTarget.DebuffResist ||
+                   target == StatTarget.MoveResist;
         }
 
         /// <summary>
@@ -154,32 +235,47 @@ namespace Nevergreen.Combat
                 case StatTarget.Defense:     effective.defense = Mathf.RoundToInt(baseStat.defense * multiplier); break;
                 case StatTarget.Accuracy:    effective.accuracy = Mathf.RoundToInt(baseStat.accuracy * multiplier); break;
                 case StatTarget.Dodge:       effective.dodge = Mathf.RoundToInt(baseStat.dodge * multiplier); break;
-                case StatTarget.CritChance:  effective.critChance = Mathf.RoundToInt(baseStat.critChance * multiplier); break;
                 case StatTarget.Speed:       effective.speed = Mathf.RoundToInt(baseStat.speed * multiplier); break;
                 case StatTarget.MaxHP:       effective.maxHP = Mathf.RoundToInt(baseStat.maxHP * multiplier); break;
-                case StatTarget.BleedResist: effective.bleedResist = Mathf.RoundToInt(baseStat.bleedResist * multiplier); break;
-                case StatTarget.BlightResist:effective.blightResist = Mathf.RoundToInt(baseStat.blightResist * multiplier); break;
-                case StatTarget.StunResist:  effective.stunResist = Mathf.RoundToInt(baseStat.stunResist * multiplier); break;
-                case StatTarget.DebuffResist:effective.debuffResist = Mathf.RoundToInt(baseStat.debuffResist * multiplier); break;
-                case StatTarget.MoveResist:  effective.moveResist = Mathf.RoundToInt(baseStat.moveResist * multiplier); break;
+            }
+        }
+
+        private void ApplyFlatModifier(CombatStats effective, StatTarget target, int amount)
+        {
+            switch (target)
+            {
+                case StatTarget.CritChance:  effective.critChance += amount; break;
+                case StatTarget.BleedResist: effective.bleedResist += amount; break;
+                case StatTarget.BlightResist:effective.blightResist += amount; break;
+                case StatTarget.StunResist:  effective.stunResist += amount; break;
+                case StatTarget.DebuffResist:effective.debuffResist += amount; break;
+                case StatTarget.MoveResist:  effective.moveResist += amount; break;
             }
         }
 
         /// <summary>
         /// Apply damage to this character.
         /// </summary>
-        public void TakeDamage(int amount)
+        public void TakeDamage(int amount, bool isCritical = false)
         {
-            if (!IsAlive) return;
+            if (!IsAlive && !IsPile) return;
 
             int actual = Mathf.Max(0, amount);
             currentHP = Mathf.Max(0, currentHP - actual);
 
             OnDamageTaken?.Invoke(this, actual);
 
-            if (!IsAlive)
+            if (currentHP <= 0)
             {
-                OnDefeated?.Invoke(this);
+                if (state == LifeState.Pile)
+                {
+                    state = LifeState.Destroyed;
+                }
+                else
+                {
+                    state = LifeState.Dying;
+                    OnDefeated?.Invoke(this, isCritical);
+                }
             }
         }
 
@@ -244,11 +340,16 @@ namespace Nevergreen.Combat
         }
 
         /// <summary>
-        /// Check if a skill can be used from the current rank.
+        /// Check if a skill can be used from any of this character's occupied ranks.
         /// </summary>
         public bool CanUseSkillFromRank(SkillData skill)
         {
-            return skill.useRanks.Contains(rank);
+            foreach (int r in OccupiedRanks)
+            {
+                if (skill.useRanks.Contains(r))
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>

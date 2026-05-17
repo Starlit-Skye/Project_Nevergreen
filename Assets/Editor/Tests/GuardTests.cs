@@ -226,5 +226,31 @@ namespace Nevergreen.Tests
 
             Assert.AreEqual(0, target.statusEffects.Count, "Guard should be removed after its duration expires.");
         }
+
+        [Test]
+        public void Application_FailsIfTargetIsPile()
+        {
+            // Arrange
+            target.state = LifeState.Pile;
+
+            // Act
+            target.AddStatus(new GuardStatusInstance(guardian, 3));
+
+            // Assert
+            Assert.AreEqual(0, target.statusEffects.Count, "Guard should not be applied to a Pile.");
+        }
+
+        [Test]
+        public void Application_FailsIfGuardianIsPile()
+        {
+            // Arrange
+            guardian.state = LifeState.Pile;
+
+            // Act
+            target.AddStatus(new GuardStatusInstance(guardian, 3));
+
+            // Assert
+            Assert.AreEqual(0, target.statusEffects.Count, "Guard should not be applied if the guardian is a Pile.");
+        }
     }
 }

@@ -1,28 +1,128 @@
-# Task: Implement "Move" Status Effect Information Gathering
+# Tasks
+
+- [x] Draft concise, professional designer-focused `README.md` <!-- id: 0 -->
+- [x] Verify conceptual facts (Cecilia, Ranks, Piles, Marionettes) <!-- id: 1 -->
+- [x] Create/Overwrite `README.md` in the root directory <!-- id: 2 -->
+
+# Review
+
+## Project Overview
+- Turn-based combat system.
+- Player team vs Enemy team.
+- Rank-based positioning (1-4).
+- Compact formation (no empty slots).
+- Cecilia defeat condition (lose if "ceci" is defeated).
+
+## Character Removal & Rank Shifting
+
+- [x] **Step 1**: Add configuration layout values and `OnCharacterRemoved` event to `BattleSystem.cs`.
+- [x] **Step 2**: Create `GetXPositionForRank` and refactor `ExecuteMoveAndShift`.
+- [x] **Step 3**: Inject layout configurations in `CombatSceneBootstrap.cs`.
+- [x] **Step 4**: Add `HandleCharacterStateChanged` and `HandleCharacterDestroyed` to `BattleSystem.cs`.
+- [x] **Step 5**: Subscribe to `OnStateChanged` in `BattleSystem.StartBattle`.
+- [x] **Step 6**: Add `ShiftRanksAfterRemoval` to `BattleSystem.cs`.
+- [x] **Step 7**: Update `CheckBattleEnd` to handle empty teams.
+- [x] **Step 8**: Write unit tests in `FormationTests.cs` and verify they pass.
+
+### Review Section
+The automated character removal and rank-shifting logic has been successfully implemented and tested.
+* When a character's state changes to `LifeState.Destroyed`, the system automatically captures its current rank, removes the character from the active team list, and evaluates remaining characters in that team.
+* Allies stationed behind the removed character are shifted forward by one rank, and visual `DOMoveX` tweens are queued to reflect their new deterministic positions (based on centralized base X and spacing settings).
+* External systems can now hook into the `OnCharacterRemoved` event.
+* Extensive testing covering empty teams, full shifts, and team counts verified the resilience of the update. All tests successfully passed.
+
+# Modular Enemy AI Framework
+
+Reference: `Docs/architecture/AI_SYSTEM_PROPOSAL.md` & `AI_Implementation_Plan.md`
+
+## Phase 1: Core Infrastructure & Interfaces
+- [x] **Step 1**: Create `AIDecision.cs` struct for standardized action output.
+- [x] **Step 2**: Create `AIHistory.cs` for turn tracking and contextual logic.
+- [x] **Step 3**: Define `IAIBehavior`, `IAICondition`, and `IAITargeting` interfaces.
+- [x] **Step 4**: Implement `AIBrain.cs` skeleton component.
+- [x] **Step 5**: Resolve compilation dependencies and verify with EditMode tests.
+
+## Phase 2: ScriptableObject Containers
+- [x] **Step 1**: Create `EnemyAIProfile.cs` (Main SO container).
+- [x] **Step 2**: Implement `AIBehaviorNode`, `AIConditionNode`, and `AITargetingNode` abstract base classes.
+- [x] **Step 3**: Update `CharacterData.cs` to include an `AIProfile` reference.
+- [x] **Step 4**: Implement core evaluation loop in `AIBrain.cs`.
+
+## Phase 3: Concrete Implementations (The Nodes)
+- [x] **Step 1**: Implement `RandomSkillBehavior` (Fallback).
+- [x] **Step 2**: Implement `HealthCondition`.
+- [x] **Step 3**: Implement `SimpleTargeting`.
+- [x] **Step 4**: Implement `RuleBasedBehavior` (Bridge node).
+
+## Phase 4: Combat System Integration
+- [x] **Step 1**: Refactor `BattleSystem.ExecuteEnemyAction()` to use `AIBrain`.
+- [x] **Step 2**: Initialize `AIBrain` in `CombatCharacter`.
+- [x] **Step 3**: Integrate `AIHistory` updates into the turn sequence.
+
+## Phase 5: Editor Tooling
+- [x] **Step 1**: Create custom property drawers for polymorphic SO lists.
+- [x] **Step 2**: Implement `TypeCache` search for behavior selection.
+
+### Review Section
+Phase 1 has been completed. All interfaces and core data structures are in place.
+
+Phase 2 has been completed. `EnemyAIProfile` created, base polymorphic nodes implemented, and `AIBrain` loop defined.
+
+Phase 3 has been completed. Foundations for modular logic are ready:
+* `RandomSkillBehavior` — Safety net/Fallback.
+* `HealthCondition` — Multi-target HP evaluation.
+* `SimpleTargeting` — Strategy-based target resolution.
+* `RuleBasedBehavior` — Complex conditional rules (e.g. "If HP < 50%, Heal").
+
+Phase 4 has been completed. `BattleSystem.ExecuteEnemyAction()` now utilizes the `AIBrain` for evaluating turns and properly updates the `AIHistory`. `CombatCharacter` injects the `defaultAIProfile` on initialization.
+
+Phase 5 has been completed. A robust `[SubclassSelector]` attribute and `PropertyDrawer` have been implemented. Designers can now use a clean dropdown menu in the Unity Inspector to select between different AI behaviors, conditions, and targeting strategies. This system also extends to the existing `SkillData` effects.
+
+The comprehensive unit test suite in `AITests.cs` is complete and passing (102/102 tests pass in the project). These tests cover AIBrain evaluation loop, target finding strategies, correct behavior execution, and condition logic checking, ensuring deterministic and robust Enemy AI gameplay.
+Venom Bite Status Debugging
 
 ## Status
-- [x] Research "Move" Status Effect from Google Doc <!-- id: 0 -->
-- [x] Analyze existing status effect system for integration <!-- id: 1 -->
-- [x] Create specification for "Move" Status Effect <!-- id: 2 -->
-- [x] Implement "Move" Status Effect logic <!-- id: 3 -->
-- [x] Verify implementation with tests <!-- id: 4 -->
+- [ ] Investigate StatusEffect execution and event firing <!-- id: 5 -->
+- [ ] Verify CombatUI subscription to status events <!-- id: 6 -->
+- [ ] Add improved logging for status application failure/resistance <!-- id: 7 -->
+- [ ] Fix the root cause of the missing combat log <!-- id: 8 -->
+- [ ] Verify the fix in-game <!-- id: 9 -->
 
 ## Research Notes
-- Google Doc URL: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?usp=sharing
-- **Move Status Effect Details:**
-    - **Effect:** Moves a character forward or backward in ranks.
-    - **Amplitude:** Number of spaces to move.
-    - **Duration:** 0 (Instantaneous).
-    - **Resistance:** `MoveResist` stat.
-    - **Interaction:** `Final Chance = Application Chance - Move Resist`.
-    - **Special Case:** "Pile" (corpse) has 300% Move Resistance.
-    - **Context:** Used by skills to disrupt formations (e.g., Novellite's Eldritch Grasp, Final Boss's Spirit Chaser attacks).
+- `Venom Bite` skill has `DamageEffect` then `StatusEffect` (Blight).
+- `StatusEffect.Execute` only logs to console on success.
+- `CombatUI` handles both success and resistance logs via `OnStatusApplied`.
+- If no log appears, `OnStatusApplied` might not be firing or `StatusEffect.Execute` is returning early.
 
-## Implementation Plan
-1. Create `MoveEffect` scriptable object effect (implementing `ISkillEffect`).
-2. Update `BattleSystem` or `CombatCharacter` to handle rank swapping/reordering.
-3. Ensure Move Resistance is correctly factored in `CombatCalculator`.
-4. Add unit tests for moving allies/enemies and resistance checks.
+# Audio System Implementation
 
-## Review Section
-*TBD*
+## Phase 1: Specification
+- [x] Draft `Docs/specs/systems/SYSTEM_SPEC_AUDIO.md` based on requirements <!-- id: 10 -->
+- [ ] Define `AudioManager` service responsibilities <!-- id: 11 -->
+- [ ] Define BGM state machine (Exploration, Battle, Boss, Victory) <!-- id: 12 -->
+- [ ] Define SFX integration with `SkillData` and `BattleSystem` <!-- id: 13 -->
+
+# Multi-Rank Enemies Feature
+
+## Phase 1: Data Architecture
+- [x] Add `size` property (Range 1-4) to `CharacterData.cs`
+- [x] Add `OccupiedRanks` computed list property to `CombatCharacter.cs`
+
+## Phase 2: Core Combat Rules
+- [x] Refactor `BattleSystem.GetValidTargets()` to use `OccupiedRanks.Intersect`
+- [x] Validate AOE skills naturally handle the same `CombatCharacter` only once
+- [x] Update `CombatTestHelper` to support assigning `size` values
+
+## Phase 3: Rank Management & Layout
+- [x] Rewrite `ShiftRanksAfterRemoval` -> `CompactFormation` (dynamic Compaction Algorithm)
+- [x] Implement `GetXPositionForCharacter` to visually center large enemies
+- [x] Ensure formation constraints: `Sum(size)` per team does not exceed 4
+- [x] Ensure Pile state transitions preserve character size and occupied ranks
+- [x] Verify Pile decay shifts rear units forward by the full size of the decayed Pile
+
+## Phase 4: Movement & Edge Cases
+- [x] Refactor `ExecuteMoveAndShift` using list-insertion and recompaction logic
+- [x] Verify test suite `FormationTests.cs` against new size-based movement math
+
+### Review
+All 14 FormationTests pass (4 original + 10 new multi-rank). Full suite: 130/132 (2 pre-existing AudioManager failures). Zero regressions.

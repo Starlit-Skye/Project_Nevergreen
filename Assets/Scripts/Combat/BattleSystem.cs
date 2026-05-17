@@ -24,6 +24,12 @@ namespace Nevergreen.Combat
         public int CurrentRound { get; private set; } = 0;
         public CombatCharacter CurrentActor { get; private set; }
 
+        // Layout configuration (injected by Bootstrap or set in Inspector)
+        [HideInInspector] public float playerBaseX = -3f;
+        [HideInInspector] public float playerSpacingX = -2f;
+        [HideInInspector] public float enemyBaseX = 3f;
+        [HideInInspector] public float enemySpacingX = 2f;
+
         private List<CombatCharacter> _playerTeam = new List<CombatCharacter>();
         private List<CombatCharacter> _enemyTeam = new List<CombatCharacter>();
         private List<TurnEntry> _turnOrder = new List<TurnEntry>();
@@ -41,6 +47,7 @@ namespace Nevergreen.Combat
         public event Action<BattleOutcome> OnBattleEnded;
         public event Action OnWaitingForPlayerInput;
         public event Action<CombatCharacter> OnCharacterDefeated;
+        public event Action<CombatCharacter> OnCharacterRemoved;
 
         public List<CombatCharacter> PlayerTeam => _playerTeam;
         public List<CombatCharacter> EnemyTeam => _enemyTeam;
@@ -74,6 +81,7 @@ namespace Nevergreen.Combat
             {
                 c.combatConfig = combatConfig;
                 c.OnDefeated += HandleCharacterDefeated;
+                c.OnStateChanged += HandleCharacterStateChanged;
             }
 
             CurrentState = BattleState.RoundStart;
@@ -169,6 +177,8 @@ namespace Nevergreen.Combat
 
         private IEnumerator ProcessTurn()
         {
+            if (CheckBattleEnd()) yield break;
+
             if (_currentTurnIndex >= _turnOrder.Count)
             {
                 CurrentState = BattleState.RoundEnd;
@@ -191,13 +201,16 @@ namespace Nevergreen.Combat
             // Phase 1: Apply DOT/HOT effects (bleed/blight still hurt stunned characters)
             StatusProcessor.ProcessPeriodicEffects(CurrentActor);
 
-            // Wait for DOT/HOT animations to finish before proceeding to stun check or action
+            // Wait for DOT/HOT animations to finish before proceeding
             if (animationQueue != null)
             {
                 while (animationQueue.IsBusy) yield return null;
             }
 
-            // Check if died from DOT
+            // Check if died from DOT or if battle ended during animations
+            if (CheckBattleEnd()) yield break;
+
+            // Check death from DOT (redundant with CheckBattleEnd but kept for turn index increment)
             if (!CurrentActor.IsAlive)
             {
                 StatusProcessor.TickDurations(CurrentActor, combatConfig.stunRecoveryResistBonus);
@@ -236,8 +249,22 @@ namespace Nevergreen.Combat
                 }
             }
 
-            // Check battle end
-            if (CheckBattleEnd())
+            // Tick durations for all Piles after every character action
+            foreach (var c in _playerTeam.Concat(_enemyTeam).Where(c => c.IsPile).ToList())
+            {
+                c.pileDuration--;
+
+                // If the Pile has decayed, move to Destroyed state
+                if (c.pileDuration <= 0)
+                {
+                    c.state = LifeState.Destroyed;
+                    Debug.Log($"[BattleSystem] {c.DisplayName} Pile has decayed and is now Destroyed.");
+                }
+            }
+
+            // The battle end is now handled by the OnDefeated event, but we check here 
+            // to ensure the coroutine stops if defeat occurred during the action.
+            if (CurrentState == BattleState.BattleEnd)
             {
                 yield break;
             }
@@ -282,81 +309,114 @@ namespace Nevergreen.Combat
         public void ExecuteMoveAndShift(CombatCharacter mover, int targetRank)
         {
             var team = mover.IsPlayerTeam ? _playerTeam : _enemyTeam;
-            int maxRank = Mathf.Clamp(team.Count, 1, 4); // Max ranks is 4, but limited by team size
-            targetRank = Mathf.Clamp(targetRank, 1, maxRank);
-            
+
+            // Calculate max usable rank accounting for all character sizes
+            int totalSlotsUsed = 0;
+            foreach (var c in team)
+            {
+                int s = (c.characterData != null) ? c.characterData.size : 1;
+                totalSlotsUsed += s;
+            }
+            int maxAnchorRank = Mathf.Max(1, totalSlotsUsed - ((mover.characterData != null) ? mover.characterData.size : 1) + 1);
+            targetRank = Mathf.Clamp(targetRank, 1, maxAnchorRank);
+
             int startRank = mover.rank;
             if (startRank == targetRank) return;
 
+            // 1. Build ordered list by current rank (excluding mover)
+            var ordered = team.Where(c => c != mover).OrderBy(c => c.rank).ToList();
+
+            // 2. Find insertion index: where the mover's target rank fits relative to existing anchors
+            int insertIndex = 0;
             bool movingForward = targetRank < startRank;
 
-            // 1. Capture current X positions of the affected team mapped to their current ranks
-            Dictionary<int, float> rankToPosX = new Dictionary<int, float>();
-            
-            // Capture positions of ALL characters in the team (alive or dead) to get rank anchors
-            foreach (var character in team)
+            if (movingForward)
             {
-                rankToPosX[character.rank] = character.transform.position.x;
-            }
-
-
-            // 2. Identify characters that will shift to make room
-            List<CombatCharacter> shiftingCharacters = new List<CombatCharacter>();
-            foreach (var character in team)
-            {
-                if (!character.IsAlive || character == mover) continue;
-
-                if (movingForward)
+                // Moving forward: insert before characters at or after target rank
+                for (int i = 0; i < ordered.Count; i++)
                 {
-                    // Moving from 4 to 1. Ranks 1, 2, 3 must shift back (+1)
-                    if (character.rank >= targetRank && character.rank < startRank)
-                    {
-                        shiftingCharacters.Add(character);
-                    }
+                    if (ordered[i].rank >= targetRank) { insertIndex = i; break; }
+                    insertIndex = i + 1;
                 }
-                else
+            }
+            else
+            {
+                // Moving backward: insert after characters before target rank
+                insertIndex = ordered.Count; // default: end
+                for (int i = 0; i < ordered.Count; i++)
                 {
-                    // Moving from 1 to 4. Ranks 2, 3, 4 must shift forward (-1)
-                    if (character.rank <= targetRank && character.rank > startRank)
+                    if (ordered[i].rank >= targetRank)
                     {
-                        shiftingCharacters.Add(character);
+                        insertIndex = i + 1;
+                        break;
                     }
                 }
             }
 
-            // 3. Update logical ranks
-            mover.rank = targetRank;
-            foreach (var character in shiftingCharacters)
+            insertIndex = Mathf.Clamp(insertIndex, 0, ordered.Count);
+            ordered.Insert(insertIndex, mover);
+
+            // 3. Reassign anchor ranks via compaction
+            ParallelStep moveParallel = new ParallelStep($"{mover.DisplayName} MoveAndShift");
+            float moveDuration = 0.5f;
+
+            int nextRank = 1;
+            foreach (var character in ordered)
             {
-                character.rank += movingForward ? 1 : -1;
+                int charSize = (character.characterData != null) ? character.characterData.size : 1;
+                int oldRank = character.rank;
+                character.rank = nextRank;
+
+                if (oldRank != nextRank)
+                {
+                    float targetX = GetXPositionForCharacter(character);
+                    var tween = DG.Tweening.ShortcutExtensions.DOMoveX(character.transform, targetX, moveDuration);
+                    moveParallel.AddStep(new DOTweenStep(
+                        character == mover ? $"Move_{character.DisplayName}" : $"Shift_{character.DisplayName}",
+                        tween, moveDuration));
+                }
+
+                nextRank += charSize;
             }
 
-            // 4. Create and enqueue tweens based on captured positions
             if (animationQueue != null)
             {
-                float moveDuration = 0.5f;
-                ParallelStep moveParallel = new ParallelStep($"{mover.DisplayName} MoveAndShift");
-
-                // Tween the mover to the target rank's original X position
-                if (rankToPosX.TryGetValue(targetRank, out float targetX))
-                {
-                    var tween = DG.Tweening.ShortcutExtensions.DOMoveX(mover.transform, targetX, moveDuration);
-                    moveParallel.AddStep(new DOTweenStep($"Move_{mover.DisplayName}", tween, moveDuration));
-                }
-
-                // Tween each shifting character to their new rank's original X position
-                foreach (var character in shiftingCharacters)
-                {
-                    if (rankToPosX.TryGetValue(character.rank, out float shiftTargetX))
-                    {
-                        var tween = DG.Tweening.ShortcutExtensions.DOMoveX(character.transform, shiftTargetX, moveDuration);
-                        moveParallel.AddStep(new DOTweenStep($"Shift_{character.DisplayName}", tween, moveDuration));
-                    }
-                }
-
                 animationQueue.Enqueue(moveParallel);
-                Debug.Log($"[BattleSystem] {mover.DisplayName} moved to rank {targetRank}. Shifting {shiftingCharacters.Count} allies.");
             }
+            Debug.Log($"[BattleSystem] {mover.DisplayName} moved to rank {mover.rank}. Formation recompacted.");
+        }
+
+        public float GetXPositionForRank(Team team, int rank)
+        {
+            if (team == Team.Player)
+            {
+                return playerBaseX + (rank - 1) * playerSpacingX;
+            }
+            else
+            {
+                return enemyBaseX + (rank - 1) * enemySpacingX;
+            }
+        }
+
+        /// <summary>
+        /// Returns the visual X position for a character, centered over all its occupied rank slots.
+        /// For size-1 characters this is identical to GetXPositionForRank.
+        /// For multi-rank characters, it returns the average X of all occupied slots.
+        /// </summary>
+        public float GetXPositionForCharacter(CombatCharacter character)
+        {
+            var occupiedRanks = character.OccupiedRanks;
+            if (occupiedRanks.Count <= 1)
+            {
+                return GetXPositionForRank(character.team, character.rank);
+            }
+
+            float sum = 0f;
+            foreach (int r in occupiedRanks)
+            {
+                sum += GetXPositionForRank(character.team, r);
+            }
+            return sum / occupiedRanks.Count;
         }
 
         /// <summary>
@@ -383,34 +443,32 @@ namespace Nevergreen.Combat
         {
             yield return new WaitForSeconds(0.5f); // Brief delay for readability
 
-            // Pick a random valid skill
-            var validSkills = CurrentActor.equippedSkills
-                .Where(s => CurrentActor.CanUseSkillFromRank(s) && CurrentActor.HasRemainingUses(s))
-                .ToList();
-
-            if (validSkills.Count == 0)
+            var brain = CurrentActor.GetComponent<Nevergreen.Combat.AI.AIBrain>();
+            if (brain == null)
             {
-                Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} has no valid skills. Passing.");
+                Debug.LogError($"[BattleSystem] {CurrentActor.DisplayName} is missing an AIBrain component. Passing.");
                 yield break;
             }
 
-            SkillData chosen = validSkills[_rng.Next(validSkills.Count)];
+            var decision = brain.EvaluateTurn(this);
 
-            // Pick targets
-            List<CombatCharacter> targets = GetValidTargets(CurrentActor, chosen);
-            if (targets.Count == 0)
+            // Record the decision in the character's history
+            brain.RecordDecision(decision);
+
+            if (decision.isPass)
             {
-                Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} has no valid targets. Passing.");
-                yield break;
-            }
+                Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} AI decided to pass.");
 
-            // Limit to max targets
-            while (targets.Count > chosen.maxTargets)
+                // Enqueue visual pass animation length
+                if (animationQueue != null)
+                {
+                    animationQueue.Enqueue(new WaitTimerStep($"{CurrentActor.DisplayName} Pass", 0.3f));
+                }
+            }
+            else
             {
-                targets.RemoveAt(_rng.Next(targets.Count));
+                ExecuteSkill(CurrentActor, decision.skill, decision.targets);
             }
-
-            ExecuteSkill(CurrentActor, chosen, targets);
         }
 
         private void ExecuteSkill(CombatCharacter user, SkillData skill, List<CombatCharacter> targets)
@@ -427,11 +485,16 @@ namespace Nevergreen.Combat
             if (animationQueue != null)
             {
                 skillAnimParallel = new ParallelStep($"{user.DisplayName}:{skill.displayName}");
-                
+
+                if (skill.sfx != null)
+                {
+                    skillAnimParallel.AddStep(new PlaySoundStep(skill.sfx));
+                }
+
                 if (user.animator != null)
                 {
-                    string stateName = (skill.targetScope == TargetScope.Self || skill.targetScope == TargetScope.Allies) 
-                        ? "Cast" 
+                    string stateName = (skill.targetScope == TargetScope.Self || skill.targetScope == TargetScope.Allies)
+                        ? "Cast"
                         : "Attack";
                     skillAnimParallel.AddStep(new AnimatorStep($"{user.DisplayName}:{skill.displayName}_act", user.animator, stateName, 1.0f));
                 }
@@ -440,7 +503,7 @@ namespace Nevergreen.Combat
                     // Fallback
                     skillAnimParallel.AddStep(new WaitTimerStep($"{user.DisplayName}:{skill.displayName}_wait", 1.0f));
                 }
-                
+
                 // Enqueue parallel group now (it will gather steps before starting next frame)
                 animationQueue.Enqueue(skillAnimParallel);
             }
@@ -456,12 +519,12 @@ namespace Nevergreen.Combat
 
                 foreach (var target in targets)
                 {
-                    if (!target.IsAlive) continue;
+                    if (!target.IsAlive && !target.IsPile) continue;
 
                     // 1. Resolve Target
                     CombatCharacter finalTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
                     ctx.primaryTarget = finalTarget;
-                    
+
                     // The pure strategy approach: Execute modular effects
                     foreach (var effect in skill.effects)
                     {
@@ -470,7 +533,7 @@ namespace Nevergreen.Combat
                             effect.Execute(ctx, finalTarget);
                         }
                     }
-                    
+
                     // Check if taking damage killed the target or if we need to do UI syncing post-hit
                     if (ctx.didHit && !skill.modifier.IsHeal && skillAnimParallel != null)
                     {
@@ -486,7 +549,7 @@ namespace Nevergreen.Combat
                             skillAnimParallel.AddStep(new AnimatorStep($"guard_flinch_{target.DisplayName}", target.animator, "TakeDamage", 0.5f));
                         }
                     }
-                    
+
                     // Note: Event emission here could be tied to context data at the end of the effect resolution.
                     // For the sake of the combat ui prototype reacting, we synthesize the event.
                     OnActionResolved?.Invoke(user, skill, ctx);
@@ -523,20 +586,26 @@ namespace Nevergreen.Combat
                     break;
             }
 
+            bool isHealingSkill = skill.effects.Any(e => e is HealEffect);
+
             return pool
-                .Where(c => c.IsAlive && skill.targetRanks.Contains(c.rank))
+                .Where(c => (c.IsAlive || (c.IsPile && !isHealingSkill)) && c.OccupiedRanks.Intersect(skill.targetRanks).Any())
                 .ToList();
         }
 
         private bool CheckBattleEnd()
         {
-            bool allPlayersDead = _playerTeam.All(c => !c.IsAlive);
-            bool allEnemiesDead = _enemyTeam.All(c => !c.IsAlive);
+            if (CurrentState == BattleState.BattleEnd) return true;
+            // Cecilia (ceci) is the primary character; her defeat is a battle loss.
+            bool ceciliaDefeated = _playerTeam.Any(c => c.CharacterId == "ceci" && c.state != LifeState.Alive);
+            bool allPlayersDead = _playerTeam.Count == 0 || _playerTeam.All(c => c.state != LifeState.Alive);
+            bool allEnemiesDead = _enemyTeam.Count == 0 || _enemyTeam.All(c => c.state != LifeState.Alive);
 
-            if (allPlayersDead)
+            if (ceciliaDefeated || allPlayersDead)
             {
                 CurrentState = BattleState.BattleEnd;
-                Debug.Log("[BattleSystem] === DEFEAT ===");
+                string reason = ceciliaDefeated ? "CECILIA DEFEATED" : "ALL PLAYERS DEFEATED";
+                Debug.Log($"[BattleSystem] === DEFEAT ({reason}) ===");
                 OnBattleEnded?.Invoke(BattleOutcome.Defeat);
                 return true;
             }
@@ -558,10 +627,146 @@ namespace Nevergreen.Combat
             CurrentState = BattleState.RoundStart;
         }
 
-        private void HandleCharacterDefeated(CombatCharacter character)
+        private void HandleCharacterDefeated(CombatCharacter character, bool wasCritical)
         {
-            Debug.Log($"[BattleSystem] {character.DisplayName} has been defeated!");
+            Debug.Log($"[BattleSystem] {character.DisplayName} has been defeated!{(wasCritical ? " (CRITICAL KILL)" : "")}");
+
+            // Character is already in Dying state (set by TakeDamage)
+
+            // 1. Enqueue the death animation and sound
+            if (animationQueue != null && character.animator != null)
+            {
+                var deathParallel = new ParallelStep($"{character.DisplayName} Die Parallel");
+                deathParallel.AddStep(new AnimatorStep($"{character.DisplayName} Die", character.animator, "Die", 1.5f));
+
+                if (character.characterData != null && character.characterData.deathSFX != null)
+                {
+                    deathParallel.AddStep(new PlaySoundStep(character.characterData.deathSFX));
+                }
+
+                animationQueue.Enqueue(deathParallel);
+            }
+
+            // 3. Enqueue deferred transition (runs right after death animation finishes)
+            if (animationQueue != null)
+            {
+                animationQueue.Enqueue(new ActionStep($"{character.DisplayName} Spawn Pile", () =>
+                {
+                    FinalizeCharacterDefeat(character, wasCritical);
+                }));
+            }
+            else
+            {
+                FinalizeCharacterDefeat(character, wasCritical);
+            }
+
             OnCharacterDefeated?.Invoke(character);
+            CheckBattleEnd();
+        }
+
+        private void FinalizeCharacterDefeat(CombatCharacter character, bool wasCritical)
+        {
+            bool canFormPile = character.characterData != null && character.characterData.leavesPileOnDeath;
+
+            if (wasCritical || !canFormPile)
+            {
+                character.state = LifeState.Destroyed;
+                Debug.Log($"[BattleSystem] {character.DisplayName} is destroyed (no Pile formed).");
+            }
+            else
+            {
+                character.state = LifeState.Pile;
+                character.currentHP = character.baseStats.maxHP / 2;
+                character.pileDuration = 4; // Decay after 4 character actions
+
+                // Clear all previous status effects (Bleeds, Buffs, etc.)
+                character.statusEffects.Clear();
+
+                Debug.Log($"[BattleSystem] {character.DisplayName} has become a Pile. HP: {character.currentHP}, Duration: {character.pileDuration}");
+            }
+        }
+
+        private void HandleCharacterStateChanged(CombatCharacter character, LifeState newState)
+        {
+            if (newState == LifeState.Destroyed)
+            {
+                HandleCharacterDestroyed(character);
+            }
+        }
+
+        private void HandleCharacterDestroyed(CombatCharacter character)
+        {
+            Debug.Log($"[BattleSystem] {character.DisplayName} has been destroyed and removed from battle.");
+
+            var team = character.IsPlayerTeam ? _playerTeam : _enemyTeam;
+
+            // 1. Remove from team list
+            team.Remove(character);
+
+            // 2. Compact formation (handles any gap size from multi-rank characters)
+            CompactFormation(team);
+
+            // 3. Enqueue physical destruction (after small delay for any lingering effects/animations)
+            if (animationQueue != null)
+            {
+                animationQueue.Enqueue(new ActionStep($"{character.DisplayName} Cleanup", () =>
+                {
+                    if (Application.isPlaying) Destroy(character.gameObject);
+                    else DestroyImmediate(character.gameObject);
+                }));
+            }
+            else
+            {
+                if (Application.isPlaying) Destroy(character.gameObject);
+                else DestroyImmediate(character.gameObject);
+            }
+
+            // 4. Notify external systems
+            OnCharacterRemoved?.Invoke(character);
+
+            // 5. Check battle end (in case this was the last character)
+            CheckBattleEnd();
+        }
+
+        /// <summary>
+        /// Compacts a team's formation by reassigning anchor ranks sequentially,
+        /// accounting for each character's size. Generates tweens for any characters
+        /// whose rank changed.
+        /// </summary>
+        public void CompactFormation(List<CombatCharacter> team)
+        {
+            if (team.Count == 0) return;
+
+            // Sort by current rank to preserve relative ordering
+            var sorted = team.OrderBy(c => c.rank).ToList();
+
+            ParallelStep shiftParallel = new ParallelStep("Formation Compact");
+            float shiftDuration = 0.4f;
+            bool anyShifted = false;
+
+            int nextRank = 1;
+            foreach (var character in sorted)
+            {
+                int oldRank = character.rank;
+                int charSize = (character.characterData != null) ? character.characterData.size : 1;
+
+                if (character.rank != nextRank)
+                {
+                    character.rank = nextRank;
+                    float targetX = GetXPositionForCharacter(character);
+
+                    var tween = DG.Tweening.ShortcutExtensions.DOMoveX(character.transform, targetX, shiftDuration);
+                    shiftParallel.AddStep(new DOTweenStep($"Shift_{character.DisplayName}", tween, shiftDuration));
+                    anyShifted = true;
+                }
+
+                nextRank += charSize;
+            }
+
+            if (anyShifted && animationQueue != null)
+            {
+                animationQueue.Enqueue(shiftParallel);
+            }
         }
 
         private void OnDestroy()
@@ -569,6 +774,7 @@ namespace Nevergreen.Combat
             foreach (var c in _playerTeam.Concat(_enemyTeam))
             {
                 c.OnDefeated -= HandleCharacterDefeated;
+                c.OnStateChanged -= HandleCharacterStateChanged;
             }
         }
     }

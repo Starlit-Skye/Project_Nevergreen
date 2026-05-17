@@ -20,3 +20,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a5566ad2fc500544984870d0ba53c1b5, type: 2}
   availableSkills:
   - {fileID: 11400000, guid: 1eaaf41a0f0978e4da5bf64ada6a4d82, type: 2}
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 11400000, guid: 0b6ba4068433ae74aa800a22f4a34588, type: 2}

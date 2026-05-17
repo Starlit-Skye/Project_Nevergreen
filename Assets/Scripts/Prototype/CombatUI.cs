@@ -426,7 +426,17 @@ namespace Nevergreen.Prototype
                 var sr = t.GetComponentInChildren<SpriteRenderer>();
                 if (sr != null)
                 {
-                    sr.color = highlight ? Color.yellow : Color.white;
+                    if (highlight)
+                    {
+                        sr.color = Color.yellow;
+                    }
+                    else
+                    {
+                        // Reset to base color: gray for piles, white for alive
+                        sr.color = (t.state == LifeState.Pile)
+                            ? new Color(0.3f, 0.3f, 0.3f, 0.5f)
+                            : Color.white;
+                    }
                 }
             }
         }

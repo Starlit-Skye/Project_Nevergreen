@@ -2,7 +2,7 @@
 
 Owner: Combat Engineering Team
 Status: active
-Last verified: 2026-04-28
+Last verified: 2026-05-08
 Verified commit: HEAD
 Target build: Unity 2022.3 + Windows
 
@@ -20,6 +20,10 @@ Define the baseline turn-based combat mechanic used for player team versus enemy
 - Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0
 - Data: `Assets/Scripts/Data/CombatConfig.cs`, `Assets/Scripts/Data/SkillData.cs`, `Assets/Scripts/Data/CharacterData.cs`
 - Guard: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_GUARD.md`
+- Buff/Debuff: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_BUFF_DEBUFF.md`
+- Pile: `Docs/specs/mechanics/MECHANIC_SPEC_PILE.md`
+- AI Rules: `Docs/specs/mechanics/MECHANIC_SPEC_AI_RULES.md`
+
 
 ## Inputs
 - Input action: choose one equipped skill, use move action, or use pass action
@@ -41,6 +45,14 @@ Transitions:
 4. `RoundEnd` -> `RoundStart` when battle continues
 5. `CharacterTurn` -> `BattleEnd` when victory/defeat condition is reached
 
+## Win/Loss Conditions
+- **Victory**: All characters on the enemy team are defeated (`IsAlive == false`) or the enemy team
+  list is empty (`_enemyTeam.Count == 0`).
+- **Defeat**: Triggered if either:
+  1. **Cecilia** (identified by `CharacterId == "ceci"`) is defeated (`state != LifeState.Alive`).
+     This check occurs immediately upon defeat, before she is removed from the battle.
+  2. **All players** on the player team are defeated or the player team list is empty.
+
 ## Timing Model
 - Update domain: tick (turn/round steps in a turn-based loop)
 - Tick rate: per turn event, duration in real-time units is Unknown
@@ -59,10 +71,9 @@ Transitions:
   on the same team, the front-most rank acts first
 
 ## Determinism
-- Deterministic across clients: no (multiplayer behavior is not specified; random enemy skill picks
-  are documented)
-- Sources of nondeterminism: enemy random skill selection, attack damage range roll
-- Mitigation: Unknown
+- Deterministic across clients: Partially. Enemy skill selection can be deterministic if using `SequenceBehavior` or seeded `UnityEngine.Random`. Logic for repetition blocking is deterministic based on local history.
+- Sources of nondeterminism: randomized skill selection (if not seeded), attack damage range roll.
+- Mitigation: Deterministic AI rules (Sequencing), seeded RNG for damage/selection (planned).
 
 ## Formulas
 ```txt
@@ -79,10 +90,14 @@ final_hit_chance_percent = min(95, attacker_accuracy_percent - target_dodge_perc
 # status application
 final_status_chance_percent = source_status_chance_percent - target_resistance_percent
 
-# effective stat calculation (percentage stacking)
-# all active buffs and debuffs for a stat are summed as a flat percentage of the base stat
-stat_multiplier = 1.0 + sum(buff_amplitudes_percent) - sum(debuff_amplitudes_percent)
-effective_stat = round_to_int(base_stat * stat_multiplier)
+# effective stat calculation
+# Core Stats (Attack, Defense, MaxHP, Speed, etc.) use percentage stacking:
+core_multiplier = 1.0 + (sum(buff_amplitudes) - sum(debuff_amplitudes)) / 100.0
+effective_core_stat = round_to_int(base_stat * core_multiplier)
+
+# Flat Stats (CritChance and all Resistances) use flat additive stacking:
+net_flat_modifier = sum(buff_amplitudes) - sum(debuff_amplitudes)
+effective_flat_stat = base_stat + net_flat_modifier
 ```
 
 ## Resistances
@@ -115,7 +130,16 @@ is subtracted from the source's application chance when resolving status effects
 | `max_targets_per_skill` | 4 | 1 | 4 | targets | GDD Skills |
 
 ## Edge Cases
-- **Compact Formation**: Combat ranks are always contiguous from Rank 1 to Rank `team.Count`. The system does not allow "empty" slots between characters. If a character moves or dies, the formation shifts to maintain this state.
+- **Compact Formation**: Combat ranks are always contiguous from Rank 1 to Rank `team.Count`. The
+  system does not allow "empty" slots between characters. 
+- **Rank Shifting**: When a character's state becomes `LifeState.Destroyed`, they are removed from
+  the battle team list. Any allies in ranks behind the removed character (higher rank numbers)
+  automatically decrement their rank by 1 and slide forward to fill the gap.
+- **Positioning Logic**: Rank positions are determined deterministically based on team-specific
+  layout configuration: `BaseX + (Rank - 1) * SpacingX`.
+- **Pile Interaction**: A **Pile** (see [Pile Mechanic](MECHANIC_SPEC_PILE.md)) continues to occupy
+  a rank, preventing immediate formation collapse unless the killing blow was a Critical Hit or
+  the Pile expires/is destroyed.
 - If a character is stunned, it skips its turn.
 - After stun expires, target receives a `Buff` status effect targeting `StunResist` (`+300%`,
   1-turn duration). Buff/Debuff statuses use the `StatTarget` enum to specify which stat they
@@ -135,11 +159,12 @@ is subtracted from the source's application chance when resolving status effects
 - Missing combat formulas per skill: `Unknown`
 - Missing full operation order for status vs hit vs death checks: `Unknown`
 
-## Event Hooks
+- **Event Hooks**
 - Event: `battle_started`, Trigger: room enters combat, Payload: run id, room id, team size
 - Event: `round_started`, Trigger: new combat round, Payload: round index, turn list snapshot
 - Event: `character_moved_rank`, Trigger: move action resolves, Payload: actor, old rank, new rank
 - Event: `character_passed_turn`, Trigger: pass action resolves, Payload: actor
+- Event: `character_removed`, Trigger: character state becomes `Destroyed`, Payload: character
 - Event: `character_action_resolved`, Trigger: action completion, Payload: actor, skill, target(s),
   hit/miss, crit, status results
 - Event: `battle_ended`, Trigger: combat end, Payload: battle type, outcome, rounds elapsed, casualties, parts granted, scraps granted
@@ -148,7 +173,8 @@ is subtracted from the source's application chance when resolving status effects
 - Automated: `Assets/Editor/Tests/` (`GuardTests`, `StunTests`, `BuffDebuffTests`, `HitCritTests`, `MoveTests`)
 - Playtest: verify round flow, turn order by Speed, mirrored rank behavior, move action adjacent-rank
   swap, speed-tie behavior (enemy before player; same-team front-most rank first), stun skip
-  behavior, and guard bypass behavior for AOE cases. Verify compact formation logic in small teams.
+  behavior, and guard bypass behavior for AOE cases. Verify compact formation logic in small teams. 
+  **Verify defeat condition triggers immediately upon Cecilia's death.**
 
 ## Missing Evidence
 - **Multi-Hit Stun Interaction**: Behavior if a character is stunned midway through a multi-hit skill.

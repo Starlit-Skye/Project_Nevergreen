@@ -28,6 +28,7 @@ namespace Nevergreen.Data
         [Header("Effects Strategy")]
         [Tooltip("The modular effects executed by this skill.")]
         [SerializeReference]
+        [Nevergreen.Attributes.SubclassSelector]
         public List<Nevergreen.Combat.ISkillEffect> effects = new List<Nevergreen.Combat.ISkillEffect>();
 
         [Header("Rank Constraints")]
@@ -66,6 +67,10 @@ namespace Nevergreen.Data
         [Header("Uses")]
         [Tooltip("Max uses per battle. -1 = unlimited.")]
         public int maxUsesPerBattle = -1;
+
+        [Header("Audio")]
+        [Tooltip("Sound effect played when this skill is used.")]
+        public AudioClip sfx;
     }
 
     public enum TargetScope

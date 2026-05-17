@@ -42,7 +42,7 @@ MonoBehaviour:
         statusType: 9
         targetStat: 5
         applicationChance: 300
-        amplitude: -5
+        amplitude: 1
         duration: 0
         ignoreMiss: 1
     - rid: 8181408146430099579

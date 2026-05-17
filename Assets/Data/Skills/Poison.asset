@@ -28,8 +28,8 @@ MonoBehaviour:
   targetScope: 2
   maxTargets: 1
   ignoresDefense: 0
-  ignoresDodge: 1
-  guaranteedHit: 1
+  ignoresDodge: 0
+  guaranteedHit: 0
   bypassGuard: 0
   hitCount: 1
   maxUsesPerBattle: -1

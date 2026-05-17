@@ -210,6 +210,32 @@ namespace Nevergreen.Combat
     }
 
     /// <summary>
+    /// Executes a callback action immediately and completes.
+    /// Used for deferred logic that must happen at a specific point in the animation sequence.
+    /// </summary>
+    public class ActionStep : IAnimationStep
+    {
+        public string Name { get; }
+        public float ExpectedDuration => 0f;
+        private Action _action;
+        private bool _isFinished;
+
+        public ActionStep(string name, Action action)
+        {
+            Name = name;
+            _action = action;
+        }
+
+        public void Start()
+        {
+            _action?.Invoke();
+            _isFinished = true;
+        }
+
+        public bool IsFinished() => _isFinished;
+    }
+
+    /// <summary>
     /// Safeguard type identifiers.
     /// </summary>
     public enum SafeguardType

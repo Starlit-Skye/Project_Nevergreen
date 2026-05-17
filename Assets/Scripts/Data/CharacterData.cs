@@ -29,6 +29,16 @@ namespace Nevergreen.Data
         [Tooltip("Skills available to this character. Up to 4 can be used in battle.")]
         public List<SkillData> availableSkills = new List<SkillData>();
 
+        [Tooltip("How many contiguous ranks this character occupies (1 = normal, 2-4 = large/boss).")]
+        [Range(1, 4)]
+        public int size = 1;
+
+        [Tooltip("If true, this character leaves a Pile (corpse) on non-critical death. If false, they are destroyed immediately.")]
+        public bool leavesPileOnDeath = true;
+
+        [Tooltip("The default AI Profile to use if this character is an enemy. Ignored for Player characters.")]
+        public Nevergreen.Combat.AI.EnemyAIProfile defaultAIProfile;
+
         /// <summary>
         /// Resolves the stat block for the given level using current_level - 1 indexing.
         /// Clamps to valid range.
@@ -44,6 +54,13 @@ namespace Nevergreen.Data
             int index = Mathf.Clamp(level - 1, 0, statPerLevel.Count - 1);
             return statPerLevel[index];
         }
+
+        [Header("Audio")]
+        [Tooltip("Sound effect played when this character is defeated.")]
+        public AudioClip deathSFX;
+
+        [Tooltip("If set, this music will play when a battle starts with this character in the enemy team.")]
+        public AudioClip bossMusicOverride;
     }
 
     public enum CharacterTeamType
