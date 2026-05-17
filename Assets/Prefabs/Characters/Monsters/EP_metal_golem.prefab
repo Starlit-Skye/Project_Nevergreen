@@ -126,7 +126,7 @@ GameObject:
   - component: {fileID: 7259023275852088247}
   - component: {fileID: 7664516674936550575}
   m_Layer: 0
-  m_Name: EnemyPrefab_Metal_Golem
+  m_Name: EP_metal_golem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

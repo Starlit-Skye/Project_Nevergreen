@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
-  m_Name: Maid
+  m_Name: CD_Maid
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: maid_marionette
   displayName: Maid
@@ -22,3 +22,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 349454b7248e105438e439b9640e06b9, type: 2}
   - {fileID: 11400000, guid: 3bcc18195b974fd4595ee149d5c721de, type: 2}
   - {fileID: 11400000, guid: e36ee0f0119123d44a8e39a086a5614a, type: 2}
+  - {fileID: 11400000, guid: 82f760293f9070d438e2ed27e74c3cf2, type: 2}
+  size: 1
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 0}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

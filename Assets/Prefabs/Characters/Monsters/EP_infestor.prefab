@@ -126,7 +126,7 @@ GameObject:
   - component: {fileID: 6234070145080811027}
   - component: {fileID: 5239835786447253822}
   m_Layer: 0
-  m_Name: EnemyPrefab_Infestor
+  m_Name: EP_infestor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

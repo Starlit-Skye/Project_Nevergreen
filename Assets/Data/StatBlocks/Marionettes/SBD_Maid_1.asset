@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
-  m_Name: Enemy2Stats_Lv1
+  m_Name: SBD_Maid_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 10
-  accuracy: 100
+  attack: 4
+  accuracy: 95
   critChance: 3
-  maxHP: 65
-  defense: 20
-  dodge: 3
-  speed: 3
-  bleedResist: 25
-  blightResist: 25
-  stunResist: 30
-  debuffResist: 0
-  moveResist: 0
+  maxHP: 17
+  defense: 0
+  dodge: 6
+  speed: 7
+  bleedResist: 5
+  blightResist: 15
+  stunResist: 3
+  debuffResist: 3
+  moveResist: 3

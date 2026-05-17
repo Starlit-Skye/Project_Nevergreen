@@ -10,19 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: HeavyStrike
+  m_Name: SD_steel_fist
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: heavy_strike
-  displayName: Heavy Strike
-  description: A powerful overhead blow.
+  skillId: steel_fist
+  displayName: Steel Fist
+  description: High damage punch
   modifier:
-    damagePercent: 1.5
+    damagePercent: 1
     healPercent: 0
-    accuracyMod: -5
+    accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 8181408146430099579
-  - rid: 356130822747324491
+  - rid: 356131040506937436
   useRanks: 0100000002000000
   targetRanks: 0100000002000000
   targetScope: 2
@@ -37,15 +36,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356130822747324491
-      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
-        statusType: 9
-        targetStat: 5
-        applicationChance: 50
-        amplitude: 1
-        duration: 0
-        ignoreMiss: 1
-    - rid: 8181408146430099579
+    - rid: 356131040506937436
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fbacf546f511b25458a18339fa5b8624, type: 3}
-  m_Name: AI_Infestor
+  m_Name: AI_basic_random
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.AI.EnemyAIProfile
   behaviors:
   - rid: 356131040506937418
@@ -19,4 +19,5 @@ MonoBehaviour:
     RefIds:
     - rid: 356131040506937418
       type: {class: RandomSkillBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
-      data: 
+      data:
+        maxConsecutiveUses: 2

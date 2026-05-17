@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
-  m_Name: EnemyStats_Lv1
+  m_Name: SBD_metal_golem_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 12
-  accuracy: 100
+  attack: 10
+  accuracy: 90
   critChance: 5
-  maxHP: 40
-  defense: 5
-  dodge: 0
-  speed: 4
-  bleedResist: 10
-  blightResist: 10
-  stunResist: 15
-  debuffResist: 0
-  moveResist: 0
+  maxHP: 35
+  defense: 15
+  dodge: 2
+  speed: 3
+  bleedResist: 100
+  blightResist: 3
+  stunResist: 20
+  debuffResist: 2
+  moveResist: 15

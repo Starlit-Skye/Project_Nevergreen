@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: HeavyStrike
+  m_Name: SD_feral_ravage
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: heavy_strike
-  displayName: Heavy Strike
-  description: A powerful overhead blow.
+  skillId: feral_ravage
+  displayName: Feral Ravage
+  description: Medium AOE scratch, low Bleed chance
   modifier:
-    damagePercent: 1.5
+    damagePercent: 0.33
     healPercent: 0
     accuracyMod: -5
-    criticalMod: 0
+    criticalMod: -10
   effects:
-  - rid: 8181408146430099579
-  - rid: 356130822747324491
-  useRanks: 0100000002000000
-  targetRanks: 0100000002000000
+  - rid: 356131040506937436
+  - rid: 356131112683044940
+  useRanks: 0300000004000000
+  targetRanks: 01000000
   targetScope: 2
-  maxTargets: 1
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -37,15 +37,15 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356130822747324491
-      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
-        statusType: 9
-        targetStat: 5
-        applicationChance: 50
-        amplitude: 1
-        duration: 0
-        ignoreMiss: 1
-    - rid: 8181408146430099579
+    - rid: 356131040506937436
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 
+    - rid: 356131112683044940
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 0
+        targetStat: 5
+        applicationChance: 50
+        amplitude: 2
+        duration: 3
+        ignoreMiss: 0

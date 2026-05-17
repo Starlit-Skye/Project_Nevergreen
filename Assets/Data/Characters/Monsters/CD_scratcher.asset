@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
-  m_Name: CharData_Metal_Golem
+  m_Name: CD_scratcher
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
-  characterId: metal_golem
-  displayName: Metal Golem
+  characterId: scratcher
+  displayName: Scratcher
   teamType: 1
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: a5566ad2fc500544984870d0ba53c1b5, type: 2}
   availableSkills:
-  - {fileID: 11400000, guid: 9b6e7379e25791e48a5da29251883b7e, type: 2}
-  size: 2
+  - {fileID: 11400000, guid: 151b826c79279b64094147f11507d526, type: 2}
+  - {fileID: 11400000, guid: 47bb8ed9926ca814e92a6fceff2bfa16, type: 2}
+  size: 1
   leavesPileOnDeath: 1
-  defaultAIProfile: {fileID: 11400000, guid: 0b6ba4068433ae74aa800a22f4a34588, type: 2}
+  defaultAIProfile: {fileID: 11400000, guid: a240646757d3a1f48998dbcb6aed6234, type: 2}
   deathSFX: {fileID: 0}
   bossMusicOverride: {fileID: 0}

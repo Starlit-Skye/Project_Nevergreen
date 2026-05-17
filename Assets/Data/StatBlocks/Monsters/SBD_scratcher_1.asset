@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
-  m_Name: MaidStats_Lv1
+  m_Name: SBD_scratcher_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 10
+  attack: 7
   accuracy: 90
   critChance: 5
-  maxHP: 45
-  defense: 8
-  dodge: 0
-  speed: 7
-  bleedResist: 10
-  blightResist: 30
-  stunResist: 15
-  debuffResist: 0
-  moveResist: 0
+  maxHP: 24
+  defense: 0
+  dodge: 5
+  speed: 6
+  bleedResist: 15
+  blightResist: 3
+  stunResist: 2
+  debuffResist: 2
+  moveResist: 2

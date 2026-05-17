@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
-  m_Name: PlayerStats_Lv1
+  m_Name: SBD_royal_wolf
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 15
-  accuracy: 85
-  critChance: 8
-  maxHP: 60
-  defense: 10
-  dodge: 0
-  speed: 6
-  bleedResist: 20
-  blightResist: 20
-  stunResist: 20
-  debuffResist: 0
-  moveResist: 0
+  attack: 4
+  accuracy: 90
+  critChance: 5
+  maxHP: 15
+  defense: 0
+  dodge: 5
+  speed: 5
+  bleedResist: 5
+  blightResist: 5
+  stunResist: 15
+  debuffResist: 5
+  moveResist: 5
