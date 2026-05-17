@@ -24,6 +24,9 @@ namespace Nevergreen.Combat
         [Tooltip("Power/Stack size of the status.")]
         public int amplitude = 1;
 
+        [Tooltip("How the amplitude is applied (Default uses standard stat rules, Flat adds directly, Percentage scales base).")]
+        public AmplitudeType amplitudeType = AmplitudeType.Default;
+
         [Tooltip("Duration in turns.")]
         public int duration = 3;
 
@@ -55,7 +58,7 @@ namespace Nevergreen.Combat
                 }
                 else
                 {
-                    instance = new StatusEffectInstance(statusType, targetStat, amplitude, duration);
+                    instance = new StatusEffectInstance(statusType, targetStat, amplitude, duration, amplitudeType);
                     instance.Source = context.user;
                 }
 

@@ -126,3 +126,24 @@ Venom Bite Status Debugging
 
 ### Review
 All 14 FormationTests pass (4 original + 10 new multi-rank). Full suite: 130/132 (2 pre-existing AudioManager failures). Zero regressions.
+
+# Customizable Buff/Debuff Amplitude Type
+
+## Phase 1: Architectural Definition
+- [x] Define `AmplitudeType` enum (`Default`, `Percentage`, `Flat`) in `Assets/Scripts/Combat/AmplitudeType.cs` <!-- id: 14 -->
+- [x] Update `StatusEffectInstance` to include `amplitudeType` field and support it in constructors <!-- id: 15 -->
+- [x] Update `StatusEffect` script to expose `amplitudeType` in the Unity Inspector <!-- id: 16 -->
+
+## Phase 2: Combat Engine Stat Modification Logic
+- [x] Refactor `CombatCharacter.GetEffectiveStats()` to resolve and apply `AmplitudeType` dynamically <!-- id: 17 -->
+- [x] Implement robust unified stat modifier helper `GetModifiedStatValue` supporting any stat in `CombatCharacter.cs` <!-- id: 18 -->
+
+## Phase 3: Verification & Test Suite
+- [x] Implement `Buff_Attack_FlatModifier` test in `BuffDebuffTests.cs` to verify flat additions on core stats <!-- id: 19 -->
+- [x] Implement `Buff_StunResist_Percentage` test in `BuffDebuffTests.cs` to verify percentage multipliers on flat stats <!-- id: 20 -->
+- [x] Implement `Buff_Attack_PercentageAndFlat` test in `BuffDebuffTests.cs` to verify dual-modifier stacking order <!-- id: 21 -->
+- [x] Run the complete test suite to verify 100% backward compatibility and zero regressions <!-- id: 22 -->
+
+### Review
+All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioManager failures). Tested flat-first, percent-second algorithm and confirmed backward compatibility with `AmplitudeType.Default`. Zero regressions.
+

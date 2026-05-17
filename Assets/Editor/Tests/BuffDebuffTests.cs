@@ -202,5 +202,32 @@ namespace Nevergreen.Tests
             Assert.AreEqual(_character.baseStats.attack, _character.GetEffectiveStats().attack,
                 "Expired buff (duration 0) should not modify stats.");
         }
+
+        [Test]
+        public void Buff_Attack_FlatModifier()
+        {
+            _character.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 15, 3, AmplitudeType.Flat));
+            CombatStats effective = _character.GetEffectiveStats();
+            Assert.AreEqual(115, effective.attack, "Flat 15 buff on base 100 => 115.");
+        }
+
+        [Test]
+        public void Buff_StunResist_Percentage()
+        {
+            _character.baseStats.stunResist = 10;
+            _character.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.StunResist, 50, 3, AmplitudeType.Percentage));
+            CombatStats effective = _character.GetEffectiveStats();
+            Assert.AreEqual(15, effective.stunResist, "50% buff on base 10 => 15.");
+        }
+
+        [Test]
+        public void Buff_Attack_PercentageAndFlat()
+        {
+            _character.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 10, 3, AmplitudeType.Percentage));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 15, 3, AmplitudeType.Flat));
+            CombatStats effective = _character.GetEffectiveStats();
+            // (100 + 15) * 1.1 = 115 * 1.1 = 126.5 => Banker's Rounding (Mathf.RoundToInt) to even = 126
+            Assert.AreEqual(126, effective.attack, "Flat applied first (100+15=115), then percentage scaled (115*1.1 = 126.5 => 126 ToEven).");
+        }
     }
 }
