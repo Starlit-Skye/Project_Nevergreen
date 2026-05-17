@@ -101,3 +101,28 @@ Venom Bite Status Debugging
 - [ ] Define `AudioManager` service responsibilities <!-- id: 11 -->
 - [ ] Define BGM state machine (Exploration, Battle, Boss, Victory) <!-- id: 12 -->
 - [ ] Define SFX integration with `SkillData` and `BattleSystem` <!-- id: 13 -->
+
+# Multi-Rank Enemies Feature
+
+## Phase 1: Data Architecture
+- [x] Add `size` property (Range 1-4) to `CharacterData.cs`
+- [x] Add `OccupiedRanks` computed list property to `CombatCharacter.cs`
+
+## Phase 2: Core Combat Rules
+- [x] Refactor `BattleSystem.GetValidTargets()` to use `OccupiedRanks.Intersect`
+- [x] Validate AOE skills naturally handle the same `CombatCharacter` only once
+- [x] Update `CombatTestHelper` to support assigning `size` values
+
+## Phase 3: Rank Management & Layout
+- [x] Rewrite `ShiftRanksAfterRemoval` -> `CompactFormation` (dynamic Compaction Algorithm)
+- [x] Implement `GetXPositionForCharacter` to visually center large enemies
+- [x] Ensure formation constraints: `Sum(size)` per team does not exceed 4
+- [x] Ensure Pile state transitions preserve character size and occupied ranks
+- [x] Verify Pile decay shifts rear units forward by the full size of the decayed Pile
+
+## Phase 4: Movement & Edge Cases
+- [x] Refactor `ExecuteMoveAndShift` using list-insertion and recompaction logic
+- [x] Verify test suite `FormationTests.cs` against new size-based movement math
+
+### Review
+All 14 FormationTests pass (4 original + 10 new multi-rank). Full suite: 130/132 (2 pre-existing AudioManager failures). Zero regressions.

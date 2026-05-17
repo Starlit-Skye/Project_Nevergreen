@@ -51,14 +51,37 @@ namespace Nevergreen.Prototype
 
         private void SpawnTeams()
         {
-            // Spawn player team
-            for (int i = 0; i < playerTeamPrefabs.Count && i < 4; i++)
+            // Spawn player team (players are always size 1)
+            int nextPlayerRank = 1;
+            for (int i = 0; i < playerTeamPrefabs.Count && nextPlayerRank <= 4; i++)
             {
                 if (playerTeamPrefabs[i] == null) continue;
 
-                Vector3 pos = playerBasePosition + new Vector3(playerRankSpacing * i, 0f, 0f);
+                int charSize = 1;
+                var prefabCC = playerTeamPrefabs[i].GetComponent<CombatCharacter>();
+                if (prefabCC != null && prefabCC.characterData != null)
+                    charSize = prefabCC.characterData.size;
+
+                // Check if this character fits within the remaining slots
+                if (nextPlayerRank + charSize - 1 > 4) break;
+
+                // Calculate centered position for multi-rank characters
+                float posX = playerBasePosition.x;
+                if (charSize == 1)
+                {
+                    posX += playerRankSpacing * (nextPlayerRank - 1);
+                }
+                else
+                {
+                    float sum = 0f;
+                    for (int r = 0; r < charSize; r++)
+                        sum += playerRankSpacing * (nextPlayerRank - 1 + r);
+                    posX += sum / charSize;
+                }
+
+                Vector3 pos = new Vector3(posX, playerBasePosition.y, playerBasePosition.z);
                 GameObject go = Instantiate(playerTeamPrefabs[i], pos, Quaternion.identity);
-                go.name = $"Player_{i + 1}_{playerTeamPrefabs[i].name}";
+                go.name = $"Player_{nextPlayerRank}_{playerTeamPrefabs[i].name}";
 
                 CombatCharacter cc = go.GetComponent<CombatCharacter>();
                 if (cc == null)
@@ -74,20 +97,44 @@ namespace Nevergreen.Prototype
                     go.transform.localScale.y,
                     go.transform.localScale.z);
 
-                cc.InitializeForCombat(Team.Player, i + 1);
+                cc.InitializeForCombat(Team.Player, nextPlayerRank);
                 _spawnedPlayerTeam.Add(cc);
 
-                Debug.Log($"[Bootstrap] Spawned player: {cc.DisplayName} at rank {cc.rank}");
+                Debug.Log($"[Bootstrap] Spawned player: {cc.DisplayName} at rank {cc.rank} (size {charSize})");
+                nextPlayerRank += charSize;
             }
 
-            // Spawn enemy team
-            for (int i = 0; i < enemyTeamPrefabs.Count && i < 4; i++)
+            // Spawn enemy team (enemies can be multi-rank)
+            int nextEnemyRank = 1;
+            for (int i = 0; i < enemyTeamPrefabs.Count && nextEnemyRank <= 4; i++)
             {
                 if (enemyTeamPrefabs[i] == null) continue;
 
-                Vector3 pos = enemyBasePosition + new Vector3(enemyRankSpacing * i, 0f, 0f);
+                int charSize = 1;
+                var prefabCC = enemyTeamPrefabs[i].GetComponent<CombatCharacter>();
+                if (prefabCC != null && prefabCC.characterData != null)
+                    charSize = prefabCC.characterData.size;
+
+                // Check if this character fits within the remaining slots
+                if (nextEnemyRank + charSize - 1 > 4) break;
+
+                // Calculate centered position for multi-rank characters
+                float posX = enemyBasePosition.x;
+                if (charSize == 1)
+                {
+                    posX += enemyRankSpacing * (nextEnemyRank - 1);
+                }
+                else
+                {
+                    float sum = 0f;
+                    for (int r = 0; r < charSize; r++)
+                        sum += enemyRankSpacing * (nextEnemyRank - 1 + r);
+                    posX += sum / charSize;
+                }
+
+                Vector3 pos = new Vector3(posX, enemyBasePosition.y, enemyBasePosition.z);
                 GameObject go = Instantiate(enemyTeamPrefabs[i], pos, Quaternion.identity);
-                go.name = $"Enemy_{i + 1}_{enemyTeamPrefabs[i].name}";
+                go.name = $"Enemy_{nextEnemyRank}_{enemyTeamPrefabs[i].name}";
 
                 CombatCharacter cc = go.GetComponent<CombatCharacter>();
                 if (cc == null)
@@ -103,10 +150,11 @@ namespace Nevergreen.Prototype
                     go.transform.localScale.y,
                     go.transform.localScale.z);
 
-                cc.InitializeForCombat(Team.Enemy, i + 1);
+                cc.InitializeForCombat(Team.Enemy, nextEnemyRank);
                 _spawnedEnemyTeam.Add(cc);
 
-                Debug.Log($"[Bootstrap] Spawned enemy: {cc.DisplayName} at rank {cc.rank}");
+                Debug.Log($"[Bootstrap] Spawned enemy: {cc.DisplayName} at rank {cc.rank} (size {charSize})");
+                nextEnemyRank += charSize;
             }
         }
 

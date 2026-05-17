@@ -12,12 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbacf546f511b25458a18339fa5b8624, type: 3}
   m_Name: AI_Test
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.AI.EnemyAIProfile
-  behaviors:
-  - rid: 356131040506937475
+  behaviors: []
   references:
     version: 2
-    RefIds:
-    - rid: 356131040506937475
-      type: {class: RandomSkillBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
-      data:
-        maxConsecutiveUses: 2
+    RefIds: []

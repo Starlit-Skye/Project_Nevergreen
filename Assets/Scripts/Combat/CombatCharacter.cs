@@ -69,6 +69,22 @@ namespace Nevergreen.Combat
         public bool IsPile => state == LifeState.Pile;
         public bool IsPlayerTeam => team == Team.Player;
 
+        /// <summary>
+        /// Returns all ranks this character currently occupies, based on anchor rank and size.
+        /// A size-1 character at rank 2 returns [2]. A size-2 character at rank 1 returns [1, 2].
+        /// </summary>
+        public List<int> OccupiedRanks
+        {
+            get
+            {
+                int charSize = (characterData != null) ? characterData.size : 1;
+                var ranks = new List<int>(charSize);
+                for (int i = 0; i < charSize; i++)
+                    ranks.Add(rank + i);
+                return ranks;
+            }
+        }
+
         // --- Events ---
         public event Action<CombatCharacter, int> OnDamageTaken; // character, amount
         public event Action<CombatCharacter, int> OnHealed;      // character, amount
@@ -324,11 +340,16 @@ namespace Nevergreen.Combat
         }
 
         /// <summary>
-        /// Check if a skill can be used from the current rank.
+        /// Check if a skill can be used from any of this character's occupied ranks.
         /// </summary>
         public bool CanUseSkillFromRank(SkillData skill)
         {
-            return skill.useRanks.Contains(rank);
+            foreach (int r in OccupiedRanks)
+            {
+                if (skill.useRanks.Contains(r))
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>
