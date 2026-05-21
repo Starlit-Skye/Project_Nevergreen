@@ -18,7 +18,7 @@ MonoBehaviour:
   maxHP: 30
   defense: 5
   dodge: 5
-  speed: 4
+  speed: 5
   bleedResist: 10
   blightResist: 10
   stunResist: 10

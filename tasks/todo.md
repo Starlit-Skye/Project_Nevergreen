@@ -162,3 +162,54 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 * Updated `HealEffect.Execute` to dynamically resolve and pass `CombatConfig` to the calculation function.
 * Added a dedicated unit test `Heal_AppliesRandomRollAndScaling` under `HitCritTests.cs` to verify random distribution and correct scaling, passing flawlessly on the first try.
 
+# Self-Applied Status Skill Effect Strategy
+
+## Phase 1: Implementation
+- [x] Create `SelfStatusEffect.cs` script in `Assets/Scripts/Combat/Effects/` implementing `ISkillEffect` <!-- id: 26 -->
+- [x] Implement serialization fields matching `StatusEffect` but targeting `context.user` <!-- id: 27 -->
+- [x] Utilize `context.extra` cache to prevent multi-hit or multi-target duplicate applications <!-- id: 28 -->
+
+## Phase 2: Verification
+- [x] Implement unit tests in `Assets/Editor/Tests/BuffDebuffTests.cs` to verify single application, correct status addition to self, and compatibility <!-- id: 29 -->
+- [x] Run the complete EditMode test suite and confirm zero regressions <!-- id: 30 -->
+
+### Review
+* Created `SelfStatusEffect.cs` to apply buffs/debuffs/guards directly to the skill user rather than the target.
+* Used a dictionary cache in `SkillContext.extra` keyed by the effect's hash code to ensure it only applies once, even on multi-hit or AoE attacks.
+* Added `ignoreMiss` boolean to allow self-buffs to apply even if the attack fails to connect.
+* Verified logic via `BuffDebuffTests`, ensuring zero regressions in the main test suite.
+
+# Adjacent Ally Status Skill Effect Strategy
+
+## Phase 1: Implementation
+- [x] Create `AdjacentAllyStatusEffect.cs` script in `Assets/Scripts/Combat/Effects/` implementing `ISkillEffect` <!-- id: 31 -->
+- [x] Implement serialization fields including `direction` (InFront/Behind) <!-- id: 32 -->
+- [x] Write targeted ally detection logic supporting size-aware characters (using targetRank check) <!-- id: 33 -->
+- [x] Utilize `context.extra` cache to prevent multi-hit or multi-target duplicate applications <!-- id: 34 -->
+
+## Phase 2: Verification
+- [x] Implement unit tests in `Assets/Editor/Tests/BuffDebuffTests.cs` to verify adjacent ally targeting under various conditions (in front, behind, size 1, 2, and 3 characters, multi-hit de-duplication) <!-- id: 35 -->
+- [x] Run the complete EditMode test suite and confirm zero regressions <!-- id: 36 -->
+
+### Review
+* Created `AdjacentAllyStatusEffect.cs` to target characters standing directly in front of or behind the user.
+* Supports size-1, size-2, and size-3 characters natively by calculating target anchor ranks (`rank - 1` or `rank + size`) and filtering candidates containing those occupied positions.
+* Includes transient de-duplication cache in `context.extra` to handle multi-hit or AoE skills cleanly.
+* Validated targeting combinations across size 1, 2, and 3 allies via unit tests in `BuffDebuffTests`.# Status-Only Skill Hit Resolution
+
+## Phase 1: Implementation
+- [x] Refactor `DamageEffect.cs` and `HealEffect.cs` to set `ctx.hasResolvedHit = true` during their evaluation <!-- id: 37 -->
+- [x] Refactor `SkillContext.EnsureHitResolved` to dynamically run accuracy and dodge check when no prior damage/heal effect has set it <!-- id: 38 -->
+- [x] Ensure that skills with only status effects resolve hit chance based on attacker's accuracy, skill accuracy modifications, target's dodge, and RNG <!-- id: 39 -->
+
+## Phase 2: Verification
+- [x] Implement unit tests in `BuffDebuffTests.cs` to verify hit resolution succeeds or fails based on accuracy, dodge, and RNG for status-only skills <!-- id: 40 -->
+- [x] Verify all EditMode tests compile and pass successfully <!-- id: 41 -->
+
+### Review
+* Refactored hit resolution logic in `SkillContext.cs` so that status-only skills (lacking damage/heal effects) dynamically evaluate hit chance using the standard attacker accuracy vs target dodge formula.
+* Refactored the hit resolution to reuse the centralized `CombatCalculator.ResolveHit` method by making it null-safe against a missing `CombatConfig`.
+* Updated `DamageEffect.cs`, `HealEffect.cs`, and `StatusEffect.cs` to leverage `EnsureHitResolved(target)` dynamically.
+* Added standalone unit tests `StatusEffectOnly_StandaloneHitResolution_SucceedsBasedOnAccuracyAndDodge` and `StatusEffectOnly_StandaloneHitResolution_FailsOnMiss` in `BuffDebuffTests.cs`, using deterministic RNG seeds to verify both hit and miss paths.
+* Confirmed that all 33 tests in the `BuffDebuffTests` suite compile and pass perfectly.
+

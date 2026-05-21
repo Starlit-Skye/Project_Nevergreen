@@ -28,6 +28,25 @@ namespace Nevergreen.Combat
         // --- Hit Resolution ---
         public float finalAccuracy;
         public bool didHit;
+        public bool hasResolvedHit;
+
+        public void EnsureHitResolved(CombatCharacter target)
+        {
+            if (hasResolvedHit) return;
+
+            // Heal skills or support skills targetting self/allies always hit
+            if (skill.modifier.IsHeal || skill.targetScope == TargetScope.Self || skill.targetScope == TargetScope.Allies)
+            {
+                didHit = true;
+                finalAccuracy = 100f;
+            }
+            else
+            {
+                var config = battleSystem != null ? battleSystem.combatConfig : null;
+                CombatCalculator.ResolveHit(this, target, config);
+            }
+            hasResolvedHit = true;
+        }
 
         // --- Special Interaction Flags ---
         public bool ignoresDefense;

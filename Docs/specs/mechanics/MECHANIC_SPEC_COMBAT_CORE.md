@@ -2,7 +2,7 @@
 
 Owner: Combat Engineering Team
 Status: active
-Last verified: 2026-05-08
+Last verified: 2026-05-21
 Verified commit: HEAD
 Target build: Unity 2022.3 + Windows
 
@@ -154,6 +154,8 @@ is subtracted from the source's application chance when resolving status effects
 - Front/back checks always use team-facing orientation (player-facing-right, enemy-facing-left).
 - On equal Speed between enemy and player entries, enemy entry resolves first.
 - On equal Speed among characters on the same team, the front-most rank resolves first.
+- **Standalone Hit Resolution for Status-Only Skills**: Skills that do not deal damage or heal (and thus lack a Damage or Heal effect strategy) still perform standard accuracy/dodge calculation via `SkillContext.EnsureHitResolved` prior to executing any of their status effects. Standard accuracy/dodge calculations apply for hostile targets, while healing or allied/self skills automatically hit.
+
 
 ## Failure Modes
 - Missing combat formulas per skill: `Unknown`

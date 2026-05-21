@@ -97,7 +97,8 @@ namespace Nevergreen.Combat
 
             float accuracy = userStats.accuracy + ctx.skill.modifier.accuracyMod;
             float dodge = ctx.ignoresDodge ? 0f : targetStats.dodge;
-            float hitChance = Mathf.Min(config.accuracyCap, accuracy - dodge);
+            float accuracyCap = config != null ? config.accuracyCap : 95f;
+            float hitChance = Mathf.Min(accuracyCap, accuracy - dodge);
 
             ctx.finalAccuracy = hitChance;
             float roll = (float)ctx.rng.NextDouble() * 100f;

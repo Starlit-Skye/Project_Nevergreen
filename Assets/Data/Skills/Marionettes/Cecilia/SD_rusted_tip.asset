@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
+  m_Name: SD_rusted_tip
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
+  skillId: rusted_tip
+  displayName: Rusted Tip
+  description: Deal damage to 1 target and apply blight
+  modifier:
+    damagePercent: 0.8
+    healPercent: 0
+    accuracyMod: 0
+    criticalMod: -10
+  effects:
+  - rid: 356131202693857280
+  - rid: 356131202693857378
+  useRanks: 010000000200000003000000
+  targetRanks: 01000000020000000300000004000000
+  targetScope: 2
+  maxTargets: 1
+  ignoresDefense: 0
+  ignoresDodge: 0
+  guaranteedHit: 0
+  bypassGuard: 0
+  hitCount: 1
+  maxUsesPerBattle: -1
+  sfx: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 356131202693857280
+      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 
+    - rid: 356131202693857378
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 1
+        targetStat: 5
+        applicationChance: 100
+        amplitude: 2
+        amplitudeType: 0
+        duration: 3
+        ignoreMiss: 0

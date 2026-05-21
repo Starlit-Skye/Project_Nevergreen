@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
+  m_Name: SD_take_the_blow
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
+  skillId: take_the_blow
+  displayName: Take The Blow
+  description: Move back 1, apply buff to ally in front.
+  modifier:
+    damagePercent: 0
+    healPercent: 0
+    accuracyMod: 0
+    criticalMod: 0
+  effects:
+  - rid: 356131202693857281
+  - rid: 356131202693857367
+  - rid: 356131202693857368
+  useRanks: 010000000200000003000000
+  targetRanks: 
+  targetScope: 0
+  maxTargets: 1
+  ignoresDefense: 0
+  ignoresDodge: 0
+  guaranteedHit: 0
+  bypassGuard: 0
+  hitCount: 1
+  maxUsesPerBattle: -1
+  sfx: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 356131202693857281
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 9
+        targetStat: 5
+        applicationChance: 300
+        amplitude: 1
+        amplitudeType: 0
+        duration: 1
+        ignoreMiss: 1
+    - rid: 356131202693857367
+      type: {class: AdjacentAllyStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 5
+        targetStat: 1
+        applicationChance: 100
+        amplitude: 5
+        amplitudeType: 2
+        duration: 3
+        direction: 0
+        ignoreMiss: 1
+    - rid: 356131202693857368
+      type: {class: AdjacentAllyStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 5
+        targetStat: 3
+        applicationChance: 100
+        amplitude: 5
+        amplitudeType: 2
+        duration: 3
+        direction: 0
+        ignoreMiss: 1

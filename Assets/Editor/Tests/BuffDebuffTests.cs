@@ -229,5 +229,369 @@ namespace Nevergreen.Tests
             // (100 + 15) * 1.1 = 115 * 1.1 = 126.5 => Banker's Rounding (Mathf.RoundToInt) to even = 126
             Assert.AreEqual(126, effective.attack, "Flat applied first (100+15=115), then percentage scaled (115*1.1 = 126.5 => 126 ToEven).");
         }
+
+        [Test]
+        public void SelfStatusEffect_AppliesToUser()
+        {
+            var effect = new SelfStatusEffect 
+            { 
+                statusType = StatusType.Buff, 
+                targetStat = StatTarget.Speed, 
+                amplitude = 20, 
+                duration = 2,
+                applicationChance = 100f
+            };
+            
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, 1);
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { target }, null, rng);
+            ctx.didHit = true; // Assume a hit
+
+            effect.Execute(ctx, target);
+
+            Assert.AreEqual(1, _character.statusEffects.Count, "Self-buff should be applied to the user.");
+            Assert.AreEqual(0, target.statusEffects.Count, "Target should not receive the self-buff.");
+            Assert.AreEqual(StatTarget.Speed, _character.statusEffects[0].targetStat);
+            Assert.AreEqual(20, _character.statusEffects[0].amplitude);
+
+            Object.DestroyImmediate(target.gameObject);
+        }
+
+        [Test]
+        public void SelfStatusEffect_MultiHitMultiTarget_AppliesOnlyOnce()
+        {
+            var effect = new SelfStatusEffect 
+            { 
+                statusType = StatusType.Buff, 
+                targetStat = StatTarget.Attack, 
+                amplitude = 10, 
+                duration = 2
+            };
+            
+            var target1 = CombatTestHelper.CreateCombatCharacter("t1", Team.Enemy, 1);
+            var target2 = CombatTestHelper.CreateCombatCharacter("t2", Team.Enemy, 2);
+            var targets = new List<CombatCharacter> { target1, target2 };
+            
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(_character, skill, targets, null, rng);
+            ctx.totalHits = 3;
+            ctx.didHit = true;
+
+            // Simulate BattleSystem multi-hit multi-target execution loop
+            for (int hit = 0; hit < ctx.totalHits; hit++)
+            {
+                ctx.currentHitIndex = hit;
+                foreach (var t in targets)
+                {
+                    effect.Execute(ctx, t);
+                }
+            }
+
+            Assert.AreEqual(1, _character.statusEffects.Count, "Self-buff should only be applied exactly once per skill use despite 3 hits * 2 targets.");
+            Assert.AreEqual(10, _character.statusEffects[0].amplitude);
+
+            Object.DestroyImmediate(target1.gameObject);
+            Object.DestroyImmediate(target2.gameObject);
+        }
+
+        [Test]
+        public void SelfStatusEffect_Miss_WithIgnoreMissTrue_AppliesToUser()
+        {
+            var effect = new SelfStatusEffect 
+            { 
+                statusType = StatusType.Buff, 
+                targetStat = StatTarget.Defense, 
+                amplitude = 30, 
+                ignoreMiss = true
+            };
+            
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, 1);
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { target }, null, rng);
+            
+            ctx.didHit = false; // Simulate a miss!
+
+            effect.Execute(ctx, target);
+
+            Assert.AreEqual(1, _character.statusEffects.Count, "Self-buff should still apply on a miss if ignoreMiss is true.");
+
+            Object.DestroyImmediate(target.gameObject);
+        }
+
+        [Test]
+        public void AdjacentAllyStatusEffect_InFront_Size1User_Size1Ally()
+        {
+            var effect = new AdjacentAllyStatusEffect 
+            { 
+                statusType = StatusType.Buff, 
+                targetStat = StatTarget.Speed, 
+                amplitude = 15, 
+                duration = 2,
+                direction = AllyDirection.InFront
+            };
+
+            _character.rank = 2;
+
+            var ally = CombatTestHelper.CreateCombatCharacter("ally1", Team.Player, rank: 1, size: 1);
+            _cleanup.Add(ally.gameObject);
+
+            var enemy = CombatTestHelper.CreateCombatCharacter("enemy", Team.Enemy, rank: 1);
+            _cleanup.Add(enemy.gameObject);
+
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { enemy }, null, rng);
+            ctx.didHit = true;
+
+            effect.Execute(ctx, enemy);
+
+            Assert.AreEqual(1, ally.statusEffects.Count, "Ally in front should receive the buff.");
+            Assert.AreEqual(0, _character.statusEffects.Count, "User should not receive the buff.");
+            Assert.AreEqual(15, ally.statusEffects[0].amplitude);
+        }
+
+        [Test]
+        public void AdjacentAllyStatusEffect_Behind_Size1User_Size2Ally()
+        {
+            var effect = new AdjacentAllyStatusEffect 
+            { 
+                statusType = StatusType.Buff, 
+                targetStat = StatTarget.Speed, 
+                amplitude = 15, 
+                duration = 2,
+                direction = AllyDirection.Behind
+            };
+
+            _character.rank = 2;
+
+            var ally = CombatTestHelper.CreateCombatCharacter("ally2", Team.Player, rank: 3, size: 2);
+            _cleanup.Add(ally.gameObject);
+
+            var enemy = CombatTestHelper.CreateCombatCharacter("enemy", Team.Enemy, rank: 1);
+            _cleanup.Add(enemy.gameObject);
+
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { enemy }, null, rng);
+            ctx.didHit = true;
+
+            effect.Execute(ctx, enemy);
+
+            Assert.AreEqual(1, ally.statusEffects.Count, "Size 2 ally behind should receive the buff.");
+            Assert.AreEqual(15, ally.statusEffects[0].amplitude);
+        }
+
+        [Test]
+        public void AdjacentAllyStatusEffect_InFront_Size2User_Size1Ally()
+        {
+            var effect = new AdjacentAllyStatusEffect 
+            { 
+                statusType = StatusType.Buff, 
+                targetStat = StatTarget.Speed, 
+                amplitude = 15, 
+                duration = 2,
+                direction = AllyDirection.InFront
+            };
+
+            _cleanup.Remove(_character.gameObject);
+            Object.DestroyImmediate(_character.gameObject);
+
+            var user = CombatTestHelper.CreateCombatCharacter("user", Team.Player, rank: 2, size: 2);
+            _cleanup.Add(user.gameObject);
+
+            var ally = CombatTestHelper.CreateCombatCharacter("ally1", Team.Player, rank: 1, size: 1);
+            _cleanup.Add(ally.gameObject);
+
+            var enemy = CombatTestHelper.CreateCombatCharacter("enemy", Team.Enemy, rank: 1);
+            _cleanup.Add(enemy.gameObject);
+
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(user, skill, new List<CombatCharacter> { enemy }, null, rng);
+            ctx.didHit = true;
+
+            effect.Execute(ctx, enemy);
+
+            Assert.AreEqual(1, ally.statusEffects.Count, "Size 1 ally in front of size 2 user should receive the buff.");
+            Assert.AreEqual(15, ally.statusEffects[0].amplitude);
+        }
+
+        [Test]
+        public void AdjacentAllyStatusEffect_Behind_Size1User_Size3Ally()
+        {
+            var effect = new AdjacentAllyStatusEffect 
+            { 
+                statusType = StatusType.Buff, 
+                targetStat = StatTarget.Speed, 
+                amplitude = 15, 
+                duration = 2,
+                direction = AllyDirection.Behind
+            };
+
+            _character.rank = 1;
+
+            var ally = CombatTestHelper.CreateCombatCharacter("ally3", Team.Player, rank: 2, size: 3);
+            _cleanup.Add(ally.gameObject);
+
+            var enemy = CombatTestHelper.CreateCombatCharacter("enemy", Team.Enemy, rank: 1);
+            _cleanup.Add(enemy.gameObject);
+
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { enemy }, null, rng);
+            ctx.didHit = true;
+
+            effect.Execute(ctx, enemy);
+
+            Assert.AreEqual(1, ally.statusEffects.Count, "Size 3 ally behind user should receive the buff.");
+            Assert.AreEqual(15, ally.statusEffects[0].amplitude);
+        }
+
+        [Test]
+        public void AdjacentAllyStatusEffect_InFront_Size3User_Size1Ally()
+        {
+            var effect = new AdjacentAllyStatusEffect 
+            { 
+                statusType = StatusType.Buff, 
+                targetStat = StatTarget.Speed, 
+                amplitude = 15, 
+                duration = 2,
+                direction = AllyDirection.InFront
+            };
+
+            _cleanup.Remove(_character.gameObject);
+            Object.DestroyImmediate(_character.gameObject);
+
+            var user = CombatTestHelper.CreateCombatCharacter("user", Team.Player, rank: 2, size: 3);
+            _cleanup.Add(user.gameObject);
+
+            var ally = CombatTestHelper.CreateCombatCharacter("ally1", Team.Player, rank: 1, size: 1);
+            _cleanup.Add(ally.gameObject);
+
+            var enemy = CombatTestHelper.CreateCombatCharacter("enemy", Team.Enemy, rank: 1);
+            _cleanup.Add(enemy.gameObject);
+
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(user, skill, new List<CombatCharacter> { enemy }, null, rng);
+            ctx.didHit = true;
+
+            effect.Execute(ctx, enemy);
+
+            Assert.AreEqual(1, ally.statusEffects.Count, "Size 1 ally in front of size 3 user should receive the buff.");
+            Assert.AreEqual(15, ally.statusEffects[0].amplitude);
+        }
+
+        [Test]
+        public void AdjacentAllyStatusEffect_MultiHitMultiTarget_AppliesOnlyOnce()
+        {
+            var effect = new AdjacentAllyStatusEffect 
+            { 
+                statusType = StatusType.Buff, 
+                targetStat = StatTarget.Speed, 
+                amplitude = 15, 
+                duration = 2,
+                direction = AllyDirection.InFront
+            };
+
+            _character.rank = 2;
+
+            var ally = CombatTestHelper.CreateCombatCharacter("ally1", Team.Player, rank: 1, size: 1);
+            _cleanup.Add(ally.gameObject);
+
+            var enemy1 = CombatTestHelper.CreateCombatCharacter("enemy1", Team.Enemy, rank: 1);
+            var enemy2 = CombatTestHelper.CreateCombatCharacter("enemy2", Team.Enemy, rank: 2);
+            _cleanup.Add(enemy1.gameObject);
+            _cleanup.Add(enemy2.gameObject);
+
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var targets = new List<CombatCharacter> { enemy1, enemy2 };
+            var ctx = new SkillContext(_character, skill, targets, null, rng);
+            ctx.totalHits = 3;
+            ctx.didHit = true;
+
+            for (int hit = 0; hit < ctx.totalHits; hit++)
+            {
+                ctx.currentHitIndex = hit;
+                foreach (var t in targets)
+                {
+                    effect.Execute(ctx, t);
+                }
+            }
+
+            Assert.AreEqual(1, ally.statusEffects.Count, "Adjacent ally should only receive the buff exactly once per skill use.");
+        }
+
+        [Test]
+        public void StatusEffectOnly_StandaloneHitResolution_SucceedsBasedOnAccuracyAndDodge()
+        {
+            var effect = new StatusEffect
+            {
+                statusType = StatusType.Debuff,
+                targetStat = StatTarget.Attack,
+                amplitude = 10,
+                duration = 3,
+                applicationChance = 100f,
+                ignoreMiss = false
+            };
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.targetScope = TargetScope.Enemies;
+            skill.effects.Add(effect);
+
+            _character.baseStats.accuracy = 90;
+
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, rank: 1);
+            target.baseStats.dodge = 10;
+            _cleanup.Add(target.gameObject);
+
+            var rng = CombatTestHelper.CreateFixedRng(1);
+
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { target }, null, rng);
+
+            effect.Execute(ctx, target);
+
+            Assert.IsTrue(ctx.hasResolvedHit, "Hit resolution should be executed dynamically.");
+            Assert.IsTrue(ctx.didHit, "Hit check should pass based on accuracy vs dodge and RNG.");
+            Assert.AreEqual(1, target.statusEffects.Count, "Debuff should apply since the skill hit.");
+        }
+
+        [Test]
+        public void StatusEffectOnly_StandaloneHitResolution_FailsOnMiss()
+        {
+            var effect = new StatusEffect
+            {
+                statusType = StatusType.Debuff,
+                targetStat = StatTarget.Attack,
+                amplitude = 10,
+                duration = 3,
+                applicationChance = 100f,
+                ignoreMiss = false
+            };
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.targetScope = TargetScope.Enemies;
+            skill.effects.Add(effect);
+
+            _character.baseStats.accuracy = 50;
+
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, rank: 1);
+            target.baseStats.dodge = 10;
+            _cleanup.Add(target.gameObject);
+
+            var rng = CombatTestHelper.CreateFixedRng(4);
+
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { target }, null, rng);
+
+            effect.Execute(ctx, target);
+
+            Assert.IsTrue(ctx.hasResolvedHit, "Hit resolution should be executed dynamically.");
+            Assert.IsFalse(ctx.didHit, "Hit check should fail.");
+            Assert.AreEqual(0, target.statusEffects.Count, "Debuff should not apply because the skill missed.");
+        }
     }
 }

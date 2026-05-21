@@ -14,7 +14,8 @@ namespace Nevergreen.Combat
         public void Execute(SkillContext context, CombatCharacter target)
         {
             // 1. Resolve Hit Check
-            bool didHit = CombatCalculator.ResolveHit(context, target, context.battleSystem.combatConfig);
+            context.EnsureHitResolved(target);
+            bool didHit = context.didHit;
 
             if (didHit)
             {

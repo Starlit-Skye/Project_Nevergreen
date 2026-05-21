@@ -26,3 +26,8 @@
 - **Pattern**: Creating new sub-namespaces (e.g., `Nevergreen.Combat.AI`) inside a parent folder (`Nevergreen.Combat`).
 - **Rule**: Even if a namespace is a sub-namespace of another, you must explicitly include `using` directives for the parent namespace if they reside in different files or folders. Don't assume visibility based on folder structure alone.
 - **Verification**: Always check for `CS0246` (type or namespace not found) immediately after creating new files in new directories.
+
+### 6. Reuse Calculator Functions
+- **Pattern**: Duplicating calculation logic (such as hit resolution) in multiple helper methods.
+- **Rule**: Always prioritize reusing functions from centralized calculation classes (like `CombatCalculator`). If a calculation class function assumes non-null configurations or parameters that might be null in tests, refactor that function to gracefully support null/default fallbacks rather than copying the logic elsewhere.
+

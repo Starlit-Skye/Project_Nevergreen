@@ -1,9 +1,9 @@
 # Skill Context Runtime System
 
-Owner: Unknown
-Status: draft
-Last verified: 2026-04-06
-Verified commit: Unknown
+Owner: Combat Engineering Team
+Status: active
+Last verified: 2026-05-21
+Verified commit: HEAD
 Target build: Unity 6000.3.9f1 + Standalone/Android
 
 ## Purpose
@@ -16,8 +16,8 @@ Define the runtime `SkillContext` container used to execute one skill action in 
   orchestration
 
 ## Source of Truth
-- Code: `Unknown` (SkillContext implementation not provided)
-- Tests: `Unknown` (SkillContext tests not provided)
+- Code: `Assets/Scripts/Combat/SkillContext.cs`
+- Tests: `Assets/Editor/Tests/BuffDebuffTests.cs` (Specifically `StatusEffectOnly_StandaloneHitResolution_SucceedsBasedOnAccuracyAndDodge` and `StatusEffectOnly_StandaloneHitResolution_FailsOnMiss`)
 - Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0
   (sections: Technical -> Skill Context, Combat Calculation, Critical System, Hit Resolution)
 - Data: `Assets/docs/specs/systems/SYSTEM_SPEC_CHARACTER_DATABASE.md` (runtime stat source contract)
@@ -29,12 +29,13 @@ Define the runtime `SkillContext` container used to execute one skill action in 
 - Consume runtime-resolved character stats supplied from Character Database lookups.
 - Carry hit/crit resolution fields and special interaction flags for guard/dodge/defense logic.
 - Queue pending status applications for ordered post-resolution application.
+- Expose lazy, unified hit resolution via `EnsureHitResolved(CombatCharacter target)` (delegated to `CombatCalculator.ResolveHit`) to support standalone hit check evaluation for status-only skills.
 - Expose extension storage for edge-case mechanics without changing core fields.
 
 ## Data Model
 - Entity/component/object: `SkillContext` with `user`, `skill`, `targets`, `primary_target`,
   `base_attack_roll`, `skill_scaling`, `calculated_damage`, `damage_multiplier`, `is_critical`,
-  `crit_multiplier`, `final_accuracy`, `did_hit`, `ignores_defense`, `ignores_dodge`,
+  `crit_multiplier`, `final_accuracy`, `did_hit`, `hasResolvedHit`, `ignores_defense`, `ignores_dodge`,
   `guaranteed_hit`, `bypass_guard`, `total_hits`, `current_hit_index`, `pending_statuses`,
   `battle_system_ref`, `rng_ref`, `extra`
 - Field explanation: `user` is the acting character for the current skill execution.
@@ -49,6 +50,7 @@ Define the runtime `SkillContext` container used to execute one skill action in 
 - Field explanation: `crit_multiplier` is the critical damage multiplier (default from GDD is `1.5`).
 - Field explanation: `final_accuracy` is the post-modifier hit chance used for hit/miss resolution.
 - Field explanation: `did_hit` is the resolved hit/miss result gate for downstream effects.
+- Field explanation: `hasResolvedHit` indicates whether the hit check has already been evaluated and resolved for the current context.
 - Field explanation: `ignores_defense` marks whether defense/protection is bypassed.
 - Field explanation: `ignores_dodge` marks whether dodge checks are bypassed.
 - Field explanation: `guaranteed_hit` marks unconditional hit behavior independent of accuracy.
@@ -59,6 +61,7 @@ Define the runtime `SkillContext` container used to execute one skill action in 
 - Field explanation: `battle_system_ref` exposes runtime battle-system context for interactions.
 - Field explanation: `rng_ref` is the random source used for reproducible combat rolls.
 - Field explanation: `extra` is an extension dictionary for special-case mechanic data.
+- Method explanation: `EnsureHitResolved(CombatCharacter target)` performs a lazy/cached hit check using `CombatCalculator.ResolveHit`. Healing/allied/self skills automatically hit, whereas other targets undergo standard accuracy vs dodge calculation.
 - Persistence keys: none (runtime-only object by design)
 
 ## Event Contracts

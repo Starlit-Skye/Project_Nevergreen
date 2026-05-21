@@ -14,7 +14,7 @@ namespace Nevergreen.Combat
         public void Execute(SkillContext context, CombatCharacter target)
         {
             // Assume heals always hit (or define your "ally miss" rules here if needed)
-            context.didHit = true; 
+            context.EnsureHitResolved(target);
 
             // 1. Math Resolution
             CombatConfig config = context.battleSystem != null ? context.battleSystem.combatConfig : null;
