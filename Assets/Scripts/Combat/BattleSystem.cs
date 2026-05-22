@@ -593,6 +593,35 @@ namespace Nevergreen.Combat
                 .ToList();
         }
 
+        /// <summary>
+        /// Expands a primary (clicked/selected) target to include the trailing targets behind it
+        /// up to the skill's maxTargets limit.
+        /// </summary>
+        public List<CombatCharacter> GetAOETargets(SkillData skill, CombatCharacter primaryTarget)
+        {
+            if (primaryTarget == null)
+                return new List<CombatCharacter>();
+
+            if (skill.maxTargets <= 1)
+                return new List<CombatCharacter> { primaryTarget };
+
+            // Get the team pool (allies or enemies) of the target
+            List<CombatCharacter> pool = primaryTarget.IsPlayerTeam ? _playerTeam : _enemyTeam;
+
+            // Filter to targets that are alive or piles
+            var sortedTeam = pool
+                .Where(c => c.IsAlive || c.IsPile)
+                .OrderBy(c => c.rank) // Sorted from frontmost to backmost
+                .ToList();
+
+            int primaryIndex = sortedTeam.IndexOf(primaryTarget);
+            if (primaryIndex == -1)
+                return new List<CombatCharacter> { primaryTarget };
+
+            // Take the primary target and up to maxTargets - 1 targets behind them in the formation
+            return sortedTeam.Skip(primaryIndex).Take(skill.maxTargets).ToList();
+        }
+
         private bool CheckBattleEnd()
         {
             if (CurrentState == BattleState.BattleEnd) return true;

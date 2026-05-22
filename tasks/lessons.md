@@ -31,3 +31,8 @@
 - **Pattern**: Duplicating calculation logic (such as hit resolution) in multiple helper methods.
 - **Rule**: Always prioritize reusing functions from centralized calculation classes (like `CombatCalculator`). If a calculation class function assumes non-null configurations or parameters that might be null in tests, refactor that function to gracefully support null/default fallbacks rather than copying the logic elsewhere.
 
+### 7. AOE Healing Target Rules for Piles
+- **Pattern**: Interpreting "piles are not counted as targets when it comes to AOE healing skills" as "piles should be skipped (propagation bypasses the pile to find the next alive target)".
+- **Rule**: "Not counted as targets when it comes to AOE healing skills" actually means: the pile *is* included in the targets returned by AOE target selection (absorbing a target slot and blocking propagation further back), but no healing effect is applied to it (i.e. the heal effect is ignored/refused). It does *not* mean the targeting logic should skip the pile to target an alive character behind it.
+- **Verification**: Always clarify targeting rules regarding whether "exclude" or "ignore" means *skip during selection* or *select but apply no effect*.
+

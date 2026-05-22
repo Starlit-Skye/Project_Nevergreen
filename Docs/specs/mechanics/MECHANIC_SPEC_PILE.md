@@ -91,13 +91,15 @@ EffectiveMoveResist = BaseMoveResist + 300
 ## Edge Cases
 - **Cecilia Defeat**: If Cecilia (CharacterId `ceci`) becomes a Pile, the battle end check triggers a Loss immediately.
 - **Critical Finish**: Critical hits bypass the Pile state entirely, resulting in immediate destruction and formation shift.
-- **AOE Healing**: Skills with `HealEffect` skip Piles even if they are in the AOE range, ensuring only alive allies are affected.
+- **AOE Healing**: Skills with `HealEffect` target Piles within their AOE propagation range, but the Piles refuse/ignore the healing effect (they do not receive HP).
 
 ## Acceptance Tests
 - **Automated**:
   - `Pile_RefusesHealing`: Confirms HP does not change when healed.
   - `AOE_Healing_SkipsPiles`: Confirms Piles are ignored by party-wide heals.
   - `HealingSkill_CannotTargetPile`: Confirms Piles are filtered out of selection.
+  - `AoeTargetingTests.GetAOETargets_DamagingSkill_IncludesPiles`: Confirms Piles are included in AOE damage targeting.
+  - `AoeTargetingTests.GetAOETargets_HealingSkill_IncludesPilesButDoesNotHeal`: Confirms Piles are included in AOE healing targeting but do not receive heal effects.
   - `Pile_InnateMoveResist_Is300`: Confirms move resistance bonus.
   - `CheckBattleEnd_CeciliaIsPile_TriggersDefeat`: Confirms lose condition.
 - **Playtest**: 

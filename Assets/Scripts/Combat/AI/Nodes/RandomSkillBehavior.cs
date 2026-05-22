@@ -53,11 +53,11 @@ namespace Nevergreen.Combat.AI.Nodes
 
                 if (targets.Count == 0) continue;
 
-                // Trim to maxTargets, picking randomly
-                while (targets.Count > skill.maxTargets)
-                {
-                    targets.RemoveAt(UnityEngine.Random.Range(0, targets.Count));
-                }
+                // Pick a random primary target from the valid target list
+                CombatCharacter primaryTarget = targets[UnityEngine.Random.Range(0, targets.Count)];
+
+                // Expand targets using the linear propagation helper
+                targets = battle.GetAOETargets(skill, primaryTarget);
 
                 decision = AIDecision.UseSkill(skill, targets);
                 return true;

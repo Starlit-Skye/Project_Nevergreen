@@ -213,3 +213,27 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 * Added standalone unit tests `StatusEffectOnly_StandaloneHitResolution_SucceedsBasedOnAccuracyAndDodge` and `StatusEffectOnly_StandaloneHitResolution_FailsOnMiss` in `BuffDebuffTests.cs`, using deterministic RNG seeds to verify both hit and miss paths.
 * Confirmed that all 33 tests in the `BuffDebuffTests` suite compile and pass perfectly.
 
+
+# AOE Target Selection Refactor
+
+## Phase 1: Core Mechanics
+- [x] Implement GetAOETargets helper method in BattleSystem.cs
+
+## Phase 2: UI & Player Input
+- [x] Update TrySelectTarget in CombatUI.cs to use the new propagation rules
+- [x] Implement UpdateTargetHoverHighlight in CombatUI.cs for dynamic selection preview
+
+## Phase 3: AI Synchronization
+- [x] Update SimpleTargeting.cs to resolve targets using GetAOETargets
+- [x] Update RandomSkillBehavior.cs fallback to use GetAOETargets
+
+## Phase 4: Verification
+- [x] Implement comprehensive unit tests in AoeTargetingTests.cs
+- [x] Run the complete test suite and confirm zero regressions
+
+### Review
+- Refactored AOE target selection to use linear backwards propagation starting from a selected primary anchor.
+- Centralized targeting logic in `BattleSystem.GetAOETargets(skill, primaryTarget)` so that both the user UI and AI behaviors evaluate targets identically.
+- Updated `CombatUI.cs` to hover-highlight the targeted range in green while keeping other eligible primary targets in yellow.
+- Implemented and executed a dedicated suite of unit tests in `AoeTargetingTests.cs` covering linear propagation bounds, trailing boundaries, multi-rank character interaction, and healing vs damage pile handling rules. All tests pass successfully.
+- Corrected healing AOE targeting rules: Piles are now included in the targets returned by `GetAOETargets` for healing skills (so they occupy a target slot and block selection propagation behind them), but they do not receive any healing effects. Updated tests and spec sheets (`MECHANIC_SPEC_AOE_TARGETING.md` and `MECHANIC_SPEC_PILE.md`) to align with this rule.

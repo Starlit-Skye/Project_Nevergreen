@@ -150,6 +150,9 @@ namespace Nevergreen.Prototype
 
             // Handle hover for stats display
             UpdateStatsHover();
+
+            // Handle target selection visual preview
+            UpdateTargetHoverHighlight();
         }
 
         private void HandleBattleStarted()
@@ -393,21 +396,7 @@ namespace Nevergreen.Prototype
                     }
                     else
                     {
-                        List<CombatCharacter> selected;
-                        if (_selectedAction.maxTargets > 1)
-                        {
-                            selected = new List<CombatCharacter>(_validTargets);
-                            if (selected.Count > _selectedAction.maxTargets)
-                            {
-                                selected.Remove(clicked);
-                                selected = selected.Take(_selectedAction.maxTargets - 1).ToList();
-                                selected.Insert(0, clicked);
-                            }
-                        }
-                        else
-                        {
-                            selected = new List<CombatCharacter> { clicked };
-                        }
+                        List<CombatCharacter> selected = _battleSystem.GetAOETargets(_selectedAction, clicked);
                         _battleSystem.SubmitPlayerAction(_selectedAction, selected);
                     }
                     
@@ -436,6 +425,44 @@ namespace Nevergreen.Prototype
                         sr.color = (t.state == LifeState.Pile)
                             ? new Color(0.3f, 0.3f, 0.3f, 0.5f)
                             : Color.white;
+                    }
+                }
+            }
+        }
+
+        private void UpdateTargetHoverHighlight()
+        {
+            if (!_selecting || _isSelectingMove) return;
+
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero);
+            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
+
+            CombatCharacter hovered = null;
+            if (hit.collider != null)
+            {
+                hovered = hit.collider.GetComponent<CombatCharacter>();
+            }
+
+            // Determine preview target set
+            List<CombatCharacter> previewTargets = new List<CombatCharacter>();
+            if (hovered != null && _validTargets.Contains(hovered))
+            {
+                previewTargets = _battleSystem.GetAOETargets(_selectedAction, hovered);
+            }
+
+            // Apply color highlighting
+            foreach (var t in _validTargets)
+            {
+                var sr = t.GetComponentInChildren<SpriteRenderer>();
+                if (sr != null)
+                {
+                    if (previewTargets.Contains(t))
+                    {
+                        sr.color = Color.green; // Preview selection
+                    }
+                    else
+                    {
+                        sr.color = Color.yellow; // Baseline valid target
                     }
                 }
             }

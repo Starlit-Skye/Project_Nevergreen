@@ -60,9 +60,11 @@ namespace Nevergreen.Combat.AI.Nodes
                     break;
             }
 
-            // Take up to maxTargets from the sorted/shuffled list
-            int count = Mathf.Min(skill.maxTargets, pool.Count);
-            targets = pool.GetRange(0, count);
+            // Select the strategy's top choice as the primary target
+            CombatCharacter primaryTarget = pool[0];
+
+            // Resolve the linear propagation targets
+            targets = battle.GetAOETargets(skill, primaryTarget);
             return true;
         }
 
