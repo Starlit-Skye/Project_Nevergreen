@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SD_rusted_tip
+  m_Name: maid_SD_tidy_up
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: rusted_tip
-  displayName: Rusted Tip
-  description: Deal damage to 1 target and apply blight
+  skillId: tidy_up
+  displayName: Tidy Up
+  description: Clears all piles, buff speed to team
   modifier:
-    damagePercent: 0.8
+    damagePercent: 0
     healPercent: 0
     accuracyMod: 0
-    criticalMod: -10
+    criticalMod: 0
   effects:
-  - rid: 356131202693857280
-  - rid: 356131202693857378
-  useRanks: 010000000200000003000000
-  targetRanks: 01000000020000000300000004000000
-  targetScope: 2
-  maxTargets: 1
+  - rid: 356131225480986709
+  - rid: 356131225480986711
+  useRanks: 020000000300000004000000
+  targetRanks: 01000000
+  targetScope: 1
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -37,16 +37,16 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131202693857280
-      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data: 
-    - rid: 356131202693857378
+    - rid: 356131225480986709
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 1
+        statusType: 5
         targetStat: 5
-        applicationChance: 100
+        applicationChance: 300
         amplitude: 2
-        amplitudeType: 0
+        amplitudeType: 2
         duration: 3
-        ignoreMiss: 0
+        ignoreMiss: 1
+    - rid: 356131225480986711
+      type: {class: ExpirePilesEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 

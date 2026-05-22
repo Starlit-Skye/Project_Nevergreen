@@ -10,22 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SD_spin_to_win
+  m_Name: royal_wolf_SD_pounce
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: spin_to_win
-  displayName: Spin To Win
-  description: Deal damage to 2 enemies
+  skillId: pounce
+  displayName: Pounce
+  description: Low damage attack
   modifier:
-    damagePercent: 0.5
+    damagePercent: 0.8
     healPercent: 0
     accuracyMod: -10
     criticalMod: 0
   effects:
-  - rid: 356131202693857280
-  useRanks: 010000000200000003000000
-  targetRanks: 01000000
+  - rid: 356131040506937436
+  useRanks: 0100000002000000
+  targetRanks: 01000000020000000300000004000000
   targetScope: 2
-  maxTargets: 2
+  maxTargets: 1
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -36,6 +36,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131202693857280
+    - rid: 356131040506937436
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SA_boot_knife
+  m_Name: maid_SD_boot_knife
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: boot_knife
   displayName: Boot Knife

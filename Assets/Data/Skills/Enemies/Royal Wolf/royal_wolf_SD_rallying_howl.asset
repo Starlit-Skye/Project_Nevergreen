@@ -10,23 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SA_cast_iron
+  m_Name: royal_wolf_SD_rallying_howl
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: cast_iron
-  displayName: Cast Iron
-  description: Deal damage to 1 enemy, low damage, chance to stun
+  skillId: rallying_howl
+  displayName: Rallying Howl
+  description: 'Buff speed and damage of all allies
+
+'
   modifier:
-    damagePercent: 1
+    damagePercent: 0
     healPercent: 0
     accuracyMod: 0
-    criticalMod: -5
+    criticalMod: 0
   effects:
-  - rid: 356131225480986716
-  - rid: 356131225480986717
-  useRanks: 010000000200000003000000
-  targetRanks: 0100000002000000
-  targetScope: 2
-  maxTargets: 1
+  - rid: 356131112683044952
+  - rid: 356131112683044953
+  useRanks: 0300000004000000
+  targetRanks: 01000000
+  targetScope: 1
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -37,16 +39,23 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131225480986716
-      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data: 
-    - rid: 356131225480986717
+    - rid: 356131112683044952
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 2
+        statusType: 5
         targetStat: 5
-        applicationChance: 100
-        amplitude: 1
-        amplitudeType: 0
-        duration: 1
+        applicationChance: 300
+        amplitude: 2
+        amplitudeType: 2
+        duration: 3
+        ignoreMiss: 0
+    - rid: 356131112683044953
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 5
+        targetStat: 0
+        applicationChance: 300
+        amplitude: 20
+        amplitudeType: 1
+        duration: 3
         ignoreMiss: 0

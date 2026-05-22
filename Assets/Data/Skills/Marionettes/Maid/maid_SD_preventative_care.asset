@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SD_ive_got_you
+  m_Name: maid_SD_preventative_care
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: ive_got_you
-  displayName: I've Got You
-  description: Move forward 1, apply buff to ally in back.
+  skillId: preventative_care
+  displayName: Preventative Care
+  description: Give 1 ally debuff, bleed, and blight res
   modifier:
     damagePercent: 0
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 356131202693857281
-  - rid: 356131202693857367
-  - rid: 356131202693857368
+  - rid: 356131228942336003
+  - rid: 356131228942336004
+  - rid: 356131228942336005
   useRanks: 020000000300000004000000
-  targetRanks: 
-  targetScope: 0
+  targetRanks: 01000000020000000300000004000000
+  targetScope: 1
   maxTargets: 1
   ignoresDefense: 0
   ignoresDodge: 0
@@ -38,35 +38,33 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131202693857281
+    - rid: 356131228942336003
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 9
-        targetStat: 5
-        applicationChance: 300
-        amplitude: -1
-        amplitudeType: 0
-        duration: 1
-        ignoreMiss: 1
-    - rid: 356131202693857367
-      type: {class: AdjacentAllyStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
         statusType: 5
-        targetStat: 0
-        applicationChance: 100
-        amplitude: 10
-        amplitudeType: 1
-        duration: 3
-        direction: 1
-        ignoreMiss: 1
-    - rid: 356131202693857368
-      type: {class: AdjacentAllyStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
-        statusType: 5
-        targetStat: 4
+        targetStat: 7
         applicationChance: 100
         amplitude: 5
         amplitudeType: 2
         duration: 3
-        direction: 1
-        ignoreMiss: 1
+        ignoreMiss: 0
+    - rid: 356131228942336004
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 5
+        targetStat: 8
+        applicationChance: 100
+        amplitude: 5
+        amplitudeType: 2
+        duration: 3
+        ignoreMiss: 0
+    - rid: 356131228942336005
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 5
+        targetStat: 10
+        applicationChance: 100
+        amplitude: 5
+        amplitudeType: 2
+        duration: 3
+        ignoreMiss: 0

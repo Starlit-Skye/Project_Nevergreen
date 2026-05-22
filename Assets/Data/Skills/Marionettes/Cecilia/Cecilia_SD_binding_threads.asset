@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SD_thunder_clap
+  m_Name: Cecilia_SD_binding_threads
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: thunder_clap
-  displayName: Thunder Clap
-  description: Medium damage clap, low chance to stun.
+  skillId: binding_threads
+  displayName: Binding Threads
+  description: Deal low damage, chance to stun
   modifier:
-    damagePercent: 0.5
+    damagePercent: 0.3
     healPercent: 0
-    accuracyMod: -5
-    criticalMod: -10
+    accuracyMod: 0
+    criticalMod: 5
   effects:
-  - rid: 356131040506937436
-  - rid: 356131112683044939
-  useRanks: 010000000200000003000000
-  targetRanks: 01000000
+  - rid: 356131202693857280
+  - rid: 356131202693857281
+  useRanks: 020000000300000004000000
+  targetRanks: 01000000020000000300000004000000
   targetScope: 2
-  maxTargets: 2
+  maxTargets: 1
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -37,15 +37,15 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131040506937436
+    - rid: 356131202693857280
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 
-    - rid: 356131112683044939
+    - rid: 356131202693857281
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
         statusType: 2
         targetStat: 5
-        applicationChance: 30
+        applicationChance: 100
         amplitude: 1
         amplitudeType: 0
         duration: 1

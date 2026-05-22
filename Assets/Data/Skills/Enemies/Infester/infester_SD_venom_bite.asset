@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SD_tidy_up
+  m_Name: infester_SD_venom_bite
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: tidy_up
-  displayName: Tidy Up
-  description: Clears all piles, buff speed to team
+  skillId: venom_bite
+  displayName: Venom Bite
+  description: Applies Blight
   modifier:
-    damagePercent: 0
+    damagePercent: 0.4
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 356131225480986709
-  - rid: 356131225480986711
-  useRanks: 020000000300000004000000
-  targetRanks: 01000000
-  targetScope: 1
-  maxTargets: 4
+  - rid: 356131040506937436
+  - rid: 356131040506937437
+  useRanks: 01000000020000000300000004000000
+  targetRanks: 010000000200000003000000
+  targetScope: 2
+  maxTargets: 1
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -37,16 +37,16 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131225480986709
+    - rid: 356131040506937436
+      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 
+    - rid: 356131040506937437
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 5
+        statusType: 1
         targetStat: 5
-        applicationChance: 300
-        amplitude: 2
-        amplitudeType: 2
+        applicationChance: 60
+        amplitude: 3
+        amplitudeType: 0
         duration: 3
-        ignoreMiss: 1
-    - rid: 356131225480986711
-      type: {class: ExpirePilesEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data: 
+        ignoreMiss: 0

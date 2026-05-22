@@ -10,22 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SD_ivory_spear
+  m_Name: Cecilia_SD_puppeteer_strings
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: ivory_spear
-  displayName: Ivory Spear
-  description: Deal damage
+  skillId: puppeteer_strings
+  displayName: Puppeteer Strings
+  description: Deal damage to all enemies.
   modifier:
-    damagePercent: 1
+    damagePercent: 0.34
     healPercent: 0
-    accuracyMod: 10
-    criticalMod: 5
+    accuracyMod: -20
+    criticalMod: 0
   effects:
   - rid: 356131202693857280
-  useRanks: 010000000200000003000000
-  targetRanks: 0100000002000000
+  useRanks: 020000000300000004000000
+  targetRanks: 01000000
   targetScope: 2
-  maxTargets: 1
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0

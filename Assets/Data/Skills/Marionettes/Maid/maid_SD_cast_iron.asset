@@ -10,19 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SD_steel_fist
+  m_Name: maid_SD_cast_iron
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: steel_fist
-  displayName: Steel Fist
-  description: High damage punch
+  skillId: cast_iron
+  displayName: Cast Iron
+  description: Deal damage to 1 enemy, low damage, chance to stun
   modifier:
     damagePercent: 1
     healPercent: 0
     accuracyMod: 0
-    criticalMod: 0
+    criticalMod: -5
   effects:
-  - rid: 356131040506937436
-  useRanks: 0100000002000000
+  - rid: 356131225480986716
+  - rid: 356131225480986717
+  useRanks: 010000000200000003000000
   targetRanks: 0100000002000000
   targetScope: 2
   maxTargets: 1
@@ -36,6 +37,16 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131040506937436
+    - rid: 356131225480986716
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 
+    - rid: 356131225480986717
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 2
+        targetStat: 5
+        applicationChance: 100
+        amplitude: 1
+        amplitudeType: 0
+        duration: 1
+        ignoreMiss: 0

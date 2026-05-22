@@ -10,22 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SD_binding_threads
+  m_Name: Cecilia_SD_hasty_repair
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: binding_threads
-  displayName: Binding Threads
-  description: Deal low damage, chance to stun
+  skillId: hasty_repair
+  displayName: Hasty Repair
+  description: Heal 1 ally
   modifier:
-    damagePercent: 0.3
-    healPercent: 0
+    damagePercent: 0
+    healPercent: 0.4
     accuracyMod: 0
-    criticalMod: 5
+    criticalMod: 0
   effects:
-  - rid: 356131202693857280
-  - rid: 356131202693857281
+  - rid: 356131202693857282
   useRanks: 020000000300000004000000
   targetRanks: 01000000020000000300000004000000
-  targetScope: 2
+  targetScope: 1
   maxTargets: 1
   ignoresDefense: 0
   ignoresDodge: 0
@@ -37,16 +36,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131202693857280
-      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+    - rid: 356131202693857282
+      type: {class: HealEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 
-    - rid: 356131202693857281
-      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
-        statusType: 2
-        targetStat: 5
-        applicationChance: 100
-        amplitude: 1
-        amplitudeType: 0
-        duration: 1
-        ignoreMiss: 0

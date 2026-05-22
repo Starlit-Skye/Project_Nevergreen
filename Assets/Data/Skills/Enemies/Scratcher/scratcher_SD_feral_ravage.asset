@@ -10,22 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SD_pounce
+  m_Name: scratcher_SD_feral_ravage
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: pounce
-  displayName: Pounce
-  description: Low damage attack
+  skillId: feral_ravage
+  displayName: Feral Ravage
+  description: Medium AOE scratch, low Bleed chance
   modifier:
-    damagePercent: 0.8
+    damagePercent: 0.33
     healPercent: 0
-    accuracyMod: -10
-    criticalMod: 0
+    accuracyMod: -5
+    criticalMod: -10
   effects:
   - rid: 356131040506937436
-  useRanks: 0100000002000000
-  targetRanks: 01000000020000000300000004000000
+  - rid: 356131112683044940
+  useRanks: 0300000004000000
+  targetRanks: 01000000
   targetScope: 2
-  maxTargets: 1
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -39,3 +40,13 @@ MonoBehaviour:
     - rid: 356131040506937436
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 
+    - rid: 356131112683044940
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 0
+        targetStat: 5
+        applicationChance: 50
+        amplitude: 2
+        amplitudeType: 0
+        duration: 3
+        ignoreMiss: 0
