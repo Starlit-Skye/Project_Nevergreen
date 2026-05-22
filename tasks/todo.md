@@ -280,18 +280,23 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 # Riposte Status Effect Implementation
 
 ## Phase 1: Mechanics Core
-- [ ] Implement Riposte status evaluation check at the end of `BattleSystem.ExecuteSkill` <!-- id: 55 -->
-- [ ] Add `ExecuteRiposteCounter` helper method in `BattleSystem.cs` to execute standard combat calculations for counter-attack <!-- id: 56 -->
-- [ ] Support correct damage scaling using Riposte's amplitude as the percentage multiplier of character's base attack <!-- id: 57 -->
-- [ ] Prevent circular triggers by checking that the triggering skill is not a Riposte counter-attack <!-- id: 58 -->
-- [ ] Prevent counter-attacks if the character with Riposte is dead or stunned (pre-existing or applied by the attack) <!-- id: 59 -->
+- [x] Implement Riposte status evaluation check at the end of `BattleSystem.ExecuteSkill` <!-- id: 55 -->
+- [x] Add `ExecuteRiposteCounter` helper method in `BattleSystem.cs` to execute standard combat calculations for counter-attack <!-- id: 56 -->
+- [x] Support correct damage scaling using Riposte's amplitude as the percentage multiplier of character's base attack <!-- id: 57 -->
+- [x] Prevent circular triggers by checking that the triggering skill is not a Riposte counter-attack <!-- id: 58 -->
+- [x] Prevent counter-attacks if the character with Riposte is dead or stunned (pre-existing or applied by the attack) <!-- id: 59 -->
 
 ## Phase 2: Verification
-- [ ] Create a comprehensive unit test suite in `Assets/Editor/Tests/RiposteTests.cs` <!-- id: 60 -->
-- [ ] Verify basic counter-attack triggers on attacks regardless of hit/miss/damage <!-- id: 61 -->
-- [ ] Verify counter-attack is subject to normal hitroll, crit, defense, etc. <!-- id: 62 -->
-- [ ] Verify amplitude scales counter-attack damage correctly <!-- id: 63 -->
-- [ ] Verify stun prevents riposte triggering (both pre-existing stun and stun applied by the triggering attack) <!-- id: 64 -->
-- [ ] Verify no infinite loops/circular triggers occur when counter-attacking <!-- id: 65 -->
-- [ ] Run the complete test suite and confirm all tests compile and pass <!-- id: 66 -->
+- [x] Create a comprehensive unit test suite in `Assets/Editor/Tests/RiposteTests.cs` <!-- id: 60 -->
+- [x] Verify basic counter-attack triggers on attacks regardless of hit/miss/damage <!-- id: 61 -->
+- [x] Verify counter-attack is subject to normal hitroll, crit, defense, etc. <!-- id: 62 -->
+- [x] Verify amplitude scales counter-attack damage correctly <!-- id: 63 -->
+- [x] Verify stun prevents riposte triggering (both pre-existing stun and stun applied by the triggering attack) <!-- id: 64 -->
+- [x] Verify no infinite loops/circular triggers occur when counter-attacking <!-- id: 65 -->
+- [x] Run the complete test suite and confirm all tests compile and pass <!-- id: 66 -->
+
+### Review
+- Added `ExecuteRiposteCounter` helper method in `BattleSystem.cs`.
+- Implemented Riposte checking logic at the end of `BattleSystem.ExecuteSkill` ensuring the counter-attack executes safely, scales based on `amplitude` correctly, checks for character Stun/Death states, handles Guard redirection correctly, and guards against infinite Riposte loops.
+- Created `RiposteTests.cs` covering all 7 test cases spanning hitroll evaluation, stat calculation, stun negations, and safe edge case handling. All functionality aligns strictly with standard combat calculations.
 

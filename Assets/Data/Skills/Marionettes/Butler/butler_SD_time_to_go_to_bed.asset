@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: butler_SD_at_your_service
+  m_Name: butler_SD_time_to_go_to_bed
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: at_your_service
-  displayName: At Your Service
-  description: Deal damage to an enemy, move self to front
+  skillId: time_to_go_to_bed
+  displayName: Time To Go To Bed
+  description: "Deal low damage to an enemy. Apply stun.\t"
   modifier:
-    damagePercent: 0.7
+    damagePercent: 0.8
     healPercent: 0
-    accuracyMod: 0
+    accuracyMod: -5
     criticalMod: -10
   effects:
   - rid: 356131228942336009
-  - rid: 356131228942336010
-  useRanks: 020000000300000004000000
+  - rid: 356131228942336087
+  useRanks: 010000000200000003000000
   targetRanks: 0100000002000000
   targetScope: 2
   maxTargets: 1
@@ -40,13 +40,13 @@ MonoBehaviour:
     - rid: 356131228942336009
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 
-    - rid: 356131228942336010
-      type: {class: SelfStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+    - rid: 356131228942336087
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 9
+        statusType: 2
         targetStat: 5
         applicationChance: 100
-        amplitude: -3
-        amplitudeType: 2
+        amplitude: 1
+        amplitudeType: 0
         duration: 1
-        ignoreMiss: 1
+        ignoreMiss: 0

@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: butler_SD_at_your_service
+  m_Name: butler_SD_maintain_order
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: at_your_service
-  displayName: At Your Service
-  description: Deal damage to an enemy, move self to front
+  skillId: maintain_order
+  displayName: Maintain Order
+  description: AOE damage to all enemies, apply Acc debuff.
   modifier:
-    damagePercent: 0.7
+    damagePercent: 0.2
     healPercent: 0
-    accuracyMod: 0
+    accuracyMod: -5
     criticalMod: -10
   effects:
   - rid: 356131228942336009
-  - rid: 356131228942336010
-  useRanks: 020000000300000004000000
-  targetRanks: 0100000002000000
+  - rid: 356131228942336086
+  useRanks: 010000000200000003000000
+  targetRanks: 01000000
   targetScope: 2
-  maxTargets: 1
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -40,13 +40,13 @@ MonoBehaviour:
     - rid: 356131228942336009
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 
-    - rid: 356131228942336010
-      type: {class: SelfStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+    - rid: 356131228942336086
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 9
-        targetStat: 5
-        applicationChance: 100
-        amplitude: -3
+        statusType: 3
+        targetStat: 2
+        applicationChance: 90
+        amplitude: -30
         amplitudeType: 2
-        duration: 1
-        ignoreMiss: 1
+        duration: 3
+        ignoreMiss: 0

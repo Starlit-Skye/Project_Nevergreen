@@ -560,6 +560,54 @@ namespace Nevergreen.Combat
             {
                 animationQueue.EndBatch();
             }
+
+            // --- Riposte Trigger Check ---
+            // Only trigger if this is a hostile skill and NOT already a Riposte counter-attack
+            if (skill.skillId != "riposte_counter" && skill.targetScope == TargetScope.Enemies)
+            {
+                var uniqueAttacked = new HashSet<CombatCharacter>();
+                for (int hit = 0; hit < ctx.totalHits; hit++)
+                {
+                    foreach (var target in targets)
+                    {
+                        if (!target.IsAlive && !target.IsPile) continue;
+                        CombatCharacter finalTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
+                        if (finalTarget != null && finalTarget.IsAlive)
+                        {
+                            uniqueAttacked.Add(finalTarget);
+                        }
+                    }
+                }
+
+                if (user.IsAlive)
+                {
+                    foreach (var riposter in uniqueAttacked)
+                    {
+                        var riposteStatus = riposter.statusEffects.FirstOrDefault(s => s.type == StatusType.Riposte && !s.IsExpired);
+                        if (riposteStatus != null && !riposter.isStunned)
+                        {
+                            ExecuteRiposteCounter(riposter, user, riposteStatus.amplitude);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ExecuteRiposteCounter(CombatCharacter riposter, CombatCharacter target, int amplitude)
+        {
+            var riposteSkill = ScriptableObject.CreateInstance<SkillData>();
+            riposteSkill.skillId = "riposte_counter";
+            riposteSkill.displayName = "Riposte Counter";
+            riposteSkill.modifier = new SkillModifier
+            {
+                damagePercent = amplitude / 100f
+            };
+            riposteSkill.targetScope = TargetScope.Enemies;
+            riposteSkill.effects.Add(new DamageEffect());
+
+            Debug.Log($"[BattleSystem] {riposter.DisplayName} counter-attacks {target.DisplayName} with {amplitude}% amplitude!");
+
+            ExecuteSkill(riposter, riposteSkill, new List<CombatCharacter> { target });
         }
 
 
