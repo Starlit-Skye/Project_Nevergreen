@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using Nevergreen.Combat;
@@ -592,6 +593,79 @@ namespace Nevergreen.Tests
             Assert.IsTrue(ctx.hasResolvedHit, "Hit resolution should be executed dynamically.");
             Assert.IsFalse(ctx.didHit, "Hit check should fail.");
             Assert.AreEqual(0, target.statusEffects.Count, "Debuff should not apply because the skill missed.");
+        }
+
+        [Test]
+        public void RemoveStatusEffect_SpecificType_RemovesTargetTypeAndLeavesOthers()
+        {
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, rank: 1);
+            _cleanup.Add(target.gameObject);
+
+            // Add multiple statuses of different types
+            var bleed1 = new StatusEffectInstance(StatusType.Bleed, 2, 3);
+            var bleed2 = new StatusEffectInstance(StatusType.Bleed, 3, 3);
+            var blight = new StatusEffectInstance(StatusType.Blight, 2, 3);
+            var stun = new StatusEffectInstance(StatusType.Stun, 1, 1);
+
+            target.AddStatus(bleed1);
+            target.AddStatus(bleed2);
+            target.AddStatus(blight);
+            target.AddStatus(stun);
+
+            Assert.AreEqual(4, target.statusEffects.Count, "Initial status count is 4.");
+            Assert.IsTrue(target.isStunned, "Target is initially stunned.");
+
+            var effect = new RemoveStatusEffect
+            {
+                removeAll = false,
+                targetStatusType = StatusType.Bleed,
+                ignoreMiss = true
+            };
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { target }, null, rng);
+
+            effect.Execute(ctx, target);
+
+            Assert.AreEqual(2, target.statusEffects.Count, "Two status effects should remain.");
+            Assert.IsFalse(target.statusEffects.Any(s => s.type == StatusType.Bleed), "No Bleed status effects should remain.");
+            Assert.IsTrue(target.statusEffects.Any(s => s.type == StatusType.Blight), "Blight should remain.");
+            Assert.IsTrue(target.statusEffects.Any(s => s.type == StatusType.Stun), "Stun should remain.");
+            Assert.IsTrue(target.isStunned, "Target should still be stunned.");
+        }
+
+        [Test]
+        public void RemoveStatusEffect_RemoveAll_RemovesAllStatusEffects()
+        {
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, rank: 1);
+            _cleanup.Add(target.gameObject);
+
+            var bleed = new StatusEffectInstance(StatusType.Bleed, 2, 3);
+            var blight = new StatusEffectInstance(StatusType.Blight, 2, 3);
+            var stun = new StatusEffectInstance(StatusType.Stun, 1, 1);
+
+            target.AddStatus(bleed);
+            target.AddStatus(blight);
+            target.AddStatus(stun);
+
+            Assert.AreEqual(3, target.statusEffects.Count, "Initial status count is 3.");
+            Assert.IsTrue(target.isStunned, "Target is initially stunned.");
+
+            var effect = new RemoveStatusEffect
+            {
+                removeAll = true,
+                ignoreMiss = true
+            };
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { target }, null, rng);
+
+            effect.Execute(ctx, target);
+
+            Assert.AreEqual(0, target.statusEffects.Count, "All status effects should be removed.");
+            Assert.IsFalse(target.isStunned, "Target stun should be cleared.");
         }
     }
 }

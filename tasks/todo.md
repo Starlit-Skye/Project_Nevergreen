@@ -256,3 +256,23 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 - Added transient deduplication cache in `context.extra` to prevent redundant execution of the effect during multi-hit or AoE skill evaluations.
 - Implemented and executed unit test `ExpirePilesEffect_ImmediatelyCausesAllPilesToExpire` in `PileMechanicTests.cs`. All 13 tests in the suite pass successfully.
 
+
+# Status Removal Skill Effect
+
+## Phase 1: Implementation
+- [x] Create `RemoveStatusEffect.cs` script in `Assets/Scripts/Combat/Effects/` implementing `ISkillEffect` <!-- id: 48 -->
+- [x] Implement `removeAll` flag and `targetStatusType` fields with tooltips <!-- id: 49 -->
+- [x] Safely query and remove status effects from target using a copied list of matching statuses <!-- id: 50 -->
+- [x] Support standard hit/miss check via `EnsureHitResolved` and `ignoreMiss` <!-- id: 51 -->
+
+## Phase 2: Verification
+- [x] Implement unit tests in `BuffDebuffTests.cs` verifying removal of a specific status effect (e.g. Bleed) while leaving other status types intact <!-- id: 52 -->
+- [x] Implement unit tests in `BuffDebuffTests.cs` verifying removal of all status effects when `removeAll` is true <!-- id: 53 -->
+- [x] Verify all EditMode tests compile and pass successfully <!-- id: 54 -->
+
+### Review
+- Created a new skill effect strategy `RemoveStatusEffect` that allows removal of all stacks of a specific status effect or all status effects.
+- Directly leveraged the existing character status architecture by iterating over a copied collection of the matching statuses and calling `target.RemoveStatus(status)`. This ensures proper triggers (such as recalculating stun states or invoking `OnStatsChanged` event subscriptions).
+- Integrated standard hit resolution logic, ensuring the effect respects hit/miss mechanics unless overridden via the `ignoreMiss` setting.
+- Implemented de-duplication targeting specific character instances in `context.extra` to avoid redundant triggers or log spam during multi-hit evaluations.
+- Created comprehensive unit tests in `BuffDebuffTests.cs` (`RemoveStatusEffect_SpecificType_RemovesTargetTypeAndLeavesOthers` and `RemoveStatusEffect_RemoveAll_RemovesAllStatusEffects`) confirming perfect functionality. All tests pass successfully.
