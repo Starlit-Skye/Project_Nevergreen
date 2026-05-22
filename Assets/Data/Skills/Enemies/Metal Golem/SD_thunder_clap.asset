@@ -24,7 +24,7 @@ MonoBehaviour:
   - rid: 356131040506937436
   - rid: 356131112683044939
   useRanks: 010000000200000003000000
-  targetRanks: 0100000002000000
+  targetRanks: 01000000
   targetScope: 2
   maxTargets: 2
   ignoresDefense: 0
@@ -47,5 +47,6 @@ MonoBehaviour:
         targetStat: 5
         applicationChance: 30
         amplitude: 1
+        amplitudeType: 0
         duration: 1
         ignoreMiss: 0

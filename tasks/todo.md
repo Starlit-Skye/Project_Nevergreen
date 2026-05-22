@@ -237,3 +237,22 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 - Updated `CombatUI.cs` to hover-highlight the targeted range in green while keeping other eligible primary targets in yellow.
 - Implemented and executed a dedicated suite of unit tests in `AoeTargetingTests.cs` covering linear propagation bounds, trailing boundaries, multi-rank character interaction, and healing vs damage pile handling rules. All tests pass successfully.
 - Corrected healing AOE targeting rules: Piles are now included in the targets returned by `GetAOETargets` for healing skills (so they occupy a target slot and block selection propagation behind them), but they do not receive any healing effects. Updated tests and spec sheets (`MECHANIC_SPEC_AOE_TARGETING.md` and `MECHANIC_SPEC_PILE.md`) to align with this rule.
+
+# Pile Expiration Skill Effect
+
+## Phase 1: Implementation
+- [x] Create `ExpirePilesEffect.cs` script in `Assets/Scripts/Combat/Effects/` implementing `ISkillEffect` <!-- id: 42 -->
+- [x] Implement global pile lookup via `battleSystem.PlayerTeam` and `battleSystem.EnemyTeam` <!-- id: 43 -->
+- [x] Transition each found Pile to `LifeState.Destroyed` to leverage existing cleanup and rank-shifting architecture <!-- id: 44 -->
+- [x] Prevent redundant multi-target execution by caching state in `SkillContext.extra` <!-- id: 45 -->
+
+## Phase 2: Verification
+- [x] Write unit tests in `PileMechanicTests.cs` verifying that using a skill with `ExpirePilesEffect` immediately destroys all active piles and triggers formation compaction <!-- id: 46 -->
+- [x] Verify all EditMode tests compile and pass successfully <!-- id: 47 -->
+
+### Review
+- Created a new skill effect strategy `ExpirePilesEffect` to immediately expire all active piles on both sides of the battlefield.
+- Leveraged the existing event-driven architecture by transitioning Piles to `LifeState.Destroyed`, triggering their automatic removal, formation compaction, and physical destruction.
+- Added transient deduplication cache in `context.extra` to prevent redundant execution of the effect during multi-hit or AoE skill evaluations.
+- Implemented and executed unit test `ExpirePilesEffect_ImmediatelyCausesAllPilesToExpire` in `PileMechanicTests.cs`. All 13 tests in the suite pass successfully.
+

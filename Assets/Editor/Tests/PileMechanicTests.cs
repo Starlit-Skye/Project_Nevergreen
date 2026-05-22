@@ -31,12 +31,12 @@ namespace Nevergreen.Tests
         {
             var c = CombatTestHelper.CreateCombatCharacter(
                 id, Team.Player, rank: 1, maxHP: 100, config: _config);
-            
+
             if (c.characterData != null)
             {
                 c.characterData.leavesPileOnDeath = leavesPile;
             }
-            
+
             _cleanup.Add(c.gameObject);
             return c;
         }
@@ -98,9 +98,9 @@ namespace Nevergreen.Tests
             c.TakeDamage(100); // Enters Dying
 
             // Use Reflection to call private FinalizeCharacterDefeat
-            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat", 
+            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            
+
             method.Invoke(battleSystem, new object[] { c, false });
 
             Assert.AreEqual(LifeState.Pile, c.state, "Character should become a Pile.");
@@ -117,9 +117,9 @@ namespace Nevergreen.Tests
             var c = Track("hero", leavesPile: false);
             c.TakeDamage(100);
 
-            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat", 
+            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            
+
             method.Invoke(battleSystem, new object[] { c, false });
 
             Assert.AreEqual(LifeState.Destroyed, c.state, "Character should be Destroyed if they don't leave a pile.");
@@ -135,9 +135,9 @@ namespace Nevergreen.Tests
             var c = Track("hero", leavesPile: true);
             c.TakeDamage(100);
 
-            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat", 
+            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            
+
             // Critical Kill = true
             method.Invoke(battleSystem, new object[] { c, true });
 
@@ -155,9 +155,9 @@ namespace Nevergreen.Tests
             c.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 50, 3));
             c.TakeDamage(100);
 
-            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat", 
+            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            
+
             method.Invoke(battleSystem, new object[] { c, false });
 
             // Piles should not retain previous buffs.
@@ -175,13 +175,13 @@ namespace Nevergreen.Tests
             var c = Track("hero", leavesPile: true);
             c.TakeDamage(100);
 
-            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat", 
+            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            
+
             method.Invoke(battleSystem, new object[] { c, false });
 
             Assert.AreEqual(4, c.pileDuration, "Pile should have innate duration of 4.");
-            Assert.AreEqual(300 + c.baseStats.moveResist, c.GetEffectiveStats().moveResist, 
+            Assert.AreEqual(300 + c.baseStats.moveResist, c.GetEffectiveStats().moveResist,
                 "Pile should have innate +300 Move Resist bonus.");
         }
 
@@ -191,7 +191,7 @@ namespace Nevergreen.Tests
             var c = Track("hero", leavesPile: true);
             c.state = LifeState.Pile;
             c.pileDuration = 1;
-            
+
             // Simulate the decay logic in BattleSystem.ProcessTurn
             c.pileDuration--;
             if (c.pileDuration <= 0)
@@ -213,7 +213,7 @@ namespace Nevergreen.Tests
             pile.state = LifeState.Pile;
 
             // Use Reflection to set internal team lists so GetValidTargets works
-            var playerTeamField = typeof(BattleSystem).GetField("_playerTeam", 
+            var playerTeamField = typeof(BattleSystem).GetField("_playerTeam",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             playerTeamField.SetValue(battleSystem, new List<CombatCharacter> { hero, pile });
 
@@ -239,7 +239,7 @@ namespace Nevergreen.Tests
             var healSkill = ScriptableObject.CreateInstance<SkillData>();
             healSkill.effects = new List<ISkillEffect> { new HealEffect() };
             healSkill.modifier.healPercent = 1.0f; // 100% of attack
-            
+
             // SkillContext with both targets
             var ctx = new SkillContext(hero, healSkill, new List<CombatCharacter> { hero, pile }, null, new System.Random());
 
@@ -254,5 +254,79 @@ namespace Nevergreen.Tests
             Assert.AreEqual(50, pile.currentHP, "Pile should not have been healed by AOE.");
             Assert.IsTrue(hero.currentHP > 20, "Alive hero should have been healed.");
         }
+
+        [Test]
+        public void ExpirePilesEffect_ImmediatelyCausesAllPilesToExpire()
+        {
+            var battleSystemGo = new GameObject("BattleSystem");
+            _cleanup.Add(battleSystemGo);
+            var battleSystem = battleSystemGo.AddComponent<BattleSystem>();
+            battleSystem.combatConfig = _config;
+
+            // Create characters
+            var hero = Track("hero");
+            hero.team = Team.Player;
+            hero.rank = 1;
+
+            var pile1 = Track("pile1");
+            pile1.team = Team.Player;
+            pile1.rank = 2;
+            pile1.state = LifeState.Pile;
+
+            var pile2 = Track("pile2");
+            pile2.team = Team.Player;
+            pile2.rank = 3;
+            pile2.state = LifeState.Pile;
+
+            var enemy = Track("enemy");
+            enemy.team = Team.Enemy;
+            enemy.rank = 1;
+
+            var playerTeam = new List<CombatCharacter> { hero, pile1, pile2 };
+            var enemyTeam = new List<CombatCharacter> { enemy };
+
+            // Inject teams via Reflection
+            var playerTeamField = typeof(BattleSystem).GetField("_playerTeam",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            playerTeamField.SetValue(battleSystem, playerTeam);
+
+            var enemyTeamField = typeof(BattleSystem).GetField("_enemyTeam",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            enemyTeamField.SetValue(battleSystem, enemyTeam);
+
+            // Set up state change event handlers
+            var handleStateChangedMethod = typeof(BattleSystem).GetMethod("HandleCharacterStateChanged",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            foreach (var c in playerTeam.Concat(enemyTeam))
+            {
+                c.combatConfig = _config;
+                c.OnStateChanged += (charRef, stateVal) =>
+                {
+                    handleStateChangedMethod.Invoke(battleSystem, new object[] { charRef, stateVal });
+                };
+            }
+
+            // Create skill and skill context
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            var effect = new ExpirePilesEffect();
+            skill.effects = new List<ISkillEffect> { effect };
+
+            var ctx = new SkillContext(hero, skill, new List<CombatCharacter> { hero }, battleSystem, new System.Random());
+
+            // Execute effect
+            effect.Execute(ctx, hero);
+
+            // Verify both piles were destroyed and team is compacted (hero at rank 1)
+            Assert.AreEqual(LifeState.Destroyed, pile1.state, "pile1 should be Destroyed.");
+            Assert.AreEqual(LifeState.Destroyed, pile2.state, "pile2 should be Destroyed.");
+
+            // Player team should only contain hero now
+            var currentPlayers = (List<CombatCharacter>)playerTeamField.GetValue(battleSystem);
+            Assert.AreEqual(1, currentPlayers.Count, "Player team should only have 1 character remaining.");
+            Assert.AreEqual(hero, currentPlayers[0], "The remaining player should be hero.");
+            Assert.AreEqual(1, hero.rank, "Hero should be at rank 1.");
+        }
     }
 }
+

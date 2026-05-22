@@ -10,21 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: SD_feral_ravage
+  m_Name: SD_unnerving_bark
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: feral_ravage
-  displayName: Feral Ravage
-  description: Medium AOE scratch, low Bleed chance
+  skillId: unnerving_bark
+  displayName: Unnerving Bark
+  description: High chance to debuff enemy acc
   modifier:
-    damagePercent: 0.33
+    damagePercent: 0
     healPercent: 0
-    accuracyMod: -5
-    criticalMod: -10
+    accuracyMod: 0
+    criticalMod: 0
   effects:
-  - rid: 356131040506937436
-  - rid: 356131112683044940
+  - rid: 356131112683044952
   useRanks: 0300000004000000
-  targetRanks: 01000000020000000300000004000000
+  targetRanks: 01000000
   targetScope: 2
   maxTargets: 4
   ignoresDefense: 0
@@ -37,16 +36,13 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131040506937436
-      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data: 
-    - rid: 356131112683044940
+    - rid: 356131112683044952
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 0
-        targetStat: 5
-        applicationChance: 50
-        amplitude: 2
-        amplitudeType: 0
+        statusType: 3
+        targetStat: 2
+        applicationChance: 80
+        amplitude: 10
+        amplitudeType: 2
         duration: 3
         ignoreMiss: 0
