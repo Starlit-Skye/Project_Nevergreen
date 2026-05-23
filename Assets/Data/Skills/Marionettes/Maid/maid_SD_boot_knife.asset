@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: boot_knife
   displayName: Boot Knife
-  description: Deal damage to 1 enemy, high crit, always hit
+  description: Deal damage to 1 enemy, high crit
   modifier:
     damagePercent: 1
     healPercent: 0

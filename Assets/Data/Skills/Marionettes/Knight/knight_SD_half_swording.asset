@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Half Swording
   description: Low damage, ignore defense.
   modifier:
-    damagePercent: 0.7
+    damagePercent: 0.8
     healPercent: 0
     accuracyMod: -2
     criticalMod: 3

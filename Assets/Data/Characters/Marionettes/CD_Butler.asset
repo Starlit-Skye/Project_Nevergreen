@@ -19,12 +19,12 @@ MonoBehaviour:
   statPerLevel:
   - {fileID: 11400000, guid: 867df823994e3564882f315f639394df, type: 2}
   availableSkills:
-  - {fileID: 11400000, guid: 82f760293f9070d438e2ed27e74c3cf2, type: 2}
-  - {fileID: 11400000, guid: e42fc99d26e23a3448dec2ef0ec0f792, type: 2}
-  - {fileID: 11400000, guid: 349454b7248e105438e439b9640e06b9, type: 2}
-  - {fileID: 11400000, guid: b068ff49135bac34a80c1866ed39a1f2, type: 2}
+  - {fileID: 11400000, guid: a2722e9c4a4656641988aeb29a06eb48, type: 2}
+  - {fileID: 11400000, guid: a99fdf38c989fe94ea56513db5cd4f6b, type: 2}
+  - {fileID: 11400000, guid: 8478786a892520249be927b95c4202cb, type: 2}
+  - {fileID: 11400000, guid: c4f02237c0d234c4197cb5e42bf7b84e, type: 2}
   size: 1
-  leavesPileOnDeath: 0
+  leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 0}
   deathSFX: {fileID: 0}
   bossMusicOverride: {fileID: 0}

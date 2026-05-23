@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Thunder Clap
   description: Medium damage clap, low chance to stun.
   modifier:
-    damagePercent: 0.5
+    damagePercent: 0.4
     healPercent: 0
     accuracyMod: -5
     criticalMod: -10

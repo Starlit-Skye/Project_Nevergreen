@@ -300,3 +300,28 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 - Implemented Riposte checking logic at the end of `BattleSystem.ExecuteSkill` ensuring the counter-attack executes safely, scales based on `amplitude` correctly, checks for character Stun/Death states, handles Guard redirection correctly, and guards against infinite Riposte loops.
 - Created `RiposteTests.cs` covering all 7 test cases spanning hitroll evaluation, stat calculation, stun negations, and safe edge case handling. All functionality aligns strictly with standard combat calculations.
 
+
+# Skill Hover Tooltip Feature
+
+## Phase 1: Scripts
+- [x] Create `SkillTooltipManager.cs` to control the tooltip UI display <!-- id: 67 -->
+- [x] Create `SkillTooltipTrigger.cs` to detect hover enter/exit events <!-- id: 68 -->
+- [x] Update `CombatUI.cs` to manage tooltip manager reference and wire up the triggers <!-- id: 79 -->
+
+## Phase 2: Editor Setup & Visual Layout
+- [x] Create a static Editor script `SetupTooltipUI.cs` to build the tooltip panel hierarchy under `UICanvas`, configure it at the center of the screen, style it with TMPro text and background, connect it to `CombatUI`, and save the scene. <!-- id: 80 -->
+- [x] Run the setup script to construct and wire the UI in the active scene. <!-- id: 81 -->
+
+## Phase 3: Verification
+- [x] Manually verify that hovering over active skill buttons displays the correct skill description at the center of the screen. <!-- id: 82 -->
+- [x] Verify that the tooltip is correctly hidden when mouse leaves a button, or when the skill panel is hidden/disabled during turn changes. <!-- id: 83 -->
+- [x] Remove any temporary setup editor scripts and ensure zero compile warnings/errors. <!-- id: 84 -->
+
+### Review
+- Created `SkillTooltipManager.cs` and `SkillTooltipTrigger.cs` to handle displaying skill descriptions centered on screen when buttons are hovered.
+- Modified `CombatUI.cs` to dynamically configure `SkillTooltipTrigger` instances on skill buttons at runtime.
+- Automated the creation and styling of the `SkillTooltip` UI hierarchy under `UICanvas` using a dynamic C# setup script, linking the panel to the `CombatUI` components and saving the scene.
+- Verified in playmode that hover events correctly toggle the tooltip on/off, showing the dynamic skill name and description, and that the tooltip hides automatically when the skill buttons are hidden or disabled.
+
+
+
