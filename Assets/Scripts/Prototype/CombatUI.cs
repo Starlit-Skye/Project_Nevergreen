@@ -487,7 +487,9 @@ namespace Nevergreen.Prototype
                         $"ATK: {stats.attack}  DEF: {stats.defense}%\n" +
                         $"ACC: {stats.accuracy}%  DOD: {stats.dodge}%\n" +
                         $"CRIT: {stats.critChance}%  SPD: {stats.speed}\n" +
-                        $"Rank: {hovered.rank}  Team: {hovered.team}";
+                        $"Rank: {hovered.rank}  Team: {hovered.team}\n" +
+                        $"BLEED RES: {stats.bleedResist}%  BLIGHT RES: {stats.blightResist}%  STUN RES: {stats.stunResist}%\n" +
+                        $"DEBUFF RES: {stats.debuffResist}%  MOVE RES: {stats.moveResist}%";
                     return;
                 }
             }
