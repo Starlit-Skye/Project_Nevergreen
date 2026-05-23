@@ -184,5 +184,89 @@ namespace Nevergreen.Tests
             Assert.AreEqual(expectedHeal, heal, "Heal should scale the rolled attack power correctly.");
             Assert.AreEqual(expectedBaseRoll, ctx.baseAttackRoll, "Context baseAttackRoll should record the roll.");
         }
+
+        [Test]
+        public void EnsureHitResolved_AOEIndependentRolls()
+        {
+            var a = Track("a", Team.Player, 1, accuracy: 50); // Set low accuracy for 50% hit chance
+            var t1 = Track("t1", Team.Enemy, 1, dodge: 0);
+            var t2 = Track("t2", Team.Enemy, 2, dodge: 0);
+            var skill = CombatTestHelper.CreateDamageSkill(accuracyMod: 0f);
+            
+            int workingSeed = -1;
+            for (int seed = 0; seed < 100; seed++)
+            {
+                var tempRng = new System.Random(seed);
+                double roll1 = tempRng.NextDouble() * 100.0;
+                double roll2 = tempRng.NextDouble() * 100.0;
+                bool hit1 = roll1 < 50.0;
+                bool hit2 = roll2 < 50.0;
+                if (hit1 != hit2)
+                {
+                    workingSeed = seed;
+                    break;
+                }
+            }
+            
+            Assert.AreNotEqual(-1, workingSeed, "Should find a seed where first and second rolls differ.");
+            
+            var rng = new System.Random(workingSeed);
+            var (_, ctx) = MakeCtx(a, t1, skill, rng);
+            ctx.targets = new List<CombatCharacter> { t1, t2 };
+            
+            // Resolve hit for t1
+            ctx.EnsureHitResolved(t1);
+            bool firstHit = ctx.didHit;
+            
+            // Resolve hit for t2 (new target)
+            ctx.EnsureHitResolved(t2);
+            bool secondHit = ctx.didHit;
+            
+            Assert.AreNotEqual(firstHit, secondHit, "Hit check should resolve independently and produce different results for t1 and t2.");
+            
+            // Verify that subsequent call to the same target/hitIndex returns cached result
+            ctx.didHit = !secondHit; // Flip value to check caching
+            ctx.EnsureHitResolved(t2);
+            Assert.AreEqual(!secondHit, ctx.didHit, "Subsequent EnsureHitResolved on same target/hitIndex should use cached result.");
+        }
+
+        [Test]
+        public void EnsureHitResolved_MultiHitIndependentRolls()
+        {
+            var a = Track("a", Team.Player, 1, accuracy: 50);
+            var t = Track("t", Team.Enemy, 1, dodge: 0);
+            var skill = CombatTestHelper.CreateDamageSkill();
+            
+            int workingSeed = -1;
+            for (int seed = 0; seed < 100; seed++)
+            {
+                var tempRng = new System.Random(seed);
+                double roll1 = tempRng.NextDouble() * 100.0;
+                double roll2 = tempRng.NextDouble() * 100.0;
+                bool hit1 = roll1 < 50.0;
+                bool hit2 = roll2 < 50.0;
+                if (hit1 != hit2)
+                {
+                    workingSeed = seed;
+                    break;
+                }
+            }
+            
+            var rng = new System.Random(workingSeed);
+            var (_, ctx) = MakeCtx(a, t, skill, rng);
+            ctx.totalHits = 2;
+            
+            // Hit 0
+            ctx.currentHitIndex = 0;
+            ctx.EnsureHitResolved(t);
+            bool firstHit = ctx.didHit;
+            
+            // Hit 1 (same target, different hit index)
+            ctx.currentHitIndex = 1;
+            ctx.EnsureHitResolved(t);
+            bool secondHit = ctx.didHit;
+            
+            Assert.AreNotEqual(firstHit, secondHit, "Hit check should resolve independently for different hit indices of multi-hit skills.");
+        }
     }
 }

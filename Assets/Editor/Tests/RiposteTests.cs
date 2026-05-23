@@ -28,9 +28,9 @@ namespace Nevergreen.Tests
         [TearDown]
         public void Teardown()
         {
-            Object.DestroyImmediate(attacker.gameObject);
-            Object.DestroyImmediate(target.gameObject);
-            Object.DestroyImmediate(guardian.gameObject);
+            if (attacker != null) Object.DestroyImmediate(attacker.gameObject);
+            if (target != null) Object.DestroyImmediate(target.gameObject);
+            if (guardian != null) Object.DestroyImmediate(guardian.gameObject);
             ScriptableObject.DestroyImmediate(config);
         }
 

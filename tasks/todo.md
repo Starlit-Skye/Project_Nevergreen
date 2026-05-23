@@ -324,4 +324,19 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 - Verified in playmode that hover events correctly toggle the tooltip on/off, showing the dynamic skill name and description, and that the tooltip hides automatically when the skill buttons are hidden or disabled.
 
 
+# Per-Target AOE Hit Checks
 
+## Phase 1: Implementation
+- [x] Refactor `EnsureHitResolved` in `SkillContext.cs` to roll hit check for every target and hit index <!-- id: 85 -->
+- [x] Ensure backward compatibility with manual `hasResolvedHit = true` overrides <!-- id: 86 -->
+
+## Phase 2: Verification
+- [x] Implement unit test in `BuffDebuffTests.cs` to verify independent rolls per target for AOE skills <!-- id: 87 -->
+- [x] Run EditMode tests to verify all tests pass successfully <!-- id: 88 -->
+
+### Review
+- Refactored `EnsureHitResolved` in `SkillContext.cs` to track `lastResolvedTarget` and `lastResolvedHitIndex` to resolve hits independently for every target and hit index, fixing the bug where AOE skills only rolled hit checks once for the first target.
+- Retained backward compatibility with manual `hasResolvedHit = true` overrides by falling back to caching of the current target/hit index upon first query.
+- Created robust, deterministic unit tests `EnsureHitResolved_AOEIndependentRolls` and `EnsureHitResolved_MultiHitIndependentRolls` in `HitCritTests.cs` validating independent roll behavior and caching.
+- Resolved a flakiness bug in `RiposteTests.Teardown()` where a critical roll during execution would lead to character destruction and throw a `MissingReferenceException` in teardown.
+- Verified that all 140 EditMode tests pass successfully.

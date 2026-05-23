@@ -29,10 +29,23 @@ namespace Nevergreen.Combat
         public float finalAccuracy;
         public bool didHit;
         public bool hasResolvedHit;
+        public CombatCharacter lastResolvedTarget;
+        public int lastResolvedHitIndex = -1;
 
         public void EnsureHitResolved(CombatCharacter target)
         {
-            if (hasResolvedHit) return;
+            if (hasResolvedHit)
+            {
+                if (lastResolvedTarget == null)
+                {
+                    lastResolvedTarget = target;
+                    lastResolvedHitIndex = currentHitIndex;
+                }
+                if (lastResolvedTarget == target && lastResolvedHitIndex == currentHitIndex)
+                {
+                    return;
+                }
+            }
 
             // Heal skills or support skills targetting self/allies always hit
             if (skill.modifier.IsHeal || skill.targetScope == TargetScope.Self || skill.targetScope == TargetScope.Allies)
@@ -46,6 +59,8 @@ namespace Nevergreen.Combat
                 CombatCalculator.ResolveHit(this, target, config);
             }
             hasResolvedHit = true;
+            lastResolvedTarget = target;
+            lastResolvedHitIndex = currentHitIndex;
         }
 
         // --- Special Interaction Flags ---
