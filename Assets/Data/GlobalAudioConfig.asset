@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GlobalAudioConfig
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.AudioConfig
   mainMixer: {fileID: 24100000, guid: 2f368c19fdb62884ba59462606484c31, type: 2}
-  masterVolume: 1
+  masterVolume: 0.6
   bgmVolume: 1
   sfxVolume: 1
   defaultExplorationMusic: {fileID: 0}

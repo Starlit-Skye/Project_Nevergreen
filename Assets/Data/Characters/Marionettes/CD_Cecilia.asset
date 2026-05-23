@@ -22,7 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b70a635b5c1002b4381ab8b25d3776a1, type: 2}
   - {fileID: 11400000, guid: 4d35dd2a003a7b14d9939c4009934aae, type: 2}
   - {fileID: 11400000, guid: 879cd3245685d8f4ba11d5363030e437, type: 2}
-  - {fileID: 11400000, guid: 852f1855491851d4aa2b74ec6aed91c1, type: 2}
+  - {fileID: 11400000, guid: f3edae051e42c6c4c9ab8f1bcc715ebd, type: 2}
   size: 1
   leavesPileOnDeath: 0
   defaultAIProfile: {fileID: 0}
