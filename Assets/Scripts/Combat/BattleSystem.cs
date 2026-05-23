@@ -143,7 +143,7 @@ namespace Nevergreen.Combat
                 CombatStats stats = c.GetEffectiveStats();
                 for (int a = 0; a < c.characterData.actionsPerRound; a++)
                 {
-                    int roll = _rng.Next(1, 5);
+                    int roll = _rng.Next(1, 7);
                     int speedWithRoll = stats.speed + roll;
                     _turnOrder.Add(new TurnEntry(c, speedWithRoll));
                 }
@@ -154,7 +154,7 @@ namespace Nevergreen.Combat
                 CombatStats stats = c.GetEffectiveStats();
                 for (int a = 0; a < c.characterData.actionsPerRound; a++)
                 {
-                    int roll = _rng.Next(1, 5);
+                    int roll = _rng.Next(1, 7);
                     int speedWithRoll = stats.speed + roll;
                     _turnOrder.Add(new TurnEntry(c, speedWithRoll));
                 }
