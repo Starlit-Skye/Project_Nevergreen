@@ -42,6 +42,12 @@ namespace Nevergreen.Tests
             
             // Call StartBattle to initialize internal RNG and teams
             bs.StartBattle(new List<CombatCharacter> { target, guardian }, new List<CombatCharacter> { attacker });
+
+            // Inject a deterministic RNG seed for test predictability
+            var rng = new System.Random(42);
+            typeof(BattleSystem).GetField("_rng", BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(bs, rng);
+
             return bs;
         }
 

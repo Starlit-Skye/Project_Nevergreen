@@ -133,13 +133,19 @@ namespace Nevergreen.Combat
         private void BuildTurnOrder()
         {
             _turnOrder.Clear();
+            if (_rng == null)
+            {
+                _rng = new System.Random();
+            }
 
             foreach (var c in _playerTeam.Where(c => c.IsAlive))
             {
                 CombatStats stats = c.GetEffectiveStats();
                 for (int a = 0; a < c.characterData.actionsPerRound; a++)
                 {
-                    _turnOrder.Add(new TurnEntry(c, stats.speed));
+                    int roll = _rng.Next(1, 5);
+                    int speedWithRoll = stats.speed + roll;
+                    _turnOrder.Add(new TurnEntry(c, speedWithRoll));
                 }
             }
 
@@ -148,7 +154,9 @@ namespace Nevergreen.Combat
                 CombatStats stats = c.GetEffectiveStats();
                 for (int a = 0; a < c.characterData.actionsPerRound; a++)
                 {
-                    _turnOrder.Add(new TurnEntry(c, stats.speed));
+                    int roll = _rng.Next(1, 5);
+                    int speedWithRoll = stats.speed + roll;
+                    _turnOrder.Add(new TurnEntry(c, speedWithRoll));
                 }
             }
 
