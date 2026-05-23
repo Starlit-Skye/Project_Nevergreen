@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SBD_Ceci_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
   attack: 8
-  accuracy: 95
+  accuracy: 100
   critChance: 5
   maxHP: 30
   defense: 5

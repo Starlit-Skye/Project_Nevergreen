@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SBD_Maid_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
   attack: 6
-  accuracy: 95
+  accuracy: 100
   critChance: 3
   maxHP: 17
   defense: 3

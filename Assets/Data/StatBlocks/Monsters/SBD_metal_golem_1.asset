@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SBD_metal_golem_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
   attack: 10
-  accuracy: 90
+  accuracy: 100
   critChance: 5
   maxHP: 35
   defense: 15

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SBD_Knight_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
   attack: 10
-  accuracy: 95
+  accuracy: 100
   critChance: 5
   maxHP: 25
   defense: 6

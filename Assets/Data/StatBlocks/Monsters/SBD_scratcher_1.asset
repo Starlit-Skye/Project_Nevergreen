@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SBD_scratcher_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
   attack: 7
-  accuracy: 90
+  accuracy: 100
   critChance: 5
   maxHP: 24
   defense: 0
