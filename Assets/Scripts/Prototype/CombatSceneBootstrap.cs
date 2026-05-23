@@ -40,11 +40,45 @@ namespace Nevergreen.Prototype
         [Tooltip("Combat UI controller in the scene.")]
         public CombatUI combatUI;
 
+        [Header("Playtesting Variants")]
+        [Tooltip("The ScriptableObject containing enemy configs for battle variants.")]
+        public BattleVariantsConfig variantsConfig;
+
         private List<CombatCharacter> _spawnedPlayerTeam = new List<CombatCharacter>();
         private List<CombatCharacter> _spawnedEnemyTeam = new List<CombatCharacter>();
 
         private void Start()
         {
+            if (variantsConfig != null && variantsConfig.variants != null && variantsConfig.variants.Count > 0)
+            {
+                // Instantiate selection overlay
+                VariantSelectionOverlay.Create(variantsConfig.variants, OnVariantSelected);
+            }
+            else
+            {
+                Debug.LogWarning("[Bootstrap] No BattleVariantsConfig found or configured. Spawning default enemy team.");
+                SpawnTeams();
+                InitializeBattle();
+            }
+        }
+
+        private void OnVariantSelected(int variantIndex)
+        {
+            if (variantsConfig == null || variantsConfig.variants == null || variantIndex < 0 || variantIndex >= variantsConfig.variants.Count)
+            {
+                Debug.LogError($"[Bootstrap] Invalid variant index selected: {variantIndex}");
+                SpawnTeams();
+                InitializeBattle();
+                return;
+            }
+
+            var chosenVariant = variantsConfig.variants[variantIndex];
+            Debug.Log($"[Bootstrap] Selected Battle Variant: {chosenVariant.variantName}");
+
+            // Assign the selected variant's enemy prefabs to the team prefabs list
+            enemyTeamPrefabs = new List<GameObject>(chosenVariant.enemyPrefabs);
+
+            // Spawn the teams and initialize battle
             SpawnTeams();
             InitializeBattle();
         }

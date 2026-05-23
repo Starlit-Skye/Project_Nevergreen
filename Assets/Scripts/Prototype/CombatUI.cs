@@ -24,6 +24,7 @@ namespace Nevergreen.Prototype
         public TextMeshProUGUI statsDisplayText;
         public GameObject battleEndPanel;
         public TextMeshProUGUI battleEndText;
+        public SkillTooltipManager tooltipManager;
 
         [Header("Skill Buttons")]
         public Button[] skillButtons = new Button[4];
@@ -283,6 +284,14 @@ namespace Nevergreen.Prototype
                     skillButtons[i].interactable =
                         actor.CanUseSkillFromRank(skill) && actor.HasRemainingUses(skill);
 
+                    // Setup or update the tooltip trigger component
+                    var trigger = skillButtons[i].gameObject.GetComponent<SkillTooltipTrigger>();
+                    if (trigger == null)
+                    {
+                        trigger = skillButtons[i].gameObject.AddComponent<SkillTooltipTrigger>();
+                    }
+                    trigger.SetSkill(skill, tooltipManager);
+
                     if (skillButtonLabels[i] != null)
                     {
                         string dmgInfo = "";
@@ -297,6 +306,13 @@ namespace Nevergreen.Prototype
                 else
                 {
                     skillButtons[i].interactable = false;
+
+                    var trigger = skillButtons[i].gameObject.GetComponent<SkillTooltipTrigger>();
+                    if (trigger != null)
+                    {
+                        trigger.ClearSkill();
+                    }
+
                     if (skillButtonLabels[i] != null)
                     {
                         skillButtonLabels[i].text = "";
@@ -318,6 +334,11 @@ namespace Nevergreen.Prototype
             }
             if (moveButton != null) moveButton.interactable = false;
             if (passButton != null) passButton.interactable = false;
+
+            if (tooltipManager != null)
+            {
+                tooltipManager.HideTooltip();
+            }
         }
 
         private void OnSkillButtonClicked(int index)

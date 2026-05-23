@@ -324,4 +324,35 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 - Verified in playmode that hover events correctly toggle the tooltip on/off, showing the dynamic skill name and description, and that the tooltip hides automatically when the skill buttons are hidden or disabled.
 
 
+# Playtesting Battle Variants
+
+## Phase 1: Data Structs & ScriptableObject
+- [x] Create `BattleVariantsConfig.cs` in `Assets/Scripts/Data/` <!-- id: 85 -->
+- [x] Define `BattleVariant` class inside `BattleVariantsConfig.cs` with name and list of enemy prefabs <!-- id: 86 -->
+
+## Phase 2: Variant Selection UI
+- [x] Create `VariantSelectionOverlay.cs` in `Assets/Scripts/Prototype/` <!-- id: 87 -->
+- [x] Implement dynamic Canvas-based UI generation in C# with 5 styled buttons <!-- id: 88 -->
+- [x] Set up hover transition colors and click handlers for each button <!-- id: 90 -->
+
+## Phase 3: Bootstrap Integration
+- [x] Modify `CombatSceneBootstrap.cs` to reference `BattleVariantsConfig` <!-- id: 91 -->
+- [x] Update `Start()` to show the selection UI and wait for selection <!-- id: 92 -->
+- [x] Implement selection callback to assign chosen enemy team prefabs and trigger spawning/battle start <!-- id: 93 -->
+- [x] Implement default fallback behavior when no configuration is assigned <!-- id: 94 -->
+
+## Phase 4: Verification
+- [x] Create `BattleVariantTests.cs` under `Assets/Editor/Tests/` to verify dynamic loading and boot sequence <!-- id: 95 -->
+- [x] Run test suite via CLI to ensure zero compilation errors and all tests pass <!-- id: 96 -->
+- [x] Create a default ScriptableObject instance and configure it in the scene for the designer <!-- id: 97 -->
+
+### Review
+- Created `BattleVariantsConfig.cs` ScriptableObject data container to store 5 battle variants of enemy teams.
+- Created `VariantSelectionOverlay.cs` to dynamically construct and style a dark-themed, premium selection Overlay UI with hover/click effects.
+- Modified `CombatSceneBootstrap.cs` to instantiate the selection overlay at startup and wait for designer choice before spawning units and starting combat, with automatic fallback when no configuration is present.
+- Wrote NUnit tests in `BattleVariantTests.cs` covering fallback initialization and selection-based startup, passing all new tests.
+- Automatically generated `BattleVariantsConfig.asset` asset, populated it with 5 starter variants referencing standard monster prefabs, linked it to `CombatSceneBootstrap`, and saved the `CombatPrototype` scene.
+
+
+
 
