@@ -45,7 +45,7 @@ MonoBehaviour:
       data:
         statusType: 1
         targetStat: 5
-        applicationChance: 60
+        applicationChance: 100
         amplitude: 3
         amplitudeType: 0
         duration: 3
