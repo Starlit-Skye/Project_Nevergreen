@@ -14,11 +14,11 @@ namespace Nevergreen.Data
         public int attack = 10;
 
         [Tooltip("Base accuracy percentage.")]
-        [Range(0, 100)]
+        [Range(0, 300)]
         public int accuracy = 95;
 
         [Tooltip("Base critical hit chance percentage.")]
-        [Range(0, 100)]
+        [Range(0, 300)]
         public int critChance = 5;
 
         [Header("Defensive")]
@@ -26,11 +26,11 @@ namespace Nevergreen.Data
         public int maxHP = 50;
 
         [Tooltip("Damage reduction percentage.")]
-        [Range(0, 100)]
+        [Range(0, 300)]
         public int defense = 0;
 
         [Tooltip("Dodge chance percentage.")]
-        [Range(0, 100)]
+        [Range(0, 300)]
         public int dodge = 5;
 
         [Header("Misc")]
@@ -38,10 +38,10 @@ namespace Nevergreen.Data
         public int speed = 5;
 
         [Header("Resistances")]
-        [Range(0, 100)] public int bleedResist = 0;
-        [Range(0, 100)] public int blightResist = 0;
-        [Range(0, 100)] public int stunResist = 0;
-        [Range(0, 100)] public int debuffResist = 0;
-        [Range(0, 100)] public int moveResist = 0;
+        [Range(0, 300)] public int bleedResist = 0;
+        [Range(0, 300)] public int blightResist = 0;
+        [Range(0, 300)] public int stunResist = 0;
+        [Range(0, 300)] public int debuffResist = 0;
+        [Range(0, 300)] public int moveResist = 0;
     }
 }

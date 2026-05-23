@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
   attack: 7
   accuracy: 100
-  critChance: 5
-  maxHP: 24
+  critChance: 10
+  maxHP: 23
   defense: 0
   dodge: 5
   speed: 6
-  bleedResist: 15
-  blightResist: 3
-  stunResist: 2
-  debuffResist: 2
-  moveResist: 2
+  bleedResist: 60
+  blightResist: 10
+  stunResist: 10
+  debuffResist: 0
+  moveResist: 0

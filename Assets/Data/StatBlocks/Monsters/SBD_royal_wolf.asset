@@ -17,10 +17,10 @@ MonoBehaviour:
   critChance: 5
   maxHP: 15
   defense: 0
-  dodge: 5
+  dodge: 0
   speed: 5
-  bleedResist: 5
-  blightResist: 5
-  stunResist: 15
-  debuffResist: 5
-  moveResist: 5
+  bleedResist: 10
+  blightResist: 10
+  stunResist: 60
+  debuffResist: 30
+  moveResist: 0
