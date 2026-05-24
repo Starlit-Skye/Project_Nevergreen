@@ -10,14 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
-  m_Name: Princess
+  m_Name: CD_Princess
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: princess_marionette
   displayName: Princess
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
-  - {fileID: 11400000, guid: 56691a76e0b208d49ad49cf588dd0b7d, type: 2}
+  - {fileID: 11400000, guid: 3b236c93e0882674e950d3c3d9d3411c, type: 2}
   availableSkills:
-  - {fileID: 11400000, guid: 349454b7248e105438e439b9640e06b9, type: 2}
-  - {fileID: 11400000, guid: 3bcc18195b974fd4595ee149d5c721de, type: 2}
+  - {fileID: 11400000, guid: 4b9d4f36c61bc5f4ebbd434400ad0db7, type: 2}
+  - {fileID: 11400000, guid: 8360ec0285922774190a165c5f4ded1e, type: 2}
+  - {fileID: 11400000, guid: 3c49437bf12618a4bad6c31e335b13e9, type: 2}
+  size: 1
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 0}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

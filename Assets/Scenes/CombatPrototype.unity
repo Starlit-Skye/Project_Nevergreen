@@ -1916,12 +1916,9 @@ MonoBehaviour:
   - {fileID: 5883583725795674763, guid: 2a5e61ec308b75245a5f203fd8d3024d, type: 3}
   - {fileID: 8019741578213748396, guid: ae9b42860237dd2459bc97de34b49f84, type: 3}
   - {fileID: 8019741578213748396, guid: c218cb32f0c308744a1718c8aa3592a3, type: 3}
-  - {fileID: 4154088459231646381, guid: 14922d44535635a4dba051a1e90e2e9c, type: 3}
+  - {fileID: 4154088459231646381, guid: 1b65598f9faa0dc48936612d26c648de, type: 3}
   enemyTeamPrefabs:
   - {fileID: 7786762382236842581, guid: f0364bddfb8a4934d803bf493dc45a09, type: 3}
-  - {fileID: 7786762382236842581, guid: 87f25fe2c66db064aa01ca1a5643b9da, type: 3}
-  - {fileID: 7786762382236842581, guid: 65b60fb5da9acc24c8495fd1cfe3e5d0, type: 3}
-  - {fileID: 7786762382236842581, guid: 65b60fb5da9acc24c8495fd1cfe3e5d0, type: 3}
   playerBasePosition: {x: -2.7, y: 0, z: 0}
   playerRankSpacing: -2.2
   enemyBasePosition: {x: 2.7, y: 0, z: 0}

@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: maid_SD_toss_dust
+  m_Name: princess_SD_charm
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: toss_dust
-  displayName: Toss Dust
-  description: Apply Accuracy debuff to enemies
+  skillId: charm
+  displayName: Charm
+  description: High chance to make a target move forward 3
   modifier:
     damagePercent: 0
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 356131228942336006
-  useRanks: 020000000300000004000000
+  - rid: 356131266422636622
+  useRanks: 0300000004000000
   targetRanks: 01000000020000000300000004000000
-  targetScope: 2
+  targetScope: 1
   maxTargets: 1
   ignoresDefense: 0
   ignoresDodge: 0
@@ -36,13 +36,13 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131228942336006
+    - rid: 356131266422636622
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 3
-        targetStat: 2
-        applicationChance: 100
-        amplitude: 10
-        amplitudeType: 2
+        statusType: 9
+        targetStat: 5
+        applicationChance: 140
+        amplitude: -3
+        amplitudeType: 0
         duration: 3
         ignoreMiss: 0

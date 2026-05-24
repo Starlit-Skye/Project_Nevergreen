@@ -252,5 +252,225 @@ namespace Nevergreen.Tests
             // Assert
             Assert.AreEqual(0, target.statusEffects.Count, "Guard should not be applied if the guardian is a Pile.");
         }
+
+        [Test]
+        public void TargetGuardsUserEffect_AppliesGuardToUser()
+        {
+            var effect = new TargetGuardsUserEffect
+            {
+                applicationChance = 100f,
+                duration = 3,
+                ignoreMiss = true
+            };
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            skill.effects.Add(effect);
+
+            var (bs, ctx) = MakeCtx(attacker, target, skill, rng);
+
+            ctx.primaryTarget = target;
+            effect.Execute(ctx, target);
+
+            Assert.AreEqual(1, attacker.statusEffects.Count, "Attacker (user) should be guarded.");
+            Assert.AreEqual(target, attacker.statusEffects[0].Source, "Target should be the guardian.");
+
+            Object.DestroyImmediate(bs.gameObject);
+        }
+
+        [Test]
+        public void ApplyStatusToGuardianEffect_AppliesStatusToGuardian_WhenRedirectionOccurs()
+        {
+            target.AddStatus(new GuardStatusInstance(guardian, 3));
+
+            var effect = new ApplyStatusToGuardianEffect
+            {
+                statusType = StatusType.Bleed,
+                amplitude = 5,
+                duration = 2,
+                applicationChance = 100f,
+                ignoreMiss = true
+            };
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            skill.effects.Add(effect);
+
+            var (bs, ctx) = MakeCtx(attacker, target, skill, rng);
+
+            CombatCharacter effectiveTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
+            Assert.AreEqual(guardian, effectiveTarget, "Redirection should resolve to the guardian.");
+
+            ctx.primaryTarget = effectiveTarget;
+            effect.Execute(ctx, effectiveTarget);
+
+            var bleedStatus = guardian.statusEffects.FirstOrDefault(s => s.type == StatusType.Bleed);
+            Assert.IsNotNull(bleedStatus, "Guardian should have Bleed status.");
+            Assert.AreEqual(5, bleedStatus.amplitude, "Bleed amplitude should match.");
+            Assert.AreEqual(2, bleedStatus.remainingDuration, "Bleed duration should match.");
+
+            Assert.IsFalse(target.statusEffects.Any(s => s.type == StatusType.Bleed), "Target should not have Bleed status.");
+
+            Object.DestroyImmediate(bs.gameObject);
+        }
+
+        [Test]
+        public void ApplyStatusToGuardianEffect_AppliesStatusToGuardian_WhenGuardBypassed()
+        {
+            target.AddStatus(new GuardStatusInstance(guardian, 3));
+
+            var effect = new ApplyStatusToGuardianEffect
+            {
+                statusType = StatusType.Bleed,
+                amplitude = 5,
+                duration = 2,
+                applicationChance = 100f,
+                ignoreMiss = true
+            };
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            skill.bypassGuard = true;
+            skill.effects.Add(effect);
+
+            var (bs, ctx) = MakeCtx(attacker, target, skill, rng);
+
+            CombatCharacter effectiveTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
+            Assert.AreEqual(target, effectiveTarget, "Effective target should be target since guard is bypassed.");
+
+            ctx.primaryTarget = effectiveTarget;
+            effect.Execute(ctx, effectiveTarget);
+
+            var bleedStatus = guardian.statusEffects.FirstOrDefault(s => s.type == StatusType.Bleed);
+            Assert.IsNotNull(bleedStatus, "Guardian should have Bleed status.");
+            Assert.AreEqual(5, bleedStatus.amplitude);
+
+            Assert.IsFalse(target.statusEffects.Any(s => s.type == StatusType.Bleed), "Target should not have Bleed status.");
+
+            Object.DestroyImmediate(bs.gameObject);
+        }
+
+        [Test]
+        public void ApplyStatusToGuardianEffect_DoesNothing_WhenTargetNotGuarded()
+        {
+            var effect = new ApplyStatusToGuardianEffect
+            {
+                statusType = StatusType.Bleed,
+                amplitude = 5,
+                duration = 2,
+                applicationChance = 100f,
+                ignoreMiss = true
+            };
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            skill.effects.Add(effect);
+
+            var (bs, ctx) = MakeCtx(attacker, target, skill, rng);
+
+            CombatCharacter effectiveTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
+            ctx.primaryTarget = effectiveTarget;
+            effect.Execute(ctx, effectiveTarget);
+
+            Assert.IsFalse(target.statusEffects.Any(s => s.type == StatusType.Bleed));
+            Assert.IsFalse(guardian.statusEffects.Any(s => s.type == StatusType.Bleed));
+
+            Object.DestroyImmediate(bs.gameObject);
+        }
+
+        [Test]
+        public void ApplyStatusToGuardianEffect_AppliesStatusToGuardian_WhenTargetIsSelfAndGuarded()
+        {
+            target.AddStatus(new GuardStatusInstance(guardian, 3));
+
+            var effect = new ApplyStatusToGuardianEffect
+            {
+                statusType = StatusType.Buff,
+                targetStat = StatTarget.Defense,
+                amplitude = 20,
+                duration = 3,
+                applicationChance = 100f,
+                ignoreMiss = true
+            };
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            skill.targetScope = TargetScope.Self;
+            skill.effects.Add(effect);
+
+            var (bs, ctx) = MakeCtx(target, target, skill, rng);
+
+            CombatCharacter effectiveTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
+            Assert.AreEqual(target, effectiveTarget, "Should NOT redirect self-targeted skill.");
+
+            ctx.primaryTarget = effectiveTarget;
+            effect.Execute(ctx, effectiveTarget);
+
+            var buffStatus = guardian.statusEffects.FirstOrDefault(s => s.type == StatusType.Buff);
+            Assert.IsNotNull(buffStatus, "Guardian should have Buff status.");
+            Assert.AreEqual(20, buffStatus.amplitude);
+            Assert.AreEqual(StatTarget.Defense, buffStatus.targetStat);
+
+            Assert.IsFalse(target.statusEffects.Any(s => s.type == StatusType.Buff), "Target should not have Buff status.");
+
+            Object.DestroyImmediate(bs.gameObject);
+        }
+
+        [Test]
+        public void HealGuardianEffect_HealsGuardian_WhenTargetIsSelfAndGuarded()
+        {
+            guardian.TakeDamage(50);
+            Assert.AreEqual(50, guardian.currentHP);
+            target.AddStatus(new GuardStatusInstance(guardian, 3));
+
+            var effect = new HealGuardianEffect { ignoreMiss = true };
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.skillId = "test_heal_guardian";
+            skill.modifier = new SkillModifier
+            {
+                damagePercent = 0f,
+                healPercent = 0.5f
+            };
+            skill.targetScope = TargetScope.Self;
+            skill.effects.Add(effect);
+
+            var (bs, ctx) = MakeCtx(target, target, skill, rng);
+
+            CombatCharacter effectiveTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
+            Assert.AreEqual(target, effectiveTarget);
+
+            ctx.primaryTarget = effectiveTarget;
+            effect.Execute(ctx, effectiveTarget);
+
+            Assert.Greater(guardian.currentHP, 50, "Guardian should be healed.");
+            Assert.AreEqual(50, target.currentHP, "Target (user) should not be healed.");
+
+            Object.DestroyImmediate(bs.gameObject);
+        }
+
+        [Test]
+        public void HealGuardianEffect_DoesNothing_WhenTargetNotGuarded()
+        {
+            guardian.TakeDamage(50);
+            Assert.AreEqual(50, guardian.currentHP);
+
+            var effect = new HealGuardianEffect { ignoreMiss = true };
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.skillId = "test_heal_guardian";
+            skill.modifier = new SkillModifier
+            {
+                damagePercent = 0f,
+                healPercent = 0.5f
+            };
+            skill.targetScope = TargetScope.Self;
+            skill.effects.Add(effect);
+
+            var (bs, ctx) = MakeCtx(target, target, skill, rng);
+
+            CombatCharacter effectiveTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
+            ctx.primaryTarget = effectiveTarget;
+            effect.Execute(ctx, effectiveTarget);
+
+            Assert.AreEqual(50, guardian.currentHP, "Guardian should not be healed if target is not guarded.");
+
+            Object.DestroyImmediate(bs.gameObject);
+        }
     }
 }
