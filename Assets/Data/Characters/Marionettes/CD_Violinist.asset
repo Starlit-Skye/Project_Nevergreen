@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_Violinist
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: violinist_marionette
+  displayName: Violinist
+  teamType: 0
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: b4a16037c65a6304c868482217e9f39c, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: b70a635b5c1002b4381ab8b25d3776a1, type: 2}
+  - {fileID: 11400000, guid: 4d35dd2a003a7b14d9939c4009934aae, type: 2}
+  - {fileID: 11400000, guid: 879cd3245685d8f4ba11d5363030e437, type: 2}
+  - {fileID: 11400000, guid: 852f1855491851d4aa2b74ec6aed91c1, type: 2}
+  size: 1
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 0}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

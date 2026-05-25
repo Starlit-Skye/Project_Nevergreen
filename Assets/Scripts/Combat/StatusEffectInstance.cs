@@ -56,5 +56,9 @@ namespace Nevergreen.Combat
         public virtual void OnRemoved()
         {
         }
+
+        public virtual void OnSkillExecute(SkillContext ctx)
+        {
+        }
     }
 }

@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: princess_SD_graceful_presence
+  m_Name: violinist_SD_rousing_cresendo
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: graceful_presense
-  displayName: Graceful Presense
-  description: Apply speed and crit buff to all allies
+  skillId: rousing_cresendo
+  displayName: Rousing Cresendo
+  description: Give an ally Attack and Crit Rate buff
   modifier:
     damagePercent: 0
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 356131266422636621
-  - rid: 356131266422636628
-  useRanks: 0300000004000000
-  targetRanks: 01000000
+  - rid: 356131294886494289
+  - rid: 356131294886494291
+  useRanks: 0200000003000000
+  targetRanks: 01000000020000000300000004000000
   targetScope: 1
-  maxTargets: 4
+  maxTargets: 1
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -37,22 +37,22 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131266422636621
+    - rid: 356131294886494289
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
         statusType: 5
-        targetStat: 5
+        targetStat: 0
         applicationChance: 300
-        amplitude: 2
-        amplitudeType: 2
+        amplitude: 20
+        amplitudeType: 1
         duration: 3
         ignoreMiss: 1
-    - rid: 356131266422636628
+    - rid: 356131294886494291
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
         statusType: 5
         targetStat: 4
-        applicationChance: 100
+        applicationChance: 300
         amplitude: 10
         amplitudeType: 2
         duration: 3

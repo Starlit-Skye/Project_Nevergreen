@@ -485,6 +485,15 @@ namespace Nevergreen.Combat
 
             var ctx = new SkillContext(user, skill, targets, this, _rng);
 
+            // Allow statuses to modify the skill context
+            foreach (var status in user.statusEffects.ToList())
+            {
+                if (!status.IsExpired)
+                {
+                    status.OnSkillExecute(ctx);
+                }
+            }
+
             Debug.Log($"[BattleSystem] {user.DisplayName} uses {skill.displayName}" +
                       $" on {string.Join(", ", targets.Select(t => t.DisplayName))}");
 

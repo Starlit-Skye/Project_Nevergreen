@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: princess_SD_graceful_presence
+  m_Name: violinist_SD_yield_the_spotlight
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: graceful_presense
-  displayName: Graceful Presense
-  description: Apply speed and crit buff to all allies
+  skillId: yield_the_spotlight
+  displayName: Yield The Spotlight
+  description: Move self back 1. The next Steal The Show deals double damage.
   modifier:
     damagePercent: 0
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 356131266422636621
-  - rid: 356131266422636628
-  useRanks: 0300000004000000
-  targetRanks: 01000000
-  targetScope: 1
-  maxTargets: 4
+  - rid: 356131294886494289
+  - rid: 356131297168195661
+  useRanks: 0200000003000000
+  targetRanks: 01000000020000000300000004000000
+  targetScope: 0
+  maxTargets: 1
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -37,23 +37,19 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131266422636621
+    - rid: 356131294886494289
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 5
-        targetStat: 5
+        statusType: 9
+        targetStat: 0
         applicationChance: 300
-        amplitude: 2
-        amplitudeType: 2
-        duration: 3
+        amplitude: 1
+        amplitudeType: 0
+        duration: 1
         ignoreMiss: 1
-    - rid: 356131266422636628
-      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+    - rid: 356131297168195661
+      type: {class: ApplySkillBoostEffect, ns: Nevergreen.Combat.Effects, asm: Assembly-CSharp}
       data:
-        statusType: 5
-        targetStat: 4
-        applicationChance: 100
-        amplitude: 10
-        amplitudeType: 2
-        duration: 3
-        ignoreMiss: 1
+        targetSkill: {fileID: 11400000, guid: cae43d2f17df37f4296c5713333dadc3, type: 2}
+        amplitude: 100
+        duration: 5
