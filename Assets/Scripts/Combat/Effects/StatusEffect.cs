@@ -62,6 +62,11 @@ namespace Nevergreen.Combat
                     instance = new StealthStatusInstance(duration);
                     instance.Source = context.user;
                 }
+                else if (statusType == StatusType.Shuffle)
+                {
+                    instance = new ShuffleStatusInstance(context.battleSystem, context.rng);
+                    instance.Source = context.user;
+                }
                 else
                 {
                     instance = new StatusEffectInstance(statusType, targetStat, amplitude, duration, amplitudeType);

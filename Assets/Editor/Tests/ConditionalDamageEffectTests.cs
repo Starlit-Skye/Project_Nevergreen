@@ -216,5 +216,74 @@ namespace Nevergreen.Tests
             int damage = 200 - target.currentHP;
             Assert.AreEqual(107, damage, "Damage should match base scaling (107) since Bleed is not Mark");
         }
+
+        [Test]
+        public void Execute_SelfHasStatus_IncreasesScalingAndDealsDamage()
+        {
+            var user = CreateTestCharacter("User", true, attack: 100);
+            var target = CreateTestCharacter("Target", false, maxHP: 200);
+
+            // Add the specified status to USER, not target
+            var markStatus = new StatusEffectInstance(StatusType.Mark, StatTarget.Dodge, 0, 3);
+            user.AddStatus(markStatus);
+
+            var skill = CombatTestHelper.CreateDamageSkill(damagePercent: 1.0f);
+            var ctx = new SkillContext(user, skill, new List<CombatCharacter> { target }, _battleSystem, CombatTestHelper.CreateFixedRng(42));
+            ctx.didHit = true;
+            ctx.hasResolvedHit = true;
+
+            var effect = new ConditionalDamageEffect
+            {
+                conditionSource = ConditionSource.Self,
+                requiredStatus = StatusType.Mark,
+                bonusScaling = 0.5f
+            };
+
+            effect.Execute(ctx, target);
+
+            int damageBoosted = 200 - target.currentHP;
+
+            // Control case (no status on user)
+            var userControl = CreateTestCharacter("UserControl", true, attack: 100);
+            var targetControl = CreateTestCharacter("TargetControl", false, maxHP: 200);
+            var ctxControl = new SkillContext(userControl, skill, new List<CombatCharacter> { targetControl }, _battleSystem, CombatTestHelper.CreateFixedRng(42));
+            ctxControl.didHit = true;
+            ctxControl.hasResolvedHit = true;
+
+            effect.Execute(ctxControl, targetControl);
+            int damageControl = 200 - targetControl.currentHP;
+
+            Assert.IsTrue(damageBoosted > damageControl, $"Boosted damage ({damageBoosted}) should be higher than control damage ({damageControl})");
+            float ratio = (float)damageBoosted / damageControl;
+            Assert.AreEqual(1.5f, ratio, 0.01f, "Damage ratio should match scaling ratio (1.5 / 1.0 = 1.5)");
+        }
+
+        [Test]
+        public void Execute_SelfDoesNotHaveStatus_DealsBaseDamage()
+        {
+            var user = CreateTestCharacter("User", true, attack: 100);
+            var target = CreateTestCharacter("Target", false, maxHP: 200);
+
+            // Add status to target, but since conditionSource is Self, it shouldn't trigger
+            var markStatus = new StatusEffectInstance(StatusType.Mark, StatTarget.Dodge, 0, 3);
+            target.AddStatus(markStatus);
+
+            var skill = CombatTestHelper.CreateDamageSkill(damagePercent: 1.0f);
+            var ctx = new SkillContext(user, skill, new List<CombatCharacter> { target }, _battleSystem, CombatTestHelper.CreateFixedRng(42));
+            ctx.didHit = true;
+            ctx.hasResolvedHit = true;
+
+            var effect = new ConditionalDamageEffect
+            {
+                conditionSource = ConditionSource.Self,
+                requiredStatus = StatusType.Mark,
+                bonusScaling = 0.5f
+            };
+
+            effect.Execute(ctx, target);
+
+            int damage = 200 - target.currentHP;
+            Assert.AreEqual(107, damage, "Damage should match base scaling (107) since user has no Mark status");
+        }
     }
 }

@@ -110,7 +110,8 @@ namespace Nevergreen.Data
         Riposte,
         Restore,
         Move,
-        Stealth
+        Stealth,
+        Shuffle
     }
 
     /// <summary>

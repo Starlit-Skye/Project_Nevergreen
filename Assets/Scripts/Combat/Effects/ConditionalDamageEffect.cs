@@ -4,14 +4,23 @@ using UnityEngine;
 
 namespace Nevergreen.Combat
 {
+    public enum ConditionSource
+    {
+        Target,
+        Self
+    }
+
     /// <summary>
-    /// Evaluates if an attack hits. Checks if the target has a specified status effect.
+    /// Evaluates if an attack hits. Checks if the target (or self) has a specified status effect.
     /// If they do, increases the skill's damage scaling (skillScaling) in the context by a designer-specified amount.
     /// After increasing the scaling, calculates and deals the damage, and then restores the original scaling.
     /// </summary>
     [Serializable]
     public class ConditionalDamageEffect : ISkillEffect
     {
+        [Tooltip("Who should be checked for the required status.")]
+        public ConditionSource conditionSource = ConditionSource.Target;
+
         [Tooltip("The status type required to trigger the scaling boost.")]
         public StatusType requiredStatus = StatusType.Mark;
 
@@ -26,11 +35,12 @@ namespace Nevergreen.Combat
 
             if (didHit)
             {
-                // Check if target has the specified status effect and it is active (not expired)
+                // Check if the specified character (target or user) has the status effect and it is active (not expired)
                 bool hasStatus = false;
-                if (target != null && target.statusEffects != null)
+                CombatCharacter checkCharacter = (conditionSource == ConditionSource.Self) ? context.user : target;
+                if (checkCharacter != null && checkCharacter.statusEffects != null)
                 {
-                    foreach (var status in target.statusEffects)
+                    foreach (var status in checkCharacter.statusEffects)
                     {
                         if (status.type == requiredStatus && !status.IsExpired)
                         {

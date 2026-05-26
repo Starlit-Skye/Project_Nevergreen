@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_Assassin
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: assassin_marionette
+  displayName: Assassin
+  teamType: 0
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: 83c80baddee4ed1468f6c0a2877625e8, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: ca0ca5a789bd3d84c8df7452afd6655e, type: 2}
+  - {fileID: 11400000, guid: 6089dd93aec035d48a78287073e5a5e9, type: 2}
+  - {fileID: 11400000, guid: 6274202b4a0903e4389a38da8e83ad69, type: 2}
+  - {fileID: 11400000, guid: 165b41d6b3f511b4daed80f5bb347d05, type: 2}
+  size: 1
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 0}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}
