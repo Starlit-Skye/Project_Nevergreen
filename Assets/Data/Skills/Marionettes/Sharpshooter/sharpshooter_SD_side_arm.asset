@@ -10,22 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: violinist_SD_steal_the_show
+  m_Name: sharpshooter_SD_side_arm
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: steal_the_show
-  displayName: Steal The Show
-  description: Back most rank only. Deal damage to 1 enemy, once per battle, move
-    self to front.
+  skillId: side_arm
+  displayName: Side Arm
+  description: Low damage and low accuracy. Move self back 1
   modifier:
-    damagePercent: 1.5
+    damagePercent: 60
     healPercent: 0
-    accuracyMod: 0
-    criticalMod: 5
+    accuracyMod: -10
+    criticalMod: 0
   effects:
-  - rid: 356131297168195662
-  - rid: 356131297168195664
-  useRanks: 04000000
-  targetRanks: 01000000020000000300000004000000
+  - rid: 356131309606142045
+  - rid: 356131309606142044
+  useRanks: 0100000002000000
+  targetRanks: 01000000
   targetScope: 2
   maxTargets: 1
   ignoresDefense: 0
@@ -34,21 +33,21 @@ MonoBehaviour:
   bypassGuard: 0
   ignoresStealth: 0
   hitCount: 1
-  maxUsesPerBattle: 1
+  maxUsesPerBattle: -1
   sfx: {fileID: 0}
   references:
     version: 2
     RefIds:
-    - rid: 356131297168195662
-      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data: 
-    - rid: 356131297168195664
+    - rid: 356131309606142044
       type: {class: SelfStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
         statusType: 9
-        targetStat: 5
+        targetStat: 2
         applicationChance: 100
-        amplitude: -3
+        amplitude: 1
         amplitudeType: 0
         duration: 1
         ignoreMiss: 1
+    - rid: 356131309606142045
+      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 

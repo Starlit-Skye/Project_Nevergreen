@@ -10,24 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: violinist_SD_steal_the_show
+  m_Name: sharpshooter_SD_perfect_alignment
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: steal_the_show
-  displayName: Steal The Show
-  description: Back most rank only. Deal damage to 1 enemy, once per battle, move
-    self to front.
+  skillId: perfect_alignment
+  displayName: Perfect Alignment
+  description: Once per battle. Last rank only. Reduced accuracy, high damage, hits
+    all enemies.
   modifier:
-    damagePercent: 1.5
+    damagePercent: 1.3
     healPercent: 0
-    accuracyMod: 0
+    accuracyMod: -30
     criticalMod: 5
   effects:
-  - rid: 356131297168195662
-  - rid: 356131297168195664
+  - rid: 356131309606142051
   useRanks: 04000000
-  targetRanks: 01000000020000000300000004000000
+  targetRanks: 01000000
   targetScope: 2
-  maxTargets: 1
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -39,16 +38,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131297168195662
+    - rid: 356131309606142051
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 
-    - rid: 356131297168195664
-      type: {class: SelfStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
-        statusType: 9
-        targetStat: 5
-        applicationChance: 100
-        amplitude: -3
-        amplitudeType: 0
-        duration: 1
-        ignoreMiss: 1

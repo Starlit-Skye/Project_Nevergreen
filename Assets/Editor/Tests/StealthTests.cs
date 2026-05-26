@@ -210,5 +210,65 @@ namespace Nevergreen.Tests
 
             Assert.IsFalse(enemy.IsStealthed, "Enemy stealth should expire when the duration ticks down to 0.");
         }
+
+        [Test]
+        public void RemoveStealthEffect_RemovesStealthOnHit()
+        {
+            var bs = MakeBattleSystem();
+
+            // Apply stealth to enemy
+            enemy.AddStatus(new StealthStatusInstance(3));
+            Assert.IsTrue(enemy.IsStealthed, "Enemy should be stealthed.");
+
+            // Create skill with RemoveStealthEffect
+            var skill = CombatTestHelper.CreateDamageSkill();
+            skill.targetScope = TargetScope.Enemies;
+            skill.ignoresStealth = true; // allow direct targeting for test execution
+            skill.effects.Add(new RemoveStealthEffect());
+
+            // Execute skill
+            CallExecuteSkill(bs, player, skill, new List<CombatCharacter> { enemy });
+
+            // Assert enemy stealth was removed
+            Assert.IsFalse(enemy.IsStealthed, "Enemy should no longer be stealthed after being hit by a skill with RemoveStealthEffect.");
+
+            Object.DestroyImmediate(bs.gameObject);
+        }
+
+        [Test]
+        public void RemoveStealthEffect_DoesNotRemoveStealthOnMiss()
+        {
+            var bs = MakeBattleSystem();
+
+            // Apply stealth to enemy
+            enemy.AddStatus(new StealthStatusInstance(3));
+            Assert.IsTrue(enemy.IsStealthed, "Enemy should be stealthed.");
+
+            // Create skill with RemoveStealthEffect that does not ignore miss
+            var skill = CombatTestHelper.CreateDamageSkill();
+            skill.targetScope = TargetScope.Enemies;
+            skill.ignoresStealth = true;
+            
+            // Set stats to guarantee a miss
+            skill.modifier.accuracyMod = -1000f;
+            skill.guaranteedHit = false;
+
+            var removeStealthEffect = new RemoveStealthEffect();
+            removeStealthEffect.ignoreMiss = false;
+            skill.effects.Add(removeStealthEffect);
+
+            // Execute skill
+            CallExecuteSkill(bs, player, skill, new List<CombatCharacter> { enemy });
+
+            // Assert enemy stealth was NOT removed because it missed
+            Assert.IsTrue(enemy.IsStealthed, "Enemy should remain stealthed when the skill misses and ignoreMiss is false.");
+
+            // Now test with ignoreMiss = true
+            removeStealthEffect.ignoreMiss = true;
+            CallExecuteSkill(bs, player, skill, new List<CombatCharacter> { enemy });
+            Assert.IsFalse(enemy.IsStealthed, "Enemy stealth should be removed when ignoreMiss is true, even on a miss.");
+
+            Object.DestroyImmediate(bs.gameObject);
+        }
     }
 }

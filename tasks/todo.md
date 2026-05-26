@@ -558,3 +558,24 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 ## Phase 3: Verification
 - [ ] Implement `StealthTests.cs` unit tests <!-- id: 99 -->
 - [ ] Verify all EditMode tests compile and pass successfully <!-- id: 100 -->
+
+
+# Conditional Damage Skill Effect Strategy
+
+## Phase 1: Planning & Specification
+- [x] Create mechanic specification document `Docs/specs/mechanics/MECHANIC_SPEC_CONDITIONAL_DAMAGE_EFFECT.md` <!-- id: 101 -->
+- [x] Present and verify implementation plan with the user <!-- id: 102 -->
+
+## Phase 2: Implementation
+- [ ] Create `ConditionalDamageEffect.cs` in `Assets/Scripts/Combat/Effects/` implementing `ISkillEffect` <!-- id: 103 -->
+- [ ] Implement target status effect checking and conditional damage percent scaling logic <!-- id: 104 -->
+- [ ] Integrate standard accuracy, crit, and defense resolution (reusing CombatCalculator/DamageEffect logic) <!-- id: 105 -->
+- [ ] Ensure scaling modifications are properly reset after execution to avoid lingering side effects <!-- id: 106 -->
+
+## Phase 3: Verification
+- [ ] Implement unit tests verifying:
+  - Base damage applied when the target does not have the specified status.
+  - Increased scaling and damage applied when the target has the specified status.
+  - Independent calculation per target (e.g. in multi-target/AOE situations).
+  - Accuracy miss resulting in no damage.
+- [ ] Run EditMode tests and verify all tests pass successfully <!-- id: 107 -->
