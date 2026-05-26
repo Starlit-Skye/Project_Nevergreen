@@ -15,8 +15,12 @@ MonoBehaviour:
   attackRollMin: 0.8
   attackRollMax: 1.2
   accuracyCap: 95
+  defenseCap: 95
+  dodgeCap: 95
   critDamageMultiplier: 1.5
   stunRecoveryResistBonus: 300
+  speedRollMin: 1
+  speedRollMax: 6
   maxPartySize: 4
   rankCount: 4
   globalMaxLevel: 10

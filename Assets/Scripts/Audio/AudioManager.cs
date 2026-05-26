@@ -53,6 +53,7 @@ namespace Nevergreen.Audio
             if (_musicRoutine != null) StopCoroutine(_musicRoutine);
             if (_crossfadeRoutine != null) StopCoroutine(_crossfadeRoutine);
             
+            SwapSourcesAndPlay(clip);
             _musicRoutine = StartCoroutine(MusicLoopRoutine(clip, duration));
         }
 
@@ -68,13 +69,26 @@ namespace Nevergreen.Audio
             StartCoroutine(FadeOutSource(_bgmSourceFade, fadeDuration));
         }
 
+        private void SwapSourcesAndPlay(AudioClip newClip)
+        {
+            // Swap sources
+            AudioSource oldSource = _bgmSourceMain;
+            _bgmSourceMain = _bgmSourceFade;
+            _bgmSourceFade = oldSource;
+
+            _bgmSourceMain.clip = newClip;
+            _bgmSourceMain.volume = 0f;
+            _bgmSourceMain.loop = false; // We handle looping manually with fades
+            _bgmSourceMain.Play();
+        }
+
         private IEnumerator MusicLoopRoutine(AudioClip clip, float fadeDuration)
         {
+            // Start volume crossfade for the initial transition (don't yield)
+            _crossfadeRoutine = StartCoroutine(LerpVolumeRoutine(fadeDuration));
+
             while (true)
             {
-                // Start crossfade (don't yield)
-                _crossfadeRoutine = StartCoroutine(CrossfadeRoutine(clip, fadeDuration));
-
                 // Wait until the source is playing and we are before the crossfade point
                 // (We need to wait for it to actually start playing to get valid time)
                 yield return new WaitUntil(() => _bgmSourceMain.isPlaying);
@@ -86,21 +100,15 @@ namespace Nevergreen.Audio
                 {
                     yield return null;
                 }
+
+                // Swap sources and start crossfade for the next loop (don't yield)
+                SwapSourcesAndPlay(clip);
+                _crossfadeRoutine = StartCoroutine(LerpVolumeRoutine(fadeDuration));
             }
         }
 
-        private IEnumerator CrossfadeRoutine(AudioClip newClip, float duration)
+        private IEnumerator LerpVolumeRoutine(float duration)
         {
-            // Swap sources
-            AudioSource oldSource = _bgmSourceMain;
-            _bgmSourceMain = _bgmSourceFade;
-            _bgmSourceFade = oldSource;
-
-            _bgmSourceMain.clip = newClip;
-            _bgmSourceMain.volume = 0f;
-            _bgmSourceMain.loop = false; // We handle looping manually with fades
-            _bgmSourceMain.Play();
-
             float elapsed = 0f;
             float startOldVol = _bgmSourceFade.volume;
 

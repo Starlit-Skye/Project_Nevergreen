@@ -140,10 +140,17 @@ namespace Nevergreen.Tests
             // 2. Transition to "Battle"
             _audioManager.TransitionToBGM(clipB, 1.0f);
 
+            // Get current active sources via reflection
+            var type = typeof(AudioManager);
+            var bgmSourceMain = (AudioSource)type.GetField("_bgmSourceMain", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .GetValue(_audioManager);
+            var bgmSourceFade = (AudioSource)type.GetField("_bgmSourceFade", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .GetValue(_audioManager);
+
             // 3. Verify references swapped (Main should now be the target Battle clip)
-            Assert.AreEqual(clipB, _sourceMain.clip, "Main source should be assigned the new Battle track.");
-            Assert.AreEqual(clipA, _sourceFade.clip, "Old Exploration track should be moved to the Fade source.");
-            Assert.AreEqual(0f, _sourceMain.volume, "New track should start at 0 volume for fade-in.");
+            Assert.AreEqual(clipB, bgmSourceMain.clip, "Main source should be assigned the new Battle track.");
+            Assert.AreEqual(clipA, bgmSourceFade.clip, "Old Exploration track should be moved to the Fade source.");
+            Assert.AreEqual(0f, bgmSourceMain.volume, "New track should start at 0 volume for fade-in.");
 
             Object.DestroyImmediate(clipA);
             Object.DestroyImmediate(clipB);
@@ -162,7 +169,11 @@ namespace Nevergreen.Tests
                 _audioManager.TransitionToBGM(clipC, 1.0f);
             });
 
-            Assert.AreEqual(clipC, _sourceMain.clip, "The final call should be the one that sticks.");
+            var type = typeof(AudioManager);
+            var bgmSourceMain = (AudioSource)type.GetField("_bgmSourceMain", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .GetValue(_audioManager);
+
+            Assert.AreEqual(clipC, bgmSourceMain.clip, "The final call should be the one that sticks.");
 
             Object.DestroyImmediate(clipA);
             Object.DestroyImmediate(clipB);

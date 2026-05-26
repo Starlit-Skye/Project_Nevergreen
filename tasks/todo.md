@@ -541,3 +541,20 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 ## Phase 2: Verification
 - [/] Implement unit tests in `TurnOrderTests.cs` to verify randomized speed calculation and correct sorting <!-- id: 90 -->
 - [ ] Run EditMode tests to verify all tests pass successfully <!-- id: 91 -->
+
+# Stealth Status Effect
+
+## Phase 1: Planning
+- [x] Create implementation plan for Stealth status effect <!-- id: 92 -->
+- [ ] Receive user review and approval on implementation plan <!-- id: 93 -->
+
+## Phase 2: Core Implementation
+- [ ] Add Stealth to `StatusType` enum in `SkillData.cs` and add `ignoresStealth` field <!-- id: 94 -->
+- [ ] Implement `IsStealthed` helper property and damage-breaking logic in `CombatCharacter.cs` <!-- id: 95 -->
+- [ ] Implement `StealthStatusInstance` subclassing `StatusEffectInstance` <!-- id: 96 -->
+- [ ] Update status effect instantiation in effects strategies (`StatusEffect.cs`, `SelfStatusEffect.cs`, `AdjacentAllyStatusEffect.cs`, `ApplyStatusToGuardianEffect.cs`) <!-- id: 97 -->
+- [ ] Refactor target filtering in `BattleSystem.GetValidTargets()` <!-- id: 98 -->
+
+## Phase 3: Verification
+- [ ] Implement `StealthTests.cs` unit tests <!-- id: 99 -->
+- [ ] Verify all EditMode tests compile and pass successfully <!-- id: 100 -->

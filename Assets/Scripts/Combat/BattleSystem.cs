@@ -127,9 +127,6 @@ namespace Nevergreen.Combat
             yield return null;
         }
 
-        /// <summary>
-        /// Build turn order by Speed. Ties: enemies before players, then front rank first.
-        /// </summary>
         private void BuildTurnOrder()
         {
             _turnOrder.Clear();
@@ -138,12 +135,15 @@ namespace Nevergreen.Combat
                 _rng = new System.Random();
             }
 
+            int minRoll = combatConfig != null ? combatConfig.speedRollMin : 1;
+            int maxRoll = combatConfig != null ? combatConfig.speedRollMax : 4;
+
             foreach (var c in _playerTeam.Where(c => c.IsAlive))
             {
                 CombatStats stats = c.GetEffectiveStats();
                 for (int a = 0; a < c.characterData.actionsPerRound; a++)
                 {
-                    int roll = _rng.Next(1, 7);
+                    int roll = _rng.Next(minRoll, maxRoll + 1);
                     int speedWithRoll = stats.speed + roll;
                     _turnOrder.Add(new TurnEntry(c, speedWithRoll));
                 }
@@ -154,7 +154,7 @@ namespace Nevergreen.Combat
                 CombatStats stats = c.GetEffectiveStats();
                 for (int a = 0; a < c.characterData.actionsPerRound; a++)
                 {
-                    int roll = _rng.Next(1, 7);
+                    int roll = _rng.Next(minRoll, maxRoll + 1);
                     int speedWithRoll = stats.speed + roll;
                     _turnOrder.Add(new TurnEntry(c, speedWithRoll));
                 }
@@ -654,7 +654,16 @@ namespace Nevergreen.Combat
             bool isHealingSkill = skill.effects.Any(e => e is HealEffect);
 
             return pool
-                .Where(c => (c.IsAlive || (c.IsPile && !isHealingSkill)) && c.OccupiedRanks.Intersect(skill.targetRanks).Any())
+                .Where(c => 
+                {
+                    if (!c.IsAlive && !(c.IsPile && !isHealingSkill))
+                        return false;
+                    if (!c.OccupiedRanks.Intersect(skill.targetRanks).Any())
+                        return false;
+                    if (skill.targetScope == TargetScope.Enemies && c.IsStealthed && !skill.ignoresStealth)
+                        return false;
+                    return true;
+                })
                 .ToList();
         }
 

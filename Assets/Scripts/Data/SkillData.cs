@@ -59,6 +59,9 @@ namespace Nevergreen.Data
         [Tooltip("If true, this skill bypasses guard.")]
         public bool bypassGuard = false;
 
+        [Tooltip("If true, this skill bypasses Stealth status on target.")]
+        public bool ignoresStealth = false;
+
         [Header("Multi-Hit")]
         [Tooltip("Number of hits this skill performs. Default 1.")]
         [Min(1)]
@@ -106,7 +109,8 @@ namespace Nevergreen.Data
         Guard,
         Riposte,
         Restore,
-        Move
+        Move,
+        Stealth
     }
 
     /// <summary>

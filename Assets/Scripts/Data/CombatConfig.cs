@@ -37,6 +37,13 @@ namespace Nevergreen.Data
         [Tooltip("Stun resistance bonus after stun expires (GDD: +300%).")]
         public int stunRecoveryResistBonus = 300;
 
+        [Header("Speed Roll")]
+        [Tooltip("Minimum random speed bonus roll (inclusive).")]
+        public int speedRollMin = 1;
+
+        [Tooltip("Maximum random speed bonus roll (inclusive).")]
+        public int speedRollMax = 4;
+
         [Header("Team")]
         [Tooltip("Maximum party size per team (GDD: 4).")]
         [Range(1, 4)]

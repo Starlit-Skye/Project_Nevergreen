@@ -68,6 +68,7 @@ namespace Nevergreen.Combat
         public bool IsAlive => state == LifeState.Alive;
         public bool IsPile => state == LifeState.Pile;
         public bool IsPlayerTeam => team == Team.Player;
+        public bool IsStealthed => statusEffects.Any(s => s.type == StatusType.Stealth && !s.IsExpired);
 
         /// <summary>
         /// Returns all ranks this character currently occupies, based on anchor rank and size.

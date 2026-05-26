@@ -67,6 +67,41 @@ namespace Nevergreen.Tests
         }
 
         [Test]
+        public void BuildTurnOrder_UsesCustomCombatConfigRollLimits()
+        {
+            // Arrange
+            var charA = CombatTestHelper.CreateCombatCharacter("charA", Team.Player, 1, speed: 5);
+            _playerTeam.Add(charA);
+
+            var config = ScriptableObject.CreateInstance<CombatConfig>();
+            config.speedRollMin = 5;
+            config.speedRollMax = 10;
+            _battleSystem.combatConfig = config;
+
+            var rng = new System.Random(12345);
+            typeof(BattleSystem).GetField("_rng", BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(_battleSystem, rng);
+
+            // Act & Assert
+            MethodInfo buildTurnOrder = typeof(BattleSystem).GetMethod("BuildTurnOrder", BindingFlags.NonPublic | BindingFlags.Instance);
+            var turnOrderField = typeof(BattleSystem).GetField("_turnOrder", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            for (int i = 0; i < 50; i++)
+            {
+                buildTurnOrder.Invoke(_battleSystem, null);
+                var turnOrder = (List<TurnEntry>)turnOrderField.GetValue(_battleSystem);
+
+                Assert.AreEqual(1, turnOrder.Count);
+                int speed = turnOrder[0].speed;
+                int boost = speed - 5;
+                Assert.IsTrue(boost >= 5 && boost <= 10, $"Boost {boost} should be between 5 and 10 inclusive.");
+            }
+
+            // Cleanup
+            ScriptableObject.DestroyImmediate(config);
+        }
+
+        [Test]
         public void BuildTurnOrder_MultipleActionsPerRound_RollsIndependentSpeeds()
         {
             // Arrange
