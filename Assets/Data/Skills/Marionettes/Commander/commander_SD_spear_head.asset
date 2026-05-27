@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
+  m_Name: commander_SD_spear_head
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
+  skillId: spear_head
+  displayName: Spear Head
+  description: Deal low damage to 1 enemy. Move self to front. Gain Defense and Move
+    resist.
+  modifier:
+    damagePercent: 0.6
+    healPercent: 0
+    accuracyMod: 0
+    criticalMod: 0
+  effects:
+  - rid: 356131341898612742
+  - rid: 356131341898612744
+  - rid: 356131341898612745
+  - rid: 356131341898612748
+  useRanks: 020000000300000004000000
+  targetRanks: 01000000020000000300000004000000
+  targetScope: 2
+  maxTargets: 1
+  ignoresDefense: 0
+  ignoresDodge: 0
+  guaranteedHit: 0
+  bypassGuard: 0
+  ignoresStealth: 0
+  hitCount: 1
+  maxUsesPerBattle: -1
+  sfx: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 356131341898612742
+      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 
+    - rid: 356131341898612744
+      type: {class: SelfStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 9
+        targetStat: 5
+        applicationChance: 100
+        amplitude: -3
+        amplitudeType: 0
+        duration: 0
+        ignoreMiss: 1
+    - rid: 356131341898612745
+      type: {class: SelfStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 5
+        targetStat: 1
+        applicationChance: 100
+        amplitude: 20
+        amplitudeType: 2
+        duration: 3
+        ignoreMiss: 1
+    - rid: 356131341898612748
+      type: {class: SelfStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 5
+        targetStat: 11
+        applicationChance: 100
+        amplitude: 30
+        amplitudeType: 2
+        duration: 3
+        ignoreMiss: 1

@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
-  m_Name: CD_Enforcer
+  m_Name: CD_Commander
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
-  characterId: enforcer_marionette
-  displayName: Enforcer
+  characterId: commander_marionette
+  displayName: Commander
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
-  - {fileID: 11400000, guid: 1b9277e86e19df24d958a4a46298ce90, type: 2}
+  - {fileID: 11400000, guid: 411ff264a595c0a478b3baa8809f955b, type: 2}
   availableSkills:
-  - {fileID: 11400000, guid: 6a3dcf80e5f589645a44bb67781bf831, type: 2}
-  - {fileID: 11400000, guid: 88da0c054f8fa4a4081ff4e6fdaf5db0, type: 2}
-  - {fileID: 11400000, guid: 69d3f73fee03d40428b21937f565a72e, type: 2}
-  - {fileID: 11400000, guid: 7a2bbabc8a19f6c4fa1ef54388f1185a, type: 2}
+  - {fileID: 11400000, guid: 4d721eeffc278cb46aec2555498b77f2, type: 2}
+  - {fileID: 11400000, guid: 979eab5a32346284881e2a86ec8e5e41, type: 2}
+  - {fileID: 11400000, guid: 2e5ba28b1edc61c40a39921e4ceedef3, type: 2}
+  - {fileID: 11400000, guid: e1bb7bf27e64e8840baf363aa73d9f80, type: 2}
   size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 0}
