@@ -19,10 +19,10 @@ MonoBehaviour:
   statPerLevel:
   - {fileID: 11400000, guid: 044a7d89ade8b594f810a4ac9c27211d, type: 2}
   availableSkills:
-  - {fileID: 11400000, guid: a2722e9c4a4656641988aeb29a06eb48, type: 2}
-  - {fileID: 11400000, guid: a99fdf38c989fe94ea56513db5cd4f6b, type: 2}
-  - {fileID: 11400000, guid: 8478786a892520249be927b95c4202cb, type: 2}
-  - {fileID: 11400000, guid: c4f02237c0d234c4197cb5e42bf7b84e, type: 2}
+  - {fileID: 11400000, guid: 3a2f38fc9be525d48b55900f4f7013f8, type: 2}
+  - {fileID: 11400000, guid: dcfd726ed23aa9e4aa4c9be935b04e11, type: 2}
+  - {fileID: 11400000, guid: 93b5acc0bf880d04c9a0adc9d5aaf8e9, type: 2}
+  - {fileID: 11400000, guid: b766560c64e7dc14898730ebec83c305, type: 2}
   size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 0}
