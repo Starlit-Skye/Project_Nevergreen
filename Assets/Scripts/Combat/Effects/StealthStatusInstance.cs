@@ -6,7 +6,6 @@ namespace Nevergreen.Combat
 {
     /// <summary>
     /// Specialized status instance for the Stealth effect.
-    /// Breaks when the host executes an offensive skill (targetScope == TargetScope.Enemies).
     /// </summary>
     [Serializable]
     public class StealthStatusInstance : StatusEffectInstance

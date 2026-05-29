@@ -51,14 +51,57 @@ namespace Nevergreen.Prototype
 
         private void SpawnTeams()
         {
-            // Spawn player team (players are always size 1)
-            int nextPlayerRank = 1;
-            for (int i = 0; i < playerTeamPrefabs.Count && nextPlayerRank <= 4; i++)
-            {
-                if (playerTeamPrefabs[i] == null) continue;
+            // 1. Resolve which player prefabs to spawn
+            var prefabsToSpawn = new List<GameObject>();
+            bool useSessionParty = RunSessionManager.CurrentParty != null && RunSessionManager.CurrentParty.Count > 0;
 
+            if (useSessionParty)
+            {
+                foreach (var partyMember in RunSessionManager.CurrentParty)
+                {
+                    if (partyMember == null || partyMember.character == null) continue;
+
+                    // Find matching prefab in playerTeamPrefabs
+                    GameObject matchingPrefab = null;
+                    foreach (var prefab in playerTeamPrefabs)
+                    {
+                        if (prefab == null) continue;
+                        var ccComp = prefab.GetComponent<CombatCharacter>();
+                        if (ccComp != null && ccComp.characterData == partyMember.character)
+                        {
+                            matchingPrefab = prefab;
+                            break;
+                        }
+                    }
+
+                    if (matchingPrefab != null)
+                    {
+                        prefabsToSpawn.Add(matchingPrefab);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[Bootstrap] Could not find prefab for character '{partyMember.character.displayName}' in playerTeamPrefabs!");
+                    }
+                }
+            }
+            else
+            {
+                // Fallback: spawn all default editor prefabs
+                foreach (var prefab in playerTeamPrefabs)
+                {
+                    if (prefab != null)
+                    {
+                        prefabsToSpawn.Add(prefab);
+                    }
+                }
+            }
+
+            // 2. Spawn player team (unified spawning loop)
+            int nextPlayerRank = 1;
+            foreach (var prefab in prefabsToSpawn)
+            {
                 int charSize = 1;
-                var prefabCC = playerTeamPrefabs[i].GetComponent<CombatCharacter>();
+                var prefabCC = prefab.GetComponent<CombatCharacter>();
                 if (prefabCC != null && prefabCC.characterData != null)
                     charSize = prefabCC.characterData.size;
 
@@ -80,13 +123,13 @@ namespace Nevergreen.Prototype
                 }
 
                 Vector3 pos = new Vector3(posX, playerBasePosition.y, playerBasePosition.z);
-                GameObject go = Instantiate(playerTeamPrefabs[i], pos, Quaternion.identity);
-                go.name = $"Player_{nextPlayerRank}_{playerTeamPrefabs[i].name}";
+                GameObject go = Instantiate(prefab, pos, Quaternion.identity);
+                go.name = $"Player_{nextPlayerRank}_{prefab.name}";
 
                 CombatCharacter cc = go.GetComponent<CombatCharacter>();
                 if (cc == null)
                 {
-                    Debug.LogError($"[Bootstrap] Prefab '{playerTeamPrefabs[i].name}' missing CombatCharacter!");
+                    Debug.LogError($"[Bootstrap] Prefab '{prefab.name}' missing CombatCharacter!");
                     Destroy(go);
                     continue;
                 }

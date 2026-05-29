@@ -23,6 +23,19 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4d35dd2a003a7b14d9939c4009934aae, type: 2}
   - {fileID: 11400000, guid: 879cd3245685d8f4ba11d5363030e437, type: 2}
   - {fileID: 11400000, guid: 852f1855491851d4aa2b74ec6aed91c1, type: 2}
+  totalSkillPool:
+  - {fileID: 11400000, guid: 852f1855491851d4aa2b74ec6aed91c1, type: 2}
+  - {fileID: 11400000, guid: f3edae051e42c6c4c9ab8f1bcc715ebd, type: 2}
+  - {fileID: 11400000, guid: 7ab4aff4ea6b19a4fabaf3637b971d8f, type: 2}
+  - {fileID: 11400000, guid: 84e84996e6f434646b5d9e8b1daf1275, type: 2}
+  - {fileID: 11400000, guid: 20a22e6d775eb6e4c920407b6231bf9b, type: 2}
+  - {fileID: 11400000, guid: a0d83cdf20f79c54896adea3b63f4b32, type: 2}
+  - {fileID: 11400000, guid: 879cd3245685d8f4ba11d5363030e437, type: 2}
+  - {fileID: 11400000, guid: 4d35dd2a003a7b14d9939c4009934aae, type: 2}
+  - {fileID: 11400000, guid: ef91ba2c2c124c4459febef8d7db8ed3, type: 2}
+  - {fileID: 11400000, guid: 21853b9a0f035c747a8e0cb628fa2a47, type: 2}
+  - {fileID: 11400000, guid: 55b9d10baaf7f6d4ba55ba44ac83e9b8, type: 2}
+  - {fileID: 11400000, guid: b70a635b5c1002b4381ab8b25d3776a1, type: 2}
   size: 1
   leavesPileOnDeath: 0
   defaultAIProfile: {fileID: 0}

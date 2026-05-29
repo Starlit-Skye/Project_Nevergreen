@@ -118,13 +118,23 @@ namespace Nevergreen.Combat
             baseStats = new CombatStats(statBlock);
             currentHP = baseStats.maxHP;
 
-            // Equip skills (up to 4 from available)
+            // Equip skills: check RunSessionManager for player-selected skills, fallback to defaults
             equippedSkills.Clear();
-            int count = Mathf.Min(4, characterData.availableSkills.Count);
-            for (int i = 0; i < count; i++)
+            var partyInfo = RunSessionManager.CurrentParty?.Find(p => p.character == this.characterData);
+
+            if (team == Team.Player && partyInfo != null && partyInfo.equippedSkills != null && partyInfo.equippedSkills.Count > 0)
             {
-                if (characterData.availableSkills[i] != null)
-                    equippedSkills.Add(characterData.availableSkills[i]);
+                equippedSkills.AddRange(partyInfo.equippedSkills);
+            }
+            else
+            {
+                // Fallback to the default CharacterData.availableSkills
+                int count = Mathf.Min(4, characterData.availableSkills.Count);
+                for (int i = 0; i < count; i++)
+                {
+                    if (characterData.availableSkills[i] != null)
+                        equippedSkills.Add(characterData.availableSkills[i]);
+                }
             }
 
             if (team == Team.Enemy)
