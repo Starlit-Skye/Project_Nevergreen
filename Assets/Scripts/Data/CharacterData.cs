@@ -29,6 +29,9 @@ namespace Nevergreen.Data
         [Tooltip("Skills available to this character. Up to 4 can be used in battle.")]
         public List<SkillData> availableSkills = new List<SkillData>();
 
+        [Tooltip("The total pool of skills this character can select from in the skill selection menu.")]
+        public List<SkillData> totalSkillPool = new List<SkillData>();
+
         [Tooltip("How many contiguous ranks this character occupies (1 = normal, 2-4 = large/boss).")]
         [Range(1, 4)]
         public int size = 1;

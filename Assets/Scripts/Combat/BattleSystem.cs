@@ -127,6 +127,9 @@ namespace Nevergreen.Combat
             yield return null;
         }
 
+        /// <summary>
+        /// Build turn order by Speed. Ties: enemies before players, then front rank first.
+        /// </summary>
         private void BuildTurnOrder()
         {
             _turnOrder.Clear();
