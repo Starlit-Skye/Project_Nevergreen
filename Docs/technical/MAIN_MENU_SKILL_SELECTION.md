@@ -2,12 +2,12 @@
 
 Owner: Dev Team
 Status: active
-Last verified: 2026-05-29
+Last verified: 2026-05-30
 Verified commit: 6dab85bd03ad290dba585a16406e625b4dc0a73b
 Target build: Unity 6 (6000.3.9f1) + PC/Standalone
 
 ## Purpose
-Provides the Main Menu and character skill preparation interface prior to entering a combat run. It manages character roster persistence, validation rules for skill configuration, visual grid layouts for available skills, and dynamic party initialization in the combat scene.
+Provides the Main Menu and character skill preparation interface prior to entering a combat run. It manages character roster persistence, validation rules for skill configuration, visual grid layouts for available skills, dynamic party initialization, and active enemy encounter database injection for the combat run.
 
 ## Scope
 - **In scope**:
@@ -15,6 +15,7 @@ Provides the Main Menu and character skill preparation interface prior to enteri
   - Character skill selection panel layout and logic (equipping exactly 4 skills).
   - 3x4 grid rendering of the selectable skill pool.
   - Persistent run session state holding party roster data across scene transitions.
+  - Active enemy formation database pool initialization at run start.
   - Dynamic, configuration-driven player character spawning inside the combat scene.
 - **Out of scope**:
   - Equipment/gear selection and stat passive configuration (classes prepared for future expansion but visual UI is out of scope).
@@ -28,8 +29,10 @@ Provides the Main Menu and character skill preparation interface prior to enteri
   - `Assets/Scripts/UI/CeciliaSkillSelectController.cs` (`CeciliaSkillSelectController` UI component)
   - `Assets/Scripts/Combat/CombatCharacter.cs` (`CombatCharacter.InitializeForCombat` skill loader)
   - `Assets/Scripts/Prototype/CombatSceneBootstrap.cs` (`CombatSceneBootstrap.SpawnTeams` layout spawner)
+  - `Assets/Scripts/Data/EnemyFormationDatabase.cs` (`EnemyFormationDatabase` asset)
 - **Tests**:
   - `Assets/Editor/Tests/MainMenuSkillSelectionTests.cs` (`MainMenuSkillSelectionTests` test fixture)
+  - `Assets/Editor/Tests/EnemyFormationSelectionTests.cs` (random selection and anti-repeat verification)
 - **Design**:
   - Main Menu and Skill Selection UI specification layout.
 - **Data**:
@@ -42,10 +45,12 @@ Provides the Main Menu and character skill preparation interface prior to enteri
 - Enforce the validation rule that a character must equip exactly 4 skills before a combat run can start.
 - Render available skills dynamically from a character's total pool in a 3-column grid.
 - Persist the selected roster and skill loadouts in memory using `RunSessionManager`.
+- Initialize `RunSessionManager` with the configured active enemy formation database.
 - Intercept the standard player team spawning in the combat scene to only instantiate characters listed in the active session roster.
 
 ## Data Model
 - `RunSessionManager.CurrentParty`: `List<PartyMemberInfo>`
+- `RunSessionManager.ActiveFormationDatabase`: `EnemyFormationDatabase`
 - `PartyMemberInfo`:
   - `character`: `CharacterData` (ScriptableObject reference containing stats/total pool)
   - `equippedSkills`: `List<SkillData>` (exactly 4 elements when run starts)
@@ -63,7 +68,7 @@ Provides the Main Menu and character skill preparation interface prior to enteri
 - Event: `StartButton.onClick`
   - Producer: UGUI Button
   - Consumers: `CeciliaSkillSelectController`
-  - Effect: Stores active roster to `RunSessionManager` and loads the combat prototype scene.
+  - Effect: Stores active roster, registers active `EnemyFormationDatabase` to `RunSessionManager`, and loads the combat prototype scene.
 - Event: `SkillListItemButton.onClick`
   - Producer: UGUI Button (individual skill cell)
   - Consumers: `CeciliaSkillSelectController`

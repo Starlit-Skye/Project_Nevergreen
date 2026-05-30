@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 using Nevergreen.Data;
 using Nevergreen.Combat;
@@ -24,6 +25,9 @@ namespace Nevergreen.Prototype
         public TextMeshProUGUI statsDisplayText;
         public GameObject battleEndPanel;
         public TextMeshProUGUI battleEndText;
+
+        [Tooltip("Button shown after victory to proceed to the next room.")]
+        public Button nextRoomButton;
 
         [Header("Skill Buttons")]
         public Button[] skillButtons = new Button[4];
@@ -107,6 +111,12 @@ namespace Nevergreen.Prototype
 
             if (battleEndPanel != null)
                 battleEndPanel.SetActive(false);
+
+            if (nextRoomButton != null)
+            {
+                nextRoomButton.gameObject.SetActive(false);
+                nextRoomButton.onClick.AddListener(OnNextRoomClicked);
+            }
 
             ClearLog();
         }
@@ -250,6 +260,12 @@ namespace Nevergreen.Prototype
             }
 
             AddLog($"Battle ended: {outcome}");
+
+            // Show "Next Room" button only on victory
+            if (nextRoomButton != null)
+            {
+                nextRoomButton.gameObject.SetActive(outcome == BattleOutcome.Victory);
+            }
         }
 
         /// <summary>
@@ -512,6 +528,11 @@ namespace Nevergreen.Prototype
             _logLines.Clear();
             if (battleLogText != null)
                 battleLogText.text = "";
+        }
+
+        private void OnNextRoomClicked()
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         private void OnDestroy()

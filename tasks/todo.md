@@ -579,3 +579,37 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
   - Independent calculation per target (e.g. in multi-target/AOE situations).
   - Accuracy miss resulting in no damage.
 - [ ] Run EditMode tests and verify all tests pass successfully <!-- id: 107 -->
+
+# Enemy Team Formation & Randomization
+
+## Phase 1: Data Architecture
+- [x] Create `EnemyFormationData.cs` ScriptableObject <!-- id: 108 -->
+- [x] Create `EnemyFormationDatabase.cs` ScriptableObject <!-- id: 109 -->
+- [x] Integrate database into `RunSessionManager.cs` with anti-repeat selection <!-- id: 110 -->
+
+## Phase 2: Combat Spawning & Bootstrapping
+- [x] Refactor `CombatSceneBootstrap.cs` to resolve dynamic formations from `RunSessionManager` <!-- id: 111 -->
+- [x] Add fallback mechanism to Inspector `enemyTeamPrefabs` list when database is null <!-- id: 112 -->
+
+## Phase 3: Main Menu Integration
+- [x] Inject active formation database at run start via `CeciliaSkillSelectController.cs` <!-- id: 113 -->
+- [x] Show "Next Room" reload button on victory in `CombatUI.cs` <!-- id: 114 -->
+
+## Phase 4: Verification & Automated Tests
+- [x] Write selection unit tests in `EnemyFormationSelectionTests.cs` <!-- id: 115 -->
+- [x] Write bootstrap and spacing integration tests in `CombatSceneBootstrapFormationTests.cs` <!-- id: 116 -->
+- [x] Write UI victory state transition tests in `CombatUITests.cs` <!-- id: 117 -->
+- [x] Run full EditMode test suite and confirm 223/223 passing tests <!-- id: 118 -->
+
+## Phase 5: Technical Documentation
+- [x] Document the system specification in `Docs/specs/systems/SYSTEM_SPEC_ENEMY_FORMATION_RANDOMIZATION.md`
+- [x] Update the Main Menu documentation in `Docs/technical/MAIN_MENU_SKILL_SELECTION.md`
+
+### Review
+- Created a designer-friendly system to author and randomize enemy encounters via scriptable enemy formation configurations.
+- Integrated selection rules in `RunSessionManager` ensuring anti-repeat mechanics (a formation won't be consecutively repeated if the database has more than 1 entry).
+- Updated `CombatSceneBootstrap` to spawn enemies based on the current selection, maintaining size-based centering and rank assignment.
+- Wired up a "Next Room" action button on victory to reload the scene, simulating a room-by-room run.
+- Created robust test fixtures (`EnemyFormationSelectionTests.cs`, `CombatSceneBootstrapFormationTests.cs`, and `CombatUITests.cs`) verifying all requirements.
+- Completed comprehensive technical documentation detailing the data models, timing model, determinism rules, and validation checks.
+

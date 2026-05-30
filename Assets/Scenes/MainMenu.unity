@@ -2068,6 +2068,7 @@ MonoBehaviour:
   closeButton: {fileID: 945129146}
   portraitImage: {fileID: 501749163}
   combatSceneName: CombatPrototype
+  enemyFormationDatabase: {fileID: 11400000, guid: 27edfc9356e280140a15d06481ee02ab, type: 2}
 --- !u!114 &1327100955
 MonoBehaviour:
   m_ObjectHideFlags: 0
