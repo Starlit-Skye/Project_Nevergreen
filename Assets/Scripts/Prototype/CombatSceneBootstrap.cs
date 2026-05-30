@@ -147,14 +147,27 @@ namespace Nevergreen.Prototype
                 nextPlayerRank += charSize;
             }
 
+            // Resolve enemy formation: use database if available, else fall back to Inspector list
+            var activeEnemyPrefabs = enemyTeamPrefabs;
+            var formation = RunSessionManager.GetNextRandomFormation();
+            if (formation != null && formation.enemyPrefabs != null && formation.enemyPrefabs.Count > 0)
+            {
+                activeEnemyPrefabs = formation.enemyPrefabs;
+                Debug.Log($"[Bootstrap] Using formation: {formation.name}");
+            }
+            else
+            {
+                Debug.Log("[Bootstrap] No formation database configured. Using Inspector enemy prefabs.");
+            }
+
             // Spawn enemy team (enemies can be multi-rank)
             int nextEnemyRank = 1;
-            for (int i = 0; i < enemyTeamPrefabs.Count && nextEnemyRank <= 4; i++)
+            for (int i = 0; i < activeEnemyPrefabs.Count && nextEnemyRank <= 4; i++)
             {
-                if (enemyTeamPrefabs[i] == null) continue;
+                if (activeEnemyPrefabs[i] == null) continue;
 
                 int charSize = 1;
-                var prefabCC = enemyTeamPrefabs[i].GetComponent<CombatCharacter>();
+                var prefabCC = activeEnemyPrefabs[i].GetComponent<CombatCharacter>();
                 if (prefabCC != null && prefabCC.characterData != null)
                     charSize = prefabCC.characterData.size;
 
@@ -176,13 +189,13 @@ namespace Nevergreen.Prototype
                 }
 
                 Vector3 pos = new Vector3(posX, enemyBasePosition.y, enemyBasePosition.z);
-                GameObject go = Instantiate(enemyTeamPrefabs[i], pos, Quaternion.identity);
-                go.name = $"Enemy_{nextEnemyRank}_{enemyTeamPrefabs[i].name}";
+                GameObject go = Instantiate(activeEnemyPrefabs[i], pos, Quaternion.identity);
+                go.name = $"Enemy_{nextEnemyRank}_{activeEnemyPrefabs[i].name}";
 
                 CombatCharacter cc = go.GetComponent<CombatCharacter>();
                 if (cc == null)
                 {
-                    Debug.LogError($"[Bootstrap] Prefab '{enemyTeamPrefabs[i].name}' missing CombatCharacter!");
+                    Debug.LogError($"[Bootstrap] Prefab '{activeEnemyPrefabs[i].name}' missing CombatCharacter!");
                     Destroy(go);
                     continue;
                 }

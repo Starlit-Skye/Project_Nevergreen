@@ -45,6 +45,9 @@ namespace Nevergreen.UI
         [Tooltip("Name of the combat scene to load.")]
         public string combatSceneName = "CombatPrototype";
 
+        [Tooltip("Enemy formation database to use for this run.")]
+        public EnemyFormationDatabase enemyFormationDatabase;
+
         // Runtime state
         private List<SkillData> _availableSkills = new List<SkillData>();
         private SkillData[] _equippedSkills = new SkillData[4];
@@ -123,6 +126,9 @@ namespace Nevergreen.UI
             // Set into RunSessionManager
             RunSessionManager.Clear();
             RunSessionManager.CurrentParty.Add(partyMember);
+
+            // Inject enemy formation database for the run
+            RunSessionManager.Initialize(enemyFormationDatabase);
 
             // Load combat scene
             SceneManager.LoadScene(combatSceneName);
