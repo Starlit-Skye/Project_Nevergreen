@@ -32,7 +32,27 @@ namespace Nevergreen.Combat
         public int currentLevel = 1;
 
         // --- Runtime State (set during combat setup) ---
-         public int currentHP;
+        public int currentHP
+        {
+            get => _currentHP;
+            set
+            {
+                if (_currentHP != value)
+                {
+                    _currentHP = value;
+                    if (team == Team.Player)
+                    {
+                        var partyInfo = RunSessionManager.CurrentParty?.Find(p => p.character == this.characterData);
+                        if (partyInfo != null)
+                        {
+                            partyInfo.currentHP = _currentHP;
+                        }
+                    }
+                }
+            }
+        }
+        private int _currentHP;
+
         [HideInInspector] public int rank;
         [HideInInspector] 
         public LifeState state 
@@ -43,6 +63,17 @@ namespace Nevergreen.Combat
                 if (_state != value)
                 {
                     _state = value;
+                    if (_state == LifeState.Destroyed || _state == LifeState.Dying)
+                    {
+                        if (team == Team.Player)
+                        {
+                            var partyInfo = RunSessionManager.CurrentParty?.Find(p => p.character == this.characterData);
+                            if (partyInfo != null)
+                            {
+                                partyInfo.currentHP = 0;
+                            }
+                        }
+                    }
                     OnStateChanged?.Invoke(this, _state);
                 }
             }
@@ -116,11 +147,27 @@ namespace Nevergreen.Combat
             if (statBlock == null) return;
 
             baseStats = new CombatStats(statBlock);
-            currentHP = baseStats.maxHP;
+
+            var partyInfo = RunSessionManager.CurrentParty?.Find(p => p.character == this.characterData);
+            if (team == Team.Player && partyInfo != null)
+            {
+                if (partyInfo.currentHP.HasValue)
+                {
+                    currentHP = partyInfo.currentHP.Value;
+                }
+                else
+                {
+                    currentHP = baseStats.maxHP;
+                    partyInfo.currentHP = currentHP;
+                }
+            }
+            else
+            {
+                currentHP = baseStats.maxHP;
+            }
 
             // Equip skills: check RunSessionManager for player-selected skills, fallback to defaults
             equippedSkills.Clear();
-            var partyInfo = RunSessionManager.CurrentParty?.Find(p => p.character == this.characterData);
 
             if (team == Team.Player && partyInfo != null && partyInfo.equippedSkills != null && partyInfo.equippedSkills.Count > 0)
             {

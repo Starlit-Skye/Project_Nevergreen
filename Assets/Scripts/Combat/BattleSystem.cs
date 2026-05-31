@@ -32,6 +32,7 @@ namespace Nevergreen.Combat
 
         private List<CombatCharacter> _playerTeam = new List<CombatCharacter>();
         private List<CombatCharacter> _enemyTeam = new List<CombatCharacter>();
+        private List<CombatCharacter> _initialPlayerTeam = new List<CombatCharacter>();
         private List<TurnEntry> _turnOrder = new List<TurnEntry>();
         private int _currentTurnIndex = 0;
         private System.Random _rng;
@@ -73,6 +74,7 @@ namespace Nevergreen.Combat
         {
             _playerTeam = playerTeam;
             _enemyTeam = enemyTeam;
+            _initialPlayerTeam = new List<CombatCharacter>(playerTeam);
             _rng = new System.Random();
             CurrentRound = 0;
 
@@ -703,7 +705,8 @@ namespace Nevergreen.Combat
         {
             if (CurrentState == BattleState.BattleEnd) return true;
             // Cecilia (ceci) is the primary character; her defeat is a battle loss.
-            bool ceciliaDefeated = _playerTeam.Any(c => c.CharacterId == "ceci" && c.state != LifeState.Alive);
+            bool initialHasCecilia = _initialPlayerTeam.Any(c => c.CharacterId == "ceci");
+            bool ceciliaDefeated = initialHasCecilia && !_playerTeam.Any(c => c.CharacterId == "ceci" && c.state == LifeState.Alive);
             bool allPlayersDead = _playerTeam.Count == 0 || _playerTeam.All(c => c.state != LifeState.Alive);
             bool allEnemiesDead = _enemyTeam.Count == 0 || _enemyTeam.All(c => c.state != LifeState.Alive);
 
@@ -720,6 +723,17 @@ namespace Nevergreen.Combat
             {
                 CurrentState = BattleState.BattleEnd;
                 Debug.Log("[BattleSystem] === VICTORY ===");
+
+                if (Nevergreen.RunSessionManager.CurrentParty != null)
+                {
+                    Nevergreen.RunSessionManager.CurrentParty.RemoveAll(partyMember =>
+                    {
+                        var cc = _initialPlayerTeam.Find(c => c.characterData == partyMember.character);
+                        if (cc == null) return false;
+                        return cc.state == LifeState.Destroyed || cc.state == LifeState.Pile;
+                    });
+                }
+
                 OnBattleEnded?.Invoke(BattleOutcome.Victory);
                 return true;
             }

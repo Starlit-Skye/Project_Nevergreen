@@ -15,10 +15,12 @@ namespace Nevergreen.Data
         /// <summary>The skills the player selected for this character.</summary>
         public List<SkillData> equippedSkills = new List<SkillData>();
 
+        /// <summary>The persistent HP of the character during a run. Null if starting the run at max HP.</summary>
+        public int? currentHP;
+        
         // NOTE FOR FUTURE EXPANSION:
         // public int currentLevel;
         // public List<GearData> equippedGear;
         // public List<PassiveData> activePassives;
-        // public int currentHP; (if HP carries over between encounters)
     }
 }

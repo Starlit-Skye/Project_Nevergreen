@@ -28,6 +28,8 @@ namespace Nevergreen.Tests
                 .SetValue(_battleSystem, _playerTeam);
             typeof(BattleSystem).GetField("_enemyTeam", BindingFlags.NonPublic | BindingFlags.Instance)
                 .SetValue(_battleSystem, _enemyTeam);
+            typeof(BattleSystem).GetField("_initialPlayerTeam", BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(_battleSystem, _playerTeam);
         }
 
         [TearDown]

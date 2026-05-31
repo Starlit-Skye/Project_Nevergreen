@@ -61,6 +61,12 @@ namespace Nevergreen.Prototype
                 {
                     if (partyMember == null || partyMember.character == null) continue;
 
+                    if (partyMember.currentHP.HasValue && partyMember.currentHP.Value <= 0)
+                    {
+                        Debug.Log($"[Bootstrap] Skipping spawn for {partyMember.character.displayName} (HP is {partyMember.currentHP.Value})");
+                        continue;
+                    }
+
                     // 1. Check direct prefab reference on CharacterData
                     GameObject matchingPrefab = partyMember.character.characterPrefab != null ? partyMember.character.characterPrefab.gameObject : null;
 
