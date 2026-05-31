@@ -61,16 +61,21 @@ namespace Nevergreen.Prototype
                 {
                     if (partyMember == null || partyMember.character == null) continue;
 
-                    // Find matching prefab in playerTeamPrefabs
-                    GameObject matchingPrefab = null;
-                    foreach (var prefab in playerTeamPrefabs)
+                    // 1. Check direct prefab reference on CharacterData
+                    GameObject matchingPrefab = partyMember.character.characterPrefab != null ? partyMember.character.characterPrefab.gameObject : null;
+
+                    // 2. Fallback to searching in playerTeamPrefabs
+                    if (matchingPrefab == null)
                     {
-                        if (prefab == null) continue;
-                        var ccComp = prefab.GetComponent<CombatCharacter>();
-                        if (ccComp != null && ccComp.characterData == partyMember.character)
+                        foreach (var prefab in playerTeamPrefabs)
                         {
-                            matchingPrefab = prefab;
-                            break;
+                            if (prefab == null) continue;
+                            var ccComp = prefab.GetComponent<CombatCharacter>();
+                            if (ccComp != null && ccComp.characterData == partyMember.character)
+                            {
+                                matchingPrefab = prefab;
+                                break;
+                            }
                         }
                     }
 
@@ -80,7 +85,7 @@ namespace Nevergreen.Prototype
                     }
                     else
                     {
-                        Debug.LogWarning($"[Bootstrap] Could not find prefab for character '{partyMember.character.displayName}' in playerTeamPrefabs!");
+                        Debug.LogWarning($"[Bootstrap] Could not find prefab for character '{partyMember.character.displayName}'!");
                     }
                 }
             }

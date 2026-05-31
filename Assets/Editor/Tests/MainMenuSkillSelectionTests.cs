@@ -227,5 +227,48 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(otherPrefab);
             Object.DestroyImmediate(bootGo);
         }
+
+        [Test]
+        public void CombatSceneBootstrap_SpawnTeams_SpawnsDirectCharacterPrefab_WhenConfiguredOnCharacterData()
+        {
+            // Set up direct prefab on CharacterData
+            var ceciPrefab = new GameObject("CeciDirectPrefab");
+            var ceciCC = ceciPrefab.AddComponent<CombatCharacter>();
+            ceciCC.characterData = charDataCeci;
+            charDataCeci.characterPrefab = ceciCC;
+
+            // Set up Bootstrap (playerTeamPrefabs is empty)
+            var bootGo = new GameObject("Bootstrap");
+            var bootstrap = bootGo.AddComponent<CombatSceneBootstrap>();
+            bootstrap.playerTeamPrefabs = new List<GameObject>();
+
+            // Setup session: Cecilia
+            RunSessionManager.CurrentParty.Add(new PartyMemberInfo
+            {
+                character = charDataCeci,
+                equippedSkills = new List<SkillData>()
+            });
+
+            // Act: SpawnTeams
+            var spawnMethod = typeof(CombatSceneBootstrap).GetMethod("SpawnTeams", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            spawnMethod.Invoke(bootstrap, null);
+
+            // Verify: Cecilia is spawned from her direct prefab reference
+            var spawnedField = typeof(CombatSceneBootstrap).GetField("_spawnedPlayerTeam", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var spawnedList = (List<CombatCharacter>)spawnedField.GetValue(bootstrap);
+
+            Assert.AreEqual(1, spawnedList.Count, "Should spawn exactly one character from CharacterData prefab");
+            Assert.AreEqual(charDataCeci, spawnedList[0].characterData);
+            Assert.IsTrue(spawnedList[0].name.Contains("CeciDirectPrefab"), "Should instantiate the direct prefab reference");
+
+            // Clean up
+            foreach (var cc in spawnedList)
+            {
+                if (cc != null) Object.DestroyImmediate(cc.gameObject);
+            }
+            Object.DestroyImmediate(ceciPrefab);
+            Object.DestroyImmediate(bootGo);
+            charDataCeci.characterPrefab = null;
+        }
     }
 }

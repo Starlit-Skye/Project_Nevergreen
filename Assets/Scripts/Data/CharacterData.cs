@@ -16,6 +16,9 @@ namespace Nevergreen.Data
         [Tooltip("Display name shown in UI.")]
         public string displayName;
 
+        [Tooltip("The corresponding visual prefab for this character.")]
+        public Nevergreen.Combat.CombatCharacter characterPrefab;
+
         [Tooltip("Whether this is a player unit or enemy unit.")]
         public CharacterTeamType teamType = CharacterTeamType.Enemy;
 

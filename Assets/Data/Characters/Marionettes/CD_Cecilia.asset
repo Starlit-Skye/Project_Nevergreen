@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: ceci
   displayName: Cecilia
+  characterPrefab: {fileID: 5047933170817855005, guid: c218cb32f0c308744a1718c8aa3592a3, type: 3}
   teamType: 0
   actionsPerRound: 1
   statPerLevel:

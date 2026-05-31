@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: maid_marionette
   displayName: Maid
+  characterPrefab: {fileID: 3493555024726022384, guid: 14922d44535635a4dba051a1e90e2e9c, type: 3}
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
@@ -23,6 +24,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 314c27bae9731dc4a8b9b9cae23dd912, type: 2}
   - {fileID: 11400000, guid: f7adbfaff642381429b58fa61321fce6, type: 2}
   - {fileID: 11400000, guid: 88535bb1b5f45db419372cfe8d691a9a, type: 2}
+  totalSkillPool: []
   size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 0}

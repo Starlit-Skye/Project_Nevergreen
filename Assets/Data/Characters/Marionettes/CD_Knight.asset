@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: knight_marionette
   displayName: Knight
+  characterPrefab: {fileID: 4195842110423198999, guid: 2a5e61ec308b75245a5f203fd8d3024d, type: 3}
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
@@ -23,6 +24,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d9c760278da2ad741929f19f9128aea0, type: 2}
   - {fileID: 11400000, guid: 055fa60bc5a88be4d8a304bb9d659029, type: 2}
   - {fileID: 11400000, guid: f1e1834982a17394bbc780f30ba3626a, type: 2}
+  totalSkillPool: []
   size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 0}

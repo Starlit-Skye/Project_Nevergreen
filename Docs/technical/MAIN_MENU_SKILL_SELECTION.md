@@ -51,8 +51,13 @@ Provides the Main Menu and character skill preparation interface prior to enteri
 ## Data Model
 - `RunSessionManager.CurrentParty`: `List<PartyMemberInfo>`
 - `RunSessionManager.ActiveFormationDatabase`: `EnemyFormationDatabase`
+- `CharacterData`:
+  - `characterId`: `string`
+  - `displayName`: `string`
+  - `characterPrefab`: `CombatCharacter` (direct visual reference to the prefab representing this character)
+  - `totalSkillPool`: `List<SkillData>` (full pool of customizable skills)
 - `PartyMemberInfo`:
-  - `character`: `CharacterData` (ScriptableObject reference containing stats/total pool)
+  - `character`: `CharacterData` (ScriptableObject reference containing template data)
   - `equippedSkills`: `List<SkillData>` (exactly 4 elements when run starts)
 - **Persistence keys**: None (in-memory state only; not serialized to persistent disk storage).
 
@@ -94,7 +99,7 @@ Provides the Main Menu and character skill preparation interface prior to enteri
 
 ## Error Handling and Recovery
 - **Missing Prefab in Bootstrap**:
-  - *Trigger*: Roster has a character that is missing a corresponding prefab in `CombatSceneBootstrap.playerTeamPrefabs`.
+  - *Trigger*: Roster has a character that is missing a corresponding prefab on their `CharacterData.characterPrefab` property AND in the `CombatSceneBootstrap.playerTeamPrefabs` list.
   - *Behavior*: Logs a warning (`[Bootstrap] Could not find prefab for character...`) and skips spawning that slot, preventing scene load crash.
 - **Empty Active Session**:
   - *Trigger*: Combat scene loaded directly from the Unity Editor (`RunSessionManager.CurrentParty` is empty).
@@ -116,8 +121,9 @@ Provides the Main Menu and character skill preparation interface prior to enteri
     - `RunSessionManager_Clear_ClearsRoster()`: Verifies run session data resets cleanly.
     - `CombatCharacter_InitializeForCombat_UsesSessionSkills_IfMatching()`: Verifies session-equipped skills are applied in combat.
     - `CombatCharacter_InitializeForCombat_FallsBackToDefaultSkills_IfNotInSession()`: Verifies design-time fallback to default skills.
-    - `CombatSceneBootstrap_SpawnTeams_SpawnsOnlySessionCharacters_WhenSessionIsActive()`: Verifies that spawning aligns strictly with session configuration.
+    - `CombatSceneBootstrap_SpawnTeams_SpawnsOnlySessionCharacters_WhenSessionIsActive()`: Verifies that spawning aligns strictly with session configuration (matching prefabs from list).
     - `CombatSceneBootstrap_SpawnTeams_SpawnsAllPrefabs_WhenSessionIsEmpty()`: Verifies default team fallback logic in direct playtesting.
+    - `CombatSceneBootstrap_SpawnTeams_SpawnsDirectCharacterPrefab_WhenConfiguredOnCharacterData()`: Verifies direct resolution of prefab via the new `characterPrefab` reference on the template asset.
 - **Playtest**:
   1. Open the Main Menu scene.
   2. Click the Play button; verify the Skill Selection Panel is shown.

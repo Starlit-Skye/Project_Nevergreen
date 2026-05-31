@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: butler_marionette
   displayName: Butler
+  characterPrefab: {fileID: 5047933170817855005, guid: ae9b42860237dd2459bc97de34b49f84, type: 3}
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
@@ -23,6 +24,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a99fdf38c989fe94ea56513db5cd4f6b, type: 2}
   - {fileID: 11400000, guid: 8478786a892520249be927b95c4202cb, type: 2}
   - {fileID: 11400000, guid: c4f02237c0d234c4197cb5e42bf7b84e, type: 2}
+  totalSkillPool: []
   size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 0}
