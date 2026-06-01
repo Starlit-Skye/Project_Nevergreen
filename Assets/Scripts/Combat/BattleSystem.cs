@@ -86,6 +86,12 @@ namespace Nevergreen.Combat
                 c.OnStateChanged += HandleCharacterStateChanged;
             }
 
+            // Activate traits now that BattleSystem reference is available
+            foreach (var c in _playerTeam.Concat(_enemyTeam))
+            {
+                c.ActivateTraits(this);
+            }
+
             CurrentState = BattleState.RoundStart;
             OnBattleStarted?.Invoke();
 
@@ -895,6 +901,7 @@ namespace Nevergreen.Combat
             {
                 c.OnDefeated -= HandleCharacterDefeated;
                 c.OnStateChanged -= HandleCharacterStateChanged;
+                c.DeactivateAllTraits();
             }
         }
     }

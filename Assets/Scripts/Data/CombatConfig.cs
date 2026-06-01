@@ -55,5 +55,14 @@ namespace Nevergreen.Data
         [Header("Leveling")]
         [Tooltip("Global maximum character level.")]
         public int globalMaxLevel = 10;
+
+        [Header("Traits (Perfections / Imperfections)")]
+        [Tooltip("Maximum number of Perfections a single Marionette can have.")]
+        [Min(0)]
+        public int maxPerfections = 3;
+
+        [Tooltip("Maximum number of Imperfections a single Marionette can have.")]
+        [Min(0)]
+        public int maxImperfections = 3;
     }
 }
