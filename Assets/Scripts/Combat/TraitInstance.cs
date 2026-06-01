@@ -18,6 +18,9 @@ namespace Nevergreen.Combat
         /// <summary>The BattleSystem reference for accessing combat state.</summary>
         public BattleSystem battleSystem;
 
+        /// <summary>Flexible storage for strategies to store instance-specific state (e.g. event closures).</summary>
+        public System.Collections.Generic.Dictionary<string, object> extra = new System.Collections.Generic.Dictionary<string, object>();
+
         public TraitInstance(TraitData data, CombatCharacter owner, BattleSystem battleSystem)
         {
             this.data = data;

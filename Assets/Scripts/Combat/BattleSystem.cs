@@ -44,6 +44,7 @@ namespace Nevergreen.Combat
         public event Action OnBattleStarted;
         public event Action<int> OnRoundStarted; // round number
         public event Action<CombatCharacter> OnTurnStarted;
+        public event Action<SkillContext> OnBeforeDamageCalculation;
         public event Action<CombatCharacter, SkillData, SkillContext> OnActionResolved; // actor, skill, context
         public event Action<BattleOutcome> OnBattleEnded;
         public event Action OnWaitingForPlayerInput;
@@ -540,6 +541,8 @@ namespace Nevergreen.Combat
             {
                 animationQueue.BeginBatch($"{user.DisplayName}:{skill.displayName}_UI_Batch");
             }
+
+            OnBeforeDamageCalculation?.Invoke(ctx);
 
             for (int hit = 0; hit < ctx.totalHits; hit++)
             {

@@ -212,55 +212,93 @@ namespace Nevergreen.Tests
         // ===== RankDamageBonusTraitStrategy tests =====
 
         [Test]
-        public void RankDamageTrait_AtRequiredRank_AppliesBonus()
+        public void RankDamageTrait_AtRequiredRank_AppliesDamageBonus()
         {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
             var strategy = ScriptableObject.CreateInstance<RankDamageBonusTraitStrategy>();
             strategy.requiredRank = 1;
-            strategy.attackBonusPercent = 20;
+            strategy.damageBonusPercent = 20;
 
             var trait = CreateTrait("rank_bonus", TraitType.Perfection, strategy);
             var cc = CreateCharacterWithTraits(new List<TraitData> { trait }, null, attack: 100);
-            // Character starts at rank 1 (set in CreateCharacterWithTraits)
+            cc.ActivateTraits(battleSystem);
+            // Character starts at rank 1
 
-            CombatStats effective = cc.GetEffectiveStats();
-            Assert.AreEqual(120, effective.attack, "At rank 1: +20% on base 100 => 120.");
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(cc, skill, null, battleSystem, CombatTestHelper.CreateFixedRng());
+            // Use reflection to invoke the event
+            var eventField = typeof(BattleSystem).GetField("OnBeforeDamageCalculation", 
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var handler = eventField.GetValue(battleSystem) as System.Action<SkillContext>;
+            handler?.Invoke(ctx);
+
+            Assert.AreEqual(1.2f, ctx.damageMultiplier, 0.001f, "At rank 1: +20% damage bonus.");
         }
 
         [Test]
         public void RankDamageTrait_NotAtRequiredRank_NoBonus()
         {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
             var strategy = ScriptableObject.CreateInstance<RankDamageBonusTraitStrategy>();
             strategy.requiredRank = 3;
-            strategy.attackBonusPercent = 20;
+            strategy.damageBonusPercent = 20;
 
             var trait = CreateTrait("rank_bonus", TraitType.Perfection, strategy);
             var cc = CreateCharacterWithTraits(new List<TraitData> { trait }, null, attack: 100);
+            cc.ActivateTraits(battleSystem);
             // Character is at rank 1 but bonus requires rank 3
 
-            CombatStats effective = cc.GetEffectiveStats();
-            Assert.AreEqual(100, effective.attack, "Not at rank 3: no bonus applied.");
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(cc, skill, null, battleSystem, CombatTestHelper.CreateFixedRng());
+            var eventField = typeof(BattleSystem).GetField("OnBeforeDamageCalculation", 
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var handler = eventField.GetValue(battleSystem) as System.Action<SkillContext>;
+            handler?.Invoke(ctx);
+
+            Assert.AreEqual(1.0f, ctx.damageMultiplier, 0.001f, "Not at rank 3: no bonus applied.");
         }
 
         [Test]
         public void RankDamageTrait_DynamicRankChange_UpdatesCorrectly()
         {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
             var strategy = ScriptableObject.CreateInstance<RankDamageBonusTraitStrategy>();
             strategy.requiredRank = 2;
-            strategy.attackBonusPercent = 15;
+            strategy.damageBonusPercent = 15;
 
             var trait = CreateTrait("rank_bonus", TraitType.Perfection, strategy);
             var cc = CreateCharacterWithTraits(new List<TraitData> { trait }, null, attack: 100);
+            cc.ActivateTraits(battleSystem);
+
+            var eventField = typeof(BattleSystem).GetField("OnBeforeDamageCalculation", 
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
             // Initially at rank 1 — no bonus
-            Assert.AreEqual(100, cc.GetEffectiveStats().attack, "Rank 1: no bonus.");
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx1 = new SkillContext(cc, skill, null, battleSystem, CombatTestHelper.CreateFixedRng());
+            (eventField.GetValue(battleSystem) as System.Action<SkillContext>)?.Invoke(ctx1);
+            Assert.AreEqual(1.0f, ctx1.damageMultiplier, 0.001f, "Rank 1: no bonus.");
 
             // Move to rank 2
             cc.rank = 2;
-            Assert.AreEqual(115, cc.GetEffectiveStats().attack, "Rank 2: +15% => 115.");
+            var ctx2 = new SkillContext(cc, skill, null, battleSystem, CombatTestHelper.CreateFixedRng());
+            (eventField.GetValue(battleSystem) as System.Action<SkillContext>)?.Invoke(ctx2);
+            Assert.AreEqual(1.15f, ctx2.damageMultiplier, 0.001f, "Rank 2: +15% => 1.15.");
 
             // Move away from rank 2
             cc.rank = 4;
-            Assert.AreEqual(100, cc.GetEffectiveStats().attack, "Rank 4: no bonus.");
+            var ctx3 = new SkillContext(cc, skill, null, battleSystem, CombatTestHelper.CreateFixedRng());
+            (eventField.GetValue(battleSystem) as System.Action<SkillContext>)?.Invoke(ctx3);
+            Assert.AreEqual(1.0f, ctx3.damageMultiplier, 0.001f, "Rank 4: no bonus.");
         }
 
         // ===== Lifecycle tests =====
