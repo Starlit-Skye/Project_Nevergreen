@@ -85,6 +85,13 @@ namespace Nevergreen.Combat
         [HideInInspector] public CombatStats baseStats;
         [HideInInspector] public List<SkillData> equippedSkills = new List<SkillData>();
         [HideInInspector] public List<StatusEffectInstance> statusEffects = new List<StatusEffectInstance>();
+        [HideInInspector] public List<TraitInstance> activeTraits = new List<TraitInstance>();
+
+        /// <summary>
+        /// Optional injectable reference to the PartyMemberInfo for this character.
+        /// If set, takes priority over RunSessionManager lookup during initialization.
+        /// </summary>
+        [HideInInspector] public PartyMemberInfo partyInfo;
 
         [HideInInspector] public bool isStunned = false;
         [HideInInspector] public int skillUsesThisBattle_count = 0;
@@ -148,17 +155,18 @@ namespace Nevergreen.Combat
 
             baseStats = new CombatStats(statBlock);
 
-            var partyInfo = RunSessionManager.CurrentParty?.Find(p => p.character == this.characterData);
-            if (team == Team.Player && partyInfo != null)
+            var resolvedPartyInfo = partyInfo ?? RunSessionManager.CurrentParty?.Find(p => p.character == this.characterData);
+            if (team == Team.Player && resolvedPartyInfo != null)
             {
-                if (partyInfo.currentHP.HasValue)
+                partyInfo = resolvedPartyInfo;
+                if (resolvedPartyInfo.currentHP.HasValue)
                 {
-                    currentHP = partyInfo.currentHP.Value;
+                    currentHP = resolvedPartyInfo.currentHP.Value;
                 }
                 else
                 {
                     currentHP = baseStats.maxHP;
-                    partyInfo.currentHP = currentHP;
+                    resolvedPartyInfo.currentHP = currentHP;
                 }
             }
             else
@@ -169,9 +177,9 @@ namespace Nevergreen.Combat
             // Equip skills: check RunSessionManager for player-selected skills, fallback to defaults
             equippedSkills.Clear();
 
-            if (team == Team.Player && partyInfo != null && partyInfo.equippedSkills != null && partyInfo.equippedSkills.Count > 0)
+            if (team == Team.Player && resolvedPartyInfo != null && resolvedPartyInfo.equippedSkills != null && resolvedPartyInfo.equippedSkills.Count > 0)
             {
-                equippedSkills.AddRange(partyInfo.equippedSkills);
+                equippedSkills.AddRange(resolvedPartyInfo.equippedSkills);
             }
             else
             {
@@ -200,6 +208,28 @@ namespace Nevergreen.Combat
             isStunned = false;
             state = LifeState.Alive;
 
+            // Activate traits from PartyMemberInfo
+            DeactivateAllTraits();
+            if (team == Team.Player && resolvedPartyInfo != null)
+            {
+                foreach (var traitData in resolvedPartyInfo.perfections)
+                {
+                    if (traitData != null)
+                    {
+                        var instance = new TraitInstance(traitData, this, null);
+                        activeTraits.Add(instance);
+                    }
+                }
+                foreach (var traitData in resolvedPartyInfo.imperfections)
+                {
+                    if (traitData != null)
+                    {
+                        var instance = new TraitInstance(traitData, this, null);
+                        activeTraits.Add(instance);
+                    }
+                }
+            }
+
             animator = GetComponentInChildren<Animator>();
             if (animator == null)
             {
@@ -212,6 +242,13 @@ namespace Nevergreen.Combat
         /// </summary>
         public CombatStats GetEffectiveStats()
         {
+            // --- Phase 0: Collect passive trait modifiers ---
+            var traitMod = new TraitStatModifier();
+            foreach (var trait in activeTraits)
+            {
+                trait.ModifyStats(traitMod);
+            }
+
             // Track accumulated percentage and flat modifiers for every stat target
             var netPercent = new Dictionary<StatTarget, float>();
             var netFlat = new Dictionary<StatTarget, int>();
@@ -241,6 +278,18 @@ namespace Nevergreen.Combat
                     if (!netPercent.ContainsKey(status.targetStat)) netPercent[status.targetStat] = 0f;
                     netPercent[status.targetStat] += sign * (status.amplitude / 100f);
                 }
+            }
+
+            // Merge trait modifiers into the accumulator dictionaries
+            foreach (var kvp in traitMod.flatBonuses)
+            {
+                if (!netFlat.ContainsKey(kvp.Key)) netFlat[kvp.Key] = 0;
+                netFlat[kvp.Key] += kvp.Value;
+            }
+            foreach (var kvp in traitMod.percentBonuses)
+            {
+                if (!netPercent.ContainsKey(kvp.Key)) netPercent[kvp.Key] = 0f;
+                netPercent[kvp.Key] += kvp.Value / 100f;
             }
 
             CombatStats effective = baseStats.Clone();
@@ -433,6 +482,30 @@ namespace Nevergreen.Combat
                 StatusType.Move => eff.moveResist,
                 _ => 0
             };
+        }
+
+        /// <summary>
+        /// Deactivates and clears all active traits. Called during cleanup or re-initialization.
+        /// </summary>
+        public void DeactivateAllTraits()
+        {
+            foreach (var trait in activeTraits)
+            {
+                trait.Deactivate();
+            }
+            activeTraits.Clear();
+        }
+
+        /// <summary>
+        /// Activates all traits (called after BattleSystem reference is available).
+        /// </summary>
+        public void ActivateTraits(BattleSystem battleSystem)
+        {
+            foreach (var trait in activeTraits)
+            {
+                trait.battleSystem = battleSystem;
+                trait.Activate();
+            }
         }
     }
 

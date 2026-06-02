@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Nevergreen.Data
 {
@@ -17,10 +18,57 @@ namespace Nevergreen.Data
 
         /// <summary>The persistent HP of the character during a run. Null if starting the run at max HP.</summary>
         public int? currentHP;
-        
-        // NOTE FOR FUTURE EXPANSION:
-        // public int currentLevel;
-        // public List<GearData> equippedGear;
-        // public List<PassiveData> activePassives;
+
+        /// <summary>Active Perfection traits on this Marionette.</summary>
+        public List<TraitData> perfections = new List<TraitData>();
+
+        /// <summary>Active Imperfection traits on this Marionette.</summary>
+        public List<TraitData> imperfections = new List<TraitData>();
+
+        /// <summary>
+        /// Attempts to add a trait. Returns false if the trait is already present
+        /// (by traitId) or the relevant list has reached its capacity.
+        /// </summary>
+        public bool TryAddTrait(TraitData trait, CombatConfig config)
+        {
+            if (trait == null || config == null) return false;
+
+            List<TraitData> list;
+            int max;
+
+            if (trait.traitType == TraitType.Perfection)
+            {
+                list = perfections;
+                max = config.maxPerfections;
+            }
+            else
+            {
+                list = imperfections;
+                max = config.maxImperfections;
+            }
+
+            // Capacity check
+            if (list.Count >= max) return false;
+
+            // Uniqueness check (by traitId)
+            if (list.Any(t => t.traitId == trait.traitId)) return false;
+
+            list.Add(trait);
+            return true;
+        }
+
+        /// <summary>
+        /// Removes a trait by reference. Returns true if the trait was found and removed.
+        /// </summary>
+        public bool RemoveTrait(TraitData trait)
+        {
+            if (trait == null) return false;
+
+            if (trait.traitType == TraitType.Perfection)
+                return perfections.Remove(trait);
+            else
+                return imperfections.Remove(trait);
+        }
     }
 }
+
