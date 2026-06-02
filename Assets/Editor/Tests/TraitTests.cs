@@ -33,14 +33,14 @@ namespace Nevergreen.Tests
             trait.traitId = id;
             trait.displayName = id;
             trait.traitType = type;
-            trait.effectStrategy = strategy;
+            if (strategy != null) trait.effectStrategies.Add(strategy);
             return trait;
         }
 
         private StatModifierTraitStrategy CreateStatModStrategy(
             StatTarget stat, int amount, AmplitudeType ampType = AmplitudeType.Percentage)
         {
-            var strategy = ScriptableObject.CreateInstance<StatModifierTraitStrategy>();
+            var strategy = new StatModifierTraitStrategy();
             strategy.targetStat = stat;
             strategy.amount = amount;
             strategy.amplitudeType = ampType;
@@ -218,7 +218,7 @@ namespace Nevergreen.Tests
             var battleSystem = bsGo.AddComponent<BattleSystem>();
             _cleanup.Add(bsGo);
 
-            var strategy = ScriptableObject.CreateInstance<RankDamageBonusTraitStrategy>();
+            var strategy = new RankDamageBonusTraitStrategy();
             strategy.requiredRank = 1;
             strategy.damageBonusPercent = 20;
 
@@ -245,7 +245,7 @@ namespace Nevergreen.Tests
             var battleSystem = bsGo.AddComponent<BattleSystem>();
             _cleanup.Add(bsGo);
 
-            var strategy = ScriptableObject.CreateInstance<RankDamageBonusTraitStrategy>();
+            var strategy = new RankDamageBonusTraitStrategy();
             strategy.requiredRank = 3;
             strategy.damageBonusPercent = 20;
 
@@ -271,7 +271,7 @@ namespace Nevergreen.Tests
             var battleSystem = bsGo.AddComponent<BattleSystem>();
             _cleanup.Add(bsGo);
 
-            var strategy = ScriptableObject.CreateInstance<RankDamageBonusTraitStrategy>();
+            var strategy = new RankDamageBonusTraitStrategy();
             strategy.requiredRank = 2;
             strategy.damageBonusPercent = 15;
 
@@ -366,6 +366,18 @@ namespace Nevergreen.Tests
             CombatStats effective = cc.GetEffectiveStats();
             // Flat applied first: 100 + 15 = 115, then percentage: 115 * 1.1 = 126.5 => 126 (banker's rounding)
             Assert.AreEqual(126, effective.attack, "Flat +15 then +10% on base 100 => (100+15)*1.1 = 126.5 => 126.");
+        }
+
+        [Test]
+        public void TestPerfection_AppliesFlatSpeedPlusTwo()
+        {
+            var strategy = new Test_Perfection();
+            var trait = CreateTrait("test_perf_trait", TraitType.Perfection, strategy);
+
+            var cc = CreateCharacterWithTraits(new List<TraitData> { trait }, null, speed: 10);
+            CombatStats effective = cc.GetEffectiveStats();
+
+            Assert.AreEqual(12, effective.speed, "Test_Perfection should add +2 flat speed.");
         }
     }
 }

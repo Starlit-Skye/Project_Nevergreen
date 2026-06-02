@@ -4,10 +4,10 @@ namespace Nevergreen.Data
 {
     /// <summary>
     /// Abstract base for all trait effect behaviours.
-    /// Concrete strategies are ScriptableObjects that define how a single
-    /// Perfection or Imperfection modifies combat.
+    /// Concrete strategies define how a single Perfection or Imperfection modifies combat.
     /// </summary>
-    public abstract class TraitEffectStrategy : ScriptableObject
+    [System.Serializable]
+    public abstract class TraitEffectStrategy
     {
         /// <summary>
         /// Called once when combat starts and the trait is activated on a character.

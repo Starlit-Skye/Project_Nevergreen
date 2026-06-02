@@ -10,7 +10,7 @@ namespace Nevergreen.Combat
     ///   - Imperfection: "-5 Defense" (flat) or "-10% Accuracy" (percent)
     /// The sign should be baked into the value (positive for buff, negative for debuff).
     /// </summary>
-    [CreateAssetMenu(fileName = "NewStatModTrait", menuName = "Nevergreen/Traits/Stat Modifier")]
+    [System.Serializable]
     public class StatModifierTraitStrategy : TraitEffectStrategy
     {
         [Tooltip("Which stat this trait modifies.")]

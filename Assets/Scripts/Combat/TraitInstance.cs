@@ -33,9 +33,12 @@ namespace Nevergreen.Combat
         /// </summary>
         public void Activate()
         {
-            if (data.effectStrategy != null)
+            if (data.effectStrategies != null)
             {
-                data.effectStrategy.OnActivate(this);
+                foreach (var strategy in data.effectStrategies)
+                {
+                    strategy?.OnActivate(this);
+                }
             }
         }
 
@@ -44,9 +47,12 @@ namespace Nevergreen.Combat
         /// </summary>
         public void Deactivate()
         {
-            if (data.effectStrategy != null)
+            if (data.effectStrategies != null)
             {
-                data.effectStrategy.OnDeactivate(this);
+                foreach (var strategy in data.effectStrategies)
+                {
+                    strategy?.OnDeactivate(this);
+                }
             }
         }
 
@@ -55,9 +61,12 @@ namespace Nevergreen.Combat
         /// </summary>
         public void ModifyStats(TraitStatModifier modifier)
         {
-            if (data.effectStrategy != null)
+            if (data.effectStrategies != null)
             {
-                data.effectStrategy.ModifyStats(this, modifier);
+                foreach (var strategy in data.effectStrategies)
+                {
+                    strategy?.ModifyStats(this, modifier);
+                }
             }
         }
     }

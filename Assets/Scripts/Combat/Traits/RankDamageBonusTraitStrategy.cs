@@ -8,7 +8,7 @@ namespace Nevergreen.Combat
     /// is standing at a specific rank. Subscribes to OnBeforeDamageCalculation
     /// to apply the bonus damage to the damage multiplier in the skill context.
     /// </summary>
-    [CreateAssetMenu(fileName = "NewRankDamageTrait", menuName = "Nevergreen/Traits/Rank Damage Bonus")]
+    [System.Serializable]
     public class RankDamageBonusTraitStrategy : TraitEffectStrategy
     {
         [Tooltip("The rank the owner must be at for the bonus to apply.")]

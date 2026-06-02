@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Nevergreen.Data
 {
@@ -31,7 +32,10 @@ namespace Nevergreen.Data
         [Tooltip("Whether this trait is a Perfection (positive) or Imperfection (negative).")]
         public TraitType traitType = TraitType.Perfection;
 
-        [Tooltip("The ScriptableObject that implements this trait's combat behaviour.")]
-        public TraitEffectStrategy effectStrategy;
+        [Header("Effect Strategies")]
+        [Tooltip("The modular effects executed by this trait.")]
+        [SerializeReference]
+        [Nevergreen.Attributes.SubclassSelector]
+        public List<TraitEffectStrategy> effectStrategies = new List<TraitEffectStrategy>();
     }
 }
