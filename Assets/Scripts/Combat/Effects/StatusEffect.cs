@@ -42,8 +42,15 @@ namespace Nevergreen.Combat
                 return;
             }
 
+            float finalChance = applicationChance;
+            string key = $"StatusChanceBonus_{statusType}";
+            if (context.extra.TryGetValue(key, out object bonusObj) && bonusObj is float bonus)
+            {
+                finalChance += bonus;
+            }
+
             int resistance = target.GetResistance(statusType);
-            bool applied = CombatCalculator.ResolveStatusApplication(applicationChance, resistance, context.rng);
+            bool applied = CombatCalculator.ResolveStatusApplication(finalChance, resistance, context.rng);
 
             if (applied)
             {

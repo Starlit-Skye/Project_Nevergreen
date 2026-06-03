@@ -424,5 +424,51 @@ namespace Nevergreen.Tests
             // With 50% bonus, heal = 53 * 1.5 = 79.5 -> rounds to 80.
             Assert.AreEqual(90, cc.currentHP, "HP should increase by 80 (53 base + 50% bonus).");
         }
+
+        // ===== StatusApplicationBonusTraitStrategy tests =====
+        [Test]
+        public void StatusBonusTrait_IncreasesApplicationChance()
+        {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            var strategy = new StatusApplicationBonusTraitStrategy();
+            strategy.statusType = StatusType.Stun;
+            strategy.applicationChanceBonus = 100f; // Huge bonus to guarantee application
+            strategy.onlyAgainstEnemies = true;
+
+            var trait = CreateTrait("stun_bonus", TraitType.Perfection, strategy);
+            
+            var cc = CreateCharacterWithTraits(new List<TraitData> { trait }, null);
+            cc.ActivateTraits(battleSystem);
+
+            var enemy = CombatTestHelper.CreateCombatCharacter("enemy", Team.Enemy, 1, maxHP: 100);
+            _cleanup.Add(enemy.gameObject);
+
+            var stunSkill = ScriptableObject.CreateInstance<SkillData>();
+            stunSkill.skillId = "stun_skill";
+            stunSkill.targetScope = TargetScope.Enemies;
+            
+            var statusEffect = new StatusEffect();
+            statusEffect.statusType = StatusType.Stun;
+            statusEffect.applicationChance = 0f; // 0% base chance, would never apply normally
+            stunSkill.effects.Add(statusEffect);
+
+            var ctx = new SkillContext(cc, stunSkill, new List<CombatCharacter> { enemy }, battleSystem, CombatTestHelper.CreateFixedRng());
+            
+            var eventField = typeof(BattleSystem).GetField("OnBeforeDamageCalculation", 
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var handler = eventField.GetValue(battleSystem) as System.Action<SkillContext>;
+            handler?.Invoke(ctx);
+
+            Assert.IsTrue(ctx.extra.ContainsKey($"StatusChanceBonus_{StatusType.Stun}"), "Context should contain the status chance bonus.");
+            Assert.AreEqual(100f, (float)ctx.extra[$"StatusChanceBonus_{StatusType.Stun}"], "Bonus should be exactly 100f.");
+
+            statusEffect.Execute(ctx, enemy);
+
+            bool hasStun = enemy.statusEffects.Exists(s => s.type == StatusType.Stun);
+            Assert.IsTrue(hasStun, "Enemy should be stunned due to the 100% bonus from the trait.");
+        }
     }
 }
