@@ -20,6 +20,13 @@ namespace Nevergreen.Combat
             CombatConfig config = context.battleSystem != null ? context.battleSystem.combatConfig : null;
             int healAmount = CombatCalculator.CalculateHeal(context, config);
             
+            // Check for per-target "Heal Received" bonuses stored by traits in the context
+            string key = $"HealReceived_{target.GetInstanceID()}";
+            if (context.extra.TryGetValue(key, out object bonusObj) && bonusObj is float bonusPercent)
+            {
+                healAmount = Mathf.RoundToInt(healAmount * (1f + bonusPercent));
+            }
+
             // 2. Application
             target.Heal(healAmount);
 

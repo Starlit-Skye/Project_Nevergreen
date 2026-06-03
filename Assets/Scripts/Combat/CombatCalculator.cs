@@ -76,6 +76,7 @@ namespace Nevergreen.Combat
             }
 
             int baseHeal = Mathf.RoundToInt(ctx.baseAttackRoll * ctx.skillScaling);
+            baseHeal = Mathf.RoundToInt(baseHeal * ctx.damageMultiplier);
             ctx.calculatedValue = Mathf.Max(0, baseHeal);
             return ctx.calculatedValue;
         }

@@ -379,5 +379,50 @@ namespace Nevergreen.Tests
 
             Assert.AreEqual(12, effective.speed, "Test_Perfection should add +2 flat speed.");
         }
+
+        // ===== HealReceivedBonusTraitStrategy tests =====
+
+        [Test]
+        public void HealReceivedTrait_IncreasesHealMultiplier_WhenHealedByAlly()
+        {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            var strategy = new HealReceivedBonusTraitStrategy();
+            strategy.healBonusPercent = 50;
+
+            var trait = CreateTrait("heal_bonus", TraitType.Perfection, strategy);
+            
+            // The character receiving the heal
+            var cc = CreateCharacterWithTraits(new List<TraitData> { trait }, null, attack: 100);
+            cc.ActivateTraits(battleSystem);
+
+            // A healer on the same team
+            var healer = CreateCharacterWithTraits(null, null, attack: 50);
+
+            var healSkill = ScriptableObject.CreateInstance<SkillData>();
+            healSkill.skillId = "heal_skill";
+            healSkill.modifier = new SkillModifier { healPercent = 1.0f }; // 100% attack scaling
+            healSkill.effects.Add(new HealEffect());
+
+            var ctx = new SkillContext(healer, healSkill, new List<CombatCharacter> { cc }, battleSystem, CombatTestHelper.CreateFixedRng());
+            
+            var eventField = typeof(BattleSystem).GetField("OnBeforeDamageCalculation", 
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var handler = eventField.GetValue(battleSystem) as System.Action<SkillContext>;
+            handler?.Invoke(ctx);
+
+            string key = $"HealReceived_{cc.GetInstanceID()}";
+            Assert.IsTrue(ctx.extra.ContainsKey(key), "Context should contain HealReceived bonus key.");
+            Assert.AreEqual(0.5f, (float)ctx.extra[key], 0.001f, "Bonus should be 50% (0.5f).");
+
+            cc.currentHP = 10; // Drop HP so we can heal
+            healSkill.effects[0].Execute(ctx, cc);
+
+            // Healer has 50 atk, 1.0 multiplier. FixedRng returns a roll that makes base heal = 53.
+            // With 50% bonus, heal = 53 * 1.5 = 79.5 -> rounds to 80.
+            Assert.AreEqual(90, cc.currentHP, "HP should increase by 80 (53 base + 50% bonus).");
+        }
     }
 }
