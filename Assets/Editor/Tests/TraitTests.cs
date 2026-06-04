@@ -470,5 +470,170 @@ namespace Nevergreen.Tests
             bool hasStun = enemy.statusEffects.Exists(s => s.type == StatusType.Stun);
             Assert.IsTrue(hasStun, "Enemy should be stunned due to the 100% bonus from the trait.");
         }
+        // ===== HealOutputBonusTraitStrategy tests =====
+        [Test]
+        public void HealOutputTrait_IncreasesDamageMultiplier_WhenUsingHealSkill()
+        {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            var strategy = new HealOutputBonusTraitStrategy();
+            strategy.healBonusPercent = 50;
+
+            var trait = CreateTrait("heal_output_bonus", TraitType.Perfection, strategy);
+            
+            // The character using the heal
+            var healer = CreateCharacterWithTraits(new List<TraitData> { trait }, null, attack: 50);
+            healer.ActivateTraits(battleSystem);
+
+            var healSkill = ScriptableObject.CreateInstance<SkillData>();
+            healSkill.skillId = "heal_skill";
+            healSkill.modifier = new SkillModifier { healPercent = 1.0f }; // 100% attack scaling
+            
+            var ctx = new SkillContext(healer, healSkill, new List<CombatCharacter> { healer }, battleSystem, CombatTestHelper.CreateFixedRng());
+            
+            var eventField = typeof(BattleSystem).GetField("OnBeforeDamageCalculation", 
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var handler = eventField.GetValue(battleSystem) as System.Action<SkillContext>;
+            handler?.Invoke(ctx);
+
+            Assert.AreEqual(1.5f, ctx.damageMultiplier, 0.001f, "Damage multiplier should increase by 50% for healing skill.");
+        }
+        // ===== FirstRoundStatModifierTraitStrategy tests =====
+        [Test]
+        public void FirstRoundStatModifierTrait_OnlyActiveInFirstRound()
+        {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            var strategy = new FirstRoundStatModifierTraitStrategy();
+            strategy.targetStat = StatTarget.Attack;
+            strategy.amount = 50; // +50% attack
+            strategy.amplitudeType = AmplitudeType.Percentage;
+
+            var trait = CreateTrait("first_round_atk", TraitType.Perfection, strategy);
+            
+            var character = CreateCharacterWithTraits(new List<TraitData> { trait }, null, attack: 100);
+            character.ActivateTraits(battleSystem);
+
+            // Test pre-combat (Round 0)
+            var preCombatStats = character.GetEffectiveStats();
+            Assert.AreEqual(150, preCombatStats.attack, "Stat buff should be active pre-combat (Round 0).");
+
+            // Test round 1
+            typeof(BattleSystem).GetProperty("CurrentRound").SetValue(battleSystem, 1);
+            var round1Stats = character.GetEffectiveStats();
+            Assert.AreEqual(150, round1Stats.attack, "Stat buff should be active during Round 1.");
+
+            // Test round 2
+            typeof(BattleSystem).GetProperty("CurrentRound").SetValue(battleSystem, 2);
+            var round2Stats = character.GetEffectiveStats();
+            Assert.AreEqual(100, round2Stats.attack, "Stat buff should NOT be active during Round 2.");
+        }
+        // ===== LowHpStatModifierTraitStrategy tests =====
+        [Test]
+        public void LowHpStatModifierTrait_OnlyActiveBelowThreshold()
+        {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            var strategy = new LowHpStatModifierTraitStrategy();
+            strategy.targetStat = StatTarget.Speed;
+            strategy.amount = 20; // +20% speed
+            strategy.amplitudeType = AmplitudeType.Percentage;
+            strategy.hpThresholdPercent = 50f; // Only active at or below 50% HP
+
+            var trait = CreateTrait("low_hp_speed", TraitType.Perfection, strategy);
+            
+            // Create a character with maxHP = 100
+            var character = CreateCharacterWithTraits(new List<TraitData> { trait }, null, speed: 10, maxHP: 100);
+            character.ActivateTraits(battleSystem);
+
+            // Test above threshold (100 HP = 100%)
+            character.currentHP = 100;
+            var aboveThresholdStats = character.GetEffectiveStats();
+            Assert.AreEqual(10, aboveThresholdStats.speed, "Speed buff should NOT be active at 100% HP.");
+
+            // Test at exactly threshold (50 HP = 50%)
+            character.currentHP = 50;
+            var atThresholdStats = character.GetEffectiveStats();
+            Assert.AreEqual(12, atThresholdStats.speed, "Speed buff should be active at exactly 50% HP.");
+
+            // Test below threshold (10 HP = 10%)
+            character.currentHP = 10;
+            var belowThresholdStats = character.GetEffectiveStats();
+            Assert.AreEqual(12, belowThresholdStats.speed, "Speed buff should be active below 50% HP.");
+        }
+        [Test]
+        public void LowHpStatModifierTrait_RespectsEffectiveMaxHpBuffs()
+        {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            var strategy = new LowHpStatModifierTraitStrategy();
+            strategy.targetStat = StatTarget.Speed;
+            strategy.amount = 50; // +50% speed
+            strategy.hpThresholdPercent = 50f; 
+            var trait = CreateTrait("low_hp_speed", TraitType.Perfection, strategy);
+            
+            var character = CreateCharacterWithTraits(new List<TraitData> { trait }, null, speed: 10, maxHP: 100);
+            character.ActivateTraits(battleSystem);
+
+            // Initially, maxHP is 100. 50 HP is exactly 50%.
+            character.currentHP = 50;
+            var initialStats = character.GetEffectiveStats();
+            Assert.AreEqual(15, initialStats.speed, "Buff should be active at 50/100 HP (50%).");
+
+            // Apply a buff that increases maxHP by 100 (so effective max HP is 200).
+            var hpBuff = new StatusEffectInstance(StatusType.Buff, StatTarget.MaxHP, 100, 1, AmplitudeType.Flat);
+            hpBuff.Source = character;
+            hpBuff.Host = character;
+            character.statusEffects.Add(hpBuff);
+
+            // Now, current HP is still 50. But maxHP is 200.
+            // 50 / 200 = 25%, which is < 50%. The trait should STILL be active.
+            var buffedStats1 = character.GetEffectiveStats();
+            Assert.AreEqual(15, buffedStats1.speed, "Buff should STILL be active at 50/200 HP (25%).");
+
+            // Now, heal character to 120 HP.
+            // 120 / 200 = 60%, which is > 50%. The trait should DEACTIVATE.
+            character.currentHP = 120;
+            var buffedStats2 = character.GetEffectiveStats();
+            Assert.AreEqual(10, buffedStats2.speed, "Buff should NOT be active at 120/200 HP (60%).");
+        }
+        // ===== RankStatModifierTraitStrategy tests =====
+        [Test]
+        public void RankStatModifierTrait_OnlyActiveInRequiredRank()
+        {
+            var strategy = new RankStatModifierTraitStrategy();
+            strategy.requiredRank = 2; // Must be in Rank 2
+            strategy.targetStat = StatTarget.Defense;
+            strategy.amount = 15; // +15% Defense
+            strategy.amplitudeType = AmplitudeType.Percentage;
+
+            var trait = CreateTrait("rank2_defense", TraitType.Perfection, strategy);
+            
+            // Create character with base defense 20
+            var character = CreateCharacterWithTraits(new List<TraitData> { trait }, null, defense: 20);
+            
+            // Test at Rank 1 (Not active)
+            character.rank = 1;
+            var rank1Stats = character.GetEffectiveStats();
+            Assert.AreEqual(20, rank1Stats.defense, "Defense should NOT be buffed at rank 1.");
+
+            // Test at Rank 2 (Active)
+            character.rank = 2;
+            var rank2Stats = character.GetEffectiveStats();
+            Assert.AreEqual(23, rank2Stats.defense, "Defense should be buffed (+15%) at rank 2.");
+
+            // Test at Rank 3 (Not active)
+            character.rank = 3;
+            var rank3Stats = character.GetEffectiveStats();
+            Assert.AreEqual(20, rank3Stats.defense, "Defense should NOT be buffed at rank 3.");
+        }
     }
 }
