@@ -10,29 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d8e6a37c3b10344bb0949ed800bab2e, type: 3}
-  m_Name: TD_P_biologist
+  m_Name: TD_P_weak_arms
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TraitData
-  traitId: TD_P_biologist
-  displayName: Biologist
-  description: '+20% Bleed Chance
-
-    +20% Blight Chance'
-  traitType: 0
+  traitId: TD_P_weak_arms
+  displayName: Weak Arms
+  description: -10% Move Chance
+  traitType: 1
   effectStrategies:
-  - rid: 4415245172071727180
-  - rid: 4415245172071727181
+  - rid: 4415245238185230350
   references:
     version: 2
     RefIds:
-    - rid: 4415245172071727180
+    - rid: 4415245238185230350
       type: {class: StatusApplicationBonusTraitStrategy, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 0
-        applicationChanceBonus: 20
-        onlyAgainstEnemies: 0
-    - rid: 4415245172071727181
-      type: {class: StatusApplicationBonusTraitStrategy, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
-        statusType: 1
-        applicationChanceBonus: 20
+        statusType: 9
+        applicationChanceBonus: -10
         onlyAgainstEnemies: 0
