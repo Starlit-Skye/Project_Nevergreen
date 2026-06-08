@@ -64,5 +64,9 @@ namespace Nevergreen.Data
         [Tooltip("Maximum number of Imperfections a single Marionette can have.")]
         [Min(0)]
         public int maxImperfections = 3;
+
+        [Header("Marionette Selection UI")]
+        [Tooltip("Number of Marionette choices displayed to the player.")]
+        public int marionetteChoiceCount = 4;
     }
 }
