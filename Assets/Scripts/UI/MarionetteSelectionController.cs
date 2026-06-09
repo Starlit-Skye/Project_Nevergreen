@@ -16,6 +16,8 @@ namespace Nevergreen.UI
         [Header("Configuration")]
         [Tooltip("The Marionette database to select choices from.")]
         public MarionetteDatabase marionetteDatabase;
+        [Tooltip("Trait database to use as fallback if not set in RunSessionManager.")]
+        public TraitDatabase traitDatabase;
         [Tooltip("Global combat configuration for choice limits.")]
         public CombatConfig combatConfig;
         [Tooltip("The scene to load after confirmation.")]
@@ -41,7 +43,7 @@ namespace Nevergreen.UI
         public Color highlightColor = Color.yellow;
 
         // State
-        private List<CharacterData> _currentChoices = new List<CharacterData>();
+        private List<PartyMemberInfo> _currentChoices = new List<PartyMemberInfo>();
         private int _selectedChoiceIndex = -1;
         private int _selectedPartyMemberIndex = -1;
         private List<Button> _instantiatedButtons = new List<Button>();
@@ -69,16 +71,20 @@ namespace Nevergreen.UI
         {
             _currentChoices.Clear();
 
-            // Pick N random unique marionettes
-            int choiceCount = Mathf.Min(combatConfig.marionetteChoiceCount, marionetteDatabase.marionettes.Count);
+            // Pick N random marionettes
+            int choiceCount = combatConfig.marionetteChoiceCount;
             
-            // Create a temporary list to pick from
-            List<CharacterData> pool = new List<CharacterData>(marionetteDatabase.marionettes);
+            TraitDatabase activeTraits = RunSessionManager.ActiveTraitDatabase != null 
+                ? RunSessionManager.ActiveTraitDatabase 
+                : traitDatabase;
+
             for (int i = 0; i < choiceCount; i++)
             {
-                int randomIndex = Random.Range(0, pool.Count);
-                _currentChoices.Add(pool[randomIndex]);
-                pool.RemoveAt(randomIndex);
+                var generated = MarionetteGenerator.GenerateRandomMarionette(marionetteDatabase, activeTraits, combatConfig);
+                if (generated != null)
+                {
+                    _currentChoices.Add(generated);
+                }
             }
 
             // Clean up any previously instantiated choice buttons
@@ -111,7 +117,7 @@ namespace Nevergreen.UI
                 TextMeshProUGUI txt = newBtn.GetComponentInChildren<TextMeshProUGUI>();
                 if (txt != null)
                 {
-                    txt.text = _currentChoices[i].displayName;
+                    txt.text = _currentChoices[i].character.displayName;
                 }
 
                 int index = i;
@@ -173,7 +179,7 @@ namespace Nevergreen.UI
             var party = RunSessionManager.CurrentParty;
             if (party != null && index < party.Count && party[index] != null && party[index].character != null)
             {
-                UpdateInfoPanel(party[index].character);
+                UpdateInfoPanel(party[index]);
             }
             else
             {
@@ -212,17 +218,46 @@ namespace Nevergreen.UI
             }
         }
 
-        private void UpdateInfoPanel(CharacterData data)
+        private void UpdateInfoPanel(PartyMemberInfo info)
         {
+            var data = info.character;
             if (infoNameText != null)
                 infoNameText.text = data.displayName;
 
             if (infoDescriptionText != null)
             {
-                string info = $"Actions per round: {data.actionsPerRound}\n";
-                info += $"Size: {data.size}\n";
-                info += $"Skills Available: {data.availableSkills.Count}\n";
-                infoDescriptionText.text = info;
+                string text = $"Attack: {data.statPerLevel[0].attack}\n";
+                text += $"Max HP: {data.statPerLevel[0].maxHP}\n";
+                text += $"Accuracy : {data.statPerLevel[0].accuracy}\n";
+                text += $"Defense: {data.statPerLevel[0].defense}\n";
+                text += $"Speed: {data.statPerLevel[0].speed}\n";
+                text += $"Dodge: {data.statPerLevel[0].dodge}\n";
+                text += $"Crit Chance: {data.statPerLevel[0].critChance}\n\n";
+
+                text += "<b>Skills:</b>\n";
+                foreach (var skill in info.equippedSkills)
+                {
+                    if (skill != null)
+                        text += $"- {skill.displayName}\n";
+                }
+                text += "\n";
+
+                text += "<b>Perfections:</b>\n";
+                foreach (var perf in info.perfections)
+                {
+                    if (perf != null)
+                        text += $"- <color=green>{perf.displayName}</color>\n";
+                }
+                text += "\n";
+
+                text += "<b>Imperfections:</b>\n";
+                foreach (var imp in info.imperfections)
+                {
+                    if (imp != null)
+                        text += $"- <color=red>{imp.displayName}</color>\n";
+                }
+
+                infoDescriptionText.text = text;
             }
         }
 
@@ -248,13 +283,7 @@ namespace Nevergreen.UI
             if (_selectedChoiceIndex == -1 || _selectedPartyMemberIndex == -1) return;
 
             // Perform the swap
-            var newChoice = _currentChoices[_selectedChoiceIndex];
-            
-            var newPartyMember = new PartyMemberInfo
-            {
-                character = newChoice,
-                equippedSkills = new List<SkillData>()
-            };
+            var newPartyMember = _currentChoices[_selectedChoiceIndex];
 
             var party = RunSessionManager.CurrentParty;
             if (party == null)

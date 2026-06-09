@@ -15,18 +15,22 @@ namespace Nevergreen
         /// <summary>The enemy formation database for the current run.</summary>
         public static EnemyFormationDatabase ActiveFormationDatabase { get; private set; }
 
+        /// <summary>The trait database for the current run.</summary>
+        public static TraitDatabase ActiveTraitDatabase { get; private set; }
+
         /// <summary>The last formation selected, used to prevent consecutive duplicates.</summary>
         public static EnemyFormationData LastSelectedFormation { get; private set; }
 
         private static System.Random _rng = new System.Random();
 
         /// <summary>
-        /// Initializes the formation database for a new run.
+        /// Initializes the databases for a new run.
         /// Called by the Main Menu bootstrapper before loading the combat scene.
         /// </summary>
-        public static void Initialize(EnemyFormationDatabase database)
+        public static void Initialize(EnemyFormationDatabase database, TraitDatabase traitDatabase = null)
         {
             ActiveFormationDatabase = database;
+            ActiveTraitDatabase = traitDatabase;
             LastSelectedFormation = null;
         }
 
@@ -74,6 +78,7 @@ namespace Nevergreen
         {
             CurrentParty.Clear();
             ActiveFormationDatabase = null;
+            ActiveTraitDatabase = null;
             LastSelectedFormation = null;
         }
     }
