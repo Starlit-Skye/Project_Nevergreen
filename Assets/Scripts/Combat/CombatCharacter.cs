@@ -51,7 +51,7 @@ namespace Nevergreen.Combat
                 }
             }
         }
-        private int _currentHP;
+        [SerializeField]private int _currentHP;
 
         [HideInInspector] public int rank;
         [HideInInspector] 

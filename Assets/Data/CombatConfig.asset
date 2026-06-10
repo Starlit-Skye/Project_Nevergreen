@@ -24,3 +24,9 @@ MonoBehaviour:
   maxPartySize: 4
   rankCount: 4
   globalMaxLevel: 10
+  maxPerfections: 3
+  maxImperfections: 3
+  marionetteChoiceCount: 4
+  roomChoiceCount: 3
+  availableRooms:
+  - {fileID: 11400000, guid: d5735d1ecb32e284faef058a1be299c3, type: 2}

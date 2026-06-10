@@ -68,5 +68,12 @@ namespace Nevergreen.Data
         [Header("Marionette Selection UI")]
         [Tooltip("Number of Marionette choices displayed to the player.")]
         public int marionetteChoiceCount = 4;
+
+        [Header("Room Selection")]
+        [Tooltip("Number of room choices displayed to the player after victory.")]
+        public int roomChoiceCount = 3;
+
+        [Tooltip("Pool of available room types the player can choose from.")]
+        public System.Collections.Generic.List<RoomData> availableRooms = new System.Collections.Generic.List<RoomData>();
     }
 }
