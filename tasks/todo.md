@@ -631,3 +631,31 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 - Created robust test fixtures (`EnemyFormationSelectionTests.cs`, `CombatSceneBootstrapFormationTests.cs`, and `CombatUITests.cs`) verifying all requirements.
 - Completed comprehensive technical documentation detailing the data models, timing model, determinism rules, and validation checks.
 
+
+# Dynamic Room Selection & Room Effect Strategies
+
+## Phase 1: Planning & Architecture
+- [x] Create implementation plan in `implementation_plan.md` <!-- id: 124 -->
+- [x] Create tasks checklist in `task.md` <!-- id: 125 -->
+
+## Phase 2: Core Data Models & Config
+- [x] Create `RoomActivationType` enum <!-- id: 126 -->
+- [x] Create abstract `RoomEffectStrategy` base class <!-- id: 127 -->
+- [x] Create concrete `MarionetteRoomEffectStrategy` class <!-- id: 128 -->
+- [x] Create `RoomData` ScriptableObject class <!-- id: 129 -->
+- [x] Add `roomChoiceCount` and `availableRooms` to `CombatConfig` <!-- id: 130 -->
+- [x] Add `NextRoomData`, `SubscribeToBattle()`, `ActivateCurrentRoomEffect()`, and `HandleBattleVictory()` to `RunSessionManager` <!-- id: 131 -->
+
+## Phase 3: Bootstrap & UI Interception
+- [x] Modify `CombatSceneBootstrap.Start` to support configurable activation timing (early return on `OnRoomLoaded`, invoke on `ContinuousCombat`) <!-- id: 132 -->
+- [x] Subscribe `RunSessionManager` to `BattleSystem.OnBattleEnded` via `SubscribeToBattle()` in `InitializeBattle()` <!-- id: 133 -->
+- [x] Update `CombatUI.cs` to show `roomChoiceCount` dynamic buttons on Victory instead of a single button <!-- id: 134 -->
+- [x] Bind dynamic button clicks to select the room, set `RunSessionManager.NextRoomData`, and reload the combat scene <!-- id: 135 -->
+
+## Phase 4: Verification
+- [x] Write EditMode unit tests in `RoomEffectTests.cs` covering all activation timings and UI selections (13 tests) <!-- id: 136 -->
+- [x] Verify that all existing and new tests build and pass successfully (272/272 passed) <!-- id: 137 -->
+
+
+
+

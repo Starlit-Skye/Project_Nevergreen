@@ -45,8 +45,25 @@ namespace Nevergreen.Prototype
 
         private void Start()
         {
+            // Check if the next room has a non-combat effect that should run immediately
+            if (RunSessionManager.NextRoomData != null &&
+                RunSessionManager.NextRoomData.activationType == Nevergreen.Data.RoomActivationType.OnRoomLoaded)
+            {
+                RunSessionManager.ActivateCurrentRoomEffect();
+                RunSessionManager.NextRoomData = null;
+                return; // Bypass combat entirely
+            }
+
             SpawnTeams();
             InitializeBattle();
+
+            // If a ContinuousCombat room effect is queued, activate it now (after battle init)
+            if (RunSessionManager.NextRoomData != null &&
+                RunSessionManager.NextRoomData.activationType == Nevergreen.Data.RoomActivationType.ContinuousCombat)
+            {
+                RunSessionManager.ActivateCurrentRoomEffect();
+                RunSessionManager.NextRoomData = null;
+            }
         }
 
         private void SpawnTeams()
@@ -243,6 +260,9 @@ namespace Nevergreen.Prototype
             battleSystem.playerSpacingX = playerRankSpacing;
             battleSystem.enemyBaseX = enemyBasePosition.x;
             battleSystem.enemySpacingX = enemyRankSpacing;
+
+            // Subscribe RunSessionManager to battle events for victory room effects
+            RunSessionManager.SubscribeToBattle(battleSystem);
 
             battleSystem.StartBattle(_spawnedPlayerTeam, _spawnedEnemyTeam);
         }

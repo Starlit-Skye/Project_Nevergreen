@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Nevergreen.Data;
+using Nevergreen.Combat;
 
 namespace Nevergreen
 {
@@ -21,7 +22,11 @@ namespace Nevergreen
         /// <summary>The last formation selected, used to prevent consecutive duplicates.</summary>
         public static EnemyFormationData LastSelectedFormation { get; private set; }
 
+        /// <summary>The RoomData selected by the player for the next room. Persists across scene loads.</summary>
+        public static RoomData NextRoomData { get; set; }
+
         private static System.Random _rng = new System.Random();
+        private static BattleSystem _activeBattleSystem;
 
         /// <summary>
         /// Initializes the databases for a new run.
@@ -32,6 +37,61 @@ namespace Nevergreen
             ActiveFormationDatabase = database;
             ActiveTraitDatabase = traitDatabase;
             LastSelectedFormation = null;
+        }
+
+        /// <summary>
+        /// Subscribes to the BattleSystem's OnBattleEnded event to handle victory room effects.
+        /// Called by CombatSceneBootstrap.InitializeBattle().
+        /// </summary>
+        public static void SubscribeToBattle(BattleSystem battleSystem)
+        {
+            // Unsubscribe from any previous battle system (safety)
+            if (_activeBattleSystem != null)
+            {
+                _activeBattleSystem.OnBattleEnded -= OnBattleEnded;
+            }
+
+            _activeBattleSystem = battleSystem;
+            _activeBattleSystem.OnBattleEnded += OnBattleEnded;
+        }
+
+        private static void OnBattleEnded(BattleOutcome outcome)
+        {
+            // Unsubscribe immediately to ensure clean lifecycle
+            if (_activeBattleSystem != null)
+            {
+                _activeBattleSystem.OnBattleEnded -= OnBattleEnded;
+                _activeBattleSystem = null;
+            }
+
+            if (outcome == BattleOutcome.Victory)
+            {
+                HandleBattleVictory();
+            }
+        }
+
+        /// <summary>
+        /// Handles battle victory by activating the current room effect if it is
+        /// configured for OnCombatVictory timing.
+        /// </summary>
+        public static void HandleBattleVictory()
+        {
+            if (NextRoomData != null && NextRoomData.activationType == RoomActivationType.OnCombatVictory)
+            {
+                ActivateCurrentRoomEffect();
+                NextRoomData = null;
+            }
+        }
+
+        /// <summary>
+        /// Invokes the current room's effect strategy.
+        /// </summary>
+        public static void ActivateCurrentRoomEffect()
+        {
+            if (NextRoomData != null)
+            {
+                NextRoomData.ActivateEffect();
+            }
         }
 
         /// <summary>
@@ -80,6 +140,13 @@ namespace Nevergreen
             ActiveFormationDatabase = null;
             ActiveTraitDatabase = null;
             LastSelectedFormation = null;
+            NextRoomData = null;
+
+            if (_activeBattleSystem != null)
+            {
+                _activeBattleSystem.OnBattleEnded -= OnBattleEnded;
+                _activeBattleSystem = null;
+            }
         }
     }
 }

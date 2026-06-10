@@ -26,8 +26,15 @@ namespace Nevergreen.Prototype
         public GameObject battleEndPanel;
         public TextMeshProUGUI battleEndText;
 
-        [Tooltip("Button shown after victory to proceed to the next room.")]
+        [Tooltip("Button shown after victory to proceed to the next room (fallback).")]
         public Button nextRoomButton;
+
+        [Header("Room Choice")]
+        [Tooltip("Prefab for a single room choice button. Must have a Button and TextMeshProUGUI child.")]
+        public GameObject roomChoiceButtonPrefab;
+
+        [Tooltip("Container where room choice buttons are instantiated.")]
+        public Transform roomChoiceButtonsContainer;
 
         [Header("Skill Buttons")]
         public Button[] skillButtons = new Button[4];
@@ -261,11 +268,91 @@ namespace Nevergreen.Prototype
 
             AddLog($"Battle ended: {outcome}");
 
-            // Show "Next Room" button only on victory
-            if (nextRoomButton != null)
+            if (outcome == BattleOutcome.Victory)
             {
-                nextRoomButton.gameObject.SetActive(outcome == BattleOutcome.Victory);
+                SpawnRoomChoiceButtons();
             }
+            else
+            {
+                // Explicitly hide the fallback button on defeat
+                if (nextRoomButton != null)
+                    nextRoomButton.gameObject.SetActive(false);
+            }
+        }
+
+        private void SpawnRoomChoiceButtons()
+        {
+            // Clear any previously spawned room choice buttons
+            if (roomChoiceButtonsContainer != null)
+            {
+                for (int i = roomChoiceButtonsContainer.childCount - 1; i >= 0; i--)
+                {
+                    Destroy(roomChoiceButtonsContainer.GetChild(i).gameObject);
+                }
+            }
+
+            // Check if we have the config and prefab to create dynamic buttons
+            var config = _battleSystem != null ? _battleSystem.combatConfig : null;
+            bool canSpawnDynamic = config != null
+                && config.availableRooms != null
+                && config.availableRooms.Count > 0
+                && roomChoiceButtonPrefab != null
+                && roomChoiceButtonsContainer != null;
+
+            if (canSpawnDynamic)
+            {
+                // Hide fallback button
+                if (nextRoomButton != null)
+                    nextRoomButton.gameObject.SetActive(false);
+
+                // Pick random rooms (up to roomChoiceCount)
+                var choices = PickRandomRooms(config.availableRooms, config.roomChoiceCount);
+
+                foreach (var room in choices)
+                {
+                    GameObject btnGo = Instantiate(roomChoiceButtonPrefab, roomChoiceButtonsContainer);
+                    var btn = btnGo.GetComponent<Button>();
+                    btnGo.GetComponent<Image>().enabled = true;
+                    btn.enabled = true;
+                    var label = btnGo.GetComponentInChildren<TextMeshProUGUI>();
+                    label.enabled = true;
+
+                    if (label != null)
+                        label.text = room.roomName;
+
+                    if (btn != null)
+                    {
+                        RoomData capturedRoom = room;
+                        btn.onClick.AddListener(() => OnRoomChoiceClicked(capturedRoom));
+                    }
+                }
+            }
+            else
+            {
+                // Fallback: show default next room button
+                if (nextRoomButton != null)
+                    nextRoomButton.gameObject.SetActive(true);
+            }
+        }
+
+        private List<RoomData> PickRandomRooms(System.Collections.Generic.List<RoomData> pool, int count)
+        {
+            var shuffled = new List<RoomData>(pool);
+            // Fisher-Yates shuffle
+            for (int i = shuffled.Count - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                var temp = shuffled[i];
+                shuffled[i] = shuffled[j];
+                shuffled[j] = temp;
+            }
+            return shuffled.GetRange(0, Mathf.Min(count, shuffled.Count));
+        }
+
+        private void OnRoomChoiceClicked(RoomData selectedRoom)
+        {
+            RunSessionManager.NextRoomData = selectedRoom;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         /// <summary>
