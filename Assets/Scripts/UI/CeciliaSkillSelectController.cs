@@ -48,6 +48,9 @@ namespace Nevergreen.UI
         [Tooltip("Enemy formation database to use for this run.")]
         public EnemyFormationDatabase enemyFormationDatabase;
 
+        [Tooltip("Trait database to use for this run.")]
+        public TraitDatabase traitDatabase;
+
         // Runtime state
         private List<SkillData> _availableSkills = new List<SkillData>();
         private SkillData[] _equippedSkills = new SkillData[4];
@@ -127,8 +130,8 @@ namespace Nevergreen.UI
             RunSessionManager.Clear();
             RunSessionManager.CurrentParty.Add(partyMember);
 
-            // Inject enemy formation database for the run
-            RunSessionManager.Initialize(enemyFormationDatabase);
+            // Inject databases for the run
+            RunSessionManager.Initialize(enemyFormationDatabase, traitDatabase);
 
             // Load combat scene
             SceneManager.LoadScene(combatSceneName);

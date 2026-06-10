@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f1b7da08af12345b9d17472aebbeca, type: 3}
+  m_Name: MarionetteDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.MarionetteDatabase
+  marionettes:
+  - {fileID: 11400000, guid: 2bde886f809925047b834226e2ee1790, type: 2}
+  - {fileID: 11400000, guid: f53d99f206fc16944b21e8f9aec049b1, type: 2}
+  - {fileID: 11400000, guid: 23294125d160e344dbc269866ee0ce74, type: 2}
+  - {fileID: 11400000, guid: 510f30892d24e0945b9c3b5b59a87288, type: 2}
+  - {fileID: 11400000, guid: 571e4d373f324f84eb27df2fc07003d9, type: 2}
+  - {fileID: 11400000, guid: b129c236b90fe5e449eb04ceb26a8e86, type: 2}
+  - {fileID: 11400000, guid: 18b402bedc2c235459d585ab791f2f39, type: 2}
+  - {fileID: 11400000, guid: 36c99d5ae7050b14090feaa1428a608e, type: 2}
+  - {fileID: 11400000, guid: bd7b1099b015f7441a4c03d1e597dfb3, type: 2}
+  - {fileID: 11400000, guid: 2b9fba67dc43e3a4189764133d701885, type: 2}
