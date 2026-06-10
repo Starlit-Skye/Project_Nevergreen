@@ -605,6 +605,24 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 - [x] Document the system specification in `Docs/specs/systems/SYSTEM_SPEC_ENEMY_FORMATION_RANDOMIZATION.md`
 - [x] Update the Main Menu documentation in `Docs/technical/MAIN_MENU_SKILL_SELECTION.md`
 
+# Cecilia Selection Protection
+
+## Phase 1: Implementation
+- [x] Identify Cecilia ("ceci") in party member slots during UI initialization <!-- id: 119 -->
+- [x] Make Cecilia's party slot button uninteractable to prevent selection and highlight <!-- id: 120 -->
+- [x] Implement safety checks in `OnPartyMemberClicked` and `OnConfirmClicked` to prevent any programmatic or accidental swaps of Cecilia <!-- id: 121 -->
+
+## Phase 2: Verification
+- [x] Create automated unit tests in `MarionetteSelectionControllerTests.cs` to verify selection prevention, uninteractability, and swap prevention <!-- id: 122 -->
+- [x] Run full EditMode test suite and confirm 259/259 passing tests <!-- id: 123 -->
+
+### Review
+- Implemented robust UI and engine-level protection for Cecilia in the party member selection screen.
+- Cecilia's slot button is set to `interactable = false` and has no click listener attached if she is in the party.
+- Defensive guards in `OnPartyMemberClicked` and `OnConfirmClicked` prevent selecting or replacing Cecilia, ensuring integrity of the team roster.
+- Added four dedicated unit tests in `MarionetteSelectionControllerTests.cs` which all pass successfully.
+
+
 ### Review
 - Created a designer-friendly system to author and randomize enemy encounters via scriptable enemy formation configurations.
 - Integrated selection rules in `RunSessionManager` ensuring anti-repeat mechanics (a formation won't be consecutively repeated if the database has more than 1 entry).

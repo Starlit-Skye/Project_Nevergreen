@@ -147,18 +147,29 @@ namespace Nevergreen.UI
             {
                 partyMemberButtons[i].gameObject.SetActive(true);
 
+                bool isCecilia = false;
                 if (party != null && i < party.Count && party[i] != null && party[i].character != null)
                 {
                     partyMemberTexts[i].text = party[i].character.displayName;
+                    var charData = party[i].character;
+                    if (charData.characterId == "ceci" || charData.displayName == "Cecilia")
+                    {
+                        isCecilia = true;
+                    }
                 }
                 else
                 {
                     partyMemberTexts[i].text = "Empty Slot";
                 }
 
+                partyMemberButtons[i].interactable = !isCecilia;
+
                 int index = i;
                 partyMemberButtons[i].onClick.RemoveAllListeners();
-                partyMemberButtons[i].onClick.AddListener(() => OnPartyMemberClicked(index));
+                if (!isCecilia)
+                {
+                    partyMemberButtons[i].onClick.AddListener(() => OnPartyMemberClicked(index));
+                }
                 SetButtonColor(partyMemberButtons[i], normalColor);
             }
         }
@@ -173,10 +184,19 @@ namespace Nevergreen.UI
 
         private void OnPartyMemberClicked(int index)
         {
+            var party = RunSessionManager.CurrentParty;
+            if (party != null && index < party.Count && party[index] != null && party[index].character != null)
+            {
+                var charData = party[index].character;
+                if (charData.characterId == "ceci" || charData.displayName == "Cecilia")
+                {
+                    return; // Cecilia is uninteractable
+                }
+            }
+
             _selectedPartyMemberIndex = index;
             UpdateHighlights();
             
-            var party = RunSessionManager.CurrentParty;
             if (party != null && index < party.Count && party[index] != null && party[index].character != null)
             {
                 UpdateInfoPanel(party[index]);
@@ -282,15 +302,25 @@ namespace Nevergreen.UI
         {
             if (_selectedChoiceIndex == -1 || _selectedPartyMemberIndex == -1) return;
 
-            // Perform the swap
-            var newPartyMember = _currentChoices[_selectedChoiceIndex];
-
             var party = RunSessionManager.CurrentParty;
             if (party == null)
             {
                 party = new List<PartyMemberInfo>();
                 RunSessionManager.CurrentParty = party;
             }
+
+            // Extra safety guard: do not replace Cecilia
+            if (_selectedPartyMemberIndex < party.Count && party[_selectedPartyMemberIndex] != null && party[_selectedPartyMemberIndex].character != null)
+            {
+                var charData = party[_selectedPartyMemberIndex].character;
+                if (charData.characterId == "ceci" || charData.displayName == "Cecilia")
+                {
+                    return;
+                }
+            }
+
+            // Perform the swap
+            var newPartyMember = _currentChoices[_selectedChoiceIndex];
 
             if (_selectedPartyMemberIndex < party.Count)
             {
