@@ -674,6 +674,33 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 - Added a full suite of unit tests to `RoomEffectTests.cs` covering default states, resets, and scene load increments.
 - 278/278 tests pass successfully with zero regressions.
 
+# Tiered Enemy Formation Selection by Room Progression
 
+## Phase 1: Infrastructure & Data Setup
+- [ ] Define `EnemyEncounterTier` enum in `EnemyEncounterTier.cs` <!-- id: 144 -->
+- [ ] Modify `EnemyFormationDatabase` to replace the single array with four lists for each tier <!-- id: 145 -->
+- [ ] Migrate the two existing database assets (`EnemyFormationDatabase.asset`) to populate all four new tier lists <!-- id: 146 -->
+- [ ] Add `RoomTierMapping` and `roomTierMappings` list to `CombatConfig.cs` <!-- id: 147 -->
+- [ ] Implement `GetEncounterTierForRoom(int roomCount)` in `CombatConfig` <!-- id: 148 -->
 
+## Phase 2: Selection Logic & Spawning
+- [ ] Update `RunSessionManager.GetNextRandomFormation()` to accept the `EnemyEncounterTier` parameter <!-- id: 149 -->
+- [ ] Update `CombatSceneBootstrap.cs` to resolve the current encounter tier using `CombatConfig` and `RunSessionManager.RoomProgression`, then call `GetNextRandomFormation(tier)` <!-- id: 150 -->
 
+## Phase 3: Testing & Verification
+- [ ] Update existing tests in `EnemyFormationSelectionTests.cs` to populate the new database fields <!-- id: 151 -->
+- [ ] Add new unit tests to `EnemyFormationSelectionTests.cs` for tier resolution and selection <!-- id: 152 -->
+- [ ] Verify all EditMode tests pass successfully <!-- id: 153 -->
+
+# Fix Cecilia Skill Selection Persistence
+
+## Phase 1: Planning
+- [x] Document plan to fix the `CombatCharacter` skill inheritance issue.
+
+## Phase 2: Implementation
+- [x] Update `CombatSceneBootstrap.cs` to pass `PartyMemberInfo` explicitly.
+- [x] Assign `partyInfo` directly to `CombatCharacter` before initialization, bypassing fragile Lookups.
+
+## Phase 3: Verification
+- [x] Run EditMode tests.
+- [ ] User testing to verify skill persistence.

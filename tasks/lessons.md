@@ -36,3 +36,7 @@
 - **Rule**: "Not counted as targets when it comes to AOE healing skills" actually means: the pile *is* included in the targets returned by AOE target selection (absorbing a target slot and blocking propagation further back), but no healing effect is applied to it (i.e. the heal effect is ignored/refused). It does *not* mean the targeting logic should skip the pile to target an alive character behind it.
 - **Verification**: Always clarify targeting rules regarding whether "exclude" or "ignore" means *skip during selection* or *select but apply no effect*.
 
+### 8. Object Reference Identity across Scene Boundaries
+- **Pattern**: Using `==` checks on `ScriptableObject` references (like `characterData == RunSessionManager.CurrentParty[0].character`) to link data loaded from a Main Menu UI with data on instantiated prefabs in a Combat Scene.
+- **Rule**: Unity does not guarantee that a `ScriptableObject` loaded directly by UI logic shares the same memory instance (InstanceID) as a `ScriptableObject` embedded in a prefab instantiated in a different scene. This causes equality checks to silently fail. 
+- **Verification**: Always prefer explicit data injection (e.g., passing `PartyMemberInfo` directly into `InitializeForCombat`) over static array lookups based on object reference equality when crossing scene or instantiation boundaries.

@@ -12,7 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a8ffe6d50b86e14e9014501cc5a5754, type: 3}
   m_Name: EnemyFormationDatabase
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.EnemyFormationDatabase
-  formations:
+  trivialFormations:
+  - {fileID: 11400000, guid: 1de1456be889bdd4b820fec79bc5922d, type: 2}
+  - {fileID: 11400000, guid: 6e32efec5e916364db2b261facc14da5, type: 2}
+  - {fileID: 11400000, guid: 4c52a617f4419304c8c2d3f6f2702780, type: 2}
+  - {fileID: 11400000, guid: 1a4b0bbd31fb46d4ca52615702993d74, type: 2}
+  earlyGameFormations:
+  - {fileID: 11400000, guid: 1de1456be889bdd4b820fec79bc5922d, type: 2}
+  - {fileID: 11400000, guid: 6e32efec5e916364db2b261facc14da5, type: 2}
+  - {fileID: 11400000, guid: 4c52a617f4419304c8c2d3f6f2702780, type: 2}
+  - {fileID: 11400000, guid: 1a4b0bbd31fb46d4ca52615702993d74, type: 2}
+  midGameFormations:
+  - {fileID: 11400000, guid: 1de1456be889bdd4b820fec79bc5922d, type: 2}
+  - {fileID: 11400000, guid: 6e32efec5e916364db2b261facc14da5, type: 2}
+  - {fileID: 11400000, guid: 4c52a617f4419304c8c2d3f6f2702780, type: 2}
+  - {fileID: 11400000, guid: 1a4b0bbd31fb46d4ca52615702993d74, type: 2}
+  lateGameFormations:
   - {fileID: 11400000, guid: 1de1456be889bdd4b820fec79bc5922d, type: 2}
   - {fileID: 11400000, guid: 6e32efec5e916364db2b261facc14da5, type: 2}
   - {fileID: 11400000, guid: 4c52a617f4419304c8c2d3f6f2702780, type: 2}

@@ -2,6 +2,16 @@ using UnityEngine;
 
 namespace Nevergreen.Data
 {
+    [System.Serializable]
+    public struct RoomTierMapping
+    {
+        [Tooltip("The room progression count at which this tier begins (e.g., 1, 2, 4, 6).")]
+        public int roomCount;
+
+        [Tooltip("The encounter tier for this room count and beyond (until the next mapping).")]
+        public EnemyEncounterTier tier;
+    }
+
     /// <summary>
     /// Global combat tuning variables. Single instance used by BattleSystem.
     /// Values derived from GDD Combat/Stats sections.
@@ -75,5 +85,53 @@ namespace Nevergreen.Data
 
         [Tooltip("Pool of available room types the player can choose from.")]
         public System.Collections.Generic.List<RoomData> availableRooms = new System.Collections.Generic.List<RoomData>();
+
+        [Header("Enemy Encounter Tiers")]
+        [Tooltip("Mappings of room count progression to enemy encounter tiers. Sorted by roomCount ascending automatically.")]
+        public System.Collections.Generic.List<RoomTierMapping> roomTierMappings = new System.Collections.Generic.List<RoomTierMapping>();
+
+        /// <summary>
+        /// Retrieves the appropriate encounter tier for the given room count.
+        /// Falls back to Trivial if no mappings exist.
+        /// </summary>
+        public EnemyEncounterTier GetEncounterTierForRoom(int roomCount)
+        {
+            if (roomTierMappings == null || roomTierMappings.Count == 0)
+            {
+                // Fallback defaults if not configured
+                if (roomCount >= 6) return EnemyEncounterTier.LateGame;
+                if (roomCount >= 4) return EnemyEncounterTier.MidGame;
+                if (roomCount >= 2) return EnemyEncounterTier.EarlyGame;
+                return EnemyEncounterTier.Trivial;
+            }
+
+            EnemyEncounterTier selectedTier = EnemyEncounterTier.Trivial;
+            int highestMatchingRoomCount = -1;
+
+            foreach (var mapping in roomTierMappings)
+            {
+                if (roomCount >= mapping.roomCount && mapping.roomCount > highestMatchingRoomCount)
+                {
+                    highestMatchingRoomCount = mapping.roomCount;
+                    selectedTier = mapping.tier;
+                }
+            }
+
+            // If roomCount is smaller than all configured mappings, return the tier of the lowest configured mapping.
+            if (highestMatchingRoomCount == -1)
+            {
+                int minRoomCount = int.MaxValue;
+                foreach (var mapping in roomTierMappings)
+                {
+                    if (mapping.roomCount < minRoomCount)
+                    {
+                        minRoomCount = mapping.roomCount;
+                        selectedTier = mapping.tier;
+                    }
+                }
+            }
+
+            return selectedTier;
+        }
     }
 }

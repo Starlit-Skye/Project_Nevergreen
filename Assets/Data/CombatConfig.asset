@@ -30,3 +30,12 @@ MonoBehaviour:
   roomChoiceCount: 3
   availableRooms:
   - {fileID: 11400000, guid: d5735d1ecb32e284faef058a1be299c3, type: 2}
+  roomTierMappings:
+  - roomCount: 1
+    tier: 0
+  - roomCount: 3
+    tier: 1
+  - roomCount: 11
+    tier: 2
+  - roomCount: 20
+    tier: 3

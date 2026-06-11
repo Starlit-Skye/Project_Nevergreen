@@ -69,7 +69,7 @@ namespace Nevergreen.Prototype
         private void SpawnTeams()
         {
             // 1. Resolve which player prefabs to spawn
-            var prefabsToSpawn = new List<GameObject>();
+            var prefabsToSpawn = new List<(GameObject prefab, PartyMemberInfo partyInfo)>();
             bool useSessionParty = RunSessionManager.CurrentParty != null && RunSessionManager.CurrentParty.Count > 0;
 
             if (useSessionParty)
@@ -104,7 +104,7 @@ namespace Nevergreen.Prototype
 
                     if (matchingPrefab != null)
                     {
-                        prefabsToSpawn.Add(matchingPrefab);
+                        prefabsToSpawn.Add((matchingPrefab, partyMember));
                     }
                     else
                     {
@@ -119,15 +119,18 @@ namespace Nevergreen.Prototype
                 {
                     if (prefab != null)
                     {
-                        prefabsToSpawn.Add(prefab);
+                        prefabsToSpawn.Add((prefab, null));
                     }
                 }
             }
 
             // 2. Spawn player team (unified spawning loop)
             int nextPlayerRank = 1;
-            foreach (var prefab in prefabsToSpawn)
+            foreach (var spawnData in prefabsToSpawn)
             {
+                var prefab = spawnData.prefab;
+                var partyInfo = spawnData.partyInfo;
+
                 int charSize = 1;
                 var prefabCC = prefab.GetComponent<CombatCharacter>();
                 if (prefabCC != null && prefabCC.characterData != null)
@@ -168,6 +171,7 @@ namespace Nevergreen.Prototype
                     go.transform.localScale.y,
                     go.transform.localScale.z);
 
+                cc.partyInfo = partyInfo;
                 cc.InitializeForCombat(Team.Player, nextPlayerRank);
                 _spawnedPlayerTeam.Add(cc);
 
@@ -175,9 +179,16 @@ namespace Nevergreen.Prototype
                 nextPlayerRank += charSize;
             }
 
+            // Resolve enemy formation tier based on room progression
+            Nevergreen.Data.EnemyEncounterTier tier = Nevergreen.Data.EnemyEncounterTier.Trivial;
+            if (battleSystem != null && battleSystem.combatConfig != null)
+            {
+                tier = battleSystem.combatConfig.GetEncounterTierForRoom(RunSessionManager.RoomProgression);
+            }
+
             // Resolve enemy formation: use database if available, else fall back to Inspector list
             var activeEnemyPrefabs = enemyTeamPrefabs;
-            var formation = RunSessionManager.GetNextRandomFormation();
+            var formation = RunSessionManager.GetNextRandomFormation(tier);
             if (formation != null && formation.enemyPrefabs != null && formation.enemyPrefabs.Count > 0)
             {
                 activeEnemyPrefabs = formation.enemyPrefabs;
