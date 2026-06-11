@@ -120,15 +120,18 @@ namespace Nevergreen
         /// the same as the last selected formation (unless only one formation exists).
         /// </summary>
         /// <returns>The selected formation, or null if no database/formations are available.</returns>
-        public static EnemyFormationData GetNextRandomFormation()
+        public static EnemyFormationData GetNextRandomFormation(EnemyEncounterTier tier)
         {
-            if (ActiveFormationDatabase == null || ActiveFormationDatabase.formations == null
-                || ActiveFormationDatabase.formations.Count == 0)
+            if (ActiveFormationDatabase == null)
             {
                 return null;
             }
 
-            var formations = ActiveFormationDatabase.formations;
+            var formations = ActiveFormationDatabase.GetFormations(tier);
+            if (formations == null || formations.Count == 0)
+            {
+                return null;
+            }
 
             // Only one formation available — no choice
             if (formations.Count == 1)

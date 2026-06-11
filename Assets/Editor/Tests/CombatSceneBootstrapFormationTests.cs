@@ -56,7 +56,7 @@ namespace Nevergreen.Tests
             formationMulti.enemyPrefabs = new List<GameObject> { bossPrefab, enemyPrefab1 };
 
             database = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
-            database.formations = new List<EnemyFormationData> { formationSingle, formationMulti };
+            database.trivialFormations = new List<EnemyFormationData> { formationSingle, formationMulti };
         }
 
         [TearDown]
@@ -79,7 +79,7 @@ namespace Nevergreen.Tests
         {
             // Initialize database with ONLY the single formation to guarantee it is picked
             var singleDb = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
-            singleDb.formations = new List<EnemyFormationData> { formationSingle };
+            singleDb.trivialFormations = new List<EnemyFormationData> { formationSingle };
             RunSessionManager.Initialize(singleDb);
 
             // Setup Bootstrap GameObject
@@ -149,7 +149,7 @@ namespace Nevergreen.Tests
         {
             // Initialize database with ONLY the multi-rank formation (Boss size 2, then Enemy 1 size 1)
             var singleDb = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
-            singleDb.formations = new List<EnemyFormationData> { formationMulti };
+            singleDb.trivialFormations = new List<EnemyFormationData> { formationMulti };
             RunSessionManager.Initialize(singleDb);
 
             // Setup Bootstrap GameObject
