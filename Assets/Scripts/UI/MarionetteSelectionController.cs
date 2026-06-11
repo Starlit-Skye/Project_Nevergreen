@@ -331,11 +331,13 @@ namespace Nevergreen.UI
                 party.Add(newPartyMember);
             }
 
-            // Load the next scene
+            gameObject.SetActive(false);
+
+            /*// Load the next scene
             if (!string.IsNullOrEmpty(combatSceneName))
             {
                 SceneManager.LoadScene(combatSceneName);
-            }
+            }*/
         }
     }
 }

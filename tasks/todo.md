@@ -653,8 +653,26 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 - [x] Bind dynamic button clicks to select the room, set `RunSessionManager.NextRoomData`, and reload the combat scene <!-- id: 135 -->
 
 ## Phase 4: Verification
-- [x] Write EditMode unit tests in `RoomEffectTests.cs` covering all activation timings and UI selections (13 tests) <!-- id: 136 -->
-- [x] Verify that all existing and new tests build and pass successfully (272/272 passed) <!-- id: 137 -->
+- [x] Write EditMode unit tests in `RoomEffectTests.cs` covering all activation timings and UI selections (13 tests) <!-- id: 137 -->
+
+# Run Session Room Progression Tracking
+
+## Phase 1: Planning & Implementation
+- [x] Create implementation plan artifact <!-- id: 138 -->
+- [x] Implement `RoomProgression` property in `RunSessionManager.cs` <!-- id: 139 -->
+- [x] Reset `RoomProgression` to 0 in `RunSessionManager.Initialize` and `RunSessionManager.Clear` <!-- id: 140 -->
+- [x] Subscribe to `SceneManager.sceneLoaded` inside `RunSessionManager.cs` to automatically increment `RoomProgression` when `"CombatPrototype"` is loaded during a run <!-- id: 141 -->
+
+## Phase 2: Verification
+- [x] Write unit tests in `RoomEffectTests.cs` to verify room progression increments and resets <!-- id: 142 -->
+- [x] Run all EditMode tests to confirm compilation and zero regressions <!-- id: 143 -->
+
+### Review
+- Added `RoomProgression` tracking to `RunSessionManager.cs`.
+- `RunSessionManager` now subscribes to `SceneManager.sceneLoaded` internally to automatically increment the progression count whenever `"CombatPrototype"` is loaded and an active run is in progress.
+- This design completely decouples the room progression tracking from any specific `GameObject` or `MonoBehaviour` (such as `CombatSceneBootstrap`), making the system cleaner and more robust.
+- Added a full suite of unit tests to `RoomEffectTests.cs` covering default states, resets, and scene load increments.
+- 278/278 tests pass successfully with zero regressions.
 
 
 

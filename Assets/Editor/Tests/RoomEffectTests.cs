@@ -248,6 +248,59 @@ namespace Nevergreen.Tests
         }
 
         // ============================================================
+        // Room Progression Tests
+        // ============================================================
+
+        [Test]
+        public void RoomProgression_StartsAtZero()
+        {
+            Assert.AreEqual(0, RunSessionManager.RoomProgression);
+        }
+
+        [Test]
+        public void RoomProgression_ClearResetsToZero()
+        {
+            RunSessionManager.RoomProgression = 5;
+            RunSessionManager.Clear();
+            Assert.AreEqual(0, RunSessionManager.RoomProgression);
+        }
+
+        [Test]
+        public void RoomProgression_InitializeResetsToZero()
+        {
+            RunSessionManager.RoomProgression = 3;
+            RunSessionManager.Initialize(null, null);
+            Assert.AreEqual(0, RunSessionManager.RoomProgression);
+        }
+
+        [Test]
+        public void RoomProgression_OnSceneLoaded_IncrementsWhenCombatSceneAndPartyExists()
+        {
+            RunSessionManager.CurrentParty.Add(new PartyMemberInfo());
+            RunSessionManager.OnSceneLoaded("CombatPrototype");
+            
+            Assert.AreEqual(1, RunSessionManager.RoomProgression);
+        }
+
+        [Test]
+        public void RoomProgression_OnSceneLoaded_DoesNotIncrementWhenNotCombatScene()
+        {
+            RunSessionManager.CurrentParty.Add(new PartyMemberInfo());
+            RunSessionManager.OnSceneLoaded("MainMenu");
+            
+            Assert.AreEqual(0, RunSessionManager.RoomProgression);
+        }
+
+        [Test]
+        public void RoomProgression_OnSceneLoaded_DoesNotIncrementWhenPartyEmpty()
+        {
+            // CurrentParty is empty by default after Setup/Clear
+            RunSessionManager.OnSceneLoaded("CombatPrototype");
+            
+            Assert.AreEqual(0, RunSessionManager.RoomProgression);
+        }
+
+        // ============================================================
         // CombatConfig Room Selection Tests
         // ============================================================
 

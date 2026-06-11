@@ -25,9 +25,29 @@ namespace Nevergreen
         /// <summary>The RoomData selected by the player for the next room. Persists across scene loads.</summary>
         public static RoomData NextRoomData { get; set; }
 
+        /// <summary>The number of rooms the player has progressed through in the current run.</summary>
+        public static int RoomProgression { get; set; }
+
         private static System.Random _rng = new System.Random();
         private static BattleSystem _activeBattleSystem;
 
+        static RunSessionManager()
+        {
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private static void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+        {
+            OnSceneLoaded(scene.name);
+        }
+
+        public static void OnSceneLoaded(string sceneName)
+        {
+            if (sceneName == "CombatPrototype" && CurrentParty != null && CurrentParty.Count > 0)
+            {
+                RoomProgression++;
+            }
+        }
         /// <summary>
         /// Initializes the databases for a new run.
         /// Called by the Main Menu bootstrapper before loading the combat scene.
@@ -37,6 +57,7 @@ namespace Nevergreen
             ActiveFormationDatabase = database;
             ActiveTraitDatabase = traitDatabase;
             LastSelectedFormation = null;
+            RoomProgression = 0;
         }
 
         /// <summary>
@@ -141,6 +162,7 @@ namespace Nevergreen
             ActiveTraitDatabase = null;
             LastSelectedFormation = null;
             NextRoomData = null;
+            RoomProgression = 0;
 
             if (_activeBattleSystem != null)
             {
