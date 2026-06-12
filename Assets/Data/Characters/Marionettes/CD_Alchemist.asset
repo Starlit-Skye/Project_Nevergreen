@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: alchemist_marionette
   displayName: Alchemist
+  characterPrefab: {fileID: 5047933170817855005, guid: bb8e92a235a6b6c4ba131cd675f05f3b, type: 3}
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
@@ -23,6 +24,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: dcfd726ed23aa9e4aa4c9be935b04e11, type: 2}
   - {fileID: 11400000, guid: 93b5acc0bf880d04c9a0adc9d5aaf8e9, type: 2}
   - {fileID: 11400000, guid: b766560c64e7dc14898730ebec83c305, type: 2}
+  totalSkillPool:
+  - {fileID: 11400000, guid: e7b81fcc52200804f9343896f4ff8f59, type: 2}
+  - {fileID: 11400000, guid: 93b5acc0bf880d04c9a0adc9d5aaf8e9, type: 2}
+  - {fileID: 11400000, guid: ac575188417de6340b06200753e6ea97, type: 2}
+  - {fileID: 11400000, guid: 1b7043eb21e16f04caeef41bec913bfa, type: 2}
+  - {fileID: 11400000, guid: 3a2f38fc9be525d48b55900f4f7013f8, type: 2}
+  - {fileID: 11400000, guid: b766560c64e7dc14898730ebec83c305, type: 2}
+  - {fileID: 11400000, guid: dcfd726ed23aa9e4aa4c9be935b04e11, type: 2}
   size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 0}

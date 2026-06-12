@@ -126,7 +126,7 @@ GameObject:
   - component: {fileID: 8169612720094438130}
   - component: {fileID: 5047933170817855005}
   m_Layer: 0
-  m_Name: Butler
+  m_Name: Prefab_Commander
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -206,9 +206,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 065009f5862432a4d9c27d04da1af5b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.CombatCharacter
-  characterData: {fileID: 11400000, guid: 23294125d160e344dbc269866ee0ce74, type: 2}
+  characterData: {fileID: 11400000, guid: 510f30892d24e0945b9c3b5b59a87288, type: 2}
   currentLevel: 1
-  currentHP: 0
+  _currentHP: 0
   rank: 0
   pileDuration: 0
   team: 0
@@ -228,5 +228,10 @@ MonoBehaviour:
     moveResist: 0
   equippedSkills: []
   statusEffects: []
+  partyInfo:
+    character: {fileID: 0}
+    equippedSkills: []
+    perfections: []
+    imperfections: []
   isStunned: 0
   skillUsesThisBattle_count: 0

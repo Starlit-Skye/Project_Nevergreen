@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: enforcer_marionette
   displayName: Enforcer
+  characterPrefab: {fileID: 5047933170817855005, guid: 758109ad9135a724bb7b09ac7347e4dc, type: 3}
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
@@ -22,6 +23,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6a3dcf80e5f589645a44bb67781bf831, type: 2}
   - {fileID: 11400000, guid: 88da0c054f8fa4a4081ff4e6fdaf5db0, type: 2}
   - {fileID: 11400000, guid: 69d3f73fee03d40428b21937f565a72e, type: 2}
+  - {fileID: 11400000, guid: 7a2bbabc8a19f6c4fa1ef54388f1185a, type: 2}
+  totalSkillPool:
+  - {fileID: 11400000, guid: d84e40848d2b3f743b2f608616844c1c, type: 2}
+  - {fileID: 11400000, guid: 69d3f73fee03d40428b21937f565a72e, type: 2}
+  - {fileID: 11400000, guid: 88da0c054f8fa4a4081ff4e6fdaf5db0, type: 2}
+  - {fileID: 11400000, guid: 8593398449dd8784bb25d03b2b16c490, type: 2}
+  - {fileID: 11400000, guid: 3b5bedfdff8bc124c81bbf1639a672bd, type: 2}
+  - {fileID: 11400000, guid: 6a3dcf80e5f589645a44bb67781bf831, type: 2}
   - {fileID: 11400000, guid: 7a2bbabc8a19f6c4fa1ef54388f1185a, type: 2}
   size: 1
   leavesPileOnDeath: 1

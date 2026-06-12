@@ -126,7 +126,7 @@ GameObject:
   - component: {fileID: 8169612720094438130}
   - component: {fileID: 5047933170817855005}
   m_Layer: 0
-  m_Name: Ceci
+  m_Name: Prefab_Assassin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -206,11 +206,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 065009f5862432a4d9c27d04da1af5b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.CombatCharacter
-  characterData: {fileID: 11400000, guid: f0df3e6e0c95dbe4fbba011a33480f83, type: 2}
+  characterData: {fileID: 11400000, guid: f53d99f206fc16944b21e8f9aec049b1, type: 2}
   currentLevel: 1
-  currentHP: 0
-  state: 0
+  _currentHP: 0
   rank: 0
+  pileDuration: 0
   team: 0
   combatConfig: {fileID: 0}
   baseStats:
@@ -228,5 +228,10 @@ MonoBehaviour:
     moveResist: 0
   equippedSkills: []
   statusEffects: []
+  partyInfo:
+    character: {fileID: 0}
+    equippedSkills: []
+    perfections: []
+    imperfections: []
   isStunned: 0
   skillUsesThisBattle_count: 0

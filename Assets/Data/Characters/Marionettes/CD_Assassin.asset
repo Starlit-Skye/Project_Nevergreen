@@ -14,12 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: assassin_marionette
   displayName: Assassin
+  characterPrefab: {fileID: 5047933170817855005, guid: 43d3b19135181434aaf11c5a48721260, type: 3}
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 83c80baddee4ed1468f6c0a2877625e8, type: 2}
   availableSkills:
   - {fileID: 11400000, guid: ca0ca5a789bd3d84c8df7452afd6655e, type: 2}
+  - {fileID: 11400000, guid: 6089dd93aec035d48a78287073e5a5e9, type: 2}
+  - {fileID: 11400000, guid: 6274202b4a0903e4389a38da8e83ad69, type: 2}
+  - {fileID: 11400000, guid: 165b41d6b3f511b4daed80f5bb347d05, type: 2}
+  totalSkillPool:
+  - {fileID: 11400000, guid: b6ff95df241a56f4f8b5e756177b2df2, type: 2}
+  - {fileID: 11400000, guid: 47656a03e9664b44f9ce6f1ce75e192e, type: 2}
+  - {fileID: 11400000, guid: ca0ca5a789bd3d84c8df7452afd6655e, type: 2}
+  - {fileID: 11400000, guid: 43770879a79814c4a926de4395d9a807, type: 2}
   - {fileID: 11400000, guid: 6089dd93aec035d48a78287073e5a5e9, type: 2}
   - {fileID: 11400000, guid: 6274202b4a0903e4389a38da8e83ad69, type: 2}
   - {fileID: 11400000, guid: 165b41d6b3f511b4daed80f5bb347d05, type: 2}

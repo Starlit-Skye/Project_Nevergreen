@@ -24,7 +24,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a99fdf38c989fe94ea56513db5cd4f6b, type: 2}
   - {fileID: 11400000, guid: 8478786a892520249be927b95c4202cb, type: 2}
   - {fileID: 11400000, guid: c4f02237c0d234c4197cb5e42bf7b84e, type: 2}
-  totalSkillPool: []
+  totalSkillPool:
+  - {fileID: 11400000, guid: 88f434104aa04cb4ab5666e5f5307550, type: 2}
+  - {fileID: 11400000, guid: e435bc37d55711848932910496cd8a74, type: 2}
+  - {fileID: 11400000, guid: a2722e9c4a4656641988aeb29a06eb48, type: 2}
+  - {fileID: 11400000, guid: 77c16c451d64e4144a58d80c6070e2d0, type: 2}
+  - {fileID: 11400000, guid: a99fdf38c989fe94ea56513db5cd4f6b, type: 2}
+  - {fileID: 11400000, guid: 8478786a892520249be927b95c4202cb, type: 2}
+  - {fileID: 11400000, guid: c4f02237c0d234c4197cb5e42bf7b84e, type: 2}
   size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 0}

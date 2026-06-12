@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: violinist_marionette
   displayName: Violinist
+  characterPrefab: {fileID: 5047933170817855005, guid: 966f820d31514a143910be3e96322f4c, type: 3}
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
@@ -23,6 +24,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4d35dd2a003a7b14d9939c4009934aae, type: 2}
   - {fileID: 11400000, guid: 879cd3245685d8f4ba11d5363030e437, type: 2}
   - {fileID: 11400000, guid: 852f1855491851d4aa2b74ec6aed91c1, type: 2}
+  totalSkillPool:
+  - {fileID: 11400000, guid: f7f6445e8516f814d9565793145ab230, type: 2}
+  - {fileID: 11400000, guid: 6fb4a5512f68b704db19168e774a8286, type: 2}
+  - {fileID: 11400000, guid: c8ce19937857df54a9dfa3534b5dec98, type: 2}
+  - {fileID: 11400000, guid: d501cb10a15ea5949b7dadef61abc52b, type: 2}
+  - {fileID: 11400000, guid: 7c89eea24b06f164182031eabacd841c, type: 2}
+  - {fileID: 11400000, guid: cae43d2f17df37f4296c5713333dadc3, type: 2}
+  - {fileID: 11400000, guid: 1868961c6b5eed44cbac6a2999524e7e, type: 2}
   size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 0}

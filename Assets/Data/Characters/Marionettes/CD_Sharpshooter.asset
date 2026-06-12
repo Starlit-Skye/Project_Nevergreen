@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: sharpshooter_marionette
   displayName: Sharpshooter
+  characterPrefab: {fileID: 5047933170817855005, guid: 4d1ecf77737e3cc40b6a63ae4b14bddb, type: 3}
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
@@ -23,6 +24,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b3ac835e601e5ce4f9fa22d4feb1b992, type: 2}
   - {fileID: 11400000, guid: 787d629f065404341bbf60e76d67ffd1, type: 2}
   - {fileID: 11400000, guid: 27de9a9cbcb0a0544a8d8d8aa4038a7b, type: 2}
+  totalSkillPool:
+  - {fileID: 11400000, guid: 4d0cace685a85c1418fd18b1945d5703, type: 2}
+  - {fileID: 11400000, guid: 787d629f065404341bbf60e76d67ffd1, type: 2}
+  - {fileID: 11400000, guid: 238dd688d87994c4987889624131f3b1, type: 2}
+  - {fileID: 11400000, guid: b3ac835e601e5ce4f9fa22d4feb1b992, type: 2}
+  - {fileID: 11400000, guid: 27de9a9cbcb0a0544a8d8d8aa4038a7b, type: 2}
+  - {fileID: 11400000, guid: d5a0eb23d3530ab459e7cd00393c9a2c, type: 2}
+  - {fileID: 11400000, guid: 945e9561e5fce22439ba2bb94573c095, type: 2}
   size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 0}

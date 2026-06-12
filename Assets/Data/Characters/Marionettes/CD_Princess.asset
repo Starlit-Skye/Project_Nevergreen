@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: princess_marionette
   displayName: Princess
+  characterPrefab: {fileID: 3493555024726022384, guid: 1b65598f9faa0dc48936612d26c648de, type: 3}
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
@@ -21,6 +22,14 @@ MonoBehaviour:
   availableSkills:
   - {fileID: 11400000, guid: 4b9d4f36c61bc5f4ebbd434400ad0db7, type: 2}
   - {fileID: 11400000, guid: 8360ec0285922774190a165c5f4ded1e, type: 2}
+  - {fileID: 11400000, guid: 3c49437bf12618a4bad6c31e335b13e9, type: 2}
+  - {fileID: 11400000, guid: 096e3f6c48fa7a640a2a7bbf21c5c538, type: 2}
+  totalSkillPool:
+  - {fileID: 11400000, guid: 6836829227d6af64499a91d1bc8e6abd, type: 2}
+  - {fileID: 11400000, guid: 1815641ba197f424c89e2f0beca9a014, type: 2}
+  - {fileID: 11400000, guid: 87d2ea24bea0b0740ba9ae059fcb27f3, type: 2}
+  - {fileID: 11400000, guid: 8360ec0285922774190a165c5f4ded1e, type: 2}
+  - {fileID: 11400000, guid: 4b9d4f36c61bc5f4ebbd434400ad0db7, type: 2}
   - {fileID: 11400000, guid: 3c49437bf12618a4bad6c31e335b13e9, type: 2}
   - {fileID: 11400000, guid: 096e3f6c48fa7a640a2a7bbf21c5c538, type: 2}
   size: 1

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: commander_marionette
   displayName: Commander
+  characterPrefab: {fileID: 5047933170817855005, guid: 5b88ff8e0bd14034a8c91acf134ed19a, type: 3}
   teamType: 0
   actionsPerRound: 1
   statPerLevel:
@@ -23,6 +24,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 979eab5a32346284881e2a86ec8e5e41, type: 2}
   - {fileID: 11400000, guid: 2e5ba28b1edc61c40a39921e4ceedef3, type: 2}
   - {fileID: 11400000, guid: e1bb7bf27e64e8840baf363aa73d9f80, type: 2}
+  totalSkillPool:
+  - {fileID: 11400000, guid: e1bb7bf27e64e8840baf363aa73d9f80, type: 2}
+  - {fileID: 11400000, guid: 2e5ba28b1edc61c40a39921e4ceedef3, type: 2}
+  - {fileID: 11400000, guid: 4d721eeffc278cb46aec2555498b77f2, type: 2}
+  - {fileID: 11400000, guid: c97818610d1ab25468fd9faaa65ed2a6, type: 2}
+  - {fileID: 11400000, guid: 4b15d7a6cbcaf9d4590d691b4254a50d, type: 2}
+  - {fileID: 11400000, guid: 3614a166142df2f449fdf7817a854802, type: 2}
+  - {fileID: 11400000, guid: 979eab5a32346284881e2a86ec8e5e41, type: 2}
   size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 0}
