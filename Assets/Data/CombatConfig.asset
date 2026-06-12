@@ -33,7 +33,7 @@ MonoBehaviour:
   roomTierMappings:
   - roomCount: 1
     tier: 0
-  - roomCount: 3
+  - roomCount: 5
     tier: 1
   - roomCount: 11
     tier: 2
