@@ -48,13 +48,23 @@ namespace Nevergreen.Tests
             _config = ScriptableObject.CreateInstance<CombatConfig>();
             _config.maxPerfections = 3;
             _config.maxImperfections = 3;
+
+            // Ensure CurrentParty is clean
+            RunSessionManager.CurrentParty = new List<PartyMemberInfo>();
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            RunSessionManager.CurrentParty = new List<PartyMemberInfo>();
         }
 
         [Test]
         public void GenerateRandomMarionette_ValidInput_Generates4UniqueSkillsAnd1Perf1Imp()
         {
             // Act
-            var info = MarionetteGenerator.GenerateRandomMarionette(_marionetteDb, _traitDb, _config);
+            var list = MarionetteGenerator.GenerateRandomMarionette(1, _marionetteDb, _traitDb, _config);
+            var info = list[0];
 
             // Assert
             Assert.IsNotNull(info);
@@ -79,7 +89,8 @@ namespace Nevergreen.Tests
             _template.totalSkillPool.RemoveAt(0); // Only 2 left
 
             // Act
-            var info = MarionetteGenerator.GenerateRandomMarionette(_marionetteDb, _traitDb, _config);
+            var list = MarionetteGenerator.GenerateRandomMarionette(1, _marionetteDb, _traitDb, _config);
+            var info = list[0];
 
             // Assert
             Assert.AreEqual(2, info.equippedSkills.Count, "Should equip all available skills if pool is less than 4.");
@@ -93,7 +104,8 @@ namespace Nevergreen.Tests
             _traitDb.imperfections.Clear();
 
             // Act
-            var info = MarionetteGenerator.GenerateRandomMarionette(_marionetteDb, _traitDb, _config);
+            var list = MarionetteGenerator.GenerateRandomMarionette(1, _marionetteDb, _traitDb, _config);
+            var info = list[0];
 
             // Assert
             Assert.AreEqual(0, info.perfections.Count);
@@ -107,10 +119,163 @@ namespace Nevergreen.Tests
             LogAssert.Expect(LogType.Error, "[MarionetteGenerator] MarionetteDatabase is null or empty!");
 
             // Act
-            var info = MarionetteGenerator.GenerateRandomMarionette(null, _traitDb, _config);
+            var info = MarionetteGenerator.GenerateRandomMarionette(1, null, _traitDb, _config);
 
             // Assert
             Assert.IsNull(info);
+        }
+
+        [Test]
+        public void GenerateRandomMarionette_EnforcesUniqueClasses()
+        {
+            // Arrange
+            _marionetteDb.marionettes.Clear();
+            for (int i = 0; i < 5; i++)
+            {
+                var temp = ScriptableObject.CreateInstance<CharacterData>();
+                temp.characterId = $"char_{i}";
+                _marionetteDb.marionettes.Add(temp);
+            }
+
+            // Act
+            var list = MarionetteGenerator.GenerateRandomMarionette(3, _marionetteDb, _traitDb, _config);
+
+            // Assert
+            Assert.AreEqual(3, list.Count);
+            var uniqueIds = new HashSet<string>();
+            foreach (var item in list)
+            {
+                uniqueIds.Add(item.character.characterId);
+            }
+            Assert.AreEqual(3, uniqueIds.Count, "All generated units should have unique character classes.");
+        }
+
+        [Test]
+        public void GenerateRandomMarionette_NoHealerInParty_GeneratesAtLeastOneHealer()
+        {
+            // Arrange
+            _marionetteDb.marionettes.Clear();
+            for (int i = 0; i < 5; i++)
+            {
+                var temp = ScriptableObject.CreateInstance<CharacterData>();
+                temp.characterId = $"char_{i}";
+                _marionetteDb.marionettes.Add(temp);
+            }
+            var healer = ScriptableObject.CreateInstance<CharacterData>();
+            healer.characterId = "maid_marionette";
+            _marionetteDb.marionettes.Add(healer);
+
+            RunSessionManager.CurrentParty.Clear(); // No healer
+
+            // Act
+            var list = MarionetteGenerator.GenerateRandomMarionette(3, _marionetteDb, _traitDb, _config);
+
+            // Assert
+            bool hasHealer = false;
+            foreach (var item in list)
+            {
+                if (item.character.characterId == "maid_marionette")
+                {
+                    hasHealer = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(hasHealer, "A healer should be generated if the party doesn't have one.");
+        }
+
+        [Test]
+        public void GenerateRandomMarionette_HealerInParty_AllowsNoHealerInBatch()
+        {
+            // Arrange
+            _marionetteDb.marionettes.Clear();
+            for (int i = 0; i < 10; i++) // Plenty of non-healers
+            {
+                var temp = ScriptableObject.CreateInstance<CharacterData>();
+                temp.characterId = $"char_{i}";
+                _marionetteDb.marionettes.Add(temp);
+            }
+            var healer = ScriptableObject.CreateInstance<CharacterData>();
+            healer.characterId = "maid_marionette";
+            _marionetteDb.marionettes.Add(healer);
+
+            var existingHealerData = ScriptableObject.CreateInstance<CharacterData>();
+            existingHealerData.characterId = "alchemist_marionette";
+            RunSessionManager.CurrentParty.Add(new PartyMemberInfo { character = existingHealerData });
+
+            // Act
+            bool generatedWithoutHealer = false;
+            for (int i = 0; i < 50; i++)
+            {
+                var list = MarionetteGenerator.GenerateRandomMarionette(3, _marionetteDb, _traitDb, _config);
+                bool batchHasHealer = false;
+                foreach (var item in list)
+                {
+                    if (item.character.characterId == "maid_marionette")
+                    {
+                        batchHasHealer = true;
+                        break;
+                    }
+                }
+                if (!batchHasHealer)
+                {
+                    generatedWithoutHealer = true;
+                    break;
+                }
+            }
+
+            // Assert
+            Assert.IsTrue(generatedWithoutHealer, "Should be able to generate a batch without a healer if the party already has one.");
+        }
+
+        [Test]
+        public void GenerateRandomMarionette_CeciliaHasHastyRepair_AllowsNoHealerInBatch()
+        {
+            // Arrange
+            _marionetteDb.marionettes.Clear();
+            for (int i = 0; i < 10; i++) // Plenty of non-healers
+            {
+                var temp = ScriptableObject.CreateInstance<CharacterData>();
+                temp.characterId = $"char_{i}";
+                _marionetteDb.marionettes.Add(temp);
+            }
+            var healer = ScriptableObject.CreateInstance<CharacterData>();
+            healer.characterId = "maid_marionette";
+            _marionetteDb.marionettes.Add(healer);
+
+            var ceciData = ScriptableObject.CreateInstance<CharacterData>();
+            ceciData.characterId = "ceci";
+            
+            var hastyRepairSkill = ScriptableObject.CreateInstance<SkillData>();
+            hastyRepairSkill.skillId = "hasty_repair";
+
+            var ceciInfo = new PartyMemberInfo { character = ceciData };
+            ceciInfo.equippedSkills.Add(hastyRepairSkill);
+
+            RunSessionManager.CurrentParty.Add(ceciInfo);
+
+            // Act
+            bool generatedWithoutHealer = false;
+            for (int i = 0; i < 50; i++)
+            {
+                var list = MarionetteGenerator.GenerateRandomMarionette(3, _marionetteDb, _traitDb, _config);
+                bool batchHasHealer = false;
+                foreach (var item in list)
+                {
+                    if (item.character.characterId == "maid_marionette")
+                    {
+                        batchHasHealer = true;
+                        break;
+                    }
+                }
+                if (!batchHasHealer)
+                {
+                    generatedWithoutHealer = true;
+                    break;
+                }
+            }
+
+            // Assert
+            Assert.IsTrue(generatedWithoutHealer, "Should be able to generate a batch without a healer if Cecilia has Hasty Repair.");
         }
     }
 }

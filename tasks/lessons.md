@@ -40,3 +40,13 @@
 - **Pattern**: Using `==` checks on `ScriptableObject` references (like `characterData == RunSessionManager.CurrentParty[0].character`) to link data loaded from a Main Menu UI with data on instantiated prefabs in a Combat Scene.
 - **Rule**: Unity does not guarantee that a `ScriptableObject` loaded directly by UI logic shares the same memory instance (InstanceID) as a `ScriptableObject` embedded in a prefab instantiated in a different scene. This causes equality checks to silently fail. 
 - **Verification**: Always prefer explicit data injection (e.g., passing `PartyMemberInfo` directly into `InitializeForCombat`) over static array lookups based on object reference equality when crossing scene or instantiation boundaries.
+
+### 9. Simplify API Modifications (Direct Refactoring)
+- **Pattern**: Creating a new method and routing the old method to it.
+- **Rule**: If the call sites are limited and the refactoring achieves the same functionality, directly modify the existing method signature/arguments instead of introducing wrappers or forwarding logic. This keeps the API clean and avoids duplicate logic pathways.
+
+### 10. Clean List Initialization
+- **Pattern**: Creating a temporary variable, performing a null check, and calling `AddRange` to populate a list field that was cleared right before.
+- **Rule**: Prefer direct assignment with a null-coalescing operator (`?? new List<T>()`) to handle possible null returns. This is cleaner, avoids temporary variables, and prevents potential `NullReferenceException` values down the line.
+
+

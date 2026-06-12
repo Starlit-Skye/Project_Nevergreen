@@ -78,14 +78,8 @@ namespace Nevergreen.UI
                 ? RunSessionManager.ActiveTraitDatabase 
                 : traitDatabase;
 
-            for (int i = 0; i < choiceCount; i++)
-            {
-                var generated = MarionetteGenerator.GenerateRandomMarionette(marionetteDatabase, activeTraits, combatConfig);
-                if (generated != null)
-                {
-                    _currentChoices.Add(generated);
-                }
-            }
+            _currentChoices = MarionetteGenerator.GenerateRandomMarionette(choiceCount, marionetteDatabase, activeTraits, combatConfig) 
+                ?? new List<PartyMemberInfo>();
 
             // Clean up any previously instantiated choice buttons
             foreach (var btn in _instantiatedButtons)

@@ -704,3 +704,17 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 ## Phase 3: Verification
 - [x] Run EditMode tests.
 - [ ] User testing to verify skill persistence.
+
+# Tweaked Marionette Generation
+
+## Phase 1: Planning
+- [x] Create implementation plan for tweaked marionette generation <!-- id: 154 -->
+
+## Phase 2: Implementation
+- [x] Modify `GenerateRandomMarionette` in `MarionetteGenerator.cs` to accept a count, check party healing option, and return a list of unique classes <!-- id: 155 -->
+- [x] Extract skill/trait initialization into a helper method `GenerateMarionetteFromTemplate` <!-- id: 156 -->
+- [x] Update `MarionetteSelectionController.cs` to invoke the updated batch generation signature of `GenerateRandomMarionette` <!-- id: 157 -->
+
+## Phase 3: Verification
+- [x] Update existing tests and add new tests in `MarionetteGeneratorTests.cs` covering batch behavior and conditional healers <!-- id: 158 -->
+- [x] Run all EditMode tests to confirm compilation and zero regressions <!-- id: 159 -->

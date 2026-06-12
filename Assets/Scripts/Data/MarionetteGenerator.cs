@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Nevergreen;
 
 namespace Nevergreen.Data
 {
@@ -11,9 +12,10 @@ namespace Nevergreen.Data
         private static System.Random _rng = new System.Random();
 
         /// <summary>
-        /// Generates a randomized PartyMemberInfo based on the provided databases and configuration.
+        /// Generates a list of randomized PartyMemberInfo based on the provided databases and configuration.
+        /// Enforces unique classes and ensures a healer is present if the current party lacks one.
         /// </summary>
-        public static PartyMemberInfo GenerateRandomMarionette(MarionetteDatabase db, TraitDatabase traitDb, CombatConfig config)
+        public static List<PartyMemberInfo> GenerateRandomMarionette(int count, MarionetteDatabase db, TraitDatabase traitDb, CombatConfig config)
         {
             if (db == null || db.marionettes == null || db.marionettes.Count == 0)
             {
@@ -21,15 +23,114 @@ namespace Nevergreen.Data
                 return null;
             }
 
-            // 1. Select a random class template
-            var template = db.marionettes[_rng.Next(db.marionettes.Count)];
+            var generatedList = new List<PartyMemberInfo>();
+            if (count <= 0) return generatedList;
 
+            // 1. Check for healer option in Current Party
+            bool hasHealer = HasHealerOption(RunSessionManager.CurrentParty);
+
+            // 2. Separate templates into healer pool and other pool
+            var healerPool = new List<CharacterData>();
+            var otherPool = new List<CharacterData>();
+
+            foreach (var template in db.marionettes)
+            {
+                if (IsHealerClass(template))
+                {
+                    healerPool.Add(template);
+                }
+                else
+                {
+                    otherPool.Add(template);
+                }
+            }
+
+            var selectedTemplates = new List<CharacterData>();
+
+            // 3. Force a healer if none exists
+            if (!hasHealer && healerPool.Count > 0)
+            {
+                int index = _rng.Next(healerPool.Count);
+                selectedTemplates.Add(healerPool[index]);
+                healerPool.RemoveAt(index);
+                count--;
+            }
+
+            // 4. Combine remaining and pick the rest randomly
+            var unifiedPool = new List<CharacterData>();
+            unifiedPool.AddRange(healerPool);
+            unifiedPool.AddRange(otherPool);
+
+            for (int i = 0; i < count && unifiedPool.Count > 0; i++)
+            {
+                int index = _rng.Next(unifiedPool.Count);
+                selectedTemplates.Add(unifiedPool[index]);
+                unifiedPool.RemoveAt(index);
+            }
+
+            // 5. Generate units from selected templates
+            foreach (var template in selectedTemplates)
+            {
+                generatedList.Add(GenerateMarionetteFromTemplate(template, traitDb, config));
+            }
+
+            return generatedList;
+        }
+
+        private static bool HasHealerOption(List<PartyMemberInfo> party)
+        {
+            if (party == null) return false;
+
+            foreach (var member in party)
+            {
+                if (member == null || member.character == null) continue;
+
+                var data = member.character;
+                
+                // Check if the class is a healer class
+                if (IsHealerClass(data))
+                {
+                    return true;
+                }
+
+                // Check if Cecilia has Hasty Repair
+                if (data.characterId == "ceci" || data.displayName == "Cecilia")
+                {
+                    if (member.equippedSkills != null)
+                    {
+                        foreach (var skill in member.equippedSkills)
+                        {
+                            if (skill != null && (skill.skillId == "hasty_repair" || skill.displayName == "Hasty Repair"))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        private static bool IsHealerClass(CharacterData template)
+        {
+            if (template == null) return false;
+            
+            return template.characterId == "maid_marionette" || template.displayName == "Maid" ||
+                   template.characterId == "commander_marionette" || template.displayName == "Commander" ||
+                   template.characterId == "alchemist_marionette" || template.displayName == "Alchemist";
+        }
+
+        /// <summary>
+        /// Populates skills and traits for a chosen template.
+        /// </summary>
+        public static PartyMemberInfo GenerateMarionetteFromTemplate(CharacterData template, TraitDatabase traitDb, CombatConfig config)
+        {
             var info = new PartyMemberInfo
             {
                 character = template
             };
 
-            // 2. Select exactly 4 unique random skills (if available)
+            // Select exactly 4 unique random skills (if available)
             var pool = template.totalSkillPool != null && template.totalSkillPool.Count > 0
                 ? template.totalSkillPool
                 : template.availableSkills;
@@ -48,7 +149,7 @@ namespace Nevergreen.Data
                 }
             }
 
-            // 3. Assign 1 random Perfection and 1 random Imperfection
+            // Assign 1 random Perfection and 1 random Imperfection
             if (traitDb != null)
             {
                 if (traitDb.perfections != null && traitDb.perfections.Count > 0)
