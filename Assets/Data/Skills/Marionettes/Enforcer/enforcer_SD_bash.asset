@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Bash
   description: Deal reduced damage to a target. Move target back 2
   modifier:
-    damagePercent: 75
+    damagePercent: 0.75
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0
