@@ -67,6 +67,8 @@ namespace Nevergreen.UI
 
         private void OnDisable()
         {
+            TooltipEvents.HideTooltip();
+
             if (closeButton != null)
                 closeButton.onClick.RemoveListener(OnCloseClicked);
 
@@ -173,6 +175,14 @@ namespace Nevergreen.UI
                     SkillData capturedSkill = skill;
                     btn.onClick.AddListener(() => OnSkillPoolItemClicked(capturedSkill));
                 }
+
+                // Attach TooltipTrigger
+                var tooltipTrigger = item.GetComponent<SkillTooltipTrigger>();
+                if (tooltipTrigger == null)
+                {
+                    tooltipTrigger = item.AddComponent<SkillTooltipTrigger>();
+                }
+                tooltipTrigger.SetSkill(skill);
             }
         }
 
@@ -218,6 +228,13 @@ namespace Nevergreen.UI
                     int capturedIndex = i;
                     equippedSlotButtons[i].onClick.RemoveAllListeners();
                     equippedSlotButtons[i].onClick.AddListener(() => OnEquippedSlotClicked(capturedIndex));
+
+                    var tooltipTrigger = equippedSlotButtons[i].GetComponent<SkillTooltipTrigger>();
+                    if (tooltipTrigger == null)
+                    {
+                        tooltipTrigger = equippedSlotButtons[i].gameObject.AddComponent<SkillTooltipTrigger>();
+                    }
+                    tooltipTrigger.SetSkill(_equippedSkills[i]);
                 }
 
                 if (equippedSlotImages != null && i < equippedSlotImages.Length && equippedSlotImages[i] != null)

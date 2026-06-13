@@ -182,7 +182,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.75}
+  m_Offset: {x: -0.06840068, y: 1.6665692}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -192,7 +192,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1.5}
+  m_Size: {x: 2.4500947, y: 4.8653135}
   m_EdgeRadius: 0
 --- !u!114 &7664516674936550575
 MonoBehaviour:
@@ -208,7 +208,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.CombatCharacter
   characterData: {fileID: 11400000, guid: 3c14e2b25d52936408534bed2525895b, type: 2}
   currentLevel: 1
-  currentHP: 0
+  _currentHP: 0
   rank: 0
   pileDuration: 0
   team: 0
@@ -228,5 +228,10 @@ MonoBehaviour:
     moveResist: 0
   equippedSkills: []
   statusEffects: []
+  partyInfo:
+    character: {fileID: 0}
+    equippedSkills: []
+    perfections: []
+    imperfections: []
   isStunned: 0
   skillUsesThisBattle_count: 0

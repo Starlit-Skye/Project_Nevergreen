@@ -718,3 +718,22 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 ## Phase 3: Verification
 - [x] Update existing tests and add new tests in `MarionetteGeneratorTests.cs` covering batch behavior and conditional healers <!-- id: 158 -->
 - [x] Run all EditMode tests to confirm compilation and zero regressions <!-- id: 159 -->
+
+# Reusable Skill Tooltip System
+
+## Phase 1: Core Tooltip System
+- [x] Create `TooltipEvents.cs` in `Assets/Scripts/UI/` to manage static events for showing and hiding tooltips <!-- id: 160 -->
+- [x] Create `SkillTooltipTrigger.cs` in `Assets/Scripts/UI/` implementing `IPointerEnterHandler`, `IPointerExitHandler`, and `OnDisable` to broadcast skill descriptions <!-- id: 161 -->
+- [x] Create `SkillTooltipDisplay.cs` in `Assets/Scripts/UI/` to listen to `TooltipEvents` and toggle the tooltip UI panel and text description <!-- id: 162 -->
+
+## Phase 2: Combat Screen Integration
+- [ ] Update `CombatUI.cs` to dynamically add/get `SkillTooltipTrigger` component on the four skill buttons during initialization and turn updates, passing the associated `SkillData` <!-- id: 163 -->
+- [ ] Add explicit calls to `TooltipEvents.HideTooltip()` in `HideSkillButtons()` to hide the tooltip during state/turn changes <!-- id: 164 -->
+
+## Phase 3: Main Menu Integration
+- [x] Update `CeciliaSkillSelectController.cs` in `PopulateSkillList()` to dynamically attach `SkillTooltipTrigger` to instantiated skill pool item buttons <!-- id: 165 -->
+- [x] Update `CeciliaSkillSelectController.cs` in `RefreshUI()` to dynamically attach `SkillTooltipTrigger` to equipped slot buttons based on equipped skills <!-- id: 166 -->
+
+## Phase 4: Verification & Tests
+- [x] Create unit tests in `Assets/Editor/Tests/TooltipSystemTests.cs` to verify tooltip event dispatching, trigger hover detection, data updating, and safety under null inputs <!-- id: 167 -->
+- [x] Run EditMode tests and verify all tests pass successfully <!-- id: 168 -->
