@@ -735,12 +735,22 @@ namespace Nevergreen.Combat
 
                 if (Nevergreen.RunSessionManager.CurrentParty != null)
                 {
-                    Nevergreen.RunSessionManager.CurrentParty.RemoveAll(partyMember =>
+                    var survivingPlayersSorted = _playerTeam
+                        .Where(c => c.state != LifeState.Pile && c.state != LifeState.Destroyed)
+                        .OrderBy(c => c.rank)
+                        .ToList();
+
+                    var updatedParty = new System.Collections.Generic.List<Nevergreen.Data.PartyMemberInfo>();
+                    foreach (var cc in survivingPlayersSorted)
                     {
-                        var cc = _initialPlayerTeam.Find(c => c.characterData == partyMember.character);
-                        if (cc == null) return false;
-                        return cc.state == LifeState.Destroyed || cc.state == LifeState.Pile;
-                    });
+                        if (cc.partyInfo != null)
+                        {
+                            updatedParty.Add(cc.partyInfo);
+                        }
+                    }
+
+                    Nevergreen.RunSessionManager.CurrentParty.Clear();
+                    Nevergreen.RunSessionManager.CurrentParty.AddRange(updatedParty);
                 }
 
                 OnBattleEnded?.Invoke(BattleOutcome.Victory);

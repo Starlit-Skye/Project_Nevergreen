@@ -320,5 +320,123 @@ namespace Nevergreen.Tests
             Assert.AreEqual(0, config.availableRooms.Count);
             UnityEngine.Object.DestroyImmediate(config);
         }
+        // ============================================================
+        // Team Formation Update Tests
+        // ============================================================
+
+        [Test]
+        public void BattleVictory_UpdatesRosterFormationOrder()
+        {
+            // Arrange
+            var battleGO = new GameObject("BattleSystem");
+            var battleSystem = battleGO.AddComponent<BattleSystem>();
+
+            var p1 = new PartyMemberInfo();
+            var p2 = new PartyMemberInfo();
+            var p3 = new PartyMemberInfo();
+
+            RunSessionManager.CurrentParty.Add(p1);
+            RunSessionManager.CurrentParty.Add(p2);
+            RunSessionManager.CurrentParty.Add(p3);
+
+            var c1GO = new GameObject("C1");
+            var c1 = c1GO.AddComponent<CombatCharacter>();
+            c1.partyInfo = p1;
+            c1.rank = 3;
+            c1.state = LifeState.Alive;
+
+            var c2GO = new GameObject("C2");
+            var c2 = c2GO.AddComponent<CombatCharacter>();
+            c2.partyInfo = p2;
+            c2.rank = 1;
+            c2.state = LifeState.Alive;
+
+            var c3GO = new GameObject("C3");
+            var c3 = c3GO.AddComponent<CombatCharacter>();
+            c3.partyInfo = p3;
+            c3.rank = 2;
+            c3.state = LifeState.Alive;
+
+            var playerTeam = new List<CombatCharacter> { c1, c2, c3 };
+            typeof(BattleSystem).GetField("_playerTeam", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(battleSystem, playerTeam);
+            typeof(BattleSystem).GetField("_enemyTeam", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(battleSystem, new List<CombatCharacter>());
+
+            // Act - invoke CheckBattleEnd via reflection
+            var checkBattleEnd = typeof(BattleSystem).GetMethod("CheckBattleEnd", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isEnd = (bool)checkBattleEnd.Invoke(battleSystem, null);
+
+            // Assert
+            Assert.IsTrue(isEnd, "Battle should end in victory since enemy team is empty.");
+            Assert.AreEqual(3, RunSessionManager.CurrentParty.Count);
+            
+            // Expected order based on ranks: c2 (rank 1) -> c3 (rank 2) -> c1 (rank 3)
+            // Which maps to: p2, p3, p1
+            Assert.AreSame(p2, RunSessionManager.CurrentParty[0]);
+            Assert.AreSame(p3, RunSessionManager.CurrentParty[1]);
+            Assert.AreSame(p1, RunSessionManager.CurrentParty[2]);
+
+            // Cleanup
+            UnityEngine.Object.DestroyImmediate(battleGO);
+            UnityEngine.Object.DestroyImmediate(c1GO);
+            UnityEngine.Object.DestroyImmediate(c2GO);
+            UnityEngine.Object.DestroyImmediate(c3GO);
+        }
+
+        [Test]
+        public void BattleVictory_RemovesDeadAndPilesAndMaintainsFormation()
+        {
+            // Arrange
+            var battleGO = new GameObject("BattleSystem");
+            var battleSystem = battleGO.AddComponent<BattleSystem>();
+
+            var p1 = new PartyMemberInfo();
+            var p2 = new PartyMemberInfo();
+            var p3 = new PartyMemberInfo();
+
+            RunSessionManager.CurrentParty.Add(p1);
+            RunSessionManager.CurrentParty.Add(p2);
+            RunSessionManager.CurrentParty.Add(p3);
+
+            var c1GO = new GameObject("C1");
+            var c1 = c1GO.AddComponent<CombatCharacter>();
+            c1.partyInfo = p1;
+            c1.rank = 1;
+            c1.state = LifeState.Pile; // Should be removed
+
+            var c2GO = new GameObject("C2");
+            var c2 = c2GO.AddComponent<CombatCharacter>();
+            c2.partyInfo = p2;
+            c2.rank = 3;
+            c2.state = LifeState.Alive;
+
+            var c3GO = new GameObject("C3");
+            var c3 = c3GO.AddComponent<CombatCharacter>();
+            c3.partyInfo = p3;
+            c3.rank = 2;
+            c3.state = LifeState.Alive;
+
+            var playerTeam = new List<CombatCharacter> { c1, c2, c3 };
+            typeof(BattleSystem).GetField("_playerTeam", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(battleSystem, playerTeam);
+            typeof(BattleSystem).GetField("_enemyTeam", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(battleSystem, new List<CombatCharacter>());
+
+            // Act
+            var checkBattleEnd = typeof(BattleSystem).GetMethod("CheckBattleEnd", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isEnd = (bool)checkBattleEnd.Invoke(battleSystem, null);
+
+            // Assert
+            Assert.IsTrue(isEnd);
+            Assert.AreEqual(2, RunSessionManager.CurrentParty.Count);
+            
+            // Expected order based on remaining ranks: c3 (rank 2) -> c2 (rank 3)
+            // Which maps to: p3, p2
+            Assert.AreSame(p3, RunSessionManager.CurrentParty[0]);
+            Assert.AreSame(p2, RunSessionManager.CurrentParty[1]);
+
+            // Cleanup
+            UnityEngine.Object.DestroyImmediate(battleGO);
+            UnityEngine.Object.DestroyImmediate(c1GO);
+            UnityEngine.Object.DestroyImmediate(c2GO);
+            UnityEngine.Object.DestroyImmediate(c3GO);
+        }
     }
 }

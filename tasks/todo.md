@@ -737,3 +737,15 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 ## Phase 4: Verification & Tests
 - [x] Create unit tests in `Assets/Editor/Tests/TooltipSystemTests.cs` to verify tooltip event dispatching, trigger hover detection, data updating, and safety under null inputs <!-- id: 167 -->
 - [x] Run EditMode tests and verify all tests pass successfully <!-- id: 168 -->
+
+# Update Player Team Formation on Combat End
+
+## Phase 1: Planning
+- [x] Create implementation plan <!-- id: 169 -->
+
+## Phase 2: Implementation
+- [x] Implement formation updating in BattleSystem.cs before OnBattleEnded is invoked <!-- id: 170 -->
+
+## Phase 3: Verification
+- [x] Add unit tests to verify the player team formation is correctly saved/reordered in RunSessionManager.CurrentParty upon Victory <!-- id: 171 -->
+- [x] Run EditMode tests to confirm compilation and zero regressions <!-- id: 172 -->
