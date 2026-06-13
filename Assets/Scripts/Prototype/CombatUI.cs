@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using Nevergreen.Data;
 using Nevergreen.Combat;
+using Nevergreen.UI;
 
 namespace Nevergreen.Prototype
 {
@@ -380,9 +381,17 @@ namespace Nevergreen.Prototype
 
                 skillButtons[i].gameObject.SetActive(true);
 
+                var tooltipTrigger = skillButtons[i].gameObject.GetComponent<SkillTooltipTrigger>();
+                if (tooltipTrigger == null)
+                {
+                    tooltipTrigger = skillButtons[i].gameObject.AddComponent<SkillTooltipTrigger>();
+                }
+
                 if (i < actor.equippedSkills.Count)
                 {
                     var skill = actor.equippedSkills[i];
+                    tooltipTrigger.SetSkill(skill);
+
                     skillButtons[i].interactable =
                         actor.CanUseSkillFromRank(skill) && actor.HasRemainingUses(skill);
 
@@ -399,6 +408,7 @@ namespace Nevergreen.Prototype
                 }
                 else
                 {
+                    tooltipTrigger.SetSkill(null);
                     skillButtons[i].interactable = false;
                     if (skillButtonLabels[i] != null)
                     {
@@ -415,6 +425,7 @@ namespace Nevergreen.Prototype
 
         private void HideSkillButtons()
         {
+            TooltipEvents.HideTooltip();
             foreach (var btn in skillButtons)
             {
                 if (btn != null) btn.interactable = false;
