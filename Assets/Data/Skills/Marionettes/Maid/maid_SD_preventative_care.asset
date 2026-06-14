@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: preventative_care
   displayName: Preventative Care
-  description: Give 1 ally debuff, bleed, and blight res
+  description: 'Give 1 ally debuff, bleed, and blight res
+
+    Usable Rank: 2-4'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -32,6 +34,7 @@ MonoBehaviour:
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
+  ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}

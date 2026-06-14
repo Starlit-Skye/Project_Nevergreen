@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: flare
   displayName: Flare
-  description: De-stealth all enemies. Apply accuracy debuff to all enemies.
+  description: 'De-stealth all enemies. Apply accuracy debuff to all enemies.
+
+    Usable
+    Rank: 3-4'
   modifier:
     damagePercent: 0
     healPercent: 0

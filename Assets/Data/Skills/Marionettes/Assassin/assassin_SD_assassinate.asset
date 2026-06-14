@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: assassinate
   displayName: Assassinate
-  description: Deal low damage to an enemy. If stealthed, +100% damage.
+  description: 'Deal low damage to an enemy. If stealthed, +100% damage.
+
+    Usable
+    Rank: 4'
   modifier:
     damagePercent: 0.5
     healPercent: 0

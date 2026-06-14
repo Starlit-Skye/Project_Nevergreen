@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: side_arm
   displayName: Side Arm
-  description: Low damage and low accuracy. Move self back 1
+  description: 'Low damage and low accuracy. Move self back 1
+
+    Usable Rank: 1-2'
   modifier:
     damagePercent: 0.6
     healPercent: 0

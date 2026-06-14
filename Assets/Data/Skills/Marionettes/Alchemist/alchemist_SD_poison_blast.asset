@@ -16,6 +16,9 @@ MonoBehaviour:
   displayName: Poison Blast
   description: 'Low damage. Deal damage to 1 target and apply Blight
 
+    Usable
+    Rank: 3-4
+
 '
   modifier:
     damagePercent: 0.3

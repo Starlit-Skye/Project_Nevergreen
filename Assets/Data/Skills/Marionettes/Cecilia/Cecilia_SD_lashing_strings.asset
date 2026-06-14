@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: lashing_strings
   displayName: Lashing Strings
-  description: Deal damage to 1 target and apply bleed
+  description: 'Deal damage to 1 target and apply bleed
+
+    Usable Rank: 2-4'
   modifier:
     damagePercent: 0.8
     healPercent: 0
@@ -31,6 +33,7 @@ MonoBehaviour:
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
+  ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}

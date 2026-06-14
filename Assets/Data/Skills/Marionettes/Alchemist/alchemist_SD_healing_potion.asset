@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: healing_potion
   displayName: Healing Potion
-  description: Small heal and apply Restore to an ally.
+  description: 'Small heal and apply Restore to an ally.
+
+    Usable Rank: 3-4'
   modifier:
     damagePercent: 0.1
     healPercent: 0

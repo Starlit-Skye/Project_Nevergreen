@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: toxic_grenade
   displayName: Toxic Grenade
-  description: Apply Blight to 2 back rank enemies
+  description: 'Apply Blight to 2 back rank enemies
+
+    Usable Rank: 3-4'
   modifier:
     damagePercent: 0.2
     healPercent: 0

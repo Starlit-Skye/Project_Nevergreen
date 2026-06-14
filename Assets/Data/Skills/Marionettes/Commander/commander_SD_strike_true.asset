@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: strike_true
   displayName: Strike True
-  description: Useable at frontmost rank only. Grant Attack and Crit Rate buff to
+  description: 'Useable at frontmost rank only. Grant Attack and Crit Rate buff to
     team
+
+    Usable Rank: 1'
   modifier:
     damagePercent: 0
     healPercent: 0

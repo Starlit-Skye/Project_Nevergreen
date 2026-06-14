@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: backstab
   displayName: Backstab
-  description: Deal low damage to an enemy. Armor piercing. +40% damage against Marked.
+  description: 'Deal low damage to an enemy. Armor piercing. +40% damage against
+    Marked.
+
+    Usable Rank: 1-2'
   modifier:
     damagePercent: 0.6
     healPercent: 0
@@ -40,5 +43,6 @@ MonoBehaviour:
     - rid: 356131318423355474
       type: {class: ConditionalDamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
+        conditionSource: 0
         requiredStatus: 4
         bonusScaling: 0.4

@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: take_aim
   displayName: Take Aim
-  description: Buff crit rate and accuracy to self. Move back 1
+  description: 'Buff crit rate and accuracy to self. Move back 1
+
+    Usable Rank:
+    3-4'
   modifier:
     damagePercent: 0
     healPercent: 0

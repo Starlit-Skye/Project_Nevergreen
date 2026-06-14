@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: steal_the_show
   displayName: Steal The Show
-  description: Back most rank only. Deal damage to 1 enemy, once per battle, move
+  description: 'Back most rank only. Deal damage to 1 enemy, once per battle, move
     self to front.
+
+    Usable Rank: 4'
   modifier:
     damagePercent: 1.5
     healPercent: 0

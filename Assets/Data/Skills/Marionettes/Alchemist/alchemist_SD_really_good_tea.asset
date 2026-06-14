@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: really_good_tea
   displayName: Really Good Tea
-  description: Cleanse Blight and small heal to an ally.
+  description: 'Cleanse Blight and small heal to an ally.
+
+    Usable Rank: 3-4'
   modifier:
     damagePercent: 0
     healPercent: 0.6

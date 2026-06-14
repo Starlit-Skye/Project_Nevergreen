@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: treat_the_wounded
   displayName: Treat The Wounded
-  description: Heal 1 ally.
+  description: 'Heal 1 ally.
+
+    Usable Rank: 1-2'
   modifier:
     damagePercent: 0
     healPercent: 0.6

@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: snipe
   displayName: Snipe
-  description: Deal damage to 1 enemy. Extra damage against Marked enemies.
+  description: 'Deal damage to 1 enemy. Extra damage against Marked enemies.
+
+    Usable
+    Rank: 3-4'
   modifier:
     damagePercent: 1
     healPercent: 0
@@ -40,5 +43,6 @@ MonoBehaviour:
     - rid: 356131309606142042
       type: {class: ConditionalDamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
+        conditionSource: 0
         requiredStatus: 4
         bonusScaling: 0.5

@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
   m_Name: enforcer_SD_charge_ahead
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: bash
-  displayName: Bash
-  description: Deal low damage to all enemies. Move forward 2
+  skillId: charge_ahead
+  displayName: Charge Ahead
+  description: 'Deal low damage to all enemies. Move forward 2
+
+    Usable Rank:
+    2-4'
   modifier:
     damagePercent: 0.3
     healPercent: 0

@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: silver_platter_shield
   displayName: Silver Platter Shield
-  description: Give self Riposte, gain Defense buff.
+  description: 'Give self Riposte, gain Defense buff.
+
+    Usable Rank: 1-3'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -31,6 +33,7 @@ MonoBehaviour:
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
+  ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}

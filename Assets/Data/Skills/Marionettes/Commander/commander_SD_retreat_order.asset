@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: retreat_order
   displayName: Retreat Order
-  description: Move an ally backward 1 and grant Def buff.
+  description: 'Move an ally backward 1 and grant Def buff.
+
+    Usable Rank: 1-2'
   modifier:
     damagePercent: 0
     healPercent: 0

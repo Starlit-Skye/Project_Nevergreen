@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: dagger_throw
   displayName: Dagger Throw
-  description: Deal reduced damage to an enemy. Move self back 1.
+  description: 'Deal reduced damage to an enemy. Move self back 1.
+
+    Usable Rank:
+    2-4'
   modifier:
     damagePercent: 0.8
     healPercent: 0

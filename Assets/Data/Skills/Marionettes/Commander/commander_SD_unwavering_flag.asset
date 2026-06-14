@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: unwavering_flag
   displayName: Unwavering Flag
-  description: Once per battle, use in front most rank only. All allied gain Debuff,
+  description: 'Once per battle, use in front most rank only. All allied gain Debuff,
     Blight, and Bleed resistance for the rest of battle.
+
+    Usable Rank: 1'
   modifier:
     damagePercent: 0
     healPercent: 0

@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: spear_configuration
   displayName: Spear Configuration
-  description: Damage 1 target, move forward 1
+  description: 'Damage 1 target, move forward 1
+
+    Usable Rank: 3-4'
   modifier:
     damagePercent: 1
     healPercent: 0
@@ -31,6 +33,7 @@ MonoBehaviour:
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
+  ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}

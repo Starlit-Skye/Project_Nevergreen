@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: identify_threat
   displayName: Identify Threat
-  description: Mark an enemy. Gain accuracy buff.
+  description: 'Mark an enemy. Gain accuracy buff.
+
+    Usable Rank: 3-4'
   modifier:
     damagePercent: 0
     healPercent: 0

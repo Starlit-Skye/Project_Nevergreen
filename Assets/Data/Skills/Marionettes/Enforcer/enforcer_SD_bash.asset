@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: bash
   displayName: Bash
-  description: Deal reduced damage to a target. Move target back 2
+  description: 'Deal reduced damage to a target. Move target back 2
+
+    Usable Rank:
+    1-3'
   modifier:
     damagePercent: 0.75
     healPercent: 0

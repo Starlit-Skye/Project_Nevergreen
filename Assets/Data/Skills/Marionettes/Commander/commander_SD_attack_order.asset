@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: attack_order
   displayName: Attack Order
-  description: Move an ally forward 1 and grant Attack buff.
+  description: 'Move an ally forward 1 and grant Attack buff.
+
+    Usable Rank: 1-2'
   modifier:
     damagePercent: 0
     healPercent: 0

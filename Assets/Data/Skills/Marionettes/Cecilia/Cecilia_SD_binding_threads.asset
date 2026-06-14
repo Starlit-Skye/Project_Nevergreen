@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: binding_threads
   displayName: Binding Threads
-  description: Deal low damage, chance to stun
+  description: 'Deal low damage, chance to stun
+
+    Usable Rank: 2-4'
   modifier:
     damagePercent: 0.3
     healPercent: 0
@@ -31,6 +33,7 @@ MonoBehaviour:
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
+  ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}

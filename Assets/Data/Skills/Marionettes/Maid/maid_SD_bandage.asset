@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: bandage
   displayName: Bandage
-  description: Heal 1 ally, remove bleed
+  description: 'Heal 1 ally, remove bleed
+
+    Usable Rank: 2-4'
   modifier:
     damagePercent: 0
     healPercent: 1
@@ -31,6 +33,7 @@ MonoBehaviour:
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
+  ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}

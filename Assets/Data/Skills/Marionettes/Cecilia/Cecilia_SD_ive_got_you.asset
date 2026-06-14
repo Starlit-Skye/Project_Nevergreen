@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: ive_got_you
   displayName: I've Got You
-  description: Move forward 1, apply buff to ally in back.
+  description: 'Move forward 1, apply buff to ally in back.
+
+    Usable Rank: 2-4'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -32,6 +34,7 @@ MonoBehaviour:
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
+  ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}

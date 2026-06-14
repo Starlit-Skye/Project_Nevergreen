@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: offer_praise
   displayName: Offer Praise
-  description: Apply defense buff to the character guarding this character.
+  description: 'Apply defense buff to the character guarding this character.
+
+    Usable
+    Rank: 3-4'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -30,6 +33,7 @@ MonoBehaviour:
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
+  ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}

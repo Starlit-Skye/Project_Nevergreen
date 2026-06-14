@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: bola_throw
   displayName: Bola Throw
-  description: Deal low damage to 1 target. Always hit, debuff speed and dodge.
+  description: 'Deal low damage to 1 target. Always hit, debuff speed and dodge.
+
+    Usable
+    Rank: 2-4'
   modifier:
     damagePercent: 0.2
     healPercent: 0

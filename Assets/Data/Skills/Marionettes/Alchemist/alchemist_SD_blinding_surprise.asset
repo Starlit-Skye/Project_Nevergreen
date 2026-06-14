@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: blinding_surprise
   displayName: Blinding Surprise
-  description: Stun 2 back rank enemies
+  description: 'Stun 2 back rank enemies
+
+    Usable Rank: 3-4'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -23,7 +25,7 @@ MonoBehaviour:
   effects:
   - rid: 356131354717192195
   useRanks: 0300000004000000
-  targetRanks: 0300000004000000
+  targetRanks: 03000000
   targetScope: 2
   maxTargets: 2
   ignoresDefense: 0
@@ -42,7 +44,7 @@ MonoBehaviour:
       data:
         statusType: 2
         targetStat: 5
-        applicationChance: 100
+        applicationChance: 120
         amplitude: 1
         amplitudeType: 0
         duration: 2

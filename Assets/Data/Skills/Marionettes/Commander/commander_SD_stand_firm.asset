@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: stand_firm
   displayName: Stand Firm
-  description: Useable at frontmost rank only. Grant Def and Move res buff to team
+  description: 'Useable at frontmost rank only. Grant Def and Move res buff to team
+
+    Usable
+    Rank: 1'
   modifier:
     damagePercent: 0
     healPercent: 0

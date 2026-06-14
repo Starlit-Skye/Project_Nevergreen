@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: one_on_one
   displayName: One On One
-  description: Deal low damage to an enemy, move the target and self to front.
+  description: 'Deal low damage to an enemy, move the target and self to front.
+
+    Usable
+    Rank: 2-4'
   modifier:
     damagePercent: 0.1
     healPercent: 0

@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: trample
   displayName: Trample
-  description: Deal damage to an enemy. Deal extra damage if target is stunned.
+  description: 'Deal damage to an enemy. Deal extra damage if target is stunned.
+
+    Usable
+    Rank: 1-3'
   modifier:
     damagePercent: 0.9
     healPercent: 0

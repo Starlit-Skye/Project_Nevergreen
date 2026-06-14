@@ -13,16 +13,20 @@ MonoBehaviour:
   m_Name: alchemist_SD_aroma_of_tea
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: aroma_of_tea
-  displayName: Toxic Grenade
-  description: Small heal and apply blight and bleed res to team
+  displayName: Aroma of Tea
+  description: 'Small heal and apply blight and bleed res to team.
+
+    Usable Rank:
+    3-4'
   modifier:
     damagePercent: 0
-    healPercent: 0
+    healPercent: 0.2
     accuracyMod: 0
     criticalMod: 0
   effects:
   - rid: 356131354717192195
   - rid: 356131354717192197
+  - rid: 4415245392192733261
   useRanks: 0300000004000000
   targetRanks: 01000000
   targetScope: 1
@@ -58,3 +62,6 @@ MonoBehaviour:
         amplitudeType: 2
         duration: 3
         ignoreMiss: 1
+    - rid: 4415245392192733261
+      type: {class: HealEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 

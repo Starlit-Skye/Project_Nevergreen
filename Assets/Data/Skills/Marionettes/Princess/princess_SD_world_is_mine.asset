@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: world_is_mine
   displayName: World is Mine
-  description: Deal damage to a target, if it kills, gain 1 Part. Once per combat.
+  description: 'Deal damage to a target, if it kills, gain 1 Part. Once per combat.
+
+    Usable
+    Rank: 3-4'
   modifier:
     damagePercent: 1
     healPercent: 0
