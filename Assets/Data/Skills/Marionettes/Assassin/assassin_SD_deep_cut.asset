@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: deep_cut
   displayName: Deep Cut
-  description: 'Deal damage to 1 enemy, apply Bleed.
+  description: 'Deal damage to 1 enemy, apply Bleed, move self forward 1.
 
-    Usable Rank: 2-4'
+    Usable
+    Rank: 2-4'
   modifier:
     damagePercent: 1
     healPercent: 0
