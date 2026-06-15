@@ -12,6 +12,7 @@ namespace Nevergreen.Tests
         private MarionetteDatabase _marionetteDb;
         private TraitDatabase _traitDb;
         private CombatConfig _config;
+        private GameDatabase _gameDatabase;
 
         [SetUp]
         public void Setup()
@@ -49,6 +50,13 @@ namespace Nevergreen.Tests
             _config.maxPerfections = 3;
             _config.maxImperfections = 3;
 
+            // Inject mock GameDatabase
+            _gameDatabase = GameDatabase.CreateForTesting(
+                marionettes: _marionetteDb,
+                traits: _traitDb
+            );
+            GameDatabase.SetInstanceForTesting(_gameDatabase);
+
             // Ensure CurrentParty is clean
             RunSessionManager.CurrentParty = new List<PartyMemberInfo>();
         }
@@ -57,13 +65,15 @@ namespace Nevergreen.Tests
         public void Teardown()
         {
             RunSessionManager.CurrentParty = new List<PartyMemberInfo>();
+            GameDatabase.SetInstanceForTesting(null);
+            if (_gameDatabase != null) ScriptableObject.DestroyImmediate(_gameDatabase);
         }
 
         [Test]
         public void GenerateRandomMarionette_ValidInput_Generates4UniqueSkillsAnd1Perf1Imp()
         {
             // Act
-            var list = MarionetteGenerator.GenerateRandomMarionette(1, _marionetteDb, _traitDb, _config);
+            var list = MarionetteGenerator.GenerateRandomMarionette(1, _config);
             var info = list[0];
 
             // Assert
@@ -89,7 +99,7 @@ namespace Nevergreen.Tests
             _template.totalSkillPool.RemoveAt(0); // Only 2 left
 
             // Act
-            var list = MarionetteGenerator.GenerateRandomMarionette(1, _marionetteDb, _traitDb, _config);
+            var list = MarionetteGenerator.GenerateRandomMarionette(1, _config);
             var info = list[0];
 
             // Assert
@@ -104,7 +114,7 @@ namespace Nevergreen.Tests
             _traitDb.imperfections.Clear();
 
             // Act
-            var list = MarionetteGenerator.GenerateRandomMarionette(1, _marionetteDb, _traitDb, _config);
+            var list = MarionetteGenerator.GenerateRandomMarionette(1, _config);
             var info = list[0];
 
             // Assert
@@ -115,14 +125,20 @@ namespace Nevergreen.Tests
         [Test]
         public void GenerateRandomMarionette_NullDatabase_ReturnsNull()
         {
+            // Arrange: set GameDatabase with null MarionetteDatabase
+            var emptyGameDb = GameDatabase.CreateForTesting();
+            GameDatabase.SetInstanceForTesting(emptyGameDb);
+
             // Assert expecting an error log
             LogAssert.Expect(LogType.Error, "[MarionetteGenerator] MarionetteDatabase is null or empty!");
 
             // Act
-            var info = MarionetteGenerator.GenerateRandomMarionette(1, null, _traitDb, _config);
+            var info = MarionetteGenerator.GenerateRandomMarionette(1, _config);
 
             // Assert
             Assert.IsNull(info);
+
+            ScriptableObject.DestroyImmediate(emptyGameDb);
         }
 
         [Test]
@@ -138,7 +154,7 @@ namespace Nevergreen.Tests
             }
 
             // Act
-            var list = MarionetteGenerator.GenerateRandomMarionette(3, _marionetteDb, _traitDb, _config);
+            var list = MarionetteGenerator.GenerateRandomMarionette(3, _config);
 
             // Assert
             Assert.AreEqual(3, list.Count);
@@ -168,7 +184,7 @@ namespace Nevergreen.Tests
             RunSessionManager.CurrentParty.Clear(); // No healer
 
             // Act
-            var list = MarionetteGenerator.GenerateRandomMarionette(3, _marionetteDb, _traitDb, _config);
+            var list = MarionetteGenerator.GenerateRandomMarionette(3, _config);
 
             // Assert
             bool hasHealer = false;
@@ -206,7 +222,7 @@ namespace Nevergreen.Tests
             bool generatedWithoutHealer = false;
             for (int i = 0; i < 50; i++)
             {
-                var list = MarionetteGenerator.GenerateRandomMarionette(3, _marionetteDb, _traitDb, _config);
+                var list = MarionetteGenerator.GenerateRandomMarionette(3, _config);
                 bool batchHasHealer = false;
                 foreach (var item in list)
                 {
@@ -257,7 +273,7 @@ namespace Nevergreen.Tests
             bool generatedWithoutHealer = false;
             for (int i = 0; i < 50; i++)
             {
-                var list = MarionetteGenerator.GenerateRandomMarionette(3, _marionetteDb, _traitDb, _config);
+                var list = MarionetteGenerator.GenerateRandomMarionette(3, _config);
                 bool batchHasHealer = false;
                 foreach (var item in list)
                 {

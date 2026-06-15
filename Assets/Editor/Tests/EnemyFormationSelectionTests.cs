@@ -13,6 +13,7 @@ namespace Nevergreen.Tests
         private EnemyFormationData formationB;
         private EnemyFormationData formationC;
         private CombatConfig combatConfig;
+        private GameDatabase gameDatabase;
 
         [SetUp]
         public void Setup()
@@ -45,17 +46,24 @@ namespace Nevergreen.Tests
                 new RoomTierMapping { roomCount = 6, tier = EnemyEncounterTier.MidGame },
                 new RoomTierMapping { roomCount = 10, tier = EnemyEncounterTier.LateGame }
             };
+
+            // Inject a mock GameDatabase with our formation database
+            gameDatabase = GameDatabase.CreateForTesting(enemyFormations: database);
+            GameDatabase.SetInstanceForTesting(gameDatabase);
         }
 
         [TearDown]
         public void Teardown()
         {
             RunSessionManager.Clear();
+            GameDatabase.SetInstanceForTesting(null);
+
             ScriptableObject.DestroyImmediate(formationA);
             ScriptableObject.DestroyImmediate(formationB);
             ScriptableObject.DestroyImmediate(formationC);
             ScriptableObject.DestroyImmediate(database);
             ScriptableObject.DestroyImmediate(combatConfig);
+            if (gameDatabase != null) ScriptableObject.DestroyImmediate(gameDatabase);
         }
 
         [Test]
@@ -78,7 +86,9 @@ namespace Nevergreen.Tests
         [Test]
         public void GetNextRandomFormation_ReturnsNull_WhenNoDatabaseInitialized()
         {
-            // No Initialize call
+            // Clear the GameDatabase so there's no formation database
+            GameDatabase.SetInstanceForTesting(null);
+
             var result = RunSessionManager.GetNextRandomFormation(EnemyEncounterTier.Trivial);
             Assert.IsNull(result);
         }
@@ -88,7 +98,9 @@ namespace Nevergreen.Tests
         {
             var singleDb = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
             singleDb.trivialFormations = new List<EnemyFormationData> { formationA };
-            RunSessionManager.Initialize(singleDb);
+            var singleGameDb = GameDatabase.CreateForTesting(enemyFormations: singleDb);
+            GameDatabase.SetInstanceForTesting(singleGameDb);
+            RunSessionManager.Initialize();
 
             var result = RunSessionManager.GetNextRandomFormation(EnemyEncounterTier.Trivial);
             Assert.AreEqual(formationA, result);
@@ -98,12 +110,13 @@ namespace Nevergreen.Tests
             Assert.AreEqual(formationA, result2);
 
             ScriptableObject.DestroyImmediate(singleDb);
+            ScriptableObject.DestroyImmediate(singleGameDb);
         }
 
         [Test]
         public void GetNextRandomFormation_NeverReturnsConsecutiveDuplicates()
         {
-            RunSessionManager.Initialize(database);
+            RunSessionManager.Initialize();
 
             EnemyFormationData previous = null;
             for (int i = 0; i < 100; i++)
@@ -124,7 +137,7 @@ namespace Nevergreen.Tests
         [Test]
         public void GetNextRandomFormation_ReturnsFromSpecifiedTier()
         {
-            RunSessionManager.Initialize(database);
+            RunSessionManager.Initialize();
 
             var early = RunSessionManager.GetNextRandomFormation(EnemyEncounterTier.EarlyGame);
             Assert.AreEqual(formationA, early, "EarlyGame should return only Formation A");
@@ -139,12 +152,12 @@ namespace Nevergreen.Tests
         [Test]
         public void Initialize_ResetsLastSelectedFormation()
         {
-            RunSessionManager.Initialize(database);
+            RunSessionManager.Initialize();
             var first = RunSessionManager.GetNextRandomFormation(EnemyEncounterTier.Trivial);
             Assert.IsNotNull(first);
 
             // Re-initialize should reset last selection
-            RunSessionManager.Initialize(database);
+            RunSessionManager.Initialize();
             Assert.IsNull(RunSessionManager.LastSelectedFormation,
                 "LastSelectedFormation should be null after re-initialization");
         }
@@ -152,15 +165,17 @@ namespace Nevergreen.Tests
         [Test]
         public void Clear_ResetsAllFormationState()
         {
-            RunSessionManager.Initialize(database);
+            RunSessionManager.Initialize();
             RunSessionManager.GetNextRandomFormation(EnemyEncounterTier.Trivial);
 
             RunSessionManager.Clear();
 
-            Assert.IsNull(RunSessionManager.ActiveFormationDatabase);
             Assert.IsNull(RunSessionManager.LastSelectedFormation);
-            Assert.IsNull(RunSessionManager.GetNextRandomFormation(EnemyEncounterTier.Trivial),
-                "After Clear, GetNextRandomFormation should return null");
+            // GameDatabase.Instance is still set (it's global), but after Clear
+            // LastSelectedFormation is null
+            var result = RunSessionManager.GetNextRandomFormation(EnemyEncounterTier.Trivial);
+            Assert.IsNotNull(result,
+                "After Clear, GetNextRandomFormation should still work if GameDatabase is set");
         }
     }
 }

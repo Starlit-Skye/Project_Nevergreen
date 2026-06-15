@@ -749,3 +749,28 @@ All Custom AmplitudeType Tests pass (136/138 total passed, 2 pre-existing AudioM
 ## Phase 3: Verification
 - [x] Add unit tests to verify the player team formation is correctly saved/reordered in RunSessionManager.CurrentParty upon Victory <!-- id: 171 -->
 - [x] Run EditMode tests to confirm compilation and zero regressions <!-- id: 172 -->
+
+# Centralized Game Database Refactor
+
+## Phase 1: Data Architecture & Creation
+- [x] Create `RoomDatabase.cs` inside `Assets/Scripts/Data/` as a ScriptableObject containing `public List<RoomData> availableRooms`.
+- [x] Create `GameDatabase.cs` inside `Assets/Scripts/Data/` as a centralized ScriptableObject.
+- [x] Implement Singleton access pattern in `GameDatabase` with Bootstrap initialization and `#if UNITY_EDITOR` fallback.
+- [x] Add properties to `GameDatabase`: `EnemyFormationDatabase`, `MarionetteDatabase`, `TraitDatabase`, and `RoomDatabase`.
+- [x] Create `GameInitializer.cs` to set up the singleton instance at runtime.
+- [x] Create the actual `RoomDatabase.asset` and `GameDatabase.asset` inside `Assets/Data/` (or settings folder) in the Editor.
+- [x] Assign existing databases and rooms into the new `GameDatabase.asset`.
+
+## Phase 2: Refactoring Consumers
+- [x] Remove `availableRooms` from `CombatConfig.cs`.
+- [x] Update `CombatUI.cs` room picking logic to read from `GameDatabase.Instance.RoomDatabase.availableRooms`.
+- [x] Remove `ActiveFormationDatabase` and `ActiveTraitDatabase` properties from `RunSessionManager.cs`.
+- [x] Update `RunSessionManager.GetNextRandomFormation()` to use `GameDatabase.Instance.EnemyFormationDatabase`.
+- [x] Update `MarionetteGenerator.cs` methods to no longer take `MarionetteDatabase` and `TraitDatabase` as parameters, but instead use `GameDatabase.Instance` internally.
+- [x] Update `MarionetteSelectionController.cs` to remove its serialized database fields and adjust calls to `MarionetteGenerator`.
+- [x] Update `CeciliaSkillSelectController.cs` to remove its serialized database fields and adjust calls to `RunSessionManager.Initialize()`.
+
+## Phase 3: Verification
+- [x] Fix any unit tests that break due to removed parameters or fields.
+- [x] Run the complete EditMode test suite and confirm zero regressions.
+- [x] Start the game and manually verify Marionette Generation, Skill Selection, and Room Selection all function correctly.

@@ -83,9 +83,6 @@ namespace Nevergreen.Data
         [Tooltip("Number of room choices displayed to the player after victory.")]
         public int roomChoiceCount = 3;
 
-        [Tooltip("Pool of available room types the player can choose from.")]
-        public System.Collections.Generic.List<RoomData> availableRooms = new System.Collections.Generic.List<RoomData>();
-
         [Header("Enemy Encounter Tiers")]
         [Tooltip("Mappings of room count progression to enemy encounter tiers. Sorted by roomCount ascending automatically.")]
         public System.Collections.Generic.List<RoomTierMapping> roomTierMappings = new System.Collections.Generic.List<RoomTierMapping>();

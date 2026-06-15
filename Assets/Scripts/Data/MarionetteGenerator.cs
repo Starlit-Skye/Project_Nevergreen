@@ -6,17 +6,28 @@ namespace Nevergreen.Data
 {
     /// <summary>
     /// Generates random Marionettes (PartyMemberInfo) with randomized skills and traits.
+    /// Reads database data from the centralized GameDatabase.Instance.
     /// </summary>
     public static class MarionetteGenerator
     {
         private static System.Random _rng = new System.Random();
 
         /// <summary>
-        /// Generates a list of randomized PartyMemberInfo based on the provided databases and configuration.
+        /// Generates a list of randomized PartyMemberInfo based on the centralized GameDatabase and configuration.
         /// Enforces unique classes and ensures a healer is present if the current party lacks one.
         /// </summary>
-        public static List<PartyMemberInfo> GenerateRandomMarionette(int count, MarionetteDatabase db, TraitDatabase traitDb, CombatConfig config)
+        public static List<PartyMemberInfo> GenerateRandomMarionette(int count, CombatConfig config)
         {
+            var gameDb = GameDatabase.Instance;
+            if (gameDb == null)
+            {
+                Debug.LogError("[MarionetteGenerator] GameDatabase.Instance is null!");
+                return null;
+            }
+
+            var db = gameDb.MarionetteDatabase;
+            var traitDb = gameDb.TraitDatabase;
+
             if (db == null || db.marionettes == null || db.marionettes.Count == 0)
             {
                 Debug.LogError("[MarionetteGenerator] MarionetteDatabase is null or empty!");
@@ -122,6 +133,7 @@ namespace Nevergreen.Data
 
         /// <summary>
         /// Populates skills and traits for a chosen template.
+        /// traitDb is passed internally from the centralized database.
         /// </summary>
         public static PartyMemberInfo GenerateMarionetteFromTemplate(CharacterData template, TraitDatabase traitDb, CombatConfig config)
         {
