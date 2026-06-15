@@ -294,9 +294,11 @@ namespace Nevergreen.Prototype
 
             // Check if we have the config and prefab to create dynamic buttons
             var config = _battleSystem != null ? _battleSystem.combatConfig : null;
+            var roomDb = GameDatabase.Instance != null ? GameDatabase.Instance.RoomDatabase : null;
+            var availableRooms = roomDb != null ? roomDb.availableRooms : null;
             bool canSpawnDynamic = config != null
-                && config.availableRooms != null
-                && config.availableRooms.Count > 0
+                && availableRooms != null
+                && availableRooms.Count > 0
                 && roomChoiceButtonPrefab != null
                 && roomChoiceButtonsContainer != null;
 
@@ -307,7 +309,7 @@ namespace Nevergreen.Prototype
                     nextRoomButton.gameObject.SetActive(false);
 
                 // Pick random rooms (up to roomChoiceCount)
-                var choices = PickRandomRooms(config.availableRooms, config.roomChoiceCount);
+                var choices = PickRandomRooms(availableRooms, config.roomChoiceCount);
 
                 foreach (var room in choices)
                 {

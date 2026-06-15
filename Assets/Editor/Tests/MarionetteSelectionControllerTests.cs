@@ -17,6 +17,7 @@ namespace Nevergreen.Tests
         private MarionetteDatabase _marionetteDb;
         private TraitDatabase _traitDb;
         private CombatConfig _combatConfig;
+        private GameDatabase _gameDatabase;
 
         private CharacterData _charCecilia;
         private CharacterData _charOther;
@@ -57,12 +58,17 @@ namespace Nevergreen.Tests
             _marionetteDb.marionettes.Add(_charOther);
 
             // Create GameObject & Controller
+            // Inject mock GameDatabase
+            _gameDatabase = GameDatabase.CreateForTesting(
+                marionettes: _marionetteDb,
+                traits: _traitDb
+            );
+            GameDatabase.SetInstanceForTesting(_gameDatabase);
+
             _controllerGo = new GameObject("MarionetteSelectionController");
             _createdObjects.Add(_controllerGo);
             _controller = _controllerGo.AddComponent<MarionetteSelectionController>();
 
-            _controller.marionetteDatabase = _marionetteDb;
-            _controller.traitDatabase = _traitDb;
             _controller.combatConfig = _combatConfig;
             _controller.combatSceneName = ""; // Avoid actually loading scenes in EditMode tests
 
@@ -111,6 +117,7 @@ namespace Nevergreen.Tests
         public void Teardown()
         {
             RunSessionManager.Clear();
+            GameDatabase.SetInstanceForTesting(null);
 
             foreach (var go in _createdObjects)
             {
@@ -122,6 +129,7 @@ namespace Nevergreen.Tests
             ScriptableObject.DestroyImmediate(_combatConfig);
             ScriptableObject.DestroyImmediate(_charCecilia);
             ScriptableObject.DestroyImmediate(_charOther);
+            if (_gameDatabase != null) ScriptableObject.DestroyImmediate(_gameDatabase);
         }
 
         [Test]

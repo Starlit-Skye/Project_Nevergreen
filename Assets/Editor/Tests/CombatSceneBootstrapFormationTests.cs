@@ -24,6 +24,8 @@ namespace Nevergreen.Tests
         private CombatCharacter cc2;
         private CombatCharacter ccBoss;
 
+        private GameDatabase gameDatabase;
+
         [SetUp]
         public void Setup()
         {
@@ -63,11 +65,13 @@ namespace Nevergreen.Tests
         public void Teardown()
         {
             RunSessionManager.Clear();
+            GameDatabase.SetInstanceForTesting(null);
 
             ScriptableObject.DestroyImmediate(config);
             ScriptableObject.DestroyImmediate(formationSingle);
             ScriptableObject.DestroyImmediate(formationMulti);
             ScriptableObject.DestroyImmediate(database);
+            if (gameDatabase != null) ScriptableObject.DestroyImmediate(gameDatabase);
 
             if (enemyPrefab1 != null) Object.DestroyImmediate(enemyPrefab1);
             if (enemyPrefab2 != null) Object.DestroyImmediate(enemyPrefab2);
@@ -80,7 +84,9 @@ namespace Nevergreen.Tests
             // Initialize database with ONLY the single formation to guarantee it is picked
             var singleDb = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
             singleDb.trivialFormations = new List<EnemyFormationData> { formationSingle };
-            RunSessionManager.Initialize(singleDb);
+            gameDatabase = GameDatabase.CreateForTesting(enemyFormations: singleDb);
+            GameDatabase.SetInstanceForTesting(gameDatabase);
+            RunSessionManager.Initialize();
 
             // Setup Bootstrap GameObject
             var bootGo = new GameObject("Bootstrap");
@@ -116,7 +122,8 @@ namespace Nevergreen.Tests
         [Test]
         public void SpawnTeams_FallsBackToInspector_WhenNoDatabaseIsActive()
         {
-            // RunSessionManager database is null (no Initialize)
+            // GameDatabase is null (no Initialize)
+            GameDatabase.SetInstanceForTesting(null);
 
             // Setup Bootstrap GameObject
             var bootGo = new GameObject("Bootstrap");
@@ -150,7 +157,9 @@ namespace Nevergreen.Tests
             // Initialize database with ONLY the multi-rank formation (Boss size 2, then Enemy 1 size 1)
             var singleDb = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
             singleDb.trivialFormations = new List<EnemyFormationData> { formationMulti };
-            RunSessionManager.Initialize(singleDb);
+            gameDatabase = GameDatabase.CreateForTesting(enemyFormations: singleDb);
+            GameDatabase.SetInstanceForTesting(gameDatabase);
+            RunSessionManager.Initialize();
 
             // Setup Bootstrap GameObject
             var bootGo = new GameObject("Bootstrap");

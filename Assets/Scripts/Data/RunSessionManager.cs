@@ -13,12 +13,6 @@ namespace Nevergreen
         /// <summary>The active roster for the current run.</summary>
         public static List<PartyMemberInfo> CurrentParty { get; set; } = new List<PartyMemberInfo>();
 
-        /// <summary>The enemy formation database for the current run.</summary>
-        public static EnemyFormationDatabase ActiveFormationDatabase { get; private set; }
-
-        /// <summary>The trait database for the current run.</summary>
-        public static TraitDatabase ActiveTraitDatabase { get; private set; }
-
         /// <summary>The last formation selected, used to prevent consecutive duplicates.</summary>
         public static EnemyFormationData LastSelectedFormation { get; private set; }
 
@@ -49,13 +43,11 @@ namespace Nevergreen
             }
         }
         /// <summary>
-        /// Initializes the databases for a new run.
+        /// Initializes session state for a new run.
         /// Called by the Main Menu bootstrapper before loading the combat scene.
         /// </summary>
-        public static void Initialize(EnemyFormationDatabase database, TraitDatabase traitDatabase = null)
+        public static void Initialize()
         {
-            ActiveFormationDatabase = database;
-            ActiveTraitDatabase = traitDatabase;
             LastSelectedFormation = null;
             RoomProgression = 0;
         }
@@ -116,18 +108,19 @@ namespace Nevergreen
         }
 
         /// <summary>
-        /// Picks a random formation from the active database, ensuring it is not
+        /// Picks a random formation from the centralized GameDatabase, ensuring it is not
         /// the same as the last selected formation (unless only one formation exists).
         /// </summary>
         /// <returns>The selected formation, or null if no database/formations are available.</returns>
         public static EnemyFormationData GetNextRandomFormation(EnemyEncounterTier tier)
         {
-            if (ActiveFormationDatabase == null)
+            var db = GameDatabase.Instance;
+            if (db == null || db.EnemyFormationDatabase == null)
             {
                 return null;
             }
 
-            var formations = ActiveFormationDatabase.GetFormations(tier);
+            var formations = db.EnemyFormationDatabase.GetFormations(tier);
             if (formations == null || formations.Count == 0)
             {
                 return null;
@@ -161,8 +154,6 @@ namespace Nevergreen
         public static void Clear()
         {
             CurrentParty.Clear();
-            ActiveFormationDatabase = null;
-            ActiveTraitDatabase = null;
             LastSelectedFormation = null;
             NextRoomData = null;
             RoomProgression = 0;

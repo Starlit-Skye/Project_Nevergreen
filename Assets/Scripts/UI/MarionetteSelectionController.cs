@@ -14,10 +14,6 @@ namespace Nevergreen.UI
     public class MarionetteSelectionController : MonoBehaviour
     {
         [Header("Configuration")]
-        [Tooltip("The Marionette database to select choices from.")]
-        public MarionetteDatabase marionetteDatabase;
-        [Tooltip("Trait database to use as fallback if not set in RunSessionManager.")]
-        public TraitDatabase traitDatabase;
         [Tooltip("Global combat configuration for choice limits.")]
         public CombatConfig combatConfig;
         [Tooltip("The scene to load after confirmation.")]
@@ -51,9 +47,9 @@ namespace Nevergreen.UI
 
         private void Start()
         {
-            if (marionetteDatabase == null || combatConfig == null)
+            if (combatConfig == null)
             {
-                Debug.LogError("[MarionetteSelectionController] Missing Database or Config references!");
+                Debug.LogError("[MarionetteSelectionController] Missing Config reference!");
                 return;
             }
 
@@ -73,12 +69,8 @@ namespace Nevergreen.UI
 
             // Pick N random marionettes
             int choiceCount = combatConfig.marionetteChoiceCount;
-            
-            TraitDatabase activeTraits = RunSessionManager.ActiveTraitDatabase != null 
-                ? RunSessionManager.ActiveTraitDatabase 
-                : traitDatabase;
 
-            _currentChoices = MarionetteGenerator.GenerateRandomMarionette(choiceCount, marionetteDatabase, activeTraits, combatConfig) 
+            _currentChoices = MarionetteGenerator.GenerateRandomMarionette(choiceCount, combatConfig) 
                 ?? new List<PartyMemberInfo>();
 
             // Clean up any previously instantiated choice buttons

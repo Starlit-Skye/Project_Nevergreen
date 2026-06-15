@@ -269,7 +269,7 @@ namespace Nevergreen.Tests
         public void RoomProgression_InitializeResetsToZero()
         {
             RunSessionManager.RoomProgression = 3;
-            RunSessionManager.Initialize(null, null);
+            RunSessionManager.Initialize();
             Assert.AreEqual(0, RunSessionManager.RoomProgression);
         }
 
@@ -313,12 +313,12 @@ namespace Nevergreen.Tests
         }
 
         [Test]
-        public void CombatConfig_AvailableRooms_DefaultIsEmpty()
+        public void RoomDatabase_AvailableRooms_DefaultIsEmpty()
         {
-            var config = ScriptableObject.CreateInstance<CombatConfig>();
-            Assert.IsNotNull(config.availableRooms);
-            Assert.AreEqual(0, config.availableRooms.Count);
-            UnityEngine.Object.DestroyImmediate(config);
+            var roomDb = ScriptableObject.CreateInstance<RoomDatabase>();
+            Assert.IsNotNull(roomDb.availableRooms);
+            Assert.AreEqual(0, roomDb.availableRooms.Count);
+            UnityEngine.Object.DestroyImmediate(roomDb);
         }
         // ============================================================
         // Team Formation Update Tests

@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e678d8e2b245a4c4db9b938bf7c37aba, type: 3}
+  m_Name: GameDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.GameDatabase
+  enemyFormationDatabase: {fileID: 11400000, guid: 27edfc9356e280140a15d06481ee02ab, type: 2}
+  marionetteDatabase: {fileID: 11400000, guid: 8ad4c1dd2e4000b46baaa5692ebfffec, type: 2}
+  traitDatabase: {fileID: 11400000, guid: 80b49560ee402eb48b59bd9d84ea6c6f, type: 2}
+  roomDatabase: {fileID: 11400000, guid: d4c1284dd086a8d448cd91612e0b61aa, type: 2}
