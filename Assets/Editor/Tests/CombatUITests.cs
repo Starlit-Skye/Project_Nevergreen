@@ -3,6 +3,7 @@ using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using Nevergreen.Combat;
 using Nevergreen.Prototype;
 
@@ -29,6 +30,10 @@ namespace Nevergreen.Tests
             nextRoomButtonGo = new GameObject("NextRoomButton");
             nextRoomButton = nextRoomButtonGo.AddComponent<Button>();
             combatUI.nextRoomButton = nextRoomButton;
+            
+            var textGo = new GameObject("Text");
+            textGo.transform.SetParent(nextRoomButtonGo.transform, false);
+            textGo.AddComponent<TextMeshProUGUI>();
         }
 
         [TearDown]
@@ -54,16 +59,20 @@ namespace Nevergreen.Tests
         }
 
         [Test]
-        public void HandleBattleEnded_HidesNextRoomButton_OnDefeat()
+        public void HandleBattleEnded_ShowsMainMenuButton_OnDefeat()
         {
-            nextRoomButton.gameObject.SetActive(true);
+            nextRoomButton.gameObject.SetActive(false);
 
             // Call HandleBattleEnded(Defeat)
             var handleEndedMethod = typeof(CombatUI).GetMethod("HandleBattleEnded", BindingFlags.NonPublic | BindingFlags.Instance);
             handleEndedMethod.Invoke(combatUI, new object[] { BattleOutcome.Defeat });
 
-            // Button should be inactive
-            Assert.IsFalse(nextRoomButton.gameObject.activeSelf, "Next Room button should be inactive on Defeat.");
+            // Button should be active
+            Assert.IsTrue(nextRoomButton.gameObject.activeSelf, "Next Room button should be active on Defeat.");
+            
+            // Text should be Back to Main Menu
+            var textComp = nextRoomButton.GetComponentInChildren<TextMeshProUGUI>();
+            Assert.AreEqual("Back to Main Menu", textComp.text);
         }
 
         [Test]

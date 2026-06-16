@@ -123,6 +123,7 @@ namespace Nevergreen.Prototype
             if (nextRoomButton != null)
             {
                 nextRoomButton.gameObject.SetActive(false);
+                nextRoomButton.onClick.RemoveAllListeners();
                 nextRoomButton.onClick.AddListener(OnNextRoomClicked);
             }
 
@@ -271,13 +272,25 @@ namespace Nevergreen.Prototype
 
             if (outcome == BattleOutcome.Victory)
             {
+                if (nextRoomButton != null)
+                {
+                    var txt = nextRoomButton.GetComponentInChildren<TextMeshProUGUI>();
+                    if (txt != null) txt.text = "Next Room";
+                }
                 SpawnRoomChoiceButtons();
             }
             else
             {
-                // Explicitly hide the fallback button on defeat
                 if (nextRoomButton != null)
-                    nextRoomButton.gameObject.SetActive(false);
+                {
+                    var txt = nextRoomButton.GetComponentInChildren<TextMeshProUGUI>();
+                    if (txt != null) txt.text = "Back to Main Menu";
+                    
+                    nextRoomButton.onClick.RemoveAllListeners();
+                    nextRoomButton.onClick.AddListener(OnBackToMainMenuClicked);
+                    nextRoomButton.gameObject.SetActive(true);
+                    roomChoiceButtonsContainer.gameObject.SetActive(false);
+                }
             }
         }
 
@@ -633,6 +646,11 @@ namespace Nevergreen.Prototype
         private void OnNextRoomClicked()
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+
+        private void OnBackToMainMenuClicked()
+        {
+            SceneManager.LoadScene("MainMenu");
         }
 
         private void OnDestroy()

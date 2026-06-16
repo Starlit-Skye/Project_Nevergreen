@@ -26,13 +26,14 @@ namespace Nevergreen.Data
 
         // --- Singleton ---
         private static GameDatabase _instance;
+        private static bool _bypassAutoDiscovery = false;
 
         public static GameDatabase Instance
         {
             get
             {
                 #if UNITY_EDITOR
-                if (_instance == null)
+                if (_instance == null && !_bypassAutoDiscovery)
                 {
                     string[] guids = UnityEditor.AssetDatabase.FindAssets("t:GameDatabase");
                     if (guids.Length > 0)
@@ -52,6 +53,7 @@ namespace Nevergreen.Data
         public static void Initialize(GameDatabase databaseInstance)
         {
             _instance = databaseInstance;
+            _bypassAutoDiscovery = false;
         }
 
         /// <summary>
@@ -61,6 +63,7 @@ namespace Nevergreen.Data
         public static void SetInstanceForTesting(GameDatabase testInstance)
         {
             _instance = testInstance;
+            _bypassAutoDiscovery = true;
         }
 
         /// <summary>
