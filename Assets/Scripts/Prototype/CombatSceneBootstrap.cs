@@ -181,9 +181,9 @@ namespace Nevergreen.Prototype
 
             // Resolve enemy formation tier based on room progression
             Nevergreen.Data.EnemyEncounterTier tier = Nevergreen.Data.EnemyEncounterTier.Trivial;
-            if (battleSystem != null && battleSystem.combatConfig != null)
+            if (GameDatabase.Instance != null && GameDatabase.Instance.CombatConfig != null)
             {
-                tier = battleSystem.combatConfig.GetEncounterTierForRoom(RunSessionManager.RoomProgression);
+                tier = GameDatabase.Instance.CombatConfig.GetEncounterTierForRoom(RunSessionManager.RoomProgression);
             }
 
             // Resolve enemy formation: use database if available, else fall back to Inspector list

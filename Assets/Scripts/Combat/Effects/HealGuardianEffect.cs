@@ -66,7 +66,7 @@ namespace Nevergreen.Combat
             context.extra[appliedKey] = true;
 
             // Math Resolution
-            CombatConfig config = context.battleSystem != null ? context.battleSystem.combatConfig : null;
+            CombatConfig config = GameDatabase.Instance.CombatConfig;
             int healAmount = CombatCalculator.CalculateHeal(context, config);
 
             // Application

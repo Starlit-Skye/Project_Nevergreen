@@ -16,7 +16,7 @@ namespace Nevergreen.Tests
         
         private MarionetteDatabase _marionetteDb;
         private TraitDatabase _traitDb;
-        private CombatConfig _combatConfig;
+        private GlobalConfig _globalConfig;
         private GameDatabase _gameDatabase;
 
         private CharacterData _charCecilia;
@@ -38,10 +38,10 @@ namespace Nevergreen.Tests
             _traitDb.perfections = new List<TraitData>();
             _traitDb.imperfections = new List<TraitData>();
 
-            _combatConfig = ScriptableObject.CreateInstance<CombatConfig>();
-            _combatConfig.marionetteChoiceCount = 2;
-            _combatConfig.maxPerfections = 1;
-            _combatConfig.maxImperfections = 1;
+            _globalConfig = ScriptableObject.CreateInstance<GlobalConfig>();
+            _globalConfig.marionetteChoiceCount = 2;
+            _globalConfig.maxPerfections = 1;
+            _globalConfig.maxImperfections = 1;
 
             // Stats
             var stats = CombatTestHelper.CreateStatBlock();
@@ -60,6 +60,7 @@ namespace Nevergreen.Tests
             // Create GameObject & Controller
             // Inject mock GameDatabase
             _gameDatabase = GameDatabase.CreateForTesting(
+                globalCfg: _globalConfig,
                 marionettes: _marionetteDb,
                 traits: _traitDb
             );
@@ -69,7 +70,6 @@ namespace Nevergreen.Tests
             _createdObjects.Add(_controllerGo);
             _controller = _controllerGo.AddComponent<MarionetteSelectionController>();
 
-            _controller.combatConfig = _combatConfig;
             _controller.combatSceneName = ""; // Avoid actually loading scenes in EditMode tests
 
             // Setup mock UI elements
@@ -126,7 +126,7 @@ namespace Nevergreen.Tests
 
             ScriptableObject.DestroyImmediate(_marionetteDb);
             ScriptableObject.DestroyImmediate(_traitDb);
-            ScriptableObject.DestroyImmediate(_combatConfig);
+            ScriptableObject.DestroyImmediate(_globalConfig);
             ScriptableObject.DestroyImmediate(_charCecilia);
             ScriptableObject.DestroyImmediate(_charOther);
             if (_gameDatabase != null) ScriptableObject.DestroyImmediate(_gameDatabase);

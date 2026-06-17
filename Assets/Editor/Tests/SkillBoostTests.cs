@@ -16,15 +16,16 @@ namespace Nevergreen.Tests
         [SetUp]
         public void Setup()
         {
+            CombatTestHelper.InitializeTestDatabase();
             _battleSystemObj = new GameObject("BattleSystem");
             _battleSystem = _battleSystemObj.AddComponent<BattleSystem>();
             _combatConfig = ScriptableObject.CreateInstance<CombatConfig>();
-            _battleSystem.combatConfig = _combatConfig;
         }
 
         [TearDown]
         public void Teardown()
         {
+            CombatTestHelper.CleanupTestDatabase();
             Object.DestroyImmediate(_battleSystemObj);
             Object.DestroyImmediate(_combatConfig);
         }
@@ -39,7 +40,6 @@ namespace Nevergreen.Tests
             charComp.baseStats = new CombatStats { maxHP = 100, speed = 5 };
             charComp.currentHP = 100;
             charComp.state = LifeState.Alive;
-            charComp.combatConfig = _combatConfig;
             return charComp;
         }
 

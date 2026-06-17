@@ -29,9 +29,12 @@ namespace Nevergreen.Data
         /// Attempts to add a trait. Returns false if the trait is already present
         /// (by traitId) or the relevant list has reached its capacity.
         /// </summary>
-        public bool TryAddTrait(TraitData trait, CombatConfig config)
+        public bool TryAddTrait(TraitData trait)
         {
-            if (trait == null || config == null) return false;
+            if (trait == null) return false;
+
+            var globalConfig = GameDatabase.Instance.GlobalConfig;
+            if (globalConfig == null) return false;
 
             List<TraitData> list;
             int max;
@@ -39,12 +42,12 @@ namespace Nevergreen.Data
             if (trait.traitType == TraitType.Perfection)
             {
                 list = perfections;
-                max = config.maxPerfections;
+                max = globalConfig.maxPerfections;
             }
             else
             {
                 list = imperfections;
-                max = config.maxImperfections;
+                max = globalConfig.maxImperfections;
             }
 
             // Capacity check

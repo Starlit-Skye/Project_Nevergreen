@@ -17,7 +17,7 @@ namespace Nevergreen.Combat
             context.EnsureHitResolved(target);
 
             // 1. Math Resolution
-            CombatConfig config = context.battleSystem != null ? context.battleSystem.combatConfig : null;
+            CombatConfig config = GameDatabase.Instance.CombatConfig;
             int healAmount = CombatCalculator.CalculateHeal(context, config);
             
             // Check for per-target "Heal Received" bonuses stored by traits in the context

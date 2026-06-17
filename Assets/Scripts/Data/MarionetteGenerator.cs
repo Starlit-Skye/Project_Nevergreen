@@ -16,7 +16,7 @@ namespace Nevergreen.Data
         /// Generates a list of randomized PartyMemberInfo based on the centralized GameDatabase and configuration.
         /// Enforces unique classes and ensures a healer is present if the current party lacks one.
         /// </summary>
-        public static List<PartyMemberInfo> GenerateRandomMarionette(int count, CombatConfig config)
+        public static List<PartyMemberInfo> GenerateRandomMarionette(int count)
         {
             var gameDb = GameDatabase.Instance;
             if (gameDb == null)
@@ -82,7 +82,7 @@ namespace Nevergreen.Data
             // 5. Generate units from selected templates
             foreach (var template in selectedTemplates)
             {
-                generatedList.Add(GenerateMarionetteFromTemplate(template, traitDb, config));
+                generatedList.Add(GenerateMarionetteFromTemplate(template, traitDb));
             }
 
             return generatedList;
@@ -135,7 +135,7 @@ namespace Nevergreen.Data
         /// Populates skills and traits for a chosen template.
         /// traitDb is passed internally from the centralized database.
         /// </summary>
-        public static PartyMemberInfo GenerateMarionetteFromTemplate(CharacterData template, TraitDatabase traitDb, CombatConfig config)
+        public static PartyMemberInfo GenerateMarionetteFromTemplate(CharacterData template, TraitDatabase traitDb)
         {
             var info = new PartyMemberInfo
             {
@@ -167,13 +167,13 @@ namespace Nevergreen.Data
                 if (traitDb.perfections != null && traitDb.perfections.Count > 0)
                 {
                     var perf = traitDb.perfections[_rng.Next(traitDb.perfections.Count)];
-                    info.TryAddTrait(perf, config);
+                    info.TryAddTrait(perf);
                 }
 
                 if (traitDb.imperfections != null && traitDb.imperfections.Count > 0)
                 {
                     var imperf = traitDb.imperfections[_rng.Next(traitDb.imperfections.Count)];
-                    info.TryAddTrait(imperf, config);
+                    info.TryAddTrait(imperf);
                 }
             }
             else

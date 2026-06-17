@@ -14,8 +14,6 @@ namespace Nevergreen.UI
     public class MarionetteSelectionController : MonoBehaviour
     {
         [Header("Configuration")]
-        [Tooltip("Global combat configuration for choice limits.")]
-        public CombatConfig combatConfig;
         [Tooltip("The scene to load after confirmation.")]
         public string combatSceneName = "CombatPrototype";
 
@@ -47,11 +45,6 @@ namespace Nevergreen.UI
 
         private void Start()
         {
-            if (combatConfig == null)
-            {
-                Debug.LogError("[MarionetteSelectionController] Missing Config reference!");
-                return;
-            }
 
             if (confirmButton != null)
             {
@@ -67,10 +60,10 @@ namespace Nevergreen.UI
         {
             _currentChoices.Clear();
 
-            // Pick N random marionettes
-            int choiceCount = combatConfig.marionetteChoiceCount;
+            var globalConfig = GameDatabase.Instance.GlobalConfig;
+            int choiceCount = globalConfig != null ? globalConfig.marionetteChoiceCount : 4;
 
-            _currentChoices = MarionetteGenerator.GenerateRandomMarionette(choiceCount, combatConfig) 
+            _currentChoices = MarionetteGenerator.GenerateRandomMarionette(choiceCount) 
                 ?? new List<PartyMemberInfo>();
 
             // Clean up any previously instantiated choice buttons

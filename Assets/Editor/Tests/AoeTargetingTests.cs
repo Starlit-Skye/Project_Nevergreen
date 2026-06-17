@@ -21,7 +21,6 @@ namespace Nevergreen.Tests
             _battleSystem = battleGo.AddComponent<BattleSystem>();
 
             _config = CombatTestHelper.CreateDefaultConfig();
-            _battleSystem.combatConfig = _config;
 
             _attacker = CombatTestHelper.CreateCombatCharacter("Attacker", Team.Player, 1, size: 1);
             _skill = ScriptableObject.CreateInstance<SkillData>();

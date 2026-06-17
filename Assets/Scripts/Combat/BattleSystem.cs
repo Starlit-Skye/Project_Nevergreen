@@ -14,7 +14,6 @@ namespace Nevergreen.Combat
     public class BattleSystem : MonoBehaviour
     {
         [Header("Config")]
-        public CombatConfig combatConfig;
 
         [Tooltip("Animation queue processor. Auto-created at runtime if not assigned.")]
         public AnimationQueueProcessor animationQueue;
@@ -82,7 +81,6 @@ namespace Nevergreen.Combat
             // Subscribe to defeat events and inject config
             foreach (var c in _playerTeam.Concat(_enemyTeam))
             {
-                c.combatConfig = combatConfig;
                 c.OnDefeated += HandleCharacterDefeated;
                 c.OnStateChanged += HandleCharacterStateChanged;
             }
@@ -147,6 +145,7 @@ namespace Nevergreen.Combat
                 _rng = new System.Random();
             }
 
+            var combatConfig = GameDatabase.Instance.CombatConfig;
             int minRoll = combatConfig != null ? combatConfig.speedRollMin : 1;
             int maxRoll = combatConfig != null ? combatConfig.speedRollMax : 4;
 
@@ -233,7 +232,7 @@ namespace Nevergreen.Combat
             // Check death from DOT (redundant with CheckBattleEnd but kept for turn index increment)
             if (!CurrentActor.IsAlive)
             {
-                StatusProcessor.TickDurations(CurrentActor, combatConfig.stunRecoveryResistBonus);
+                StatusProcessor.TickDurations(CurrentActor, GameDatabase.Instance.CombatConfig.stunRecoveryResistBonus);
                 _currentTurnIndex++;
                 yield break;
             }
@@ -242,13 +241,13 @@ namespace Nevergreen.Combat
             if (CurrentActor.isStunned)
             {
                 Debug.Log($"[BattleSystem] {CurrentActor.DisplayName} is stunned! Skipping turn.");
-                StatusProcessor.TickDurations(CurrentActor, combatConfig.stunRecoveryResistBonus);
+                StatusProcessor.TickDurations(CurrentActor, GameDatabase.Instance.CombatConfig.stunRecoveryResistBonus);
                 _currentTurnIndex++;
                 yield break;
             }
 
             // Phase 2: Tick status durations and remove expired
-            StatusProcessor.TickDurations(CurrentActor, combatConfig.stunRecoveryResistBonus);
+            StatusProcessor.TickDurations(CurrentActor, GameDatabase.Instance.CombatConfig.stunRecoveryResistBonus);
 
             // Player or Enemy action
             if (CurrentActor.IsPlayerTeam)

@@ -305,9 +305,9 @@ namespace Nevergreen.Tests
         // ============================================================
 
         [Test]
-        public void CombatConfig_RoomChoiceCount_DefaultIs3()
+        public void GlobalConfig_RoomChoiceCount_DefaultIs3()
         {
-            var config = ScriptableObject.CreateInstance<CombatConfig>();
+            var config = ScriptableObject.CreateInstance<GlobalConfig>();
             Assert.AreEqual(3, config.roomChoiceCount);
             UnityEngine.Object.DestroyImmediate(config);
         }

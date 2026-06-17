@@ -66,23 +66,6 @@ namespace Nevergreen.Data
         [Tooltip("Global maximum character level.")]
         public int globalMaxLevel = 10;
 
-        [Header("Traits (Perfections / Imperfections)")]
-        [Tooltip("Maximum number of Perfections a single Marionette can have.")]
-        [Min(0)]
-        public int maxPerfections = 3;
-
-        [Tooltip("Maximum number of Imperfections a single Marionette can have.")]
-        [Min(0)]
-        public int maxImperfections = 3;
-
-        [Header("Marionette Selection UI")]
-        [Tooltip("Number of Marionette choices displayed to the player.")]
-        public int marionetteChoiceCount = 4;
-
-        [Header("Room Selection")]
-        [Tooltip("Number of room choices displayed to the player after victory.")]
-        public int roomChoiceCount = 3;
-
         [Header("Enemy Encounter Tiers")]
         [Tooltip("Mappings of room count progression to enemy encounter tiers. Sorted by roomCount ascending automatically.")]
         public System.Collections.Generic.List<RoomTierMapping> roomTierMappings = new System.Collections.Generic.List<RoomTierMapping>();
