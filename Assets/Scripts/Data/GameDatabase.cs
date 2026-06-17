@@ -12,6 +12,10 @@ namespace Nevergreen.Data
     [CreateAssetMenu(fileName = "GameDatabase", menuName = "Nevergreen/Databases/Game Database")]
     public class GameDatabase : ScriptableObject
     {
+        [Header("Configurations")]
+        [SerializeField] private GlobalConfig globalConfig;
+        [SerializeField] private CombatConfig combatConfig;
+
         [Header("Sub-Databases")]
         [SerializeField] private EnemyFormationDatabase enemyFormationDatabase;
         [SerializeField] private MarionetteDatabase marionetteDatabase;
@@ -19,6 +23,8 @@ namespace Nevergreen.Data
         [SerializeField] private RoomDatabase roomDatabase;
 
         // --- Read-only accessors ---
+        public GlobalConfig GlobalConfig => globalConfig;
+        public CombatConfig CombatConfig => combatConfig;
         public EnemyFormationDatabase EnemyFormationDatabase => enemyFormationDatabase;
         public MarionetteDatabase MarionetteDatabase => marionetteDatabase;
         public TraitDatabase TraitDatabase => traitDatabase;
@@ -71,12 +77,16 @@ namespace Nevergreen.Data
         /// For use in EditMode tests only.
         /// </summary>
         public static GameDatabase CreateForTesting(
+            GlobalConfig globalCfg = null,
+            CombatConfig combatCfg = null,
             EnemyFormationDatabase enemyFormations = null,
             MarionetteDatabase marionettes = null,
             TraitDatabase traits = null,
             RoomDatabase rooms = null)
         {
             var db = ScriptableObject.CreateInstance<GameDatabase>();
+            db.globalConfig = globalCfg;
+            db.combatConfig = combatCfg;
             db.enemyFormationDatabase = enemyFormations;
             db.marionetteDatabase = marionettes;
             db.traitDatabase = traits;

@@ -17,17 +17,18 @@ namespace Nevergreen.Tests
         [SetUp]
         public void Setup()
         {
+            CombatTestHelper.InitializeTestDatabase();
             _cleanup = new List<GameObject>();
             _battleSystemObj = new GameObject("BattleSystem");
             _battleSystem = _battleSystemObj.AddComponent<BattleSystem>();
             _combatConfig = CombatTestHelper.CreateDefaultConfig();
-            _battleSystem.combatConfig = _combatConfig;
             _cleanup.Add(_battleSystemObj);
         }
 
         [TearDown]
         public void Teardown()
         {
+            CombatTestHelper.CleanupTestDatabase();
             foreach (var go in _cleanup)
             {
                 if (go != null)

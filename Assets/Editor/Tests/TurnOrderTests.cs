@@ -24,6 +24,9 @@ namespace Nevergreen.Tests
             _playerTeam = new List<CombatCharacter>();
             _enemyTeam = new List<CombatCharacter>();
 
+            var db = GameDatabase.CreateForTesting(combatCfg: CombatTestHelper.CreateDefaultConfig());
+            GameDatabase.SetInstanceForTesting(db);
+
             // Setup private fields via reflection to avoid running the full BattleLoop
             typeof(BattleSystem).GetField("_playerTeam", BindingFlags.NonPublic | BindingFlags.Instance)
                 .SetValue(_battleSystem, _playerTeam);
@@ -34,6 +37,13 @@ namespace Nevergreen.Tests
         [TearDown]
         public void TearDown()
         {
+            var db = GameDatabase.Instance;
+            GameDatabase.SetInstanceForTesting(null);
+            if (db != null)
+            {
+                if (db.CombatConfig != null) Object.DestroyImmediate(db.CombatConfig);
+                Object.DestroyImmediate(db);
+            }
             foreach (var c in _playerTeam) if (c != null) Object.DestroyImmediate(c.gameObject);
             foreach (var c in _enemyTeam) if (c != null) Object.DestroyImmediate(c.gameObject);
             Object.DestroyImmediate(_battleSystemGO);
@@ -76,7 +86,11 @@ namespace Nevergreen.Tests
             var config = ScriptableObject.CreateInstance<CombatConfig>();
             config.speedRollMin = 5;
             config.speedRollMax = 10;
-            _battleSystem.combatConfig = config;
+            
+            var oldConfig = GameDatabase.Instance.CombatConfig;
+            // Since combatConfig is private serialized in GameDatabase but GameDatabase.CreateForTesting sets it... wait, I'll just create a new DB.
+            var newDb = GameDatabase.CreateForTesting(combatCfg: config);
+            GameDatabase.SetInstanceForTesting(newDb);
 
             var rng = new System.Random(12345);
             typeof(BattleSystem).GetField("_rng", BindingFlags.NonPublic | BindingFlags.Instance)
@@ -98,6 +112,7 @@ namespace Nevergreen.Tests
             }
 
             // Cleanup
+            Object.DestroyImmediate(newDb);
             ScriptableObject.DestroyImmediate(config);
         }
 

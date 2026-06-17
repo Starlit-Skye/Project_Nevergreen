@@ -17,6 +17,7 @@ namespace Nevergreen.Tests
         [SetUp]
         public void Setup()
         {
+            CombatTestHelper.InitializeTestDatabase();
             config = CombatTestHelper.CreateDefaultConfig();
             rng = CombatTestHelper.CreateFixedRng(42);
 
@@ -28,6 +29,7 @@ namespace Nevergreen.Tests
         [TearDown]
         public void Teardown()
         {
+            CombatTestHelper.CleanupTestDatabase();
             Object.DestroyImmediate(guardian.gameObject);
             Object.DestroyImmediate(target.gameObject);
             Object.DestroyImmediate(attacker.gameObject);
@@ -39,7 +41,6 @@ namespace Nevergreen.Tests
         {
             var bsGo = new GameObject("BS");
             var bs = bsGo.AddComponent<BattleSystem>();
-            bs.combatConfig = config;
             var ctx = new SkillContext(attacker, skill, new System.Collections.Generic.List<CombatCharacter> { target }, bs, rng);
             return (bs, ctx);
         }

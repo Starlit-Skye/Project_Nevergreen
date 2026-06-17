@@ -28,7 +28,6 @@ namespace Nevergreen.Tests
         {
             var bsGo = new GameObject("BS");
             var bs = bsGo.AddComponent<BattleSystem>();
-            bs.combatConfig = config;
 
             // Inject teams
             var playerTeamField = typeof(BattleSystem).GetField("_playerTeam", BindingFlags.NonPublic | BindingFlags.Instance);

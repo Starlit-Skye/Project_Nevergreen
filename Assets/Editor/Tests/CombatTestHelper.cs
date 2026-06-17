@@ -34,6 +34,19 @@ namespace Nevergreen.Tests
         }
 
         /// <summary>
+        /// Create a minimal GlobalConfig with GDD defaults.
+        /// </summary>
+        public static GlobalConfig CreateDefaultGlobalConfig()
+        {
+            var config = ScriptableObject.CreateInstance<GlobalConfig>();
+            config.maxPerfections = 1;
+            config.maxImperfections = 3;
+            config.marionetteChoiceCount = 4;
+            config.roomChoiceCount = 3;
+            return config;
+        }
+
+        /// <summary>
         /// Create a StatBlockData with explicit stat values.
         /// </summary>
         public static StatBlockData CreateStatBlock(
@@ -100,7 +113,6 @@ namespace Nevergreen.Tests
 
             cc.characterData = charData;
             cc.currentLevel = 1;
-            cc.combatConfig = config ?? CreateDefaultConfig();
             cc.InitializeForCombat(team, rank);
 
             return cc;
@@ -142,6 +154,30 @@ namespace Nevergreen.Tests
         public static System.Random CreateFixedRng(int seed = 42)
         {
             return new System.Random(seed);
+        }
+
+        public static void InitializeTestDatabase()
+        {
+            if (GameDatabase.Instance == null)
+            {
+                var db = GameDatabase.CreateForTesting(
+                    combatCfg: CreateDefaultConfig(),
+                    globalCfg: CreateDefaultGlobalConfig()
+                );
+                GameDatabase.SetInstanceForTesting(db);
+            }
+        }
+
+        public static void CleanupTestDatabase()
+        {
+            var db = GameDatabase.Instance;
+            GameDatabase.SetInstanceForTesting(null);
+            if (db != null)
+            {
+                if (db.CombatConfig != null) UnityEngine.Object.DestroyImmediate(db.CombatConfig);
+                if (db.GlobalConfig != null) UnityEngine.Object.DestroyImmediate(db.GlobalConfig);
+                UnityEngine.Object.DestroyImmediate(db);
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ namespace Nevergreen.Tests
         [SetUp]
         public void SetUp()
         {
+            CombatTestHelper.InitializeTestDatabase();
             _cleanup = new List<GameObject>();
             _config = CombatTestHelper.CreateDefaultConfig();
         }
@@ -23,6 +24,7 @@ namespace Nevergreen.Tests
         [TearDown]
         public void TearDown()
         {
+            CombatTestHelper.CleanupTestDatabase();
             foreach (var go in _cleanup)
                 if (go != null) Object.DestroyImmediate(go);
         }
@@ -261,7 +263,6 @@ namespace Nevergreen.Tests
             var battleSystemGo = new GameObject("BattleSystem");
             _cleanup.Add(battleSystemGo);
             var battleSystem = battleSystemGo.AddComponent<BattleSystem>();
-            battleSystem.combatConfig = _config;
 
             // Create characters
             var hero = Track("hero");
@@ -300,7 +301,6 @@ namespace Nevergreen.Tests
 
             foreach (var c in playerTeam.Concat(enemyTeam))
             {
-                c.combatConfig = _config;
                 c.OnStateChanged += (charRef, stateVal) =>
                 {
                     handleStateChangedMethod.Invoke(battleSystem, new object[] { charRef, stateVal });

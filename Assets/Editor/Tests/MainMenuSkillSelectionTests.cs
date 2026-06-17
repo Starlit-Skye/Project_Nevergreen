@@ -100,7 +100,6 @@ namespace Nevergreen.Tests
             var cc = go.AddComponent<CombatCharacter>();
             cc.characterData = charDataCeci;
             cc.currentLevel = 1;
-            cc.combatConfig = config;
 
             // Act
             cc.InitializeForCombat(Team.Player, 1);
@@ -130,7 +129,6 @@ namespace Nevergreen.Tests
             var cc = go.AddComponent<CombatCharacter>();
             cc.characterData = charDataCeci;
             cc.currentLevel = 1;
-            cc.combatConfig = config;
 
             // Act
             cc.InitializeForCombat(Team.Player, 1);

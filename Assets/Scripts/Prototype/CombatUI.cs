@@ -289,7 +289,10 @@ namespace Nevergreen.Prototype
                     nextRoomButton.onClick.RemoveAllListeners();
                     nextRoomButton.onClick.AddListener(OnBackToMainMenuClicked);
                     nextRoomButton.gameObject.SetActive(true);
-                    roomChoiceButtonsContainer.gameObject.SetActive(false);
+                    if (roomChoiceButtonsContainer != null)
+                    {
+                        roomChoiceButtonsContainer.gameObject.SetActive(false);
+                    }
                 }
             }
         }
@@ -306,10 +309,10 @@ namespace Nevergreen.Prototype
             }
 
             // Check if we have the config and prefab to create dynamic buttons
-            var config = _battleSystem != null ? _battleSystem.combatConfig : null;
+            var globalConfig = GameDatabase.Instance != null ? GameDatabase.Instance.GlobalConfig : null;
             var roomDb = GameDatabase.Instance != null ? GameDatabase.Instance.RoomDatabase : null;
             var availableRooms = roomDb != null ? roomDb.availableRooms : null;
-            bool canSpawnDynamic = config != null
+            bool canSpawnDynamic = globalConfig != null
                 && availableRooms != null
                 && availableRooms.Count > 0
                 && roomChoiceButtonPrefab != null
@@ -322,7 +325,7 @@ namespace Nevergreen.Prototype
                     nextRoomButton.gameObject.SetActive(false);
 
                 // Pick random rooms (up to roomChoiceCount)
-                var choices = PickRandomRooms(availableRooms, config.roomChoiceCount);
+                var choices = PickRandomRooms(availableRooms, globalConfig.roomChoiceCount);
 
                 foreach (var room in choices)
                 {

@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e678d8e2b245a4c4db9b938bf7c37aba, type: 3}
   m_Name: GameDatabase
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.GameDatabase
+  globalConfig: {fileID: 11400000, guid: f4f828c24f174de4ebc163021a832ead, type: 2}
+  combatConfig: {fileID: 11400000, guid: 0c40426cfdeff34469cf11bec78c3366, type: 2}
   enemyFormationDatabase: {fileID: 11400000, guid: 27edfc9356e280140a15d06481ee02ab, type: 2}
   marionetteDatabase: {fileID: 11400000, guid: 8ad4c1dd2e4000b46baaa5692ebfffec, type: 2}
   traitDatabase: {fileID: 11400000, guid: 80b49560ee402eb48b59bd9d84ea6c6f, type: 2}

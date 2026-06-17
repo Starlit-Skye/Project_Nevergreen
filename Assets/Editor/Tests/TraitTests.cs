@@ -11,6 +11,8 @@ namespace Nevergreen.Tests
     {
         private CombatCharacter _character;
         private CombatConfig _config;
+        private GlobalConfig _globalConfig;
+        private GameDatabase _gameDb;
         private List<GameObject> _cleanup;
 
         [SetUp]
@@ -18,11 +20,17 @@ namespace Nevergreen.Tests
         {
             _cleanup = new List<GameObject>();
             _config = CombatTestHelper.CreateDefaultConfig();
+            _globalConfig = CombatTestHelper.CreateDefaultGlobalConfig();
+            
+            _gameDb = GameDatabase.CreateForTesting(globalCfg: _globalConfig);
+            GameDatabase.SetInstanceForTesting(_gameDb);
         }
 
         [TearDown]
         public void TearDown()
         {
+            GameDatabase.SetInstanceForTesting(null);
+            if (_gameDb != null) Object.DestroyImmediate(_gameDb);
             foreach (var go in _cleanup)
                 if (go != null) Object.DestroyImmediate(go);
         }
@@ -60,7 +68,6 @@ namespace Nevergreen.Tests
 
             cc.characterData = charData;
             cc.currentLevel = 1;
-            cc.combatConfig = _config;
 
             // Set up PartyMemberInfo with traits
             var partyInfo = new PartyMemberInfo();
@@ -80,7 +87,7 @@ namespace Nevergreen.Tests
         {
             var info = new PartyMemberInfo();
             var trait = CreateTrait("perf_1", TraitType.Perfection);
-            Assert.IsTrue(info.TryAddTrait(trait, _config));
+            Assert.IsTrue(info.TryAddTrait(trait));
             Assert.AreEqual(1, info.perfections.Count);
         }
 
@@ -89,7 +96,7 @@ namespace Nevergreen.Tests
         {
             var info = new PartyMemberInfo();
             var trait = CreateTrait("imperf_1", TraitType.Imperfection);
-            Assert.IsTrue(info.TryAddTrait(trait, _config));
+            Assert.IsTrue(info.TryAddTrait(trait));
             Assert.AreEqual(1, info.imperfections.Count);
         }
 
@@ -99,8 +106,8 @@ namespace Nevergreen.Tests
             var info = new PartyMemberInfo();
             var trait1 = CreateTrait("perf_dup", TraitType.Perfection);
             var trait2 = CreateTrait("perf_dup", TraitType.Perfection);
-            Assert.IsTrue(info.TryAddTrait(trait1, _config));
-            Assert.IsFalse(info.TryAddTrait(trait2, _config), "Duplicate traitId should be rejected.");
+            Assert.IsTrue(info.TryAddTrait(trait1));
+            Assert.IsFalse(info.TryAddTrait(trait2), "Duplicate traitId should be rejected.");
             Assert.AreEqual(1, info.perfections.Count);
         }
 
@@ -108,21 +115,21 @@ namespace Nevergreen.Tests
         public void TryAddTrait_ExceedsCapacity_Rejected()
         {
             var info = new PartyMemberInfo();
-            for (int i = 0; i < _config.maxPerfections; i++)
+            for (int i = 0; i < _globalConfig.maxPerfections; i++)
             {
-                Assert.IsTrue(info.TryAddTrait(CreateTrait($"perf_{i}", TraitType.Perfection), _config));
+                Assert.IsTrue(info.TryAddTrait(CreateTrait($"perf_{i}", TraitType.Perfection)));
             }
-            Assert.IsFalse(info.TryAddTrait(CreateTrait("perf_overflow", TraitType.Perfection), _config),
+            Assert.IsFalse(info.TryAddTrait(CreateTrait("perf_overflow", TraitType.Perfection)),
                 "Should reject when at capacity.");
-            Assert.AreEqual(_config.maxPerfections, info.perfections.Count);
+            Assert.AreEqual(_globalConfig.maxPerfections, info.perfections.Count);
         }
 
         [Test]
         public void TryAddTrait_PerfectionsAndImperfections_Independent()
         {
             var info = new PartyMemberInfo();
-            Assert.IsTrue(info.TryAddTrait(CreateTrait("perf_1", TraitType.Perfection), _config));
-            Assert.IsTrue(info.TryAddTrait(CreateTrait("imperf_1", TraitType.Imperfection), _config));
+            Assert.IsTrue(info.TryAddTrait(CreateTrait("perf_1", TraitType.Perfection)));
+            Assert.IsTrue(info.TryAddTrait(CreateTrait("imperf_1", TraitType.Imperfection)));
             Assert.AreEqual(1, info.perfections.Count);
             Assert.AreEqual(1, info.imperfections.Count);
         }
@@ -132,7 +139,7 @@ namespace Nevergreen.Tests
         {
             var info = new PartyMemberInfo();
             var trait = CreateTrait("perf_rm", TraitType.Perfection);
-            info.TryAddTrait(trait, _config);
+            info.TryAddTrait(trait);
             Assert.IsTrue(info.RemoveTrait(trait));
             Assert.AreEqual(0, info.perfections.Count);
         }
@@ -343,7 +350,6 @@ namespace Nevergreen.Tests
 
             cc.characterData = charData;
             cc.currentLevel = 1;
-            cc.combatConfig = _config;
             cc.InitializeForCombat(Team.Enemy, 1);
 
             Assert.AreEqual(0, cc.activeTraits.Count, "Enemy characters should have no active traits.");

@@ -15,6 +15,7 @@ namespace Nevergreen.Tests
         [SetUp]
         public void Setup()
         {
+            CombatTestHelper.InitializeTestDatabase();
             config = CombatTestHelper.CreateDefaultConfig();
             rng = CombatTestHelper.CreateFixedRng(42);
         }
@@ -22,6 +23,7 @@ namespace Nevergreen.Tests
         [TearDown]
         public void Teardown()
         {
+            CombatTestHelper.CleanupTestDatabase();
             ScriptableObject.DestroyImmediate(config);
         }
 
@@ -29,7 +31,6 @@ namespace Nevergreen.Tests
         {
             var bsGo = new GameObject("BS");
             var bs = bsGo.AddComponent<BattleSystem>();
-            bs.combatConfig = config;
 
             // Use reflection to set the private fields without starting the Coroutine
             var playerTeamField = typeof(BattleSystem).GetField("_playerTeam", BindingFlags.NonPublic | BindingFlags.Instance);

@@ -66,7 +66,6 @@ namespace Nevergreen.Prototype
                 AssetDatabase.CreateAsset(config, configPath);
                 AssetDatabase.SaveAssets();
             }
-            battleSystem.combatConfig = config;
 
             // --- Audio Config asset ---
             var audioConfigPath = "Assets/Data/GlobalAudioConfig.asset";

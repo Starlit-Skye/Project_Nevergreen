@@ -55,7 +55,7 @@ namespace Nevergreen.Combat
             }
             else
             {
-                var config = battleSystem != null ? battleSystem.combatConfig : null;
+                var config = GameDatabase.Instance.CombatConfig;
                 CombatCalculator.ResolveHit(this, target, config);
             }
             hasResolvedHit = true;

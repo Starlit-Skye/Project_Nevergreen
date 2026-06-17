@@ -197,7 +197,6 @@ namespace Nevergreen.Tests
         {
             // Arrange
             var config = CombatTestHelper.CreateDefaultConfig();
-            _battleSystem.combatConfig = config;
 
             var cecilia = CombatTestHelper.CreateCombatCharacter("ceci", Team.Player, 1);
             var golem = CombatTestHelper.CreateCombatCharacter("golem", Team.Enemy, 1);
