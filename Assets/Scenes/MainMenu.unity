@@ -2296,6 +2296,7 @@ MonoBehaviour:
   startButton: {fileID: 601338562}
   closeButton: {fileID: 945129146}
   portraitImage: {fileID: 501749163}
+  playButton: {fileID: 1727225843}
   combatSceneName: CombatPrototype
 --- !u!114 &1327100955
 MonoBehaviour:
@@ -2814,19 +2815,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1727225844}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1327100954}
-        m_TargetAssemblyTypeName: Nevergreen.UI.CeciliaSkillSelectController, Assembly-CSharp
-        m_MethodName: Open
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1727225844
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using Nevergreen.Data;
@@ -15,14 +14,11 @@ namespace Nevergreen.Tests
         [SetUp]
         public void Setup()
         {
-            // We use reflection to get the SavePath so we can delete it if needed.
-            var prop = typeof(SaveManager).GetProperty("SavePath", BindingFlags.NonPublic | BindingFlags.Static);
-            if (prop != null)
-            {
-                testSavePath = (string)prop.GetValue(null);
-            }
-            
-            if (!string.IsNullOrEmpty(testSavePath) && File.Exists(testSavePath))
+            // Redirect all save operations to a temporary test file — never touch production save.dat
+            testSavePath = Path.Combine(Application.temporaryCachePath, "test_save.dat");
+            SaveManager.SetSavePathForTesting(testSavePath);
+
+            if (File.Exists(testSavePath))
             {
                 File.Delete(testSavePath);
             }
@@ -37,6 +33,9 @@ namespace Nevergreen.Tests
             {
                 File.Delete(testSavePath);
             }
+
+            // Restore default save path
+            SaveManager.SetSavePathForTesting(null);
             RunSessionManager.Clear();
         }
 

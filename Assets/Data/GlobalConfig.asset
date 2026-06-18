@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b52cf67afd742dd47965c1c1f5834872, type: 3}
   m_Name: GlobalConfig
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.GlobalConfig
+  ceciliaData: {fileID: 11400000, guid: f0df3e6e0c95dbe4fbba011a33480f83, type: 2}
   maxPerfections: 3
   maxImperfections: 3
   marionetteChoiceCount: 4

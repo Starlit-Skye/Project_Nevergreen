@@ -22,6 +22,12 @@ namespace Nevergreen
         /// <summary>The number of rooms the player has progressed through in the current run.</summary>
         public static int RoomProgression { get; set; }
 
+        /// <summary>
+        /// When true, the next combat scene load will skip incrementing RoomProgression.
+        /// Set by the Continue button flow to prevent double-counting a restored room.
+        /// </summary>
+        public static bool IsResumingRun { get; set; }
+
         private static System.Random _rng = new System.Random();
         private static BattleSystem _activeBattleSystem;
 
@@ -48,7 +54,15 @@ namespace Nevergreen
         {
             if (sceneName == "CombatPrototype" && CurrentParty != null && CurrentParty.Count > 0)
             {
-                RoomProgression++;
+                if (IsResumingRun)
+                {
+                    // Skip increment — progression was already restored from save
+                    IsResumingRun = false;
+                }
+                else
+                {
+                    RoomProgression++;
+                }
                 SaveManager.SaveRun();
             }
         }
@@ -96,6 +110,7 @@ namespace Nevergreen
             else if (outcome == BattleOutcome.Defeat)
             {
                 SaveManager.ClearActiveRun();
+                Clear();
             }
         }
 
@@ -173,6 +188,7 @@ namespace Nevergreen
             LastSelectedFormation = null;
             NextRoomData = null;
             RoomProgression = 0;
+            IsResumingRun = false;
 
             if (_activeBattleSystem != null)
             {

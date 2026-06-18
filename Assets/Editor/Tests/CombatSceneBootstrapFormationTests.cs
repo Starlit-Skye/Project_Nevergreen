@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
@@ -59,6 +60,9 @@ namespace Nevergreen.Tests
 
             database = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
             database.trivialFormations = new List<EnemyFormationData> { formationSingle, formationMulti };
+
+            // Redirect save operations to a temp file so tests never touch production save.dat
+            SaveManager.SetSavePathForTesting(Path.Combine(Application.temporaryCachePath, "bootstrap_test_save.dat"));
         }
 
         [TearDown]
@@ -66,6 +70,10 @@ namespace Nevergreen.Tests
         {
             RunSessionManager.Clear();
             GameDatabase.SetInstanceForTesting(null);
+
+            var testPath = Path.Combine(Application.temporaryCachePath, "bootstrap_test_save.dat");
+            if (File.Exists(testPath)) File.Delete(testPath);
+            SaveManager.SetSavePathForTesting(null);
 
             ScriptableObject.DestroyImmediate(config);
             ScriptableObject.DestroyImmediate(formationSingle);

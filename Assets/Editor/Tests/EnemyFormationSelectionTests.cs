@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using NUnit.Framework;
 using UnityEngine;
 using Nevergreen.Data;
@@ -50,6 +51,9 @@ namespace Nevergreen.Tests
             // Inject a mock GameDatabase with our formation database
             gameDatabase = GameDatabase.CreateForTesting(enemyFormations: database);
             GameDatabase.SetInstanceForTesting(gameDatabase);
+
+            // Redirect save operations to a temp file so tests never touch production save.dat
+            SaveManager.SetSavePathForTesting(Path.Combine(Application.temporaryCachePath, "formation_test_save.dat"));
         }
 
         [TearDown]
@@ -57,6 +61,10 @@ namespace Nevergreen.Tests
         {
             RunSessionManager.Clear();
             GameDatabase.SetInstanceForTesting(null);
+
+            var testPath = Path.Combine(Application.temporaryCachePath, "formation_test_save.dat");
+            if (File.Exists(testPath)) File.Delete(testPath);
+            SaveManager.SetSavePathForTesting(null);
 
             ScriptableObject.DestroyImmediate(formationA);
             ScriptableObject.DestroyImmediate(formationB);

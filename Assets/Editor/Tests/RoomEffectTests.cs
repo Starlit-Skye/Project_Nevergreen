@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
@@ -22,17 +23,31 @@ namespace Nevergreen.Tests
             }
         }
 
+        private string _testSavePath;
+
         [SetUp]
         public void SetUp()
         {
             RunSessionManager.Clear();
+            RunSessionManager.IsResumingRun = false;
             TestRoomEffectStrategy.ExecutionCount = 0;
+
+            // Redirect save operations to a temp file so tests never touch production save.dat
+            _testSavePath = Path.Combine(Application.temporaryCachePath, "room_effect_test_save.dat");
+            SaveManager.SetSavePathForTesting(_testSavePath);
         }
 
         [TearDown]
         public void TearDown()
         {
             RunSessionManager.Clear();
+            RunSessionManager.IsResumingRun = false;
+
+            if (!string.IsNullOrEmpty(_testSavePath) && File.Exists(_testSavePath))
+            {
+                File.Delete(_testSavePath);
+            }
+            SaveManager.SetSavePathForTesting(null);
         }
 
         // ============================================================
@@ -298,6 +313,19 @@ namespace Nevergreen.Tests
             RunSessionManager.OnSceneLoaded("CombatPrototype");
             
             Assert.AreEqual(0, RunSessionManager.RoomProgression);
+        }
+
+        [Test]
+        public void RoomProgression_OnSceneLoaded_SkipsIncrementWhenIsResumingRun()
+        {
+            RunSessionManager.CurrentParty.Add(new PartyMemberInfo());
+            RunSessionManager.RoomProgression = 3;
+            RunSessionManager.IsResumingRun = true;
+
+            RunSessionManager.OnSceneLoaded("CombatPrototype");
+
+            Assert.AreEqual(3, RunSessionManager.RoomProgression, "RoomProgression should not increment when resuming.");
+            Assert.IsFalse(RunSessionManager.IsResumingRun, "IsResumingRun should be reset to false after scene load.");
         }
 
         // ============================================================

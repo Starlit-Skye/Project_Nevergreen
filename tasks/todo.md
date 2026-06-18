@@ -13,23 +13,29 @@
 ## Plan: Save/Load System
 
 ### Phase 1: Core Serialization
-- [ ] 1. Create `SaveManager.cs`.
-  - [ ] Implement `SaveGame()` and `LoadGame()` using `JsonUtility` and `Application.persistentDataPath`.
-  - [ ] Implement `ClearActiveRun()` to wipe `RunSessionData` but retain persistent meta-data.
-  - [ ] Implement `HasActiveRun()` check.
+- [x] 1. Create `SaveManager.cs`.
+  - [x] Implement `SaveGame()` and `LoadGame()` using `JsonUtility` and `Application.persistentDataPath`.
+  - [x] Implement `ClearActiveRun()` to wipe `RunSessionData` but retain persistent meta-data.
+  - [x] Implement `HasActiveRun()` check.
 
 ### Phase 2: Game State Integration
-- [ ] 2. Update `GlobalConfig.cs` to hold a reference to Cecilia's base `CombatCharacterData` (`ceciliaData`), allowing proper reconstruction on load.
-- [ ] 3. Update `RunSessionManager.cs` to trigger Auto-Saves:
-  - [ ] On `StartRun()`.
-  - [ ] On transitioning/entering a new room.
-  - [ ] On `OnApplicationQuit()`.
-- [ ] 4. Update Defeat Behavior in `RunSessionManager.cs` / `BattleSystem.cs`:
-  - [ ] Ensure defeat calls `SaveManager.ClearActiveRun()` and then `SaveManager.SaveGame()` instead of completely deleting the save file.
+- [x] 2. Update `GlobalConfig.cs` to hold a reference to Cecilia's base `CombatCharacterData` (`ceciliaData`), allowing proper reconstruction on load.
+- [x] 3. Update `RunSessionManager.cs` to trigger Auto-Saves:
+  - [x] On `StartRun()`.
+  - [x] On transitioning/entering a new room.
+  - [x] On `OnApplicationQuit()`.
+- [x] 4. Update Defeat Behavior in `RunSessionManager.cs` / `BattleSystem.cs`:
+  - [x] Ensure defeat calls `SaveManager.ClearActiveRun()` and then `SaveManager.SaveGame()` instead of completely deleting the save file.
 
 ### Phase 3: Verification
-- [ ] 5. Write `SaveManagerTests.cs` (EditMode) to verify JSON serialization works and `ClearActiveRun()` leaves the save file intact.
-- [ ] 6. Run all EditMode tests to confirm no regressions.
+- [x] 5. Write `SaveManagerTests.cs` (EditMode) to verify JSON serialization works and `ClearActiveRun()` leaves the save file intact.
+- [x] 6. Run all EditMode tests to confirm no regressions.
+
+### Phase 4: Main Menu Continue Button Integration
+- [x] 7. Add `IsResumingRun` flag to `RunSessionManager.cs` to prevent room-skipping on load.
+- [x] 8. Add `playButton` field, `Start()` logic, and `OnContinueClicked()` to `CeciliaSkillSelectController.cs`.
+- [x] 9. Wire `playButton` field in `MainMenu.unity` and remove inspector-assigned listener.
+- [x] 10. Add/Update tests and manually verify both Play and Continue flows.
 
 ## Review
 - Wait for user approval before beginning implementation.

@@ -33,7 +33,17 @@ namespace Nevergreen.Data
     /// </summary>
     public static class SaveManager
     {
-        private static string SavePath => Path.Combine(Application.persistentDataPath, "save.dat");
+        private static string _customSavePath;
+        private static string SavePath => _customSavePath ?? Path.Combine(Application.persistentDataPath, "save.dat");
+
+        /// <summary>
+        /// Sets a temporary save path override for unit tests.
+        /// Pass null to restore the default production path.
+        /// </summary>
+        public static void SetSavePathForTesting(string path)
+        {
+            _customSavePath = path;
+        }
 
         // Fixed obfuscated key for simple local AES encryption
         private static readonly byte[] Key = new byte[] {
