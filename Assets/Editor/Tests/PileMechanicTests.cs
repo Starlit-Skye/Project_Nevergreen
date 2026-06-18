@@ -25,6 +25,7 @@ namespace Nevergreen.Tests
         public void TearDown()
         {
             CombatTestHelper.CleanupTestDatabase();
+            if (_config != null) ScriptableObject.DestroyImmediate(_config, true);
             foreach (var go in _cleanup)
                 if (go != null) Object.DestroyImmediate(go);
         }

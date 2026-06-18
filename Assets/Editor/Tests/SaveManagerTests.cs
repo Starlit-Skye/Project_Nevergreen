@@ -93,13 +93,14 @@ namespace Nevergreen.Tests
             // If GameDatabase.Instance is null, it aborts early. 
             // So we can mock GameDatabase.
             var db = ScriptableObject.CreateInstance<GameDatabase>();
-            typeof(GameDatabase).GetMethod("Initialize", BindingFlags.Public | BindingFlags.Static).Invoke(null, new object[] { db });
+            GameDatabase.SetInstanceForTesting(db);
 
             bool loaded = SaveManager.LoadRun();
             
             Assert.IsTrue(loaded, "Should load successfully when GameDatabase is mocked.");
             Assert.AreEqual(42, RunSessionManager.RoomProgression, "Room progression should be restored.");
 
+            GameDatabase.SetInstanceForTesting(null);
             Object.DestroyImmediate(db, true);
         }
     }

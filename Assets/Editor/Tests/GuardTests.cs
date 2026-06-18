@@ -33,7 +33,7 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(guardian.gameObject);
             Object.DestroyImmediate(target.gameObject);
             Object.DestroyImmediate(attacker.gameObject);
-            ScriptableObject.DestroyImmediate(config);
+            ScriptableObject.DestroyImmediate(config, true);
         }
 
         private (BattleSystem bs, SkillContext ctx) MakeCtx(

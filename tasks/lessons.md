@@ -50,3 +50,15 @@
 - **Rule**: Prefer direct assignment with a null-coalescing operator (`?? new List<T>()`) to handle possible null returns. This is cleaner, avoids temporary variables, and prevents potential `NullReferenceException` values down the line.
 
 
+
+### Test Teardown Safety and Assets
+- **Pattern**: Using Object.DestroyImmediate(obj, true) in test teardowns is extremely dangerous if the object reference could potentially point to a real project asset loaded via AssetDatabase or Resources.Load. The 	rue parameter stands for llowDestroyingAssets and will literally wipe the file contents from the disk.
+- **Solution**: Always guard asset destruction in test teardowns with if (!UnityEditor.EditorUtility.IsPersistent(obj)) to guarantee you are only ever destroying transient in-memory mocks, never real files.
+
+### GameDatabase.Initialize vs SetInstanceForTesting
+- **Pattern**: GameDatabase.Initialize() sets _bypassAutoDiscovery = false, meaning the next Instance access after cleanup will auto-load the real persistent asset from disk. Always use SetInstanceForTesting() in tests, which properly sets the bypass flag.
+- **Rule**: NEVER use GameDatabase.Initialize() in test code. Always use GameDatabase.SetInstanceForTesting().
+
+### Reflection for Property Setters is Fragile
+- **Pattern**: Using 	ypeof(X).GetProperty(...).SetValue() to set private setters is fragile and silently fails on rename.
+- **Solution**: Change private set to internal set when the setter needs to be accessed by same-assembly code (e.g., SaveManager setting RunSessionManager.LastSelectedFormation).

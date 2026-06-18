@@ -14,7 +14,7 @@ namespace Nevergreen
         public static List<PartyMemberInfo> CurrentParty { get; set; } = new List<PartyMemberInfo>();
 
         /// <summary>The last formation selected, used to prevent consecutive duplicates.</summary>
-        public static EnemyFormationData LastSelectedFormation { get; private set; }
+        public static EnemyFormationData LastSelectedFormation { get; internal set; }
 
         /// <summary>The RoomData selected by the player for the next room. Persists across scene loads.</summary>
         public static RoomData NextRoomData { get; set; }

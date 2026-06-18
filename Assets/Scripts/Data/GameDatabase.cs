@@ -47,6 +47,11 @@ namespace Nevergreen.Data
                         string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
                         _instance = UnityEditor.AssetDatabase.LoadAssetAtPath<GameDatabase>(path);
                     }
+                    
+                    if (_instance == null)
+                    {
+                        _instance = UnityEditor.AssetDatabase.LoadAssetAtPath<GameDatabase>("Assets/Data/GameDatabase.asset");
+                    }
                 }
                 #endif
                 return _instance;

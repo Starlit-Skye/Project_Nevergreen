@@ -122,8 +122,9 @@ namespace Nevergreen.Tests
         [Test]
         public void SpawnTeams_FallsBackToInspector_WhenNoDatabaseIsActive()
         {
-            // GameDatabase is null (no Initialize)
-            GameDatabase.SetInstanceForTesting(null);
+            // Provide a mock GameDatabase without formations
+            gameDatabase = GameDatabase.CreateForTesting(enemyFormations: null);
+            GameDatabase.SetInstanceForTesting(gameDatabase);
 
             // Setup Bootstrap GameObject
             var bootGo = new GameObject("Bootstrap");

@@ -86,11 +86,14 @@ namespace Nevergreen.Tests
         [Test]
         public void GetNextRandomFormation_ReturnsNull_WhenNoDatabaseInitialized()
         {
-            // Clear the GameDatabase so there's no formation database
-            GameDatabase.SetInstanceForTesting(null);
+            // Inject a mock database with NO formations
+            var mockDb = GameDatabase.CreateForTesting(enemyFormations: null);
+            GameDatabase.SetInstanceForTesting(mockDb);
 
             var result = RunSessionManager.GetNextRandomFormation(EnemyEncounterTier.Trivial);
             Assert.IsNull(result);
+            
+            Object.DestroyImmediate(mockDb, true);
         }
 
         [Test]

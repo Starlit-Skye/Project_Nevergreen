@@ -17,6 +17,8 @@ namespace Nevergreen.Tests
         [SetUp]
         public void Setup()
         {
+            CombatTestHelper.InitializeTestDatabase();
+
             GameObject battleGo = new GameObject("BattleSystem");
             _battleSystem = battleGo.AddComponent<BattleSystem>();
 
@@ -35,7 +37,11 @@ namespace Nevergreen.Tests
             if (_battleSystem != null)
                 Object.DestroyImmediate(_battleSystem.gameObject);
             if (_config != null)
-                ScriptableObject.DestroyImmediate(_config);
+                ScriptableObject.DestroyImmediate(_config, true);
+            if (_skill != null)
+                ScriptableObject.DestroyImmediate(_skill, true);
+                
+            CombatTestHelper.CleanupTestDatabase();
         }
 
         private void InjectTeams(List<CombatCharacter> playerTeam, List<CombatCharacter> enemyTeam)
@@ -168,7 +174,7 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(e1.gameObject);
             Object.DestroyImmediate(e2.gameObject);
             Object.DestroyImmediate(e3.gameObject);
-            ScriptableObject.DestroyImmediate(healSkill);
+            ScriptableObject.DestroyImmediate(healSkill, true);
         }
     }
 }

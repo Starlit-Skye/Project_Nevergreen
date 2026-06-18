@@ -18,6 +18,8 @@ namespace Nevergreen.Tests
         [SetUp]
         public void Setup()
         {
+            CombatTestHelper.InitializeTestDatabase();
+
             // Setup BattleSystem
             _battleGo = new GameObject("BattleSystem");
             _battleSystem = _battleGo.AddComponent<BattleSystem>();
@@ -68,6 +70,15 @@ namespace Nevergreen.Tests
             {
                 prop.SetValue(null, null);
             }
+            
+            if (_audioManager != null && _audioManager.config != null)
+            {
+                if (_audioManager.config.defaultBattleMusic != null)
+                    Object.DestroyImmediate(_audioManager.config.defaultBattleMusic, true);
+                ScriptableObject.DestroyImmediate(_audioManager.config, true);
+            }
+
+            CombatTestHelper.CleanupTestDatabase();
         }
 
         [Test]
@@ -107,6 +118,8 @@ namespace Nevergreen.Tests
                 _battleSystem.StartBattle(new List<CombatCharacter> { p1 }, new List<CombatCharacter> { e1 });
             });
             
+            if (e1.characterData.bossMusicOverride != null)
+                Object.DestroyImmediate(e1.characterData.bossMusicOverride, true);
             Object.DestroyImmediate(p1.gameObject);
             Object.DestroyImmediate(e1.gameObject);
         }

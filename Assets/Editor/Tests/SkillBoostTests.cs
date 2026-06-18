@@ -26,8 +26,8 @@ namespace Nevergreen.Tests
         public void Teardown()
         {
             CombatTestHelper.CleanupTestDatabase();
-            Object.DestroyImmediate(_battleSystemObj);
-            Object.DestroyImmediate(_combatConfig);
+            if (_battleSystemObj != null) Object.DestroyImmediate(_battleSystemObj);
+            if (_combatConfig != null) ScriptableObject.DestroyImmediate(_combatConfig, true);
         }
 
         private CombatCharacter CreateCharacter(string name, bool isPlayer)

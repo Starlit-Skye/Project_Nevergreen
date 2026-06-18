@@ -126,13 +126,10 @@ namespace Nevergreen.Data
                     allFormations.AddRange(db.EnemyFormationDatabase.midGameFormations);
                     allFormations.AddRange(db.EnemyFormationDatabase.lateGameFormations);
                     
-                    // We must access LastSelectedFormation through a public setter or reflection if it's private set.
-                    // Wait, RunSessionManager.LastSelectedFormation has a private setter! We need to fix that or use reflection.
                     var formation = allFormations.FirstOrDefault(f => f != null && f.formationId == dto.lastSelectedFormationId);
                     if (formation != null)
                     {
-                        var prop = typeof(RunSessionManager).GetProperty(nameof(RunSessionManager.LastSelectedFormation));
-                        if (prop != null) prop.SetValue(null, formation);
+                        RunSessionManager.LastSelectedFormation = formation;
                     }
                 }
 

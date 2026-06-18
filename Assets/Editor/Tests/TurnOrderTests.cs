@@ -37,13 +37,7 @@ namespace Nevergreen.Tests
         [TearDown]
         public void TearDown()
         {
-            var db = GameDatabase.Instance;
-            GameDatabase.SetInstanceForTesting(null);
-            if (db != null)
-            {
-                if (db.CombatConfig != null) Object.DestroyImmediate(db.CombatConfig, true);
-                Object.DestroyImmediate(db, true);
-            }
+            CombatTestHelper.CleanupTestDatabase();
             foreach (var c in _playerTeam) if (c != null) Object.DestroyImmediate(c.gameObject);
             foreach (var c in _enemyTeam) if (c != null) Object.DestroyImmediate(c.gameObject);
             Object.DestroyImmediate(_battleSystemGO);

@@ -1,20 +1,35 @@
-# TODO: Defeat Button Refactor & Test Fixes
+# Current Task: Save/Load System Implementation
 
-- [x] Fix GameDatabase testing singleton behavior to fix existing 2 test failures
-  - [x] Modify `GameDatabase.cs` to add `_bypassAutoDiscovery` logic
-  - [x] Run EditMode tests to confirm that all existing tests pass
-- [x] Implement Defeat Button Refactor in `CombatUI.cs`
-  - [x] Modify `CombatUI.Initialize` to reset button onClick listeners to avoid leakage across initialization/scenes
-  - [x] Modify `CombatUI.HandleBattleEnded` for `BattleOutcome.Defeat`:
-    - Set `nextRoomButton` text component to "Back to Main Menu"
-    - Set `nextRoomButton` onClick listener to load the "MainMenu" scene
-    - Activate `nextRoomButton` (set active to true)
-  - [x] Modify `CombatUI.HandleBattleEnded` for `BattleOutcome.Victory`:
-    - Ensure `nextRoomButton` text is reset to "Next Room" when Victory path is chosen
-- [x] Update Combat UI tests to match new expected behavior
-  - [x] Update `HandleBattleEnded_HidesNextRoomButton_OnDefeat` in `CombatUITests.cs` to assert that the next room button is ACTIVE on Defeat (since it is repurposed as the Back to Main Menu button)
-  - [x] Add a test verifying that `nextRoomButton` text is "Back to Main Menu" on Defeat
-- [x] Run EditMode tests and verify that everything compiles and passes cleanly
+## Completed Tasks: Test Architecture & Bug Fixes
+- [x] 1. Initialize and clean up GameDatabase.Instance mock database in test setups and teardowns.
+- [x] 2. Update remaining test teardowns to destroy ScriptableObject assets with `DestroyImmediate(..., true)`.
+- [x] 3. Run EditMode tests via `tests-run` and verify that all 297 tests pass without errors or unauthorized asset destruction warnings.
+- [x] 4. Fix Runtime `NullReferenceException` in `BattleSystem.BuildTurnOrder()`:
+  - Add explicit file path fallback (`Assets/Data/GameDatabase.asset`) to `GameDatabase.Instance` getter so prototype scenes correctly load the database at runtime during editor testing.
+- [x] 5. Ensure `EnemyFormationData` and `RoomData` ID fields match their respective file names.
+
+---
+
+## Plan: Save/Load System
+
+### Phase 1: Core Serialization
+- [ ] 1. Create `SaveManager.cs`.
+  - [ ] Implement `SaveGame()` and `LoadGame()` using `JsonUtility` and `Application.persistentDataPath`.
+  - [ ] Implement `ClearActiveRun()` to wipe `RunSessionData` but retain persistent meta-data.
+  - [ ] Implement `HasActiveRun()` check.
+
+### Phase 2: Game State Integration
+- [ ] 2. Update `GlobalConfig.cs` to hold a reference to Cecilia's base `CombatCharacterData` (`ceciliaData`), allowing proper reconstruction on load.
+- [ ] 3. Update `RunSessionManager.cs` to trigger Auto-Saves:
+  - [ ] On `StartRun()`.
+  - [ ] On transitioning/entering a new room.
+  - [ ] On `OnApplicationQuit()`.
+- [ ] 4. Update Defeat Behavior in `RunSessionManager.cs` / `BattleSystem.cs`:
+  - [ ] Ensure defeat calls `SaveManager.ClearActiveRun()` and then `SaveManager.SaveGame()` instead of completely deleting the save file.
+
+### Phase 3: Verification
+- [ ] 5. Write `SaveManagerTests.cs` (EditMode) to verify JSON serialization works and `ClearActiveRun()` leaves the save file intact.
+- [ ] 6. Run all EditMode tests to confirm no regressions.
 
 ## Review
-The refactoring is complete and all 293 tests successfully pass. The GameDatabase auto-discovery bypass successfully isolated the edit-mode testing environment. The defeat button now appropriately changes text and functionality.
+- Wait for user approval before beginning implementation.
