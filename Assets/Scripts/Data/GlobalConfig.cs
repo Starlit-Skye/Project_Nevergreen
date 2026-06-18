@@ -11,6 +11,9 @@ namespace Nevergreen.Data
     public class GlobalConfig : ScriptableObject
     {
         [Header("Character Progression")]
+        [Tooltip("The main player character (Cecilia). Required for Save/Load to find her base data and skills.")]
+        public CharacterData ceciliaData;
+
         [Tooltip("Maximum perfections per character (GDD: 3).")]
         public int maxPerfections = 3;
 

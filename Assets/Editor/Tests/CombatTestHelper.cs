@@ -174,9 +174,9 @@ namespace Nevergreen.Tests
             GameDatabase.SetInstanceForTesting(null);
             if (db != null)
             {
-                if (db.CombatConfig != null) UnityEngine.Object.DestroyImmediate(db.CombatConfig);
-                if (db.GlobalConfig != null) UnityEngine.Object.DestroyImmediate(db.GlobalConfig);
-                UnityEngine.Object.DestroyImmediate(db);
+                if (db.CombatConfig != null) UnityEngine.Object.DestroyImmediate(db.CombatConfig, true);
+                if (db.GlobalConfig != null) UnityEngine.Object.DestroyImmediate(db.GlobalConfig, true);
+                UnityEngine.Object.DestroyImmediate(db, true);
             }
         }
     }

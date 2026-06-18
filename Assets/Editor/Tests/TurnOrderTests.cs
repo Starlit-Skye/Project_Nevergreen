@@ -41,8 +41,8 @@ namespace Nevergreen.Tests
             GameDatabase.SetInstanceForTesting(null);
             if (db != null)
             {
-                if (db.CombatConfig != null) Object.DestroyImmediate(db.CombatConfig);
-                Object.DestroyImmediate(db);
+                if (db.CombatConfig != null) Object.DestroyImmediate(db.CombatConfig, true);
+                Object.DestroyImmediate(db, true);
             }
             foreach (var c in _playerTeam) if (c != null) Object.DestroyImmediate(c.gameObject);
             foreach (var c in _enemyTeam) if (c != null) Object.DestroyImmediate(c.gameObject);
@@ -112,8 +112,8 @@ namespace Nevergreen.Tests
             }
 
             // Cleanup
-            Object.DestroyImmediate(newDb);
-            ScriptableObject.DestroyImmediate(config);
+            Object.DestroyImmediate(newDb, true);
+            ScriptableObject.DestroyImmediate(config, true);
         }
 
         [Test]

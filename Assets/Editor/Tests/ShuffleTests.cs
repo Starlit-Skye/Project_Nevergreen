@@ -160,6 +160,7 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(target2.gameObject);
             Object.DestroyImmediate(attacker.gameObject);
             Object.DestroyImmediate(bs.gameObject);
+            Object.DestroyImmediate(skill, true);
         }
     }
 }

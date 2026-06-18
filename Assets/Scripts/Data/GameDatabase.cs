@@ -69,7 +69,7 @@ namespace Nevergreen.Data
         public static void SetInstanceForTesting(GameDatabase testInstance)
         {
             _instance = testInstance;
-            _bypassAutoDiscovery = true;
+            _bypassAutoDiscovery = testInstance != null;
         }
 
         /// <summary>

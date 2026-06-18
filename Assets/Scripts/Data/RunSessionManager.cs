@@ -28,6 +28,15 @@ namespace Nevergreen
         static RunSessionManager()
         {
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+            UnityEngine.Application.quitting += OnApplicationQuit;
+        }
+
+        private static void OnApplicationQuit()
+        {
+            if (CurrentParty != null && CurrentParty.Count > 0)
+            {
+                SaveManager.SaveRun();
+            }
         }
 
         private static void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
@@ -40,6 +49,7 @@ namespace Nevergreen
             if (sceneName == "CombatPrototype" && CurrentParty != null && CurrentParty.Count > 0)
             {
                 RoomProgression++;
+                SaveManager.SaveRun();
             }
         }
         /// <summary>
@@ -50,6 +60,7 @@ namespace Nevergreen
         {
             LastSelectedFormation = null;
             RoomProgression = 0;
+            SaveManager.SaveRun();
         }
 
         /// <summary>
@@ -80,6 +91,11 @@ namespace Nevergreen
             if (outcome == BattleOutcome.Victory)
             {
                 HandleBattleVictory();
+                SaveManager.SaveRun();
+            }
+            else if (outcome == BattleOutcome.Defeat)
+            {
+                SaveManager.ClearActiveRun();
             }
         }
 

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5835373b4b08d14ea5a9a0c496e4764, type: 3}
   m_Name: EF_E_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.EnemyFormationData
+  formationId: EF_E_1
   enemyPrefabs:
   - {fileID: 7786762382236842581, guid: f0364bddfb8a4934d803bf493dc45a09, type: 3}
   - {fileID: 7786762382236842581, guid: f0364bddfb8a4934d803bf493dc45a09, type: 3}
