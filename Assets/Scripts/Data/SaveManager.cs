@@ -140,6 +140,7 @@ namespace Nevergreen.Data
                     if (formation != null)
                     {
                         RunSessionManager.LastSelectedFormation = formation;
+                        RunSessionManager.ShouldUseSavedFormation = true;
                     }
                 }
 

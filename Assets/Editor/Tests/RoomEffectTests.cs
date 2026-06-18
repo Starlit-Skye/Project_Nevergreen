@@ -191,8 +191,8 @@ namespace Nevergreen.Tests
             // Assert
             Assert.AreEqual(0, TestRoomEffectStrategy.ExecutionCount,
                 "Strategy should NOT execute on Defeat.");
-            Assert.AreSame(roomData, RunSessionManager.NextRoomData,
-                "NextRoomData should remain set on Defeat.");
+            Assert.IsNull(RunSessionManager.NextRoomData,
+                "NextRoomData should be cleared on Defeat because the run is wiped.");
 
             UnityEngine.Object.DestroyImmediate(roomData);
             UnityEngine.Object.DestroyImmediate(battleGO);

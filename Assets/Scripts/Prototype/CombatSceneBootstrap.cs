@@ -188,7 +188,19 @@ namespace Nevergreen.Prototype
 
             // Resolve enemy formation: use database if available, else fall back to Inspector list
             var activeEnemyPrefabs = enemyTeamPrefabs;
-            var formation = RunSessionManager.GetNextRandomFormation(tier);
+            EnemyFormationData formation = null;
+            
+            if (RunSessionManager.ShouldUseSavedFormation)
+            {
+                formation = RunSessionManager.LastSelectedFormation;
+                RunSessionManager.ShouldUseSavedFormation = false; // consume it
+                Debug.Log($"[Bootstrap] Resuming with saved formation: {(formation != null ? formation.name : "null")}");
+            }
+            else
+            {
+                formation = RunSessionManager.GetNextRandomFormation(tier);
+            }
+
             if (formation != null && formation.enemyPrefabs != null && formation.enemyPrefabs.Count > 0)
             {
                 activeEnemyPrefabs = formation.enemyPrefabs;

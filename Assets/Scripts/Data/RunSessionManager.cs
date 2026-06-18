@@ -28,6 +28,11 @@ namespace Nevergreen
         /// </summary>
         public static bool IsResumingRun { get; set; }
 
+        /// <summary>
+        /// When true, the next combat scene load will use the saved LastSelectedFormation instead of generating a new random one.
+        /// </summary>
+        public static bool ShouldUseSavedFormation { get; set; }
+
         private static System.Random _rng = new System.Random();
         private static BattleSystem _activeBattleSystem;
 
@@ -189,6 +194,7 @@ namespace Nevergreen
             NextRoomData = null;
             RoomProgression = 0;
             IsResumingRun = false;
+            ShouldUseSavedFormation = false;
 
             if (_activeBattleSystem != null)
             {

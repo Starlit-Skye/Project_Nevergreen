@@ -102,5 +102,40 @@ namespace Nevergreen.Tests
             GameDatabase.SetInstanceForTesting(null);
             Object.DestroyImmediate(db, true);
         }
+
+        [Test]
+        public void LoadRun_SetsShouldUseSavedFormation_WhenFormationIsLoaded()
+        {
+            var db = ScriptableObject.CreateInstance<GameDatabase>();
+            var formationDb = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
+            var formation = ScriptableObject.CreateInstance<EnemyFormationData>();
+            formation.name = "Test_Formation";
+            formation.formationId = "test_formation_01";
+
+            // Add formation to database so it can be resolved
+            formationDb.trivialFormations = new List<EnemyFormationData> { formation };
+            
+            // Set private db fields using reflection or set through GameDatabase
+            typeof(GameDatabase).GetField("enemyFormationDatabase", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(db, formationDb);
+            GameDatabase.SetInstanceForTesting(db);
+
+            typeof(RunSessionManager).GetProperty("LastSelectedFormation", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).SetValue(null, formation);
+            SaveManager.SaveRun();
+
+            RunSessionManager.Clear();
+            Assert.IsNull(RunSessionManager.LastSelectedFormation);
+            Assert.IsFalse(RunSessionManager.ShouldUseSavedFormation);
+
+            bool loaded = SaveManager.LoadRun();
+
+            Assert.IsTrue(loaded);
+            Assert.AreEqual(formation, RunSessionManager.LastSelectedFormation);
+            Assert.IsTrue(RunSessionManager.ShouldUseSavedFormation, "ShouldUseSavedFormation should be true after loading a run with a valid formation.");
+
+            GameDatabase.SetInstanceForTesting(null);
+            if (!UnityEditor.EditorUtility.IsPersistent(db)) Object.DestroyImmediate(db, true);
+            if (!UnityEditor.EditorUtility.IsPersistent(formationDb)) Object.DestroyImmediate(formationDb, true);
+            if (!UnityEditor.EditorUtility.IsPersistent(formation)) Object.DestroyImmediate(formation, true);
+        }
     }
 }
