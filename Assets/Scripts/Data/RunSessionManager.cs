@@ -98,6 +98,16 @@ namespace Nevergreen
             RoomProgression = 0;
             RoomCompleted = false;
             NextRoomChoices.Clear();
+
+            if (GameDatabase.Instance != null && GameDatabase.Instance.RoomDatabase != null && GameDatabase.Instance.RoomDatabase.availableRooms != null)
+            {
+                var marionetteRoom = GameDatabase.Instance.RoomDatabase.availableRooms.Find(r => r != null && r.roomId == "RD_MarionetteRoom");
+                if (marionetteRoom != null)
+                {
+                    NextRoomData = marionetteRoom;
+                }
+            }
+
             SaveManager.SaveRun();
         }
 

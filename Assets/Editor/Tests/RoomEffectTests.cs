@@ -289,6 +289,32 @@ namespace Nevergreen.Tests
         }
 
         [Test]
+        public void Initialize_AssignsMarionetteRoomToNextRoomData()
+        {
+            // Arrange
+            var roomDb = ScriptableObject.CreateInstance<RoomDatabase>();
+            var marionetteRoom = ScriptableObject.CreateInstance<RoomData>();
+            marionetteRoom.roomId = "RD_MarionetteRoom";
+            marionetteRoom.roomName = "Marionette Room";
+            roomDb.availableRooms.Add(marionetteRoom);
+
+            var mockGameDb = GameDatabase.CreateForTesting(rooms: roomDb);
+            GameDatabase.SetInstanceForTesting(mockGameDb);
+
+            // Act
+            RunSessionManager.Initialize();
+
+            // Assert
+            Assert.AreSame(marionetteRoom, RunSessionManager.NextRoomData);
+
+            // Cleanup
+            GameDatabase.SetInstanceForTesting(null);
+            UnityEngine.Object.DestroyImmediate(mockGameDb);
+            UnityEngine.Object.DestroyImmediate(marionetteRoom);
+            UnityEngine.Object.DestroyImmediate(roomDb);
+        }
+
+        [Test]
         public void RoomProgression_OnSceneLoaded_IncrementsWhenCombatSceneAndPartyExists()
         {
             RunSessionManager.CurrentParty.Add(new PartyMemberInfo());
