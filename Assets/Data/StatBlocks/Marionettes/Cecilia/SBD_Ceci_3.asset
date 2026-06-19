@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
-  m_Name: SBD_Sharpshooter_1
+  m_Name: SBD_Ceci_3
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
   attack: 10
-  accuracy: 110
+  accuracy: 100
   critChance: 8
-  maxHP: 19
-  defense: 0
-  dodge: 0
+  maxHP: 34
+  defense: 6
+  dodge: 6
   speed: 5
-  bleedResist: 20
-  blightResist: 20
-  stunResist: 20
-  debuffResist: 20
-  moveResist: 20
+  bleedResist: 50
+  blightResist: 50
+  stunResist: 50
+  debuffResist: 50
+  moveResist: 50

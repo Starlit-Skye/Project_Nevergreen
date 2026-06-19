@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
-  m_Name: SBD_Sharpshooter_1
+  m_Name: SBD_Knight_4
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 10
-  accuracy: 110
-  critChance: 8
-  maxHP: 19
-  defense: 0
+  attack: 16
+  accuracy: 95
+  critChance: 7
+  maxHP: 28
+  defense: 12
   dodge: 0
-  speed: 5
-  bleedResist: 20
+  speed: 3
+  bleedResist: 50
   blightResist: 20
-  stunResist: 20
+  stunResist: 40
   debuffResist: 20
-  moveResist: 20
+  moveResist: 40
