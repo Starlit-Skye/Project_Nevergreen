@@ -45,6 +45,17 @@ namespace Nevergreen.Prototype
 
         private void Start()
         {
+            if (RunSessionManager.RoomCompleted)
+            {
+                // We're loading into a room that was already completed (resuming a run post-victory).
+                // Skip spawning and initialize CombatUI directly to the selection screen.
+                if (combatUI != null)
+                {
+                    combatUI.ShowRoomSelectionImmediately();
+                }
+                return;
+            }
+
             // Check if the next room has a non-combat effect that should run immediately
             if (RunSessionManager.NextRoomData != null &&
                 RunSessionManager.NextRoomData.activationType == Nevergreen.Data.RoomActivationType.OnRoomLoaded)

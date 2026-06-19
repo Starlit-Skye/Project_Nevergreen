@@ -14,10 +14,16 @@ namespace Nevergreen
         public static List<PartyMemberInfo> CurrentParty { get; set; } = new List<PartyMemberInfo>();
 
         /// <summary>The last formation selected, used to prevent consecutive duplicates.</summary>
-        public static EnemyFormationData LastSelectedFormation { get; internal set; }
+        public static EnemyFormationData LastSelectedFormation { get; set; }
 
         /// <summary>The RoomData selected by the player for the next room. Persists across scene loads.</summary>
         public static RoomData NextRoomData { get; set; }
+
+        /// <summary>Whether the current room has been completed (victory screen active).</summary>
+        public static bool RoomCompleted { get; set; }
+
+        /// <summary>The dynamically generated choices for the next room, if any.</summary>
+        public static List<RoomData> NextRoomChoices { get; set; } = new List<RoomData>();
 
         /// <summary>The number of rooms the player has progressed through in the current run.</summary>
         public static int RoomProgression { get; set; }
@@ -67,6 +73,8 @@ namespace Nevergreen
                 else
                 {
                     RoomProgression++;
+                    RoomCompleted = false;
+                    NextRoomChoices.Clear();
                 }
 
                 foreach (var member in CurrentParty)
@@ -88,6 +96,31 @@ namespace Nevergreen
         {
             LastSelectedFormation = null;
             RoomProgression = 0;
+            RoomCompleted = false;
+            NextRoomChoices.Clear();
+            SaveManager.SaveRun();
+        }
+
+        /// <summary>
+        /// Marks the current room as completed, stores the generated room choices,
+        /// synchronizes pre-combat HP to current post-combat HP, and saves the run.
+        /// </summary>
+        public static void CompleteRoom(List<RoomData> choices)
+        {
+            NextRoomChoices = new List<RoomData>(choices);
+            RoomCompleted = true;
+
+            if (CurrentParty != null)
+            {
+                foreach (var member in CurrentParty)
+                {
+                    if (member != null)
+                    {
+                        member.preCombatHP = member.currentHP;
+                    }
+                }
+            }
+
             SaveManager.SaveRun();
         }
 
@@ -204,6 +237,8 @@ namespace Nevergreen
             RoomProgression = 0;
             IsResumingRun = false;
             ShouldUseSavedFormation = false;
+            RoomCompleted = false;
+            NextRoomChoices.Clear();
 
             if (_activeBattleSystem != null)
             {

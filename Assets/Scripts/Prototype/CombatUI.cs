@@ -297,6 +297,26 @@ namespace Nevergreen.Prototype
             }
         }
 
+        public void ShowRoomSelectionImmediately()
+        {
+            HideSkillButtons();
+
+            if (battleEndPanel != null)
+            {
+                battleEndPanel.SetActive(true);
+                if (battleEndText != null)
+                    battleEndText.text = "CHOOSE NEXT ROOM";
+            }
+
+            if (nextRoomButton != null)
+            {
+                var txt = nextRoomButton.GetComponentInChildren<TextMeshProUGUI>();
+                if (txt != null) txt.text = "Next Room";
+            }
+
+            SpawnRoomChoiceButtons();
+        }
+
         private void SpawnRoomChoiceButtons()
         {
             // Clear any previously spawned room choice buttons
@@ -324,8 +344,14 @@ namespace Nevergreen.Prototype
                 if (nextRoomButton != null)
                     nextRoomButton.gameObject.SetActive(false);
 
-                // Pick random rooms (up to roomChoiceCount)
-                var choices = PickRandomRooms(availableRooms, globalConfig.roomChoiceCount);
+                // Check if we already have choices saved in the session (e.g. resuming after victory)
+                var choices = RunSessionManager.NextRoomChoices;
+                if (choices == null || choices.Count == 0)
+                {
+                    // Pick random rooms (up to roomChoiceCount)
+                    choices = PickRandomRooms(availableRooms, globalConfig.roomChoiceCount);
+                    RunSessionManager.CompleteRoom(choices);
+                }
 
                 foreach (var room in choices)
                 {

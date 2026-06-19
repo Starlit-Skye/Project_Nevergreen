@@ -26,6 +26,8 @@ namespace Nevergreen.Data
         public string nextRoomId;
         public string lastSelectedFormationId;
         public List<PartyMemberDTO> party = new List<PartyMemberDTO>();
+        public bool roomCompleted;
+        public List<string> nextRoomChoices = new List<string>();
     }
 
     /// <summary>
@@ -68,7 +70,11 @@ namespace Nevergreen.Data
                 roomProgression = RunSessionManager.RoomProgression,
                 nextRoomId = RunSessionManager.NextRoomData != null ? RunSessionManager.NextRoomData.roomId : null,
                 lastSelectedFormationId = RunSessionManager.LastSelectedFormation != null ? RunSessionManager.LastSelectedFormation.formationId : null,
-                party = new List<PartyMemberDTO>()
+                party = new List<PartyMemberDTO>(),
+                roomCompleted = RunSessionManager.RoomCompleted,
+                nextRoomChoices = RunSessionManager.NextRoomChoices != null 
+                    ? RunSessionManager.NextRoomChoices.Where(r => r != null).Select(r => r.roomId).ToList() 
+                    : new List<string>()
             };
 
             foreach (var member in RunSessionManager.CurrentParty)
@@ -120,6 +126,21 @@ namespace Nevergreen.Data
 
                 RunSessionManager.Clear();
                 RunSessionManager.RoomProgression = dto.roomProgression;
+                RunSessionManager.RoomCompleted = dto.roomCompleted;
+
+                // Lookup NextRoomChoices
+                RunSessionManager.NextRoomChoices.Clear();
+                if (dto.nextRoomChoices != null && db.RoomDatabase != null)
+                {
+                    foreach (var roomId in dto.nextRoomChoices)
+                    {
+                        var room = db.RoomDatabase.availableRooms.FirstOrDefault(r => r != null && r.roomId == roomId);
+                        if (room != null)
+                        {
+                            RunSessionManager.NextRoomChoices.Add(room);
+                        }
+                    }
+                }
 
                 // Lookup NextRoomData
                 if (!string.IsNullOrEmpty(dto.nextRoomId) && db.RoomDatabase != null)
@@ -140,7 +161,7 @@ namespace Nevergreen.Data
                     if (formation != null)
                     {
                         RunSessionManager.LastSelectedFormation = formation;
-                        RunSessionManager.ShouldUseSavedFormation = true;
+                        RunSessionManager.ShouldUseSavedFormation = !dto.roomCompleted;
                     }
                 }
 

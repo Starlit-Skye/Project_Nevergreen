@@ -188,5 +188,84 @@ namespace Nevergreen.Tests
             GameDatabase.SetInstanceForTesting(null);
             Object.DestroyImmediate(db, true);
         }
+
+        [Test]
+        public void SaveRun_RoomCompleted_PersistsSelectionAndState()
+        {
+            var db = ScriptableObject.CreateInstance<GameDatabase>();
+            var roomDb = ScriptableObject.CreateInstance<RoomDatabase>();
+            
+            var roomA = ScriptableObject.CreateInstance<RoomData>();
+            roomA.roomId = "room_a";
+            var roomB = ScriptableObject.CreateInstance<RoomData>();
+            roomB.roomId = "room_b";
+
+            roomDb.availableRooms = new List<RoomData> { roomA, roomB };
+            typeof(GameDatabase).GetField("roomDatabase", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(db, roomDb);
+            GameDatabase.SetInstanceForTesting(db);
+
+            // Simulate victory
+            var choices = new List<RoomData> { roomA, roomB };
+            RunSessionManager.CompleteRoom(choices); // Sets RoomCompleted = true, stores choices, and calls SaveRun()
+
+            RunSessionManager.Clear();
+            Assert.IsFalse(RunSessionManager.RoomCompleted);
+            Assert.AreEqual(0, RunSessionManager.NextRoomChoices.Count);
+
+            bool loaded = SaveManager.LoadRun();
+
+            Assert.IsTrue(loaded);
+            Assert.IsTrue(RunSessionManager.RoomCompleted);
+            Assert.AreEqual(2, RunSessionManager.NextRoomChoices.Count);
+            Assert.AreEqual(roomA, RunSessionManager.NextRoomChoices[0]);
+            Assert.AreEqual(roomB, RunSessionManager.NextRoomChoices[1]);
+
+            GameDatabase.SetInstanceForTesting(null);
+            Object.DestroyImmediate(db, true);
+            Object.DestroyImmediate(roomDb, true);
+            Object.DestroyImmediate(roomA, true);
+            Object.DestroyImmediate(roomB, true);
+        }
+
+        [Test]
+        public void LoadRun_RoomCompleted_ClearsShouldUseSavedFormation_ButRestoresLastSelectedFormation()
+        {
+            var db = ScriptableObject.CreateInstance<GameDatabase>();
+            var roomDb = ScriptableObject.CreateInstance<RoomDatabase>();
+            var formationDb = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
+            
+            var roomA = ScriptableObject.CreateInstance<RoomData>();
+            roomA.roomId = "room_a";
+            roomDb.availableRooms = new List<RoomData> { roomA };
+
+            var formation = ScriptableObject.CreateInstance<EnemyFormationData>();
+            formation.formationId = "test_formation";
+            formationDb.trivialFormations = new List<EnemyFormationData> { formation };
+
+            typeof(GameDatabase).GetField("roomDatabase", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(db, roomDb);
+            typeof(GameDatabase).GetField("enemyFormationDatabase", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(db, formationDb);
+            GameDatabase.SetInstanceForTesting(db);
+
+            // Set up state
+            RunSessionManager.LastSelectedFormation = formation;
+            RunSessionManager.CompleteRoom(new List<RoomData> { roomA }); // Saves with roomCompleted = true
+
+            RunSessionManager.Clear();
+            Assert.IsFalse(RunSessionManager.ShouldUseSavedFormation);
+
+            bool loaded = SaveManager.LoadRun();
+
+            Assert.IsTrue(loaded);
+            Assert.IsTrue(RunSessionManager.RoomCompleted);
+            Assert.AreEqual(formation, RunSessionManager.LastSelectedFormation);
+            Assert.IsFalse(RunSessionManager.ShouldUseSavedFormation, "ShouldUseSavedFormation must be false when roomCompleted is true.");
+
+            GameDatabase.SetInstanceForTesting(null);
+            Object.DestroyImmediate(db, true);
+            Object.DestroyImmediate(roomDb, true);
+            Object.DestroyImmediate(formationDb, true);
+            Object.DestroyImmediate(roomA, true);
+            Object.DestroyImmediate(formation, true);
+        }
     }
 }
