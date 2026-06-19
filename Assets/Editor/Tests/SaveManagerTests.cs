@@ -137,5 +137,56 @@ namespace Nevergreen.Tests
             if (!UnityEditor.EditorUtility.IsPersistent(formationDb)) Object.DestroyImmediate(formationDb, true);
             if (!UnityEditor.EditorUtility.IsPersistent(formation)) Object.DestroyImmediate(formation, true);
         }
+
+        [Test]
+        public void SaveRun_MidBattle_SavesPreCombatHP()
+        {
+            var db = ScriptableObject.CreateInstance<GameDatabase>();
+            GameDatabase.SetInstanceForTesting(db);
+
+            // Create a party member with max HP initialized
+            var member = new PartyMemberInfo();
+            // Start of run (max HP)
+            member.currentHP = null;
+            member.preCombatHP = null;
+
+            RunSessionManager.CurrentParty.Add(member);
+            
+            // Scene loads
+            member.preCombatHP = member.currentHP; // null
+
+            // During combat, character takes damage
+            member.currentHP = 50;
+
+            // Quit mid-battle
+            SaveManager.SaveRun();
+
+            // Clear and load
+            RunSessionManager.Clear();
+            bool loaded = SaveManager.LoadRun();
+
+            Assert.IsTrue(loaded);
+            Assert.AreEqual(1, RunSessionManager.CurrentParty.Count);
+            
+            // HP should be loaded from preCombatHP (which was null, mapping to -1, which loads as null)
+            Assert.IsNull(RunSessionManager.CurrentParty[0].currentHP, "currentHP should have reset to pre-combat max HP (null).");
+            Assert.IsNull(RunSessionManager.CurrentParty[0].preCombatHP, "preCombatHP should have loaded as null.");
+
+            // Also test non-null scenario
+            RunSessionManager.Clear();
+            member = new PartyMemberInfo { currentHP = 60, preCombatHP = 60 };
+            RunSessionManager.CurrentParty.Add(member);
+            member.currentHP = 30; // mutation during combat
+            SaveManager.SaveRun();
+
+            RunSessionManager.Clear();
+            loaded = SaveManager.LoadRun();
+            Assert.IsTrue(loaded);
+            Assert.AreEqual(60, RunSessionManager.CurrentParty[0].currentHP);
+            Assert.AreEqual(60, RunSessionManager.CurrentParty[0].preCombatHP);
+
+            GameDatabase.SetInstanceForTesting(null);
+            Object.DestroyImmediate(db, true);
+        }
     }
 }

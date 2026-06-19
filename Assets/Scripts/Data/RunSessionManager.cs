@@ -68,6 +68,15 @@ namespace Nevergreen
                 {
                     RoomProgression++;
                 }
+
+                foreach (var member in CurrentParty)
+                {
+                    if (member != null)
+                    {
+                        member.preCombatHP = member.currentHP;
+                    }
+                }
+
                 SaveManager.SaveRun();
             }
         }

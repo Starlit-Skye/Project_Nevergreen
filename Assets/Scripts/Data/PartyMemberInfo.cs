@@ -19,6 +19,9 @@ namespace Nevergreen.Data
         /// <summary>The persistent HP of the character during a run. Null if starting the run at max HP.</summary>
         public int? currentHP;
 
+        /// <summary>The HP of the character at the start of the current room. Used for persistence to decouple mid-battle mutation.</summary>
+        public int? preCombatHP;
+
         /// <summary>Active Perfection traits on this Marionette.</summary>
         public List<TraitData> perfections = new List<TraitData>();
 

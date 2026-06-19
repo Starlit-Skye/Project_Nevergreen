@@ -78,7 +78,7 @@ namespace Nevergreen.Data
                 var pDto = new PartyMemberDTO
                 {
                     characterId = member.character != null ? member.character.characterId : null,
-                    currentHP = member.currentHP ?? -1,
+                    currentHP = member.preCombatHP ?? -1,
                     equippedSkillIds = member.equippedSkills.Where(s => s != null).Select(s => s.skillId).ToList(),
                     perfectionIds = member.perfections.Where(t => t != null).Select(t => t.traitId).ToList(),
                     imperfectionIds = member.imperfections.Where(t => t != null).Select(t => t.traitId).ToList()
@@ -162,7 +162,8 @@ namespace Nevergreen.Data
                         }
                     }
 
-                    member.currentHP = pDto.currentHP == -1 ? (int?)null : pDto.currentHP;
+                    member.preCombatHP = pDto.currentHP == -1 ? (int?)null : pDto.currentHP;
+                    member.currentHP = member.preCombatHP;
 
                     // Lookup Traits
                     if (db.TraitDatabase != null)
