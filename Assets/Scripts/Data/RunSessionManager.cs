@@ -16,6 +16,9 @@ namespace Nevergreen
         /// <summary>The last formation selected, used to prevent consecutive duplicates.</summary>
         public static EnemyFormationData LastSelectedFormation { get; set; }
 
+        /// <summary>The player's current number of Parts in this run.</summary>
+        public static int Parts { get; set; }
+
         /// <summary>The RoomData selected by the player for the next room. Persists across scene loads.</summary>
         public static RoomData NextRoomData { get; set; }
 
@@ -95,6 +98,7 @@ namespace Nevergreen
         public static void Initialize()
         {
             LastSelectedFormation = null;
+            Parts = 0;
             RoomProgression = 0;
             RoomCompleted = false;
             NextRoomChoices.Clear();
@@ -243,6 +247,7 @@ namespace Nevergreen
         {
             CurrentParty.Clear();
             LastSelectedFormation = null;
+            Parts = 0;
             NextRoomData = null;
             RoomProgression = 0;
             IsResumingRun = false;

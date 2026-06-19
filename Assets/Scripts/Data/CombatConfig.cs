@@ -66,6 +66,13 @@ namespace Nevergreen.Data
         [Tooltip("Global maximum character level.")]
         public int globalMaxLevel = 10;
 
+        [Header("Rewards")]
+        [Tooltip("Minimum Parts awarded upon battle victory.")]
+        public int minPartsPerBattle = 10;
+
+        [Tooltip("Maximum Parts awarded upon battle victory.")]
+        public int maxPartsPerBattle = 50;
+
         [Header("Enemy Encounter Tiers")]
         [Tooltip("Mappings of room count progression to enemy encounter tiers. Sorted by roomCount ascending automatically.")]
         public System.Collections.Generic.List<RoomTierMapping> roomTierMappings = new System.Collections.Generic.List<RoomTierMapping>();

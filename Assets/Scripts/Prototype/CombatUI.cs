@@ -27,6 +27,10 @@ namespace Nevergreen.Prototype
         public GameObject battleEndPanel;
         public TextMeshProUGUI battleEndText;
 
+        [Header("Rewards UI")]
+        [Tooltip("The popup to show rewards after a battle.")]
+        public CombatRewardUI rewardUI;
+
         [Tooltip("Button shown after victory to proceed to the next room (fallback).")]
         public Button nextRoomButton;
 
@@ -277,7 +281,17 @@ namespace Nevergreen.Prototype
                     var txt = nextRoomButton.GetComponentInChildren<TextMeshProUGUI>();
                     if (txt != null) txt.text = "Next Room";
                 }
-                SpawnRoomChoiceButtons();
+                
+                if (rewardUI != null)
+                {
+                    rewardUI.ShowReward(_battleSystem.PartsGrantedThisBattle, () => {
+                        SpawnRoomChoiceButtons();
+                    });
+                }
+                else
+                {
+                    SpawnRoomChoiceButtons();
+                }
             }
             else
             {
