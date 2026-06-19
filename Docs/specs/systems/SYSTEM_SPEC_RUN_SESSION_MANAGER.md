@@ -38,7 +38,7 @@ Maintain the active run state, party composition, encounter databases, and progr
   - `LastSelectedFormation`: `EnemyFormationData` (cache of last encountered formation).
   - `NextRoomData`: `RoomData` (selected room template to resolve after battle).
   - `RoomProgression`: `int` (number of completed/entered rooms in the current run).
-- Persistence keys: None (RunSessionManager uses temporary in-memory static state during a play session; actual disk persistence is not defined/implemented here).
+- Persistence keys: Delegated to `SaveManager` (`Docs/specs/systems/SYSTEM_SPEC_SAVE_GAME_PERSISTENCE.md`), which serializes the active run progression, room completed state, and room choices to `save.dat`.
 
 ## Event Contracts
 - Event: `UnityEngine.SceneManagement.SceneManager.sceneLoaded`
@@ -103,7 +103,7 @@ Maintain the active run state, party composition, encounter databases, and progr
 - Playtest: Initiate a new run from the Main Menu, complete a combat encounter, select the next room, and verify that the progression count is incremented upon entering the next combat scene and the selected room's effect is correctly applied.
 
 ## Missing Evidence
-- Saving and loading persistence model (mechanism for saving/restoring the run session state to disk is currently unknown).
+- None.
 
 ## Validation
 - [x] Facts match current code/content
