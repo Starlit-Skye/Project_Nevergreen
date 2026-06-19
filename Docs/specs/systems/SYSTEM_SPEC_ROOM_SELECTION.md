@@ -2,8 +2,8 @@
 
 Owner: Gameplay Programming
 Status: active
-Last verified: 2026-06-10
-Verified commit: Unknown
+Last verified: 2026-06-19
+Verified commit: 4134da54597e5d2ec8192eeff46cf998a27bb03c
 Target build: Unity 6000.3.9f1 + Standalone
 
 ## Purpose
@@ -19,7 +19,8 @@ Decouple room definition and metadata from execution behavior using ScriptableOb
   - `Assets/Scripts/Data/RoomActivationType.cs` (`Nevergreen.Data.RoomActivationType`)
   - `Assets/Scripts/Data/RoomEffectStrategy.cs` (`Nevergreen.Data.RoomEffectStrategy`)
   - `Assets/Scripts/Data/MarionetteRoomEffectStrategy.cs` (`Nevergreen.Data.MarionetteRoomEffectStrategy`)
-  - `Assets/Scripts/Data/CombatConfig.cs` (`Nevergreen.Data.CombatConfig`)
+  - `Assets/Scripts/Data/RoomDatabase.cs` (`Nevergreen.Data.RoomDatabase`)
+  - `Assets/Scripts/Data/GlobalConfig.cs` (`Nevergreen.Data.GlobalConfig`)
   - `Assets/Scripts/Data/RunSessionManager.cs` (`Nevergreen.Data.RunSessionManager`)
   - `Assets/Scripts/Prototype/CombatSceneBootstrap.cs` (`Nevergreen.Prototype.CombatSceneBootstrap`)
   - `Assets/Scripts/Prototype/CombatUI.cs` (`Nevergreen.Prototype.CombatUI`)
@@ -32,7 +33,7 @@ Decouple room definition and metadata from execution behavior using ScriptableOb
 
 ## Responsibilities
 - Encapsulate room details (name, description, activation timing, strategy) inside `RoomData`.
-- Dynamically instantiate room choice buttons upon battle victory based on `CombatConfig.roomChoiceCount` and `CombatConfig.availableRooms`.
+- Dynamically instantiate room choice buttons upon battle victory based on `GlobalConfig.roomChoiceCount` and `RoomDatabase.availableRooms` accessed via `GameDatabase.Instance`.
 - Maintain the next-room state across scene transitions in `RunSessionManager.NextRoomData`.
 - Intercept scene load transitions in `CombatSceneBootstrap.Start()` to handle immediate activation (`OnRoomLoaded`) and early return (bypassing combat).
 - Execute lingering strategies during continuous combat (`ContinuousCombat`) after team initialization.
@@ -45,7 +46,8 @@ Decouple room definition and metadata from execution behavior using ScriptableOb
 - `RoomEffectStrategy`: abstract base class decorated with `[Serializable]`, defining the abstract `ExecuteRoomEffect()` method.
 - `MarionetteRoomEffectStrategy`: concrete implementation subclassing `RoomEffectStrategy`, storing a reference to `marionetteSelectionPrefab` and locating a Screen-Space Canvas to spawn it.
 - `RoomData`: ScriptableObject asset containing `roomName` (string), `description` (TextArea string), `activationType` (RoomActivationType), and `strategy` (RoomEffectStrategy) serialized with `[SerializeReference]` and `[SubclassSelector]`.
-- `CombatConfig`: ScriptableObject containing `roomChoiceCount` (int) and `availableRooms` (List of RoomData).
+- `RoomDatabase`: ScriptableObject containing `availableRooms` (List of RoomData).
+- `GlobalConfig`: ScriptableObject containing `roomChoiceCount` (int).
 - `RunSessionManager`: static class containing static property `NextRoomData` (RoomData) and static reference `_activeBattleSystem` (BattleSystem) for tracking.
 
 ## Event Contracts
@@ -105,15 +107,15 @@ Decouple room definition and metadata from execution behavior using ScriptableOb
     - `SubscribeToBattle_Defeat_DoesNotActivateRoom`
     - `SubscribeToBattle_Victory_OnRoomLoadedType_DoesNotActivate`
     - `SubscribeToBattle_Unsubscribes_AfterBattleEnded`
-    - `CombatConfig_RoomChoiceCount_DefaultIs3`
-    - `CombatConfig_AvailableRooms_DefaultIsEmpty`
+    - `GlobalConfig_RoomChoiceCount_DefaultIs3`
+    - `RoomDatabase_AvailableRooms_DefaultIsEmpty`
   - Tests in `Assets/Editor/Tests/CombatUITests.cs`:
     - `HandleBattleEnded_ShowsNextRoomButton_OnVictory`
     - `HandleBattleEnded_HidesNextRoomButton_OnDefeat`
     - `Initialize_HidesNextRoomButton_AndRegistersListener`
 - Playtest:
   - Create a test `RoomData` asset using **Create → Nevergreen → Data → Room Data**. Select a strategy, configure its properties, and set its timing.
-  - Set the number of choices and available rooms in the game's `CombatConfig`.
+  - Set the number of choices in the game's `GlobalConfig` and available rooms in the game's `RoomDatabase`.
   - Win a combat session to verify the UI spawns selection buttons instead of a static "Next Room" button.
 
 ## Missing Evidence

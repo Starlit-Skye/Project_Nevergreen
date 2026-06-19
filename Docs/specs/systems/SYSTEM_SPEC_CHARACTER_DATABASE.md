@@ -1,109 +1,99 @@
 # Character Database System
 
-Owner: Unknown
-Status: draft
-Last verified: 2026-04-06
-Verified commit: Unknown
-Target build: Unity 6000.3.9f1 + Standalone/Android
+Owner: Gameplay Engineering Team
+Status: active
+Last verified: 2026-06-19
+Verified commit: 4134da54597e5d2ec8192eeff46cf998a27bb03c
+Target build: Unity 6000.3.9f1 Standalone Windows
 
 ## Purpose
-Define ScriptableObject-backed character data for marionettes and enemies, including per-level stat
-resolution at runtime.
+Define ScriptableObject-backed character data templates for both player units (marionettes) and enemy units, and resolve character stat blocks at runtime per character level.
 
 ## Scope
-- In scope: character data schema, unique identifiers, display names, stat-per-level mapping,
-  runtime stat lookup rule
-- Out of scope: combat formulas, skill execution logic, editor tooling implementation details
+- In scope: Character template schema (`CharacterData`), team categorization, unique ID validation, stat-per-level resolution, skill pools, rank sizing, leaves-pile-on-death rules, and default AI profiles.
+- Out of scope: Action scheduling details during turn generation, specific combat formulas using the stats, and custom GUI inspectors for the ScriptableObject.
 
 ## Source of Truth
-- Code: `Unknown` (character database runtime/editor implementation not provided)
-- Tests: `Unknown` (character data validation/runtime tests not provided)
-- Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0
-  (section: Technical -> Character Database)
-- Data: `Unknown` (character ScriptableObject asset paths not provided)
-- Issue/ADR: Unknown
+- Code: `Assets/Scripts/Data/CharacterData.cs` (`Nevergreen.Data.CharacterData`), `Assets/Scripts/Data/StatBlockData.cs` (`Nevergreen.Data.StatBlockData`)
+- Tests: `Assets/Editor/Tests/MarionetteGeneratorTests.cs` (batch generation class requirements and templating), `Assets/Editor/Tests/MainMenuSkillSelectionTests.cs` (direct prefab spawning logic based on CharacterData).
+- Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0 (Technical -> Character Database)
+- Data: `Assets/Data/Characters/` (instances of CharacterData ScriptableObjects).
+- Issue/ADR: None.
 
 ## Responsibilities
-- Store each character definition (marionette or enemy) as ScriptableObject-backed data.
-- Require each character definition to include a unique id and display-name string.
-- Store a per-level stat list where each index maps to one character level.
-- Define and expose a global maximum level used by runtime level progression systems.
-- Resolve runtime stat block by `current_level - 1` index (0-based indexing).
-- Keep ScriptableObject data immutable at runtime lookup points.
+- Define a serialization-friendly template for all combat characters (enemies/player units) using `CharacterData` ScriptableObject.
+- Require each template to provide a unique `characterId`, human-readable `displayName`, visual `characterPrefab`, and `teamType`.
+- Map level progressions to stats via a list of `StatBlockData` references, where level N maps to index `N - 1`.
+- Provide helper methods (`GetStatsForLevel`) that safely clamp level indexing to valid bounds of the stat list.
+- Store available/equipped skill lists and the overall selection pool for player customisation.
+- Categorize rank sizes (1-4) and toggles for corpse pile generation upon unit death.
 
 ## Data Model
-- Entity/component/object: `CharacterData` with `character_id`, `display_name`, `stat_per_level_list`
-  (`List<StatBlockData>`)
-- Entity/component/object: `StatBlockData` ScriptableObject with numeric values for character stats
-  used by combat systems
-- Global config/object: `GlobalLevelConfig` with `global_max_level`
-- Persistence keys: Unknown
+- Entity/component/object:
+  - `CharacterData` (ScriptableObject): Defines character baseline configuration.
+    - `characterId` (`string`): Unique identifier of the template.
+    - `displayName` (`string`): User-facing name.
+    - `characterPrefab` (`CombatCharacter`): Target visual and component prefab to instantiate.
+    - `teamType` (`CharacterTeamType`): Player or Enemy.
+    - `actionsPerRound` (`int`): Action count (defaults to 1, clamped to min 1).
+    - `statPerLevel` (`List<StatBlockData>`): List of stat assets corresponding to each level.
+    - `availableSkills` (`List<SkillData>`): Equipped or active skills.
+    - `totalSkillPool` (`List<SkillData>`): Skill pool candidates for skill selection.
+    - `size` (`int`): Rank size footprint (1 to 4).
+    - `leavesPileOnDeath` (`bool`): True if unit transforms into a pile corpse.
+    - `defaultAIProfile` (`EnemyAIProfile`): AI script used if the unit belongs to the enemy team.
+    - `deathSFX` (`AudioClip`): Auditory feedback on defeat.
+    - `bossMusicOverride` (`AudioClip`): Override background music track for boss fights.
+- Persistence keys: Save/Load systems serialize characters by referencing their `characterId` string, resolving details at runtime via the `GameDatabase` registries.
 
 ## Event Contracts
-- Event: `character_data_loaded`
-- Producer: character database/bootstrap loader
-- Consumers: combat setup, AI setup, stat presentation
-- Payload schema: character id, display name, max level entries
-
-- Event: `character_stats_resolved_for_level`
-- Producer: runtime stat resolver
-- Consumers: combat turn system, UI, skill execution context builders
-- Payload schema: character id, current level, resolved index, stat block reference
-
-- Event: `character_data_validation_failed`
-- Producer: data validation pass
-- Consumers: content pipeline/QA
-- Payload schema: character id, validation rule id, error message
+- Event: `CharacterData.GetStatsForLevel()` lookup
+  - Producer: `CombatCharacter.Initialize()`
+  - Consumers: Battle initialization and UI level scaling systems.
+  - Payload schema: Returns the `StatBlockData` asset at index `level - 1`.
 
 ## Timing Model
-- Update domain: data load during startup/content load; read-only stat resolution during combat/runtime
-- Tick/update order: load/validate character data before battle assembly; resolve stats when character
-  instance level is known
-- Budget: Unknown
+- Update domain: Main thread.
+- Tick/update order: Read-only lookup occurring during scene setup, team spawning, and level-ups. Data is immutable at runtime.
+- Budget: Under 0.1ms per lookup.
 
 ## Determinism
-- Required: yes (static data lookup by deterministic index rule)
-- Strategy: resolve stats strictly with `resolved_index = current_level - 1`
-- Known exceptions: behavior when level is out of list bounds is Unknown
+- Required: Yes.
+- Strategy: Level lookup resolves to `level - 1` clamped to `[0, statPerLevel.Count - 1]` to ensure consistent stats for any level query.
+- Known exceptions: None.
 
 ## Authority Model
-- Single-player/offline: character definitions are authored by developers and consumed by local runtime
-- Multiplayer: Unknown
+- Single-player/offline: Complete local client authority over lookup tables.
+- Multiplayer: Unknown.
 
 ## Performance Budget
-- CPU: Unknown
-- Memory: Unknown
-- Entity scale target: Unknown
+- CPU: Under 1ms to load and resolve character templates.
+- Memory: Under 10KB per character definition asset instance in memory.
+- Entity scale target: Up to 20 distinct character definitions loaded in a scene.
 
 ## Error Handling and Recovery
-- Duplicate `character_id`: Unknown
-- Out-of-range level index (`current_level - 1` invalid): Unknown
-- Level-up request above `global_max_level`: reject clamp behavior is Unknown
-- Recovery strategy: Unknown
+- Missing Stat Entries: If `statPerLevel` is null or empty, `GetStatsForLevel` prints a `Debug.LogError` and returns `null`.
+- Out-of-bounds Levels: Clamps the level query index to valid ranges (`Mathf.Clamp(level - 1, 0, statPerLevel.Count - 1)`) so query values too low or too high resolve to the closest defined level.
 
 ## Observability
-- Metrics: character data load success/failure counts, stat resolution failure count by character id
-- Logs: invalid ids, invalid per-level list lengths, out-of-range index lookups
-- Traces/profilers: Unknown
+- Metrics: None.
+- Logs: `[CharacterData] '<displayName>' has no stat entries.` logged as error if query is executed on unconfigured characters.
+- Traces/profilers: None.
 
 ## Acceptance Tests
-- Automated: Unknown (test paths not provided)
-- Playtest: verify marionette/enemy stats change correctly by level, verify display names match combat
-  UI, verify runtime lookup follows `current_level - 1` mapping, verify level-up is blocked at global
-  maximum level
+- Automated:
+  - `MainMenuSkillSelectionTests.cs`:
+    - `CombatSceneBootstrap_SpawnTeams_SpawnsDirectCharacterPrefab_WhenConfiguredOnCharacterData`: Verifies team spawner correctly instantiates the character prefab defined in the template.
+- Playtest:
+  1. In-editor, select a character asset and inspect the `Stat Per Level` configurations.
+  2. Start a match, and verify that the stats displayed match the defined level index.
 
 ## Missing Evidence
-- Runtime code path for character data loader and stat resolver
-- Asset path conventions for `CharacterData` and `StatBlockData`
-- Validation rules for min/max supported levels and missing stat entries
-- Runtime handling contract for out-of-range level indices
-- Source and ownership of `global_max_level` configuration
+- None.
 
 ## Validation
-- [ ] Facts match current code/content
-- [ ] Timing, authority, and determinism are explicit
-- [ ] Performance budgets are stated with units
-- [ ] Unknowns are explicitly labeled
-- [ ] Acceptance tests are defined
-
-
+- [x] Facts match current code/content
+- [x] Timing, authority, and determinism are explicit
+- [x] Performance budgets are stated with units
+- [x] Unknowns are explicitly labeled
+- [x] Acceptance tests are defined

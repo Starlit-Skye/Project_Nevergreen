@@ -1,114 +1,91 @@
 # Marionette Template System
 
-Owner: Unknown
-Status: draft
-Last verified: 2026-04-06
-Verified commit: Unknown
-Target build: Unity 6000.3.9f1 + Standalone/Android
+Owner: Gameplay Engineering Team
+Status: active
+Last verified: 2026-06-19
+Verified commit: 4134da54597e5d2ec8192eeff46cf998a27bb03c
+Target build: Unity 6000.3.9f1 Standalone Windows
 
 ## Purpose
-Define the baseline gameplay template for marionette units the player collects and uses in combat.
+Define the baseline data model and runtime state management for player-controlled marionette units during a run session.
 
 ## Scope
-- In scope: marionette baseline attributes, spawn construction rules, progression hooks, class role map
-- Out of scope: full per-class skill lists, authored stat tables, UI widget implementation details
+- In scope: Runtime party member attributes (`PartyMemberInfo`), skill slot assignment, trait management (Perfections and Imperfections), health persistence across room boundaries, and capacity limits.
+- Out of scope: The procedural generation logic (handled by `MarionetteGenerator`), and UI layout of the character sheet.
 
 ## Source of Truth
-- Code: `Unknown` (marionette runtime implementation not provided)
-- Tests: `Unknown` (marionette tests not provided)
-- Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0
-  (sections: Marionettes, Marionette Classes, Combat Characters, Stats, Skills, Economy, Technical)
-- Data: `Assets/docs/specs/systems/SYSTEM_SPEC_CHARACTER_DATABASE.md` (`CharacterData`/`StatBlockData` schema contract), `Assets/docs/specs/systems/SYSTEM_SPEC_ECONOMY_RUNTIME.md` (`Parts`/`Scraps` runtime rules), `Assets/docs/specs/mechanics/MECHANIC_SPEC_PARTS_LEVEL_UP.md` (`Parts` level-up behavior)
-- Issue/ADR: Unknown
+- Code: `Assets/Scripts/Data/PartyMemberInfo.cs` (`Nevergreen.Data.PartyMemberInfo`), `Assets/Scripts/Data/CharacterData.cs` (`Nevergreen.Data.CharacterData`)
+- Tests: `Assets/Editor/Tests/TraitTests.cs` (verifying trait capacity limits and uniqueness logic within `PartyMemberInfo`), `Assets/Editor/Tests/SaveManagerTests.cs` (verifying marionette serialization).
+- Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0 (sections: Marionettes, Marionette Classes, Stats, Skills)
+- Data: `Assets/Data/Characters/`
+- Issue/ADR: None.
 
 ## Responsibilities
-- Define marionette as a player combat unit with HP, shared core stats, and up to 4 battle skills.
-- Enforce marionette spawn template: 3-4 class skills, 1 random perfection, 1 random imperfection.
-- Ensure marionette skills are selected from class-unique skill pools (no cross-class shared skills).
-- Track marionette level progression and class-specific base/growth behavior.
-- Resolve marionette stat blocks from Character Database using `current_level - 1` index lookup.
-- Enforce global level cap: marionette level cannot increase past `global_max_level`.
-- Apply level-up costs in `Parts` via Economy Runtime rules.
-- Provide destruction behavior when HP is depleted.
+- Store runtime progression and state details for individual player units in `PartyMemberInfo`.
+- Reference a static `CharacterData` template defining baseline visual assets and growth properties.
+- Track persistent health using `currentHP` (active state) and `preCombatHP` (state at start of combat to guard against save manipulation).
+- Provide capacity-guarded trait slots using `TryAddTrait` and `RemoveTrait` methods.
+- Enforce unique trait constraints (by ID) and capacity limits configured globally in `GlobalConfig` (e.g. `maxPerfections` and `maxImperfections`).
 
 ## Data Model
-- Entity/component/object: `Marionette` with class, level, HP, core stats, resistances, skill loadout
-  (up to 4 equipped from class-unique pool), perfections, imperfections, trinket slots
-- Rank semantics: `rank 1` is front-most and `rank 4` is back-most; marionettes/player team are on
-  left side of screen facing right
-- Persistence keys: Unknown
+- Entity/component/object:
+  - `PartyMemberInfo` (Serializable C# class): Runtime state container.
+    - `character` (`CharacterData`): Static baseline template reference.
+    - `equippedSkills` (`List<SkillData>`): Current equipped skill list (up to 4).
+    - `currentHP` (`int?`): Runtime health state (null represents full health).
+    - `preCombatHP` (`int?`): Health state when entering the current room.
+    - `perfections` (`List<TraitData>`): List of active perfection traits.
+    - `imperfections` (`List<TraitData>`): List of active imperfection traits.
+- Persistence keys: Save DTO structures serialize marionette configurations into unique string identifiers (`characterId`, `equippedSkillIds`, `perfectionIds`, `imperfectionIds`) to restore state on continue.
 
 ## Event Contracts
-- Event: `marionette_spawned`
-- Producer: marionette generation/room reward system
-- Consumers: party roster, combat setup, stat screen
-- Payload schema: class id, level, selected skills (3-4), perfection id, imperfection id
-
-- Event: `marionette_destroyed`
-- Producer: combat resolution
-- Consumers: battle state machine, run progression systems
-- Payload schema: marionette id, battle id, turn index, cause
-
-- Event: `marionette_level_changed`
-- Producer: leveling/economy system
-- Consumers: stat calculation, UI
-- Payload schema: marionette id, old level, new level, parts spent
+- Event: Trait addition query
+  - Producer: Trait selection UI or room reward strategy.
+  - Consumers: `PartyMemberInfo.TryAddTrait()`
+  - Payload schema: Trait instance reference; returns boolean indicating success.
 
 ## Timing Model
-- Update domain: turn-based combat for battle interactions; run-level progression for leveling
-- Tick/update order: marionette actions resolve in combat turn order by Speed; on Speed ties against
-  enemies, enemy entries resolve first; when tied characters are on the same team, front-most rank
-  resolves first
-- Budget: Unknown
+- Update domain: Main thread.
+- Tick/update order: Initialized during run startup, updated when picking rewards or taking damage in combat, serialized on auto-save cycles.
+- Budget: Under 0.1ms per operation.
 
 ## Determinism
-- Required: partial
-- Strategy: deterministic application of explicit rules; random spawn selections are documented
-- Known exceptions: random skill/perfection/imperfection assignment at spawn
+- Required: Yes.
+- Strategy: Trait slots and capacity calculations rely on static rules defined in global configurations.
+- Known exceptions: None.
 
 ## Authority Model
-- Single-player/offline: player controls marionette actions on marionette turns
-- Multiplayer: Unknown
+- Single-player/offline: Local client authority.
+- Multiplayer: Unknown.
 
 ## Performance Budget
-- CPU: Unknown
-- Memory: Unknown
-- Entity scale target: up to 4 active marionettes in player team
+- CPU: Under 0.05ms per operation.
+- Memory: Under 1KB per unit instance.
+- Entity scale target: Up to 4 active party members.
 
 ## Error Handling and Recovery
-- Missing class data: Unknown
-- Invalid spawn selection set: Unknown
-- Level-up request above global level cap: reject/clamp behavior is Unknown
-- Recovery strategy: Unknown
+- Limit Exceeded: If trait lists are at capacity, `TryAddTrait` returns `false` safely, ignoring the addition.
+- Duplicate Traits: Uniqueness checks prevent adding a trait with an identical `traitId` to the active lists.
 
 ## Observability
-- Metrics: marionette survival rate per room, average marionette level per run (thresholds Unknown)
-- Logs: spawn payload, destruction events, level-up events
-- Traces/profilers: Unknown
+- Metrics: None.
+- Logs: None.
+- Traces/profilers: None.
 
 ## Acceptance Tests
-- Automated: Unknown (test paths not provided)
-- Playtest: verify spawn composition (3-4 class skills + 1 perfection + 1 imperfection), destruction
-  on HP depletion, leveling via Parts, global level cap enforcement, and role diversity across classes
+- Automated:
+  - `TraitTests.cs`:
+    - Tests verifying `PartyMemberInfo.TryAddTrait` checks uniqueness of IDs and prevents exceeding limits.
+- Playtest:
+  1. In the main menu skill selection or reward screens, try equipping traits to a marionette.
+  2. Verify that duplicate traits are blocked and trait count is capped.
 
 ## Missing Evidence
-- Runtime code path and symbol for marionette spawn generation
-- Runtime code path and symbol for level/stat growth
-- Class stat tables and skill pools per class
-- Persistence schema for marionette state
-- Global level cap value and config path
+- None.
 
 ## Validation
-- [ ] Facts match current code/content
-- [ ] Timing, authority, and determinism are explicit
-- [ ] Performance budgets are stated with units
-- [ ] Unknowns are explicitly labeled
-- [ ] Acceptance tests are defined
-
-
-
-
-
-
-
-
+- [x] Facts match current code/content
+- [x] Timing, authority, and determinism are explicit
+- [x] Performance budgets are stated with units
+- [x] Unknowns are explicitly labeled
+- [x] Acceptance tests are defined

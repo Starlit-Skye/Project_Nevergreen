@@ -2,22 +2,22 @@
 
 Owner: Gameplay Engineering Team
 Status: active
-Last verified: 2026-06-10
-Verified commit: 196871b5f2e47347f597aabcf7e0c9d440d8a963
+Last verified: 2026-06-19
+Verified commit: 4134da54597e5d2ec8192eeff46cf998a27bb03c
 Target build: Unity 6000.3.9f1 + Standalone/Android
 
 ## Purpose
 Handle the complete, encapsulated generation of randomized Marionette units (`PartyMemberInfo`) at run-time, selecting a class template, skill loadout, and Perfection/Imperfection traits according to design rules and global configuration.
 
 ## Scope
-- In scope: Randomized character class template selection from `MarionetteDatabase`; skill loadout generation of up to 4 unique skills from class-specific total skill pool or available skills; allocation of 1 random Perfection trait and 1 random Imperfection trait from the active or fallback `TraitDatabase`; validation of input databases.
+- In scope: Randomized character class template selection from `MarionetteDatabase` (accessed via `GameDatabase.Instance`); skill loadout generation of up to 4 unique skills from class-specific total skill pool or available skills; allocation of 1 random Perfection trait and 1 random Imperfection trait from `TraitDatabase` (accessed via `GameDatabase.Instance`); validation of active databases.
 - Out of scope: UI rendering of selection buttons/panels; addition of generated characters to the player party database/roster (handled by `MarionetteSelectionController`); combat initiation and skill execution mechanics.
 
 ## Source of Truth
-- Code: `Assets/Scripts/Data/MarionetteGenerator.cs` (`Nevergreen.Data.MarionetteGenerator`), `Assets/Scripts/UI/MarionetteSelectionController.cs` (`Nevergreen.UI.MarionetteSelectionController`), `Assets/Scripts/Data/PartyMemberInfo.cs` (`Nevergreen.Data.PartyMemberInfo`)
+- Code: `Assets/Scripts/Data/MarionetteGenerator.cs` (`Nevergreen.Data.MarionetteGenerator`), `Assets/Scripts/UI/MarionetteSelectionController.cs` (`Nevergreen.UI.MarionetteSelectionController`), `Assets/Scripts/Data/PartyMemberInfo.cs` (`Nevergreen.Data.PartyMemberInfo`), `Assets/Scripts/Data/GameDatabase.cs` (`Nevergreen.Data.GameDatabase`)
 - Tests: `Assets/Editor/Tests/MarionetteGeneratorTests.cs` (`Nevergreen.Tests.MarionetteGeneratorTests`)
 - Design: `Docs/specs/systems/SYSTEM_SPEC_MARIONETTE_TEMPLATE.md` (baseline template spec), `Docs/specs/systems/SYSTEM_SPEC_TRAIT_SYSTEM.md` (trait capacity rules)
-- Data: `Assets/Scripts/Data/MarionetteDatabase.cs` (`Nevergreen.Data.MarionetteDatabase` schema)
+- Data: `Assets/Scripts/Data/GameDatabase.cs` (`Nevergreen.Data.GameDatabase` centralized registry)
 - Issue/ADR: Unknown
 
 ## Responsibilities
@@ -57,13 +57,14 @@ Handle the complete, encapsulated generation of randomized Marionette units (`Pa
 - Entity scale target: Typically invoked 3 times sequentially during a selection choice prompt to present 3 choices.
 
 ## Error Handling and Recovery
+- Null GameDatabase.Instance: Returns `null` and logs an error block using `Debug.LogError`.
 - Null/Empty MarionetteDatabase: Returns `null` and logs an error block using `Debug.LogError`.
 - Null TraitDatabase: Safely logs a warning `Debug.LogWarning` and skips assigning traits to the generated marionette.
 - Capacity limit / Duplicate Trait: `PartyMemberInfo.TryAddTrait` returns `false` and skips addition if the limit is exceeded or if the trait is already present on the character.
 
 ## Observability
 - Metrics: Choice generation count.
-- Logs: Logs errors for missing `MarionetteDatabase` templates and warnings for missing `TraitDatabase` configurations.
+- Logs: Logs errors for missing `GameDatabase.Instance` or `MarionetteDatabase` templates and warnings for missing `TraitDatabase` configurations.
 - Traces/profilers: None.
 
 ## Acceptance Tests

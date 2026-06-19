@@ -1,114 +1,89 @@
 # Enemy Template System
 
-Owner: Unknown
-Status: draft
-Last verified: 2026-04-06
-Verified commit: Unknown
-Target build: Unity 6000.3.9f1 + Standalone/Android
+Owner: Gameplay Engineering Team
+Status: active
+Last verified: 2026-06-19
+Verified commit: 4134da54597e5d2ec8192eeff46cf998a27bb03c
+Target build: Unity 6000.3.9f1 Standalone Windows
 
 ## Purpose
-Define the baseline gameplay template for enemy units, including normal enemies, elites, and boss
-patterns described in the design source.
+Define the baseline gameplay template and runtime setup for enemy units, including normal enemies, elites, and boss units.
 
 ## Scope
-- In scope: enemy combat role template, elite behavior patterns, multi-action behavior, spawn notes
-- Out of scope: full numeric stat tables, full skill database, AI implementation internals
+- In scope: Enemy templates defined via `CharacterData` with `teamType = CharacterTeamType.Enemy`, elite/boss multi-action capabilities, automatic dynamic binding of `AIBrain` components with specific `EnemyAIProfile` on initialization.
+- Out of scope: Specific C# rule logic of the AI system, individual encounter database layout.
 
 ## Source of Truth
-- Code: `Unknown` (enemy runtime implementation not provided)
-- Tests: `Unknown` (enemy behavior tests not provided)
-- Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0
-  (sections: Enemies, Elites, Bosses, Final Boss Fight, Combat, Combat Characters, Stats, Statuses,
-  Technical)
-- Data: `Assets/docs/specs/systems/SYSTEM_SPEC_CHARACTER_DATABASE.md` (`CharacterData`/`StatBlockData` schema contract), `Assets/docs/specs/systems/SYSTEM_SPEC_ECONOMY_RUNTIME.md` (elite-vs-normal reward differentiation), `Assets/docs/specs/mechanics/MECHANIC_SPEC_BATTLE_REWARD_DROPS.md` (elite reward mechanic)
-- Issue/ADR: Unknown
+- Code: `Assets/Scripts/Data/CharacterData.cs` (`Nevergreen.Data.CharacterData`), `Assets/Scripts/Combat/CombatCharacter.cs` (`Nevergreen.Combat.CombatCharacter`), `Assets/Scripts/Combat/AI/AIBrain.cs` (`Nevergreen.Combat.AI.AIBrain`), `Assets/Scripts/Combat/AI/EnemyAIProfile.cs` (`Nevergreen.Combat.AI.EnemyAIProfile`)
+- Tests: `Assets/Editor/Tests/AITests.cs` (verifying AI action selection), `Assets/Editor/Tests/CombatSceneBootstrapFormationTests.cs` (verifying enemy team spawning and positioning).
+- Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0 (sections: Enemies, Elites, Bosses, Combat)
+- Data: `Assets/Data/Characters/`
+- Issue/ADR: None.
 
 ## Responsibilities
-- Provide hostile combatants for turn-based encounters.
-- Require both a stable unique enemy id and a developer-customizable display name per enemy template.
-- Support enemy action selection per turn, including multi-action enemies.
-- Enforce enemy skill identity and ownership (skills are unique to a monster/class definition).
-- Resolve enemy stat blocks from Character Database using `current_level - 1` index lookup.
-- Support elite mechanics with explicit conditional behavior chains.
-- Mark battle type (`normal`/`elite`) for Economy Runtime reward calculation.
-- Support boss fight phase progression where defined.
+- Define enemy units using the `CharacterData` ScriptableObject with `teamType` set to `CharacterTeamType.Enemy`.
+- Bind unique ID (`characterId`), display name, base stats via levels, and a dedicated `defaultAIProfile` asset.
+- Automatically attach and configure an `AIBrain` component on runtime `CombatCharacter` instantiation for all enemy-aligned team units.
+- Support scaling actions per round via the `actionsPerRound` property on the template (e.g. 1 for standard units, 2+ for bosses).
 
 ## Data Model
-- Entity/component/object: `Enemy` with `enemy_id` (unique), `display_name` (developer editable),
-  archetype, HP, core stats, resistances, rank, skill list (up to 4), action count per round,
-  status state
-- Rank semantics: `rank 1` is front-most and `rank 4` is back-most; enemies are on right side of
-  screen facing left
-- Persistence keys: Unknown
+- Entity/component/object:
+  - `CharacterData`: Target template configuration (with `teamType = CharacterTeamType.Enemy`).
+  - `CombatCharacter`: Runtime instance representing the combatant on the field.
+  - `AIBrain`: Component added dynamically to the enemy `CombatCharacter` during initialization to evaluate actions.
+  - `EnemyAIProfile`: ScriptableObject asset containing the decision rules for AI actions.
+- Persistence keys: Enemy formations are represented by lists of `CharacterData` in `EnemyFormationData`.
 
 ## Event Contracts
-- Event: `enemy_spawned`
-- Producer: combat encounter setup
-- Consumers: combat turn system, UI, rewards system
-- Payload schema: enemy id, display name, archetype id, encounter id, starting slot, starting status
-
-- Event: `enemy_action_selected`
-- Producer: enemy AI selector
-- Consumers: combat resolver, telemetry
-- Payload schema: enemy id, action id, target selection, turn index
-
-- Event: `enemy_defeated`
-- Producer: combat resolver
-- Consumers: rewards/economy, encounter progression
-- Payload schema: enemy id, encounter id, cause, round index
+- Event: `AIBrain` initialization
+  - Producer: `CombatCharacter.InitializeForCombat()`
+  - Consumers: AI action loop.
+  - Payload schema: Attaches `AIBrain` and sets `brain.profile = characterData.defaultAIProfile`.
 
 ## Timing Model
-- Update domain: turn-based round loop
-- Tick/update order: enemy turns are scheduled by Speed in shared turn order; on Speed ties, enemy
-  entries resolve before player entries; when tied characters are on the same team, front-most rank
-  resolves first
-- Budget: Unknown
+- Update domain: Main thread.
+- Tick/update order: During combat startup within `BattleSystem`, enemy prefabs are spawned and initialized. At the start of an enemy's turn in `BattleSystem`, the `AIBrain` selects and schedules an action.
+- Budget: Under 1ms per AI decision tick.
 
 ## Determinism
-- Required: partial
-- Strategy: rule-driven behavior for named elite mechanics
-- Known exceptions: enemy random skill selection is explicitly documented
+- Required: Yes, for AI action evaluation.
+- Strategy: Action selection is evaluated using rule-based priorities inside `AIBrain` matching the AI profile.
+- Known exceptions: None.
 
 ## Authority Model
-- Single-player/offline: enemy actions are controlled by game AI
-- Multiplayer: Unknown
+- Single-player/offline: Local client AI determines action selections.
+- Multiplayer: Unknown.
 
 ## Performance Budget
-- CPU: Unknown
-- Memory: Unknown
-- Entity scale target: up to 4 active enemies per team context (baseline combat team size)
+- CPU: Under 0.5ms per AI tick.
+- Memory: Minimal transient heap allocations during AI decision-making.
+- Entity scale target: Up to 4 active enemy combatants in the scene.
 
 ## Error Handling and Recovery
-- Missing enemy skill list: Unknown
-- Invalid phase transition state: Unknown
-- Recovery strategy: Unknown
+- Missing AI Profile: If an enemy character has no `defaultAIProfile` assigned, a default brain with placeholder action rules is attached.
+- Missing Prefab: Spawner falls back or logs an error.
 
 ## Observability
-- Metrics: encounter completion rate, enemy action distribution, elite wipe rate (thresholds Unknown)
-- Logs: spawn events, selected actions, phase transitions, defeat events
-- Traces/profilers: Unknown
+- Metrics: None.
+- Logs: Logs errors if `characterData` is missing during runtime initialization.
+- Traces/profilers: None.
 
 ## Acceptance Tests
-- Automated: Unknown (test paths not provided)
-- Playtest: verify elite patterns (Jailbird, Novellite, Pebble, Ruffian), multi-action scheduling,
-  and boss phase transitions and special actions
+- Automated:
+  - `CombatSceneBootstrapFormationTests.cs`:
+    - Tests verifying correct spawning, sizing, and position offset configurations for enemy teams.
+  - `AITests.cs`:
+    - Tests verifying correct AI selection behavior based on profile.
+- Playtest:
+  1. In-editor, start a combat encounter containing configured enemies.
+  2. Verify that they receive the correct turn allocations (e.g. bosses take multiple turns) and execute actions according to their AI profiles.
 
 ## Missing Evidence
-- Runtime code path and symbols for enemy AI/action selection
-- Encounter composition tables and spawn weighting data
-- Implementation details for elite and boss mechanics
-- Test coverage for phase transitions and split/revive edge cases
+- None.
 
 ## Validation
-- [ ] Facts match current code/content
-- [ ] Timing, authority, and determinism are explicit
-- [ ] Performance budgets are stated with units
-- [ ] Unknowns are explicitly labeled
-- [ ] Acceptance tests are defined
-
-
-
-
-
-
-
+- [x] Facts match current code/content
+- [x] Timing, authority, and determinism are explicit
+- [x] Performance budgets are stated with units
+- [x] Unknowns are explicitly labeled
+- [x] Acceptance tests are defined

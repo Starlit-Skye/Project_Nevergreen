@@ -2,8 +2,8 @@
 
 Owner: Dev Team
 Status: active
-Last verified: 2026-05-30
-Verified commit: 6dab85bd03ad290dba585a16406e625b4dc0a73b
+Last verified: 2026-06-19
+Verified commit: 4134da54597e5d2ec8192eeff46cf998a27bb03c
 Target build: Unity 6 (6000.3.9f1) + PC/Standalone
 
 ## Purpose
@@ -13,7 +13,8 @@ Allows designers to configure specific enemy team formations as asset configurat
 - **In scope**:
   - `EnemyFormationData` ScriptableObject defining an ordered lineup of enemy prefabs.
   - `EnemyFormationDatabase` ScriptableObject holding a registry pool of available formations.
-  - `RunSessionManager` tracking the active database and last selected formation state.
+  - `RunSessionManager` tracking the last selected formation state.
+  - `GameDatabase.Instance` providing centralized access to `EnemyFormationDatabase` and other databases.
   - Anti-repeat selection algorithm (preventing consecutive repeats when database has multiple formations).
   - `CombatSceneBootstrap` dynamic spawning logic, resolving team lineups from `RunSessionManager`.
   - Spacing calculations for multi-rank enemy positioning.
@@ -53,7 +54,7 @@ Allows designers to configure specific enemy team formations as asset configurat
   - `enemyPrefabs`: `List<GameObject>` (where index maps to rank slot)
 - `EnemyFormationDatabase`:
   - `formations`: `List<EnemyFormationData>`
-- `RunSessionManager.ActiveFormationDatabase`: `EnemyFormationDatabase`
+- `GameDatabase.Instance.EnemyFormationDatabase`: `EnemyFormationDatabase`
 - `RunSessionManager.LastSelectedFormation`: `EnemyFormationData`
 - **Persistence keys**: None (in-memory state only).
 
@@ -90,7 +91,7 @@ Allows designers to configure specific enemy team formations as asset configurat
 
 ## Error Handling and Recovery
 - **No Database Active**:
-  - *Trigger*: `RunSessionManager.ActiveFormationDatabase` is null (e.g. combat scene loaded directly).
+  - *Trigger*: `GameDatabase.Instance` or `GameDatabase.Instance.EnemyFormationDatabase` is null (e.g. combat scene loaded directly).
   - *Behavior*: Falls back to the hardcoded Inspector list `enemyTeamPrefabs` in `CombatSceneBootstrap`.
 - **Single-Entry Database**:
   - *Trigger*: Database contains only 1 formation.
@@ -102,8 +103,7 @@ Allows designers to configure specific enemy team formations as asset configurat
 ## Observability
 - **Metrics**: Unknown
 - **Logs**:
-  - `[RunSessionManager] Initialized with database: {name}` (logged on database assignment)
-  - `[RunSessionManager] Selected formation: {name}` (logged on dynamic selection)
+  - `[Bootstrap] Using formation: {name}` (logged on dynamic selection)
   - `[Bootstrap] Spawning enemy {Name} at rank {rank} (size {size})` (logged during setup)
 - **Traces/profilers**: None
 

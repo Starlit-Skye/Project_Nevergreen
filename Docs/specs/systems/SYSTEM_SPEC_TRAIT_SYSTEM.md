@@ -2,8 +2,8 @@
 
 Owner: Combat Engineering Team
 Status: active
-Last verified: 2026-06-03
-Verified commit: 87b16f03993f1fc4c61cc766ae72d419c2671d8e
+Last verified: 2026-06-19
+Verified commit: 4134da54597e5d2ec8192eeff46cf998a27bb03c
 Target build: Unity 6000.3.9f1 + Standalone/Android
 
 ## Purpose

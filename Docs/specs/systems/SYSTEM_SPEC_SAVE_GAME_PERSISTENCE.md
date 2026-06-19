@@ -3,7 +3,7 @@
 Owner: Gameplay Engineering Team
 Status: active
 Last verified: 2026-06-19
-Verified commit: ebc360c28ed1ffe18a76180cb392b0d64fa35da8
+Verified commit: 4134da54597e5d2ec8192eeff46cf998a27bb03c
 Target build: Unity 6000.3.9f1 Standalone Windows
 
 ## Purpose
