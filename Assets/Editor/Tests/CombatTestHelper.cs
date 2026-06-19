@@ -158,25 +158,34 @@ namespace Nevergreen.Tests
 
         public static void InitializeTestDatabase()
         {
-            if (GameDatabase.Instance == null)
-            {
-                var db = GameDatabase.CreateForTesting(
-                    combatCfg: CreateDefaultConfig(),
-                    globalCfg: CreateDefaultGlobalConfig()
-                );
-                GameDatabase.SetInstanceForTesting(db);
-            }
+            // ALWAYS force a mock test database. Never reuse an existing instance
+            // which might be the real persistent asset.
+            var db = GameDatabase.CreateForTesting(
+                combatCfg: CreateDefaultConfig(),
+                globalCfg: CreateDefaultGlobalConfig()
+            );
+            GameDatabase.SetInstanceForTesting(db);
         }
 
         public static void CleanupTestDatabase()
         {
             var db = GameDatabase.Instance;
             GameDatabase.SetInstanceForTesting(null);
+            
             if (db != null)
             {
-                if (db.CombatConfig != null) UnityEngine.Object.DestroyImmediate(db.CombatConfig);
-                if (db.GlobalConfig != null) UnityEngine.Object.DestroyImmediate(db.GlobalConfig);
-                UnityEngine.Object.DestroyImmediate(db);
+                // CRITICAL: Only destroy if these are mock instances created in memory.
+                // Do NOT destroy if they are persistent assets on disk.
+                if (!UnityEditor.EditorUtility.IsPersistent(db))
+                {
+                    if (db.CombatConfig != null && !UnityEditor.EditorUtility.IsPersistent(db.CombatConfig)) 
+                        UnityEngine.Object.DestroyImmediate(db.CombatConfig, true);
+                    
+                    if (db.GlobalConfig != null && !UnityEditor.EditorUtility.IsPersistent(db.GlobalConfig)) 
+                        UnityEngine.Object.DestroyImmediate(db.GlobalConfig, true);
+                        
+                    UnityEngine.Object.DestroyImmediate(db, true);
+                }
             }
         }
     }

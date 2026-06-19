@@ -10,6 +10,9 @@ namespace Nevergreen.Data
     [CreateAssetMenu(fileName = "NewEnemyFormation", menuName = "Nevergreen/Enemy Formation")]
     public class EnemyFormationData : ScriptableObject
     {
+        [Tooltip("Unique identifier for this formation.")]
+        public string formationId;
+
         [Tooltip("Enemy prefabs for this formation. Index 0 = rank 1 (front), up to 4.")]
         public List<GameObject> enemyPrefabs = new List<GameObject>();
     }

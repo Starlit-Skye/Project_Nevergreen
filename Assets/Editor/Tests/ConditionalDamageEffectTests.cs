@@ -38,7 +38,7 @@ namespace Nevergreen.Tests
             }
             if (_combatConfig != null)
             {
-                Object.DestroyImmediate(_combatConfig);
+                ScriptableObject.DestroyImmediate(_combatConfig, true);
             }
         }
 

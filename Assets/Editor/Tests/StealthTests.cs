@@ -32,7 +32,7 @@ namespace Nevergreen.Tests
             if (player != null) Object.DestroyImmediate(player.gameObject);
             if (enemy != null) Object.DestroyImmediate(enemy.gameObject);
             if (secondaryEnemy != null) Object.DestroyImmediate(secondaryEnemy.gameObject);
-            ScriptableObject.DestroyImmediate(config);
+            if (config != null) ScriptableObject.DestroyImmediate(config, true);
         }
 
         private BattleSystem MakeBattleSystem()

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 197e26672ff30064192ba41ce76df4b3, type: 3}
   m_Name: RD_MarionetteRoom
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.RoomData
+  roomId: RD_MarionetteRoom
   roomName: Marionette Room
   description: Allows adding a Marionette to your team or replacing a Marionette
     in your team with a new one.

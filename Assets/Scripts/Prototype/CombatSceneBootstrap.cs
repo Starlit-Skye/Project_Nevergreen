@@ -45,6 +45,17 @@ namespace Nevergreen.Prototype
 
         private void Start()
         {
+            if (RunSessionManager.RoomCompleted)
+            {
+                // We're loading into a room that was already completed (resuming a run post-victory).
+                // Skip spawning and initialize CombatUI directly to the selection screen.
+                if (combatUI != null)
+                {
+                    combatUI.ShowRoomSelectionImmediately();
+                }
+                return;
+            }
+
             // Check if the next room has a non-combat effect that should run immediately
             if (RunSessionManager.NextRoomData != null &&
                 RunSessionManager.NextRoomData.activationType == Nevergreen.Data.RoomActivationType.OnRoomLoaded)
@@ -188,7 +199,19 @@ namespace Nevergreen.Prototype
 
             // Resolve enemy formation: use database if available, else fall back to Inspector list
             var activeEnemyPrefabs = enemyTeamPrefabs;
-            var formation = RunSessionManager.GetNextRandomFormation(tier);
+            EnemyFormationData formation = null;
+            
+            if (RunSessionManager.ShouldUseSavedFormation)
+            {
+                formation = RunSessionManager.LastSelectedFormation;
+                RunSessionManager.ShouldUseSavedFormation = false; // consume it
+                Debug.Log($"[Bootstrap] Resuming with saved formation: {(formation != null ? formation.name : "null")}");
+            }
+            else
+            {
+                formation = RunSessionManager.GetNextRandomFormation(tier);
+            }
+
             if (formation != null && formation.enemyPrefabs != null && formation.enemyPrefabs.Count > 0)
             {
                 activeEnemyPrefabs = formation.enemyPrefabs;

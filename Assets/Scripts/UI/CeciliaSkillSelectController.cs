@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 using Nevergreen.Data;
 
 namespace Nevergreen.UI
@@ -41,6 +42,10 @@ namespace Nevergreen.UI
         [Tooltip("Portrait image of Cecilia.")]
         public Image portraitImage;
 
+        [Header("Main Menu Integration")]
+        [Tooltip("The Play/Continue button on the main menu.")]
+        public Button playButton;
+
         [Header("Scene")]
         [Tooltip("Name of the combat scene to load.")]
         public string combatSceneName = "CombatPrototype";
@@ -49,6 +54,34 @@ namespace Nevergreen.UI
         private List<SkillData> _availableSkills = new List<SkillData>();
         private SkillData[] _equippedSkills = new SkillData[4];
         private List<GameObject> _spawnedListItems = new List<GameObject>();
+
+        private void Start()
+        {
+            ConfigurePlayButton();
+        }
+
+        /// <summary>
+        /// Configures the Play/Continue button based on whether a saved run exists.
+        /// </summary>
+        private void ConfigurePlayButton()
+        {
+            if (playButton == null) return;
+
+            playButton.onClick.RemoveAllListeners();
+
+            var label = playButton.GetComponentInChildren<TextMeshProUGUI>();
+
+            if (SaveManager.HasSavedRun())
+            {
+                if (label != null) label.text = "Continue";
+                playButton.onClick.AddListener(OnContinueClicked);
+            }
+            else
+            {
+                if (label != null) label.text = "Play";
+                playButton.onClick.AddListener(Open);
+            }
+        }
 
         private void OnEnable()
         {
@@ -131,6 +164,25 @@ namespace Nevergreen.UI
 
             // Load combat scene
             SceneManager.LoadScene(combatSceneName);
+        }
+
+        /// <summary>
+        /// Called when the player clicks "Continue" on the main menu.
+        /// Loads the saved run and transitions directly to combat, skipping skill selection.
+        /// </summary>
+        private void OnContinueClicked()
+        {
+            bool loaded = SaveManager.LoadRun();
+            if (loaded)
+            {
+                RunSessionManager.IsResumingRun = true;
+                SceneManager.LoadScene(combatSceneName);
+            }
+            else
+            {
+                Debug.LogWarning("[CeciliaSkillSelectController] Failed to load saved run. Falling back to skill selection.");
+                Open();
+            }
         }
 
         private void PopulateSkillList()

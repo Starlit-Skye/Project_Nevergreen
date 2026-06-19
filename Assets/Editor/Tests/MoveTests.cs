@@ -24,7 +24,8 @@ namespace Nevergreen.Tests
         public void Teardown()
         {
             CombatTestHelper.CleanupTestDatabase();
-            ScriptableObject.DestroyImmediate(config);
+            if (config != null)
+                ScriptableObject.DestroyImmediate(config, true);
         }
 
         private BattleSystem CreateBattleSystem(List<CombatCharacter> playerTeam, List<CombatCharacter> enemyTeam)

@@ -16,6 +16,7 @@ namespace Nevergreen.Tests
         [SetUp]
         public void SetUp()
         {
+            CombatTestHelper.InitializeTestDatabase();
             _cleanup = new List<GameObject>();
             _config = CombatTestHelper.CreateDefaultConfig();
         }
@@ -23,6 +24,8 @@ namespace Nevergreen.Tests
         [TearDown]
         public void TearDown()
         {
+            CombatTestHelper.CleanupTestDatabase();
+            if (_config != null) ScriptableObject.DestroyImmediate(_config, true);
             foreach (var go in _cleanup)
                 if (go != null) Object.DestroyImmediate(go);
         }

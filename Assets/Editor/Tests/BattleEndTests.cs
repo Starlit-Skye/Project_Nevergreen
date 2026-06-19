@@ -18,6 +18,8 @@ namespace Nevergreen.Tests
         [SetUp]
         public void SetUp()
         {
+            CombatTestHelper.InitializeTestDatabase();
+            
             _battleSystemGO = new GameObject("BattleSystem");
             _battleSystem = _battleSystemGO.AddComponent<BattleSystem>();
             _playerTeam = new List<CombatCharacter>();
@@ -38,6 +40,8 @@ namespace Nevergreen.Tests
             foreach (var c in _playerTeam) if (c != null) Object.DestroyImmediate(c.gameObject);
             foreach (var c in _enemyTeam) if (c != null) Object.DestroyImmediate(c.gameObject);
             Object.DestroyImmediate(_battleSystemGO);
+            
+            CombatTestHelper.CleanupTestDatabase();
         }
 
         [Test]

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using NUnit.Framework;
 using UnityEngine;
 using Nevergreen.Data;
@@ -50,6 +51,9 @@ namespace Nevergreen.Tests
             // Inject a mock GameDatabase with our formation database
             gameDatabase = GameDatabase.CreateForTesting(enemyFormations: database);
             GameDatabase.SetInstanceForTesting(gameDatabase);
+
+            // Redirect save operations to a temp file so tests never touch production save.dat
+            SaveManager.SetSavePathForTesting(Path.Combine(Application.temporaryCachePath, "formation_test_save.dat"));
         }
 
         [TearDown]
@@ -57,6 +61,10 @@ namespace Nevergreen.Tests
         {
             RunSessionManager.Clear();
             GameDatabase.SetInstanceForTesting(null);
+
+            var testPath = Path.Combine(Application.temporaryCachePath, "formation_test_save.dat");
+            if (File.Exists(testPath)) File.Delete(testPath);
+            SaveManager.SetSavePathForTesting(null);
 
             ScriptableObject.DestroyImmediate(formationA);
             ScriptableObject.DestroyImmediate(formationB);
@@ -86,11 +94,14 @@ namespace Nevergreen.Tests
         [Test]
         public void GetNextRandomFormation_ReturnsNull_WhenNoDatabaseInitialized()
         {
-            // Clear the GameDatabase so there's no formation database
-            GameDatabase.SetInstanceForTesting(null);
+            // Inject a mock database with NO formations
+            var mockDb = GameDatabase.CreateForTesting(enemyFormations: null);
+            GameDatabase.SetInstanceForTesting(mockDb);
 
             var result = RunSessionManager.GetNextRandomFormation(EnemyEncounterTier.Trivial);
             Assert.IsNull(result);
+            
+            Object.DestroyImmediate(mockDb, true);
         }
 
         [Test]

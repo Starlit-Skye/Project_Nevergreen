@@ -10,6 +10,9 @@ namespace Nevergreen.Data
     [CreateAssetMenu(fileName = "NewRoomData", menuName = "Nevergreen/Data/Room Data")]
     public class RoomData : ScriptableObject
     {
+        [Tooltip("Unique identifier for this room data.")]
+        public string roomId;
+
         [Tooltip("Display name for this room type.")]
         public string roomName;
 

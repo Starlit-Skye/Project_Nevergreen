@@ -30,7 +30,10 @@ namespace Nevergreen.Tests
         public void TearDown()
         {
             GameDatabase.SetInstanceForTesting(null);
-            if (_gameDb != null) Object.DestroyImmediate(_gameDb);
+            
+            if (_config != null) ScriptableObject.DestroyImmediate(_config, true);
+            if (_globalConfig != null) ScriptableObject.DestroyImmediate(_globalConfig, true);
+            
             foreach (var go in _cleanup)
                 if (go != null) Object.DestroyImmediate(go);
         }

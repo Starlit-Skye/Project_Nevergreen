@@ -24,7 +24,7 @@ namespace Nevergreen.Tests
         public void Teardown()
         {
             CombatTestHelper.CleanupTestDatabase();
-            ScriptableObject.DestroyImmediate(config);
+            if (config != null) ScriptableObject.DestroyImmediate(config, true);
         }
 
         private BattleSystem CreateBattleSystem(List<CombatCharacter> playerTeam, List<CombatCharacter> enemyTeam)
@@ -160,6 +160,7 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(target2.gameObject);
             Object.DestroyImmediate(attacker.gameObject);
             Object.DestroyImmediate(bs.gameObject);
+            Object.DestroyImmediate(skill, true);
         }
     }
 }
