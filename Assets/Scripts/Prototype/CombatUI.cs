@@ -34,6 +34,10 @@ namespace Nevergreen.Prototype
         [Tooltip("Button shown after victory to proceed to the next room (fallback).")]
         public Button nextRoomButton;
 
+        [Header("Party Management UI")]
+        [Tooltip("Button to open the party management panel, visible only when a room is completed.")]
+        public Button partyManagementButton;
+
         [Header("Room Choice")]
         [Tooltip("Prefab for a single room choice button. Must have a Button and TextMeshProUGUI child.")]
         public GameObject roomChoiceButtonPrefab;
@@ -90,6 +94,12 @@ namespace Nevergreen.Prototype
             if (_animationQueue != null)
             {
                 _animationQueue.OnInputLockChanged += HandleAnimationLockChanged;
+            }
+
+            RunSessionManager.RoomComplete += HandleRoomComplete;
+            if (partyManagementButton != null)
+            {
+                partyManagementButton.gameObject.SetActive(RunSessionManager.RoomCompleted);
             }
 
             // Create HP bars
@@ -328,6 +338,11 @@ namespace Nevergreen.Prototype
                 if (txt != null) txt.text = "Next Room";
             }
 
+            if (partyManagementButton != null)
+            {
+                partyManagementButton.gameObject.SetActive(true);
+            }
+
             SpawnRoomChoiceButtons();
         }
 
@@ -391,6 +406,14 @@ namespace Nevergreen.Prototype
                 // Fallback: show default next room button
                 if (nextRoomButton != null)
                     nextRoomButton.gameObject.SetActive(true);
+            }
+        }
+
+        private void HandleRoomComplete()
+        {
+            if (partyManagementButton != null)
+            {
+                partyManagementButton.gameObject.SetActive(true);
             }
         }
 
@@ -722,6 +745,8 @@ namespace Nevergreen.Prototype
             {
                 _animationQueue.OnInputLockChanged -= HandleAnimationLockChanged;
             }
+
+            RunSessionManager.RoomComplete -= HandleRoomComplete;
         }
     }
 }

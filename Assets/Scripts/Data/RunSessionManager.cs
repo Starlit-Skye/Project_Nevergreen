@@ -42,6 +42,9 @@ namespace Nevergreen
         /// </summary>
         public static bool ShouldUseSavedFormation { get; set; }
 
+        /// <summary>Invoked when the current room is completed.</summary>
+        public static event System.Action RoomComplete;
+
         private static System.Random _rng = new System.Random();
         private static BattleSystem _activeBattleSystem;
 
@@ -123,6 +126,7 @@ namespace Nevergreen
         {
             NextRoomChoices = new List<RoomData>(choices);
             RoomCompleted = true;
+            RoomComplete?.Invoke();
 
             if (CurrentParty != null)
             {
