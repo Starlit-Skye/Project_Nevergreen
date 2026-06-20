@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
-  m_Name: SBD_Princess
+  m_Name: SBD_Alchemist_2
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 4
+  attack: 8
   accuracy: 100
-  critChance: 1
-  maxHP: 15
-  defense: 0
+  critChance: 3
+  maxHP: 20
+  defense: 2
   dodge: 0
   speed: 6
   bleedResist: 10
-  blightResist: 10
+  blightResist: 60
   stunResist: 10
-  debuffResist: 50
+  debuffResist: 30
   moveResist: 10

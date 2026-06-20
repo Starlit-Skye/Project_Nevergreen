@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
-  m_Name: SBD_Enforcer_1
+  m_Name: SBD_Butler_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
   attack: 6
   accuracy: 100
-  critChance: 2
+  critChance: 0
   maxHP: 30
-  defense: 12
+  defense: 10
   dodge: 0
-  speed: 3
+  speed: 4
   bleedResist: 40
   blightResist: 40
-  stunResist: 60
+  stunResist: 50
   debuffResist: 20
   moveResist: 50
