@@ -13,11 +13,27 @@ namespace Nevergreen.Prototype
     /// </summary>
     public static class EditorDebugUtility
     {
+        private static readonly string[] MarionettePaths = new string[]
+        {
+            "Assets/Data/Characters/Marionettes/CD_Alchemist.asset",
+            "Assets/Data/Characters/Marionettes/CD_Assassin.asset",
+            "Assets/Data/Characters/Marionettes/CD_Butler.asset",
+            "Assets/Data/Characters/Marionettes/CD_Cecilia.asset",
+            "Assets/Data/Characters/Marionettes/CD_Commander.asset",
+            "Assets/Data/Characters/Marionettes/CD_Enforcer.asset",
+            "Assets/Data/Characters/Marionettes/CD_Knight.asset",
+            "Assets/Data/Characters/Marionettes/CD_Maid.asset",
+            "Assets/Data/Characters/Marionettes/CD_Princess.asset",
+            "Assets/Data/Characters/Marionettes/CD_Sharpshooter.asset"
+        };
+
         private class DebugBehaviour : MonoBehaviour
         {
             private void Update()
             {
-                if (Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
+                if (Keyboard.current == null) return;
+
+                if (Keyboard.current.rKey.wasPressedThisFrame)
                 {
                     // Check if we are not already in MainMenu to avoid redundant transitions
                     if (SceneManager.GetActiveScene().name == "MainMenu")
@@ -35,6 +51,61 @@ namespace Nevergreen.Prototype
 
                     // Return to Main Menu
                     SceneManager.LoadScene("MainMenu");
+                }
+
+                if (Keyboard.current.spaceKey.wasPressedThisFrame)
+                {
+                    var battleSystem = Object.FindAnyObjectByType<Nevergreen.Combat.BattleSystem>();
+                    if (battleSystem != null && battleSystem.CurrentState != Nevergreen.Combat.BattleState.Inactive && battleSystem.CurrentState != Nevergreen.Combat.BattleState.BattleEnd)
+                    {
+                        Debug.Log("[EditorDebugUtility] Spacebar pressed. Dealing 999999 damage to all active enemies...");
+                        var enemies = new System.Collections.Generic.List<Nevergreen.Combat.CombatCharacter>(battleSystem.EnemyTeam);
+                        foreach (var enemy in enemies)
+                        {
+                            if (enemy != null && enemy.IsAlive)
+                            {
+                                enemy.TakeDamage(999999);
+                            }
+                        }
+                    }
+                }
+
+                int digitIndex = -1;
+                if (Keyboard.current.digit1Key.wasPressedThisFrame) digitIndex = 0;
+                else if (Keyboard.current.digit2Key.wasPressedThisFrame) digitIndex = 1;
+                else if (Keyboard.current.digit3Key.wasPressedThisFrame) digitIndex = 2;
+                else if (Keyboard.current.digit4Key.wasPressedThisFrame) digitIndex = 3;
+                else if (Keyboard.current.digit5Key.wasPressedThisFrame) digitIndex = 4;
+                else if (Keyboard.current.digit6Key.wasPressedThisFrame) digitIndex = 5;
+                else if (Keyboard.current.digit7Key.wasPressedThisFrame) digitIndex = 6;
+                else if (Keyboard.current.digit8Key.wasPressedThisFrame) digitIndex = 7;
+                else if (Keyboard.current.digit9Key.wasPressedThisFrame) digitIndex = 8;
+                else if (Keyboard.current.digit0Key.wasPressedThisFrame) digitIndex = 9;
+
+                if (digitIndex != -1)
+                {
+                    var template = UnityEditor.AssetDatabase.LoadAssetAtPath<Nevergreen.Data.CharacterData>(MarionettePaths[digitIndex]);
+                    if (template != null)
+                    {
+                        var gameDb = Nevergreen.Data.GameDatabase.Instance;
+                        var traitDb = gameDb != null ? gameDb.TraitDatabase : null;
+                        var member = Nevergreen.Data.MarionetteGenerator.GenerateMarionetteFromTemplate(template, traitDb);
+                        
+                        if (member != null)
+                        {
+                            if (RunSessionManager.CurrentParty == null)
+                            {
+                                RunSessionManager.CurrentParty = new System.Collections.Generic.List<PartyMemberInfo>();
+                            }
+                            RunSessionManager.CurrentParty.Add(member);
+                            SaveManager.SaveRun();
+                            Debug.Log($"[EditorDebugUtility] Added generated {template.displayName} to RunSessionManager.CurrentParty.");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError($"[EditorDebugUtility] Failed to load CharacterData template at {MarionettePaths[digitIndex]}");
+                    }
                 }
             }
         }

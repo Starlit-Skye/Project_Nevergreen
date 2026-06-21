@@ -49,11 +49,13 @@
 - **Pattern**: Creating a temporary variable, performing a null check, and calling `AddRange` to populate a list field that was cleared right before.
 - **Rule**: Prefer direct assignment with a null-coalescing operator (`?? new List<T>()`) to handle possible null returns. This is cleaner, avoids temporary variables, and prevents potential `NullReferenceException` values down the line.
 
-
-
 ### Test Teardown Safety and Assets
-- **Pattern**: Using Object.DestroyImmediate(obj, true) in test teardowns is extremely dangerous if the object reference could potentially point to a real project asset loaded via AssetDatabase or Resources.Load. The 	rue parameter stands for llowDestroyingAssets and will literally wipe the file contents from the disk.
+- **Pattern**: Using Object.DestroyImmediate(obj, true) in test teardowns is extremely dangerous if the object reference could potentially point to a real project asset loaded via AssetDatabase or Resources.Load. The 	rue parameter stands for  llowDestroyingAssets and will literally wipe the file contents from the disk.
 - **Solution**: Always guard asset destruction in test teardowns with if (!UnityEditor.EditorUtility.IsPersistent(obj)) to guarantee you are only ever destroying transient in-memory mocks, never real files.
+
+### Test Runner Class Name Filter
+- **Pattern**: When using the Unity Test Runner (via the MCP `tests-run` tool), specify the **short class name** (e.g., `PartyManagementPanelTests`) rather than the fully qualified name (e.g., `Nevergreen.Tests.PartyManagementPanelTests`) for the `testClass` parameter.
+- **Rule**: Using the fully qualified name may result in a "No tests found" error.
 
 ### GameDatabase.Initialize vs SetInstanceForTesting
 - **Pattern**: GameDatabase.Initialize() sets _bypassAutoDiscovery = false, meaning the next Instance access after cleanup will auto-load the real persistent asset from disk. Always use SetInstanceForTesting() in tests, which properly sets the bypass flag.

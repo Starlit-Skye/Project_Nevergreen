@@ -32,8 +32,20 @@ namespace Nevergreen.UI
         private PartyMemberInfo _currentSelectedMember;
         private List<GameObject> _spawnedSkillItems = new List<GameObject>();
 
+        [Header("Move Feature")]
+        [Tooltip("The Move button used to swap member ranks.")]
+        public Button moveButton;
+        [Tooltip("The highlight color to show when Move mode is active.")]
+        public Color highlightColor = Color.yellow;
+        
+        private Color[] _originalSlotColors;
+        private bool _isMoveMode = false;
+        private int _selectedSlotIndex = -1;
+
         private void OnEnable()
         {
+            _selectedSlotIndex = -1;
+            ResetMoveModeUI();
             InitializeSlots();
         }
 
@@ -52,6 +64,19 @@ namespace Nevergreen.UI
             if (upgradeButton != null)
             {
                 upgradeButton.onClick.AddListener(OnUpgradeClicked);
+            }
+
+            if (moveButton == null)
+            {
+                var moveBtnTransform = transform.Find("Move");
+                if (moveBtnTransform != null)
+                {
+                    moveButton = moveBtnTransform.GetComponent<Button>();
+                }
+            }
+            if (moveButton != null)
+            {
+                moveButton.onClick.AddListener(ToggleMoveMode);
             }
         }
 
@@ -75,10 +100,36 @@ namespace Nevergreen.UI
 
         private void InitializeSlots()
         {
+            RefreshSlotUI();
+
             var party = RunSessionManager.CurrentParty;
             PartyMemberInfo rank1Member = null;
             PartyMemberInfo fallbackMember = null;
 
+            if (party != null && party.Count > 0)
+            {
+                if (party[0] != null && party[0].character != null)
+                    rank1Member = party[0];
+                fallbackMember = party.Find(m => m != null && m.character != null);
+            }
+
+            // Default selection
+            PartyMemberInfo toSelect = rank1Member != null ? rank1Member : fallbackMember;
+            if (toSelect != null)
+            {
+                _selectedSlotIndex = party.IndexOf(toSelect);
+                DisplayCharacterData(toSelect);
+            }
+            else
+            {
+                _selectedSlotIndex = -1;
+                ClearDisplay();
+            }
+        }
+
+        private void RefreshSlotUI()
+        {
+            var party = RunSessionManager.CurrentParty;
             for (int i = 0; i < partyMemberButtons.Length; i++)
             {
                 if (party != null && i < party.Count && party[i] != null && party[i].character != null)
@@ -89,9 +140,6 @@ namespace Nevergreen.UI
                     
                     if (partyMemberButtons[i] != null)
                         partyMemberButtons[i].interactable = true;
-
-                    if (fallbackMember == null) fallbackMember = member;
-                    if (i == 0) rank1Member = member;
                 }
                 else
                 {
@@ -101,31 +149,146 @@ namespace Nevergreen.UI
                         partyMemberButtons[i].interactable = false;
                 }
             }
-
-            // Default selection
-            PartyMemberInfo toSelect = rank1Member != null ? rank1Member : fallbackMember;
-            if (toSelect != null)
-            {
-                DisplayCharacterData(toSelect);
-            }
-            else
-            {
-                ClearDisplay();
-            }
         }
 
         private void OnSlotClicked(int slotIndex)
         {
             var party = RunSessionManager.CurrentParty;
-            if (party != null && slotIndex < party.Count && party[slotIndex] != null)
+            if (party == null || slotIndex >= party.Count || party[slotIndex] == null) return;
+
+            if (_isMoveMode)
             {
+                if (slotIndex == _selectedSlotIndex)
+                {
+                    ToggleMoveMode(); // Cancel move
+                }
+                else
+                {
+                    // Swap logic
+                    if (_selectedSlotIndex >= 0 && _selectedSlotIndex < party.Count && party[_selectedSlotIndex] != null)
+                    {
+                        var temp = party[_selectedSlotIndex];
+                        party[_selectedSlotIndex] = party[slotIndex];
+                        party[slotIndex] = temp;
+
+                        SaveManager.SaveRun();
+                        ResetMoveModeUI();
+                        RefreshSlotUI();
+
+                        // Update selection to the new position
+                        _selectedSlotIndex = slotIndex;
+                        DisplayCharacterData(party[slotIndex]);
+                    }
+                    else
+                    {
+                        ResetMoveModeUI();
+                    }
+                }
+            }
+            else
+            {
+                _selectedSlotIndex = slotIndex;
                 DisplayCharacterData(party[slotIndex]);
+            }
+        }
+
+        private void ToggleMoveMode()
+        {
+            if (_selectedSlotIndex == -1) return;
+
+            _isMoveMode = !_isMoveMode;
+
+            if (_isMoveMode)
+            {
+                var party = RunSessionManager.CurrentParty;
+                if (_originalSlotColors == null || _originalSlotColors.Length != partyMemberButtons.Length)
+                {
+                    StoreOriginalSlotColors();
+                }
+
+                // Highlight all OTHER team member buttons
+                for (int i = 0; i < partyMemberButtons.Length; i++)
+                {
+                    if (partyMemberButtons[i] == null) continue;
+
+                    if (i != _selectedSlotIndex && party != null && i < party.Count && party[i] != null && party[i].character != null)
+                    {
+                        var image = partyMemberButtons[i].GetComponent<Image>();
+                        if (image != null)
+                        {
+                            image.color = highlightColor;
+                        }
+                    }
+                }
+                
+                // Highlight the Move button itself
+                if (moveButton != null)
+                {
+                    var moveImg = moveButton.GetComponent<Image>();
+                    if (moveImg != null)
+                    {
+                        moveImg.color = highlightColor;
+                    }
+                }
+            }
+            else
+            {
+                ResetMoveModeUI();
+            }
+        }
+
+        private void StoreOriginalSlotColors()
+        {
+            _originalSlotColors = new Color[partyMemberButtons.Length];
+            for (int i = 0; i < partyMemberButtons.Length; i++)
+            {
+                if (partyMemberButtons[i] != null)
+                {
+                    var img = partyMemberButtons[i].GetComponent<Image>();
+                    if (img != null)
+                    {
+                        _originalSlotColors[i] = img.color;
+                    }
+                    else
+                    {
+                        _originalSlotColors[i] = Color.white;
+                    }
+                }
+            }
+        }
+
+        private void ResetMoveModeUI()
+        {
+            _isMoveMode = false;
+            if (_originalSlotColors != null)
+            {
+                for (int i = 0; i < partyMemberButtons.Length; i++)
+                {
+                    if (partyMemberButtons[i] != null && i < _originalSlotColors.Length)
+                    {
+                        var img = partyMemberButtons[i].GetComponent<Image>();
+                        if (img != null)
+                        {
+                            img.color = _originalSlotColors[i];
+                        }
+                    }
+                }
+            }
+
+            if (moveButton != null)
+            {
+                var moveImg = moveButton.GetComponent<Image>();
+                if (moveImg != null)
+                {
+                    moveImg.color = Color.white;
+                }
             }
         }
 
         private void DisplayCharacterData(PartyMemberInfo member)
         {
             _currentSelectedMember = member;
+            if (moveButton != null) moveButton.interactable = true;
 
             if (member == null || member.character == null)
             {
@@ -271,6 +434,7 @@ namespace Nevergreen.UI
         private void ClearDisplay()
         {
             _currentSelectedMember = null;
+            if (moveButton != null) moveButton.interactable = false;
             if (nameAndLevelText != null) nameAndLevelText.text = "Select a character";
             if (levelUpCostText != null) levelUpCostText.text = "";
             if (perfectionsText != null) perfectionsText.text = "";
