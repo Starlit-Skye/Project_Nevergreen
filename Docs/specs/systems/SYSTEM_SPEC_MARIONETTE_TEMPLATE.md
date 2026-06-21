@@ -2,15 +2,15 @@
 
 Owner: Gameplay Engineering Team
 Status: active
-Last verified: 2026-06-19
-Verified commit: 4134da54597e5d2ec8192eeff46cf998a27bb03c
+Last verified: 2026-06-21
+Verified commit: 45e55deb5bc7a5783c252a40f7b4d3cafde13e18
 Target build: Unity 6000.3.9f1 Standalone Windows
 
 ## Purpose
 Define the baseline data model and runtime state management for player-controlled marionette units during a run session.
 
 ## Scope
-- In scope: Runtime party member attributes (`PartyMemberInfo`), skill slot assignment, trait management (Perfections and Imperfections), health persistence across room boundaries, and capacity limits.
+- In scope: Runtime party member attributes (`PartyMemberInfo`), character levels, skill slot assignment, trait management (Perfections and Imperfections), health persistence across room boundaries, and capacity limits.
 - Out of scope: The procedural generation logic (handled by `MarionetteGenerator`), and UI layout of the character sheet.
 
 ## Source of Truth
@@ -31,12 +31,13 @@ Define the baseline data model and runtime state management for player-controlle
 - Entity/component/object:
   - `PartyMemberInfo` (Serializable C# class): Runtime state container.
     - `character` (`CharacterData`): Static baseline template reference.
+    - `currentLevel` (`int`): Runtime character level state (defaults to 1).
     - `equippedSkills` (`List<SkillData>`): Current equipped skill list (up to 4).
     - `currentHP` (`int?`): Runtime health state (null represents full health).
     - `preCombatHP` (`int?`): Health state when entering the current room.
     - `perfections` (`List<TraitData>`): List of active perfection traits.
     - `imperfections` (`List<TraitData>`): List of active imperfection traits.
-- Persistence keys: Save DTO structures serialize marionette configurations into unique string identifiers (`characterId`, `equippedSkillIds`, `perfectionIds`, `imperfectionIds`) to restore state on continue.
+- Persistence keys: Save DTO structures serialize marionette configurations into unique string identifiers and integers (`characterId`, `level`, `equippedSkillIds`, `perfectionIds`, `imperfectionIds`) to restore state on continue.
 
 ## Event Contracts
 - Event: Trait addition query

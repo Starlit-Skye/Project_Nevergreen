@@ -17,6 +17,7 @@ namespace Nevergreen.UI
         [Header("Character Data")]
         public TextMeshProUGUI nameAndLevelText;
         public TextMeshProUGUI levelUpCostText;
+        public Button upgradeButton;
         
         [Header("Skills")]
         public Transform skillsContainer;
@@ -45,6 +46,29 @@ namespace Nevergreen.UI
                 if (partyMemberButtons[i] != null)
                 {
                     partyMemberButtons[i].onClick.AddListener(() => OnSlotClicked(slotIndex));
+                }
+            }
+
+            if (upgradeButton != null)
+            {
+                upgradeButton.onClick.AddListener(OnUpgradeClicked);
+            }
+        }
+
+        private void OnUpgradeClicked()
+        {
+            if (_currentSelectedMember == null) return;
+
+            if (GameDatabase.Instance != null && GameDatabase.Instance.CombatConfig != null)
+            {
+                int cost = GameDatabase.Instance.CombatConfig.GetLevelUpCost(_currentSelectedMember.currentLevel);
+                
+                if (cost >= 0 && RunSessionManager.Parts >= cost)
+                {
+                    RunSessionManager.Parts -= cost;
+                    _currentSelectedMember.currentLevel++;
+                    SaveManager.SaveRun();
+                    DisplayCharacterData(_currentSelectedMember);
                 }
             }
         }
@@ -131,6 +155,11 @@ namespace Nevergreen.UI
                 else
                 {
                     levelUpCostText.text = $"MAX LEVEL (current: {RunSessionManager.Parts} Parts)";
+                }
+
+                if (upgradeButton != null)
+                {
+                    upgradeButton.interactable = (cost >= 0);
                 }
             }
 

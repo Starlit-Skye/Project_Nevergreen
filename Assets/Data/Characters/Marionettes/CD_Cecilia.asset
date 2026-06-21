@@ -19,6 +19,10 @@ MonoBehaviour:
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 54ce4d18e276f204d8afbafe18a03860, type: 2}
+  - {fileID: 11400000, guid: 488988867367e4f448e56ac2eb8b6e99, type: 2}
+  - {fileID: 11400000, guid: e36a6767847fd5f4585a1a85788ed86b, type: 2}
+  - {fileID: 11400000, guid: 4b9be0f3710fc09489bd2f5f398233cb, type: 2}
+  - {fileID: 11400000, guid: c04914543d1d79247afe050979656e8a, type: 2}
   availableSkills:
   - {fileID: 11400000, guid: b70a635b5c1002b4381ab8b25d3776a1, type: 2}
   - {fileID: 11400000, guid: 4d35dd2a003a7b14d9939c4009934aae, type: 2}

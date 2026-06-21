@@ -1449,6 +1449,7 @@ MonoBehaviour:
   - {fileID: 4118433598495106230}
   nameAndLevelText: {fileID: 4834046856984480626}
   levelUpCostText: {fileID: 6180722468422814556}
+  upgradeButton: {fileID: 2718139230845861105}
   skillsContainer: {fileID: 2886050816961907512}
   skillListItemPrefab: {fileID: 3288421710076600966, guid: def5b8faac1627b42b7ef9468f036db0, type: 3}
   perfectionsText: {fileID: 1602743253657340875}
@@ -1705,7 +1706,7 @@ GameObject:
   - component: {fileID: 2414950241586273523}
   - component: {fileID: 2718139230845861105}
   m_Layer: 0
-  m_Name: LeveUpButton
+  m_Name: LevelUpButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1963,6 +1964,7 @@ GameObject:
   - component: {fileID: 8254285264929838364}
   - component: {fileID: 5708093827130987676}
   - component: {fileID: 4082325377673628102}
+  - component: {fileID: -5826870051277043968}
   m_Layer: 0
   m_Name: Close
   m_TagString: Untagged
@@ -2072,13 +2074,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4082325377673628102}
-        m_TargetAssemblyTypeName: CloseMenu, Assembly-CSharp
+      - m_Target: {fileID: -5826870051277043968}
+        m_TargetAssemblyTypeName: Nevergreen.UI.ClosePanel, Assembly-CSharp
         m_MethodName: Close
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -2097,6 +2099,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CloseMenu
   parent: {fileID: 3726751528361500350}
+--- !u!114 &-5826870051277043968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5142089728904008008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2e1cc6ee3e25d84b9c9e65c618d5967, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.UI.ClosePanel
+  panelToClose: {fileID: 3726751528361500350}
 --- !u!1 &5293943632340992129
 GameObject:
   m_ObjectHideFlags: 0

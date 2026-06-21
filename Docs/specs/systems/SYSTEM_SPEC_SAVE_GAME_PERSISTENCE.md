@@ -2,20 +2,20 @@
 
 Owner: Gameplay Engineering Team
 Status: active
-Last verified: 2026-06-19
-Verified commit: 4134da54597e5d2ec8192eeff46cf998a27bb03c
+Last verified: 2026-06-21
+Verified commit: 45e55deb5bc7a5783c252a40f7b4d3cafde13e18
 Target build: Unity 6000.3.9f1 Standalone Windows
 
 ## Purpose
-Serialize and persist the active run session progress, party state, HP, room completion status, next room selection choices, and enemy encounter seed to disk with local cryptographic obfuscation. Ensure the player can quit and resume runs cleanly, without state leakage, duplicate room progressions, or consecutive duplicate enemy formations.
+Serialize and persist the active run session progress, parts count, party state (including levels, traits, and equipped skills), HP, room completion status, next room selection choices, and enemy encounter seed to disk with local cryptographic obfuscation. Ensure the player can quit and resume runs cleanly, without state leakage, duplicate room progressions, or consecutive duplicate enemy formations.
 
 ## Scope
-- In scope: Encryption and decryption of save file state using AES-256 with static pre-shared key (PSK) and initialization vector (IV). Disk persistence of party composition, equipped skills, traits (perfections/imperfections), current/pre-combat HP, room progression number, current next room choices, room completed flag, and last selected enemy formation. Auto-restoring the `RunSessionManager` state on load, including resolving GUID/string references to database assets using the `GameDatabase` singleton. Short-circuiting combat team spawning and battle setup inside `CombatSceneBootstrap` if the loaded save state indicates the room was already completed.
+- In scope: Encryption and decryption of save file state using AES-256 with static pre-shared key (PSK) and initialization vector (IV). Disk persistence of party composition, individual party member levels, equipped skills, traits (perfections/imperfections), current/pre-combat HP, room progression number, parts count, current next room choices, room completed flag, and last selected enemy formation. Auto-restoring the `RunSessionManager` state on load, including resolving GUID/string references to database assets using the `GameDatabase` singleton. Short-circuiting combat team spawning and battle setup inside `CombatSceneBootstrap` if the loaded save state indicates the room was already completed.
 - Out of scope: Cloud saves; auto-saving on every frame or input; persistence of meta-progression across independent runs; serialization of full combat visual/entity states mid-battle (resuming mid-combat loads the combat from the start using the pre-combat health).
 
 ## Source of Truth
 - Code: `Assets/Scripts/Data/SaveManager.cs` (`Nevergreen.Data.SaveManager`), `Assets/Scripts/Prototype/CombatSceneBootstrap.cs` (`Nevergreen.Prototype.CombatSceneBootstrap`), `Assets/Scripts/Data/RunSessionManager.cs` (`Nevergreen.RunSessionManager`)
-- Tests: `Assets/Editor/Tests/SaveManagerTests.cs` (`Nevergreen.Tests.SaveManagerTests` including `SaveRun_RoomCompleted_PersistsSelectionAndState` and `LoadRun_RoomCompleted_ClearsShouldUseSavedFormation_ButRestoresLastSelectedFormation`)
+- Tests: `Assets/Editor/Tests/SaveManagerTests.cs` (`Nevergreen.Tests.SaveManagerTests` including `SaveRun_PersistsPartyMemberLevel` and others)
 - Design: `Docs/prompts/llm-game-doc-writer.md` (formatting & requirements document)
 - Data: `Assets/Scripts/Data/GameDatabase.cs` (reference resolver database)
 - Issue/ADR: Unknown
@@ -27,12 +27,14 @@ Serialize and persist the active run session progress, party state, HP, room com
 - Synchronize pre-combat and current HP values to prevent mid-combat health manipulation and ensure HP integrity across saves.
 - Track room completion status via `roomCompleted` and next room selections via `nextRoomChoices` to resume directly to the room selection UI when loading a completed room.
 - Clear or apply the `ShouldUseSavedFormation` bypass rule conditionally on load to prevent enemy encounter leakage between rooms.
+- Persist and restore parts count and each party member's level across saves.
 
 ## Data Model
 - Entity/component/object:
   - `SaveDataDTO`: Root JSON-serializable DTO for persistence:
     - `hasActiveRun` (`bool`): Flag indicating if an active run session can be resumed.
     - `roomProgression` (`int`): The current progression count.
+    - `parts` (`int`): The current parts count balance.
     - `nextRoomId` (`string`): The room ID of the currently active/next room.
     - `lastSelectedFormationId` (`string`): The ID of the last enemy formation fought.
     - `roomCompleted` (`bool`): True if the current room has been cleared and the selection panel is active.
@@ -41,6 +43,7 @@ Serialize and persist the active run session progress, party state, HP, room com
   - `PartyMemberDTO`: JSON-serializable representation of a party unit:
     - `characterId` (`string`): Reference to character data.
     - `currentHP` (`int`): Current/pre-combat HP (-1 represents null/max HP).
+    - `level` (`int`): Level of the party unit.
     - `equippedSkillIds` (`List<string>`): IDs of equipped skills.
     - `perfectionIds` (`List<string>`): IDs of active perfections.
     - `imperfectionIds` (`List<string>`): IDs of active imperfections.
@@ -91,14 +94,21 @@ Serialize and persist the active run session progress, party state, HP, room com
 ## Acceptance Tests
 - Automated:
   - `Assets/Editor/Tests/SaveManagerTests.cs`:
-    - `SaveRun_PersistsCurrentRunState`: Verifies that run progression, room, formation, and party states are correctly stored and restored.
-    - `SaveRun_RoomCompleted_PersistsSelectionAndState`: Verifies that the room completed state and next room choices are correctly persisted.
-    - `LoadRun_RoomCompleted_ClearsShouldUseSavedFormation_ButRestoresLastSelectedFormation`: Verifies that loading a completed room clears the bypass flag for team spawning but retains the formation history for anti-repeat logic.
+    - `SaveRun_CreatesEncryptedFile`: Verifies that saving creates an encrypted file.
+    - `HasSavedRun_ReturnsTrue_IfActiveRunExists`: Verifies standard run existence checking.
+    - `ClearActiveRun_SetsHasActiveRunToFalse`: Verifies cleanup behavior.
+    - `LoadRun_DeserializesPrimitiveState_EvenWithoutGameDatabase`: Verifies that room progression and basic states are deserialized.
+    - `LoadRun_SetsShouldUseSavedFormation_WhenFormationIsLoaded`: Verifies that combat uses the saved formation upon resumption of an incomplete room.
+    - `SaveRun_MidBattle_SavesPreCombatHP`: Verifies pre-combat HP integrity.
+    - `SaveRun_RoomCompleted_PersistsSelectionAndState`: Verifies that room completed flag and generated choices are persisted.
+    - `LoadRun_RoomCompleted_ClearsShouldUseSavedFormation_ButRestoresLastSelectedFormation`: Verifies that loading a completed room clears team bootstrap bypass but retains anti-repeat history.
+    - `SaveRun_PersistsPartyMemberLevel`: Verifies that individual party member levels are persisted and restored.
 - Playtest:
   1. Start a new run, clear Room 1, and wait for the room selection choices to appear.
   2. Quit the game, then click Continue from the Main Menu.
   3. Verify that you load directly into the room selection UI with Room 1 cleared and the same choices displayed.
   4. Select a room, enter combat, and verify that the progression count is incremented to 2.
+  5. Upgrade a marionette, verify that parts count decreases, quit game, click Continue, and verify that parts count and marionette level are correctly loaded back.
 
 ## Missing Evidence
 - None.

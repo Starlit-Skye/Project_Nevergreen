@@ -150,15 +150,20 @@ namespace Nevergreen.Combat
 
 
             // Resolve stats from level
+            var resolvedPartyInfo = partyInfo ?? RunSessionManager.CurrentParty?.Find(p => p.character == this.characterData);
+            if (team == Team.Player && resolvedPartyInfo != null)
+            {
+                partyInfo = resolvedPartyInfo;
+                currentLevel = resolvedPartyInfo.currentLevel;
+            }
+
             StatBlockData statBlock = characterData.GetStatsForLevel(currentLevel);
             if (statBlock == null) return;
 
             baseStats = new CombatStats(statBlock);
 
-            var resolvedPartyInfo = partyInfo ?? RunSessionManager.CurrentParty?.Find(p => p.character == this.characterData);
             if (team == Team.Player && resolvedPartyInfo != null)
             {
-                partyInfo = resolvedPartyInfo;
                 if (resolvedPartyInfo.currentHP.HasValue)
                 {
                     currentHP = resolvedPartyInfo.currentHP.Value;

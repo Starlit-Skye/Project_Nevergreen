@@ -141,6 +141,49 @@ namespace Nevergreen.Tests
         }
 
         [Test]
+        public void CombatCharacter_InitializeForCombat_ResolvesStatsFromSessionLevel()
+        {
+            // Set up a level-based stat block in CharacterData
+            var statLevel1 = CombatTestHelper.CreateStatBlock();
+            statLevel1.maxHP = 100;
+            statLevel1.attack = 10;
+
+            var statLevel2 = CombatTestHelper.CreateStatBlock();
+            statLevel2.maxHP = 150;
+            statLevel2.attack = 15;
+
+            var ceciWithLevels = CombatTestHelper.CreateCharacterData("ceci_level", "Cecilia Levels", statLevel1, CharacterTeamType.Player);
+            ceciWithLevels.statPerLevel = new List<StatBlockData> { statLevel1, statLevel2 };
+
+            // Add Cecilia with level 2 to session party
+            RunSessionManager.CurrentParty.Add(new PartyMemberInfo
+            {
+                character = ceciWithLevels,
+                currentLevel = 2,
+                equippedSkills = new List<SkillData>()
+            });
+
+            // Create character
+            var go = new GameObject("CeciHero");
+            var cc = go.AddComponent<CombatCharacter>();
+            cc.characterData = ceciWithLevels;
+            cc.currentLevel = 1; // Start with default 1
+
+            // Act
+            cc.InitializeForCombat(Team.Player, 1);
+
+            // Assert: it should have copied level 2 and resolved level 2 stats
+            Assert.AreEqual(2, cc.currentLevel, "Should copy the level from the session party member info.");
+            Assert.AreEqual(150, cc.baseStats.maxHP, "Should resolve base stats corresponding to level 2.");
+            Assert.AreEqual(15, cc.baseStats.attack, "Should resolve attack corresponding to level 2.");
+
+            Object.DestroyImmediate(go);
+            Object.DestroyImmediate(ceciWithLevels);
+            Object.DestroyImmediate(statLevel1);
+            Object.DestroyImmediate(statLevel2);
+        }
+
+        [Test]
         public void CombatSceneBootstrap_SpawnTeams_SpawnsOnlySessionCharacters_WhenSessionIsActive()
         {
             // Set up prefabs

@@ -13,6 +13,7 @@ namespace Nevergreen.Data
     {
         public string characterId;
         public int currentHP; // -1 represents null (max HP)
+        public int level;
         public List<string> equippedSkillIds = new List<string>();
         public List<string> perfectionIds = new List<string>();
         public List<string> imperfectionIds = new List<string>();
@@ -87,6 +88,7 @@ namespace Nevergreen.Data
                 {
                     characterId = member.character != null ? member.character.characterId : null,
                     currentHP = member.preCombatHP ?? -1,
+                    level = member.currentLevel,
                     equippedSkillIds = member.equippedSkills.Where(s => s != null).Select(s => s.skillId).ToList(),
                     perfectionIds = member.perfections.Where(t => t != null).Select(t => t.traitId).ToList(),
                     imperfectionIds = member.imperfections.Where(t => t != null).Select(t => t.traitId).ToList()
@@ -186,6 +188,7 @@ namespace Nevergreen.Data
                         }
                     }
 
+                    member.currentLevel = pDto.level > 0 ? pDto.level : 1;
                     member.preCombatHP = pDto.currentHP == -1 ? (int?)null : pDto.currentHP;
                     member.currentHP = member.preCombatHP;
 
