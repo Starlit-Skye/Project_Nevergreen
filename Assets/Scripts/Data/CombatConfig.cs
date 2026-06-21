@@ -66,6 +66,33 @@ namespace Nevergreen.Data
         [Tooltip("Global maximum character level.")]
         public int globalMaxLevel = 10;
 
+        [Tooltip("The cost of leveling up. Index 0 corresponds to level 1 -> 2, etc.")]
+        public System.Collections.Generic.List<int> levelUpCostCurve = new System.Collections.Generic.List<int>() { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
+
+        /// <summary>
+        /// Gets the cost to level up from the current level.
+        /// Returns -1 if the character is already at or above the globalMaxLevel.
+        /// </summary>
+        public int GetLevelUpCost(int currentLevel)
+        {
+            if (currentLevel >= globalMaxLevel) return -1;
+            
+            int index = currentLevel - 1;
+            if (levelUpCostCurve == null || levelUpCostCurve.Count == 0) return 0;
+            
+            if (index < 0) return levelUpCostCurve[0];
+            if (index >= levelUpCostCurve.Count) return levelUpCostCurve[levelUpCostCurve.Count - 1];
+            
+            return levelUpCostCurve[index];
+        }
+
+        [Header("Rewards")]
+        [Tooltip("Minimum Parts awarded upon battle victory.")]
+        public int minPartsPerBattle = 10;
+
+        [Tooltip("Maximum Parts awarded upon battle victory.")]
+        public int maxPartsPerBattle = 50;
+
         [Header("Enemy Encounter Tiers")]
         [Tooltip("Mappings of room count progression to enemy encounter tiers. Sorted by roomCount ascending automatically.")]
         public System.Collections.Generic.List<RoomTierMapping> roomTierMappings = new System.Collections.Generic.List<RoomTierMapping>();

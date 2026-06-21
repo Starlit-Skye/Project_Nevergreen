@@ -13,6 +13,9 @@ namespace Nevergreen.Data
         /// <summary>The immutable base template for the character.</summary>
         public CharacterData character;
 
+        /// <summary>The current level of this character during the run.</summary>
+        public int currentLevel = 1;
+
         /// <summary>The skills the player selected for this character.</summary>
         public List<SkillData> equippedSkills = new List<SkillData>();
 

@@ -267,5 +267,32 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(roomA, true);
             Object.DestroyImmediate(formation, true);
         }
+
+        [Test]
+        public void SaveRun_PersistsPartyMemberLevel()
+        {
+            var db = ScriptableObject.CreateInstance<GameDatabase>();
+            GameDatabase.SetInstanceForTesting(db);
+
+            var member = new PartyMemberInfo
+            {
+                currentLevel = 4
+            };
+            RunSessionManager.CurrentParty.Add(member);
+
+            SaveManager.SaveRun();
+
+            RunSessionManager.Clear();
+            Assert.AreEqual(0, RunSessionManager.CurrentParty.Count);
+
+            bool loaded = SaveManager.LoadRun();
+
+            Assert.IsTrue(loaded);
+            Assert.AreEqual(1, RunSessionManager.CurrentParty.Count);
+            Assert.AreEqual(4, RunSessionManager.CurrentParty[0].currentLevel, "Loaded party member level should match the saved value.");
+
+            GameDatabase.SetInstanceForTesting(null);
+            Object.DestroyImmediate(db, true);
+        }
     }
 }

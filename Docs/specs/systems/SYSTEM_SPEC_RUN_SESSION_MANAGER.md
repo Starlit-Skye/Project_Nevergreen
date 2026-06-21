@@ -2,8 +2,8 @@
 
 Owner: Gameplay Engineering Team
 Status: active
-Last verified: 2026-06-19
-Verified commit: 4134da54597e5d2ec8192eeff46cf998a27bb03c
+Last verified: 2026-06-21
+Verified commit: 45e55deb5bc7a5783c252a40f7b4d3cafde13e18
 Target build: Unity 6000.3.9f1 Standalone Windows
 
 ## Purpose
@@ -37,7 +37,8 @@ Maintain the active run state, party composition, encounter databases, and progr
   - `LastSelectedFormation`: `EnemyFormationData` (cache of last encountered formation).
   - `NextRoomData`: `RoomData` (selected room template to resolve after battle).
   - `RoomProgression`: `int` (number of completed/entered rooms in the current run).
-- Persistence keys: Delegated to `SaveManager` (`Docs/specs/systems/SYSTEM_SPEC_SAVE_GAME_PERSISTENCE.md`), which serializes the active run progression, room completed state, and room choices to `save.dat`.
+  - `Parts`: `int` (current parts balance).
+- Persistence keys: Delegated to `SaveManager` (`Docs/specs/systems/SYSTEM_SPEC_SAVE_GAME_PERSISTENCE.md`), which serializes the active run progression, parts count, party member levels, room completed state, and room choices to `save.dat`.
 
 ## Event Contracts
 - Event: `UnityEngine.SceneManagement.SceneManager.sceneLoaded`

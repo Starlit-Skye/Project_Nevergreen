@@ -23,6 +23,9 @@ namespace Nevergreen.Combat
         public int CurrentRound { get; private set; } = 0;
         public CombatCharacter CurrentActor { get; private set; }
 
+        /// <summary>Parts awarded upon victory in the current battle.</summary>
+        public int PartsGrantedThisBattle { get; private set; }
+
         // Layout configuration (injected by Bootstrap or set in Inspector)
         [HideInInspector] public float playerBaseX = -3f;
         [HideInInspector] public float playerSpacingX = -2f;
@@ -750,6 +753,16 @@ namespace Nevergreen.Combat
 
                     Nevergreen.RunSessionManager.CurrentParty.Clear();
                     Nevergreen.RunSessionManager.CurrentParty.AddRange(updatedParty);
+                }
+
+                // Calculate parts reward
+                var config = GameDatabase.Instance.CombatConfig;
+                if (config != null)
+                {
+                    if (_rng == null) _rng = new System.Random();
+                    PartsGrantedThisBattle = _rng.Next(config.minPartsPerBattle, config.maxPartsPerBattle + 1);
+                    Nevergreen.RunSessionManager.Parts += PartsGrantedThisBattle;
+                    Debug.Log($"[BattleSystem] Awarded {PartsGrantedThisBattle} Parts. Total Parts: {Nevergreen.RunSessionManager.Parts}");
                 }
 
                 OnBattleEnded?.Invoke(BattleOutcome.Victory);
