@@ -111,6 +111,35 @@ namespace Nevergreen.Tests
             _createdObjects.Add(confirmGo);
             _controller.confirmButton = confirmGo.AddComponent<Button>();
             confirmGo.AddComponent<Image>();
+
+            // Setup Info Panel
+            var coreGo = new GameObject("CoreStats");
+            _createdObjects.Add(coreGo);
+            _controller.coreStatsText = coreGo.AddComponent<TextMeshProUGUI>();
+
+            var resGo = new GameObject("Resistances");
+            _createdObjects.Add(resGo);
+            _controller.resistancesText = resGo.AddComponent<TextMeshProUGUI>();
+
+            var perfGo = new GameObject("Perfections");
+            _createdObjects.Add(perfGo);
+            _controller.perfectionsText = perfGo.AddComponent<TextMeshProUGUI>();
+
+            var impGo = new GameObject("Imperfections");
+            _createdObjects.Add(impGo);
+            _controller.imperfectionsText = impGo.AddComponent<TextMeshProUGUI>();
+
+            var skillsContainerGo = new GameObject("SkillsContainer");
+            _createdObjects.Add(skillsContainerGo);
+            _controller.skillsPanelContainer = skillsContainerGo.transform;
+
+            var skillPrefabGo = new GameObject("SkillPrefab");
+            _createdObjects.Add(skillPrefabGo);
+            skillPrefabGo.AddComponent<SkillTooltipTrigger>();
+            var skillPrefabTxtGo = new GameObject("Text");
+            skillPrefabTxtGo.transform.SetParent(skillPrefabGo.transform);
+            skillPrefabTxtGo.AddComponent<TextMeshProUGUI>();
+            _controller.skillListItemPrefab = skillPrefabGo;
         }
 
         [TearDown]
@@ -222,6 +251,46 @@ namespace Nevergreen.Tests
 
             // Assert: Cecilia is still in the party
             Assert.AreEqual(_charCecilia, RunSessionManager.CurrentParty[0].character, "Cecilia should not have been swapped out.");
+        }
+
+        [Test]
+        public void UpdateInfoPanel_SetsStatsAndInstantiatesSkills()
+        {
+            // Arrange
+            RunSessionManager.CurrentParty = new List<PartyMemberInfo>
+            {
+                new PartyMemberInfo { character = _charOther, currentLevel = 1, equippedSkills = new List<SkillData>(), perfections = new List<TraitData>(), imperfections = new List<TraitData>() }
+            };
+            
+            // Add a skill to the pool so it populates
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.displayName = "Test Skill";
+            RunSessionManager.CurrentParty[0].equippedSkills.Add(skill);
+
+            var startMethod = typeof(MarionetteSelectionController).GetMethod("Start", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            startMethod.Invoke(_controller, null);
+
+            // Act: programmatically click Other Hero slot
+            var onPartyMemberClickedMethod = typeof(MarionetteSelectionController).GetMethod("OnPartyMemberClicked", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onPartyMemberClickedMethod.Invoke(_controller, new object[] { 0 });
+
+            // Assert
+            Assert.IsNotNull(_controller.coreStatsText, "coreStatsText is null");
+            Assert.IsNotNull(_controller.coreStatsText.text, "coreStatsText.text is null");
+            Assert.IsTrue(_controller.coreStatsText.text.Contains("Attack:"), "Core stats text should contain Attack");
+
+            Assert.IsNotNull(_controller.resistancesText, "resistancesText is null");
+            Assert.IsNotNull(_controller.resistancesText.text, "resistancesText.text is null");
+            Assert.IsTrue(_controller.resistancesText.text.Contains("Bleed Res:"), "Resistances text should contain Bleed Res");
+            
+            // Check skill instantiation
+            Assert.IsNotNull(_controller.skillsPanelContainer, "skillsPanelContainer is null");
+            Assert.AreEqual(1, _controller.skillsPanelContainer.childCount, "Skill panel container should have 1 child");
+            var label = _controller.skillsPanelContainer.GetChild(0).GetComponentInChildren<TextMeshProUGUI>();
+            Assert.IsNotNull(label, "Label should not be null");
+            Assert.AreEqual("Test Skill", label.text);
+
+            ScriptableObject.DestroyImmediate(skill);
         }
     }
 }

@@ -27,7 +27,16 @@ namespace Nevergreen.UI
 
         [Header("UI - Info Panel")]
         public TextMeshProUGUI infoNameText;
-        public TextMeshProUGUI infoDescriptionText; // To show stats/skills/etc.
+
+        [Header("UI - Info Panel (Split)")]
+        public TextMeshProUGUI coreStatsText;
+        public TextMeshProUGUI resistancesText;
+        public TextMeshProUGUI perfectionsText;
+        public TextMeshProUGUI imperfectionsText;
+
+        [Header("UI - Skills Panel")]
+        public Transform skillsPanelContainer;
+        public GameObject skillListItemPrefab;
 
         [Header("UI - Controls")]
         public Button confirmButton;
@@ -42,6 +51,7 @@ namespace Nevergreen.UI
         private int _selectedPartyMemberIndex = -1;
         private List<Button> _instantiatedButtons = new List<Button>();
         private List<TextMeshProUGUI> _instantiatedTexts = new List<TextMeshProUGUI>();
+        private List<GameObject> _spawnedSkillItems = new List<GameObject>();
 
         private void Start()
         {
@@ -223,40 +233,85 @@ namespace Nevergreen.UI
             if (infoNameText != null)
                 infoNameText.text = data.displayName;
 
-            if (infoDescriptionText != null)
-            {
-                string text = $"Attack: {data.statPerLevel[0].attack}\n";
-                text += $"Max HP: {data.statPerLevel[0].maxHP}\n";
-                text += $"Accuracy : {data.statPerLevel[0].accuracy}\n";
-                text += $"Defense: {data.statPerLevel[0].defense}\n";
-                text += $"Speed: {data.statPerLevel[0].speed}\n";
-                text += $"Dodge: {data.statPerLevel[0].dodge}\n";
-                text += $"Crit Chance: {data.statPerLevel[0].critChance}\n\n";
+            var stats = data.GetStatsForLevel(info.currentLevel);
 
-                text += "<b>Skills:</b>\n";
+            if (coreStatsText != null && stats != null)
+            {
+                coreStatsText.text = $"Max HP: {stats.maxHP}\n" +
+                                     $"Attack: {stats.attack}\n" +
+                                     $"Defense: {stats.defense}%\n" +
+                                     $"Speed: {stats.speed}\n" +
+                                     $"Accuracy: {stats.accuracy}%\n" +
+                                     $"Dodge: {stats.dodge}%\n" +
+                                     $"Crit: {stats.critChance}%";
+            }
+
+            if (resistancesText != null && stats != null)
+            {
+                resistancesText.text = $"Bleed Res: {stats.bleedResist}%\n" +
+                                       $"Blight Res: {stats.blightResist}%\n" +
+                                       $"Stun Res: {stats.stunResist}%\n" +
+                                       $"Debuff Res: {stats.debuffResist}%\n" +
+                                       $"Move Res: {stats.moveResist}%";
+            }
+
+            if (perfectionsText != null)
+            {
+                string perfText = "";
+                if (info.perfections != null)
+                {
+                    foreach (var perf in info.perfections)
+                    {
+                        if (perf != null)
+                            perfText += $"- <color=green>{perf.displayName}</color>\n";
+                    }
+                }
+                perfectionsText.text = string.IsNullOrEmpty(perfText) ? "None" : perfText;
+            }
+
+            if (imperfectionsText != null)
+            {
+                string impText = "";
+                if (info.imperfections != null)
+                {
+                    foreach (var imp in info.imperfections)
+                    {
+                        if (imp != null)
+                            impText += $"- <color=red>{imp.displayName}</color>\n";
+                    }
+                }
+                imperfectionsText.text = string.IsNullOrEmpty(impText) ? "None" : impText;
+            }
+
+
+            foreach (var item in _spawnedSkillItems)
+            {
+                if (item != null) Destroy(item);
+            }
+            _spawnedSkillItems.Clear();
+
+            if (skillsPanelContainer != null && skillListItemPrefab != null && info.equippedSkills != null)
+            {
                 foreach (var skill in info.equippedSkills)
                 {
-                    if (skill != null)
-                        text += $"- {skill.displayName}\n";
-                }
-                text += "\n";
+                    if (skill == null) continue;
 
-                text += "<b>Perfections:</b>\n";
-                foreach (var perf in info.perfections)
-                {
-                    if (perf != null)
-                        text += $"- <color=green>{perf.displayName}</color>\n";
-                }
-                text += "\n";
+                    GameObject item = Instantiate(skillListItemPrefab, skillsPanelContainer);
+                    _spawnedSkillItems.Add(item);
 
-                text += "<b>Imperfections:</b>\n";
-                foreach (var imp in info.imperfections)
-                {
-                    if (imp != null)
-                        text += $"- <color=red>{imp.displayName}</color>\n";
-                }
+                    var tooltipTrigger = item.GetComponent<SkillTooltipTrigger>();
+                    if (tooltipTrigger == null)
+                    {
+                        tooltipTrigger = item.AddComponent<SkillTooltipTrigger>();
+                    }
+                    tooltipTrigger.SetSkill(skill);
 
-                infoDescriptionText.text = text;
+                    var label = item.GetComponentInChildren<TextMeshProUGUI>();
+                    if (label != null)
+                    {
+                        label.text = skill.displayName;
+                    }
+                }
             }
         }
 
@@ -265,8 +320,16 @@ namespace Nevergreen.UI
             if (infoNameText != null)
                 infoNameText.text = "Empty Slot";
 
-            if (infoDescriptionText != null)
-                infoDescriptionText.text = "No character currently occupies this slot.";
+            if (coreStatsText != null) coreStatsText.text = "";
+            if (resistancesText != null) resistancesText.text = "";
+            if (perfectionsText != null) perfectionsText.text = "";
+            if (imperfectionsText != null) imperfectionsText.text = "";
+
+            foreach (var item in _spawnedSkillItems)
+            {
+                if (item != null) Destroy(item);
+            }
+            _spawnedSkillItems.Clear();
         }
 
         private void EvaluateConfirmButton()
