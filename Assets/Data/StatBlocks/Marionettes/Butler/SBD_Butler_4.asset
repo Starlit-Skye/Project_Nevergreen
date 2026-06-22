@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_Butler_4
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 9
+  attack: 12
   accuracy: 100
   critChance: 0
-  maxHP: 33
+  maxHP: 51
   defense: 13
   dodge: 0
   speed: 5

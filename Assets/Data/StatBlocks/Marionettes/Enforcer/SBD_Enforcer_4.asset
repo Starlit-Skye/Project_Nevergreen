@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_Enforcer_4
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 12
+  attack: 15
   accuracy: 100
-  critChance: 4
-  maxHP: 28
-  defense: 10
+  critChance: 0
+  maxHP: 43
+  defense: 13
   dodge: 0
   speed: 4
   bleedResist: 60

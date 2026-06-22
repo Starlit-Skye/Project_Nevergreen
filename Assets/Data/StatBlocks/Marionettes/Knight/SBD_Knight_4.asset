@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_Knight_4
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 16
-  accuracy: 95
+  attack: 22
+  accuracy: 90
   critChance: 7
-  maxHP: 26
+  maxHP: 38
   defense: 7
   dodge: 0
   speed: 3

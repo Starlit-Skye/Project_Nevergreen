@@ -15,7 +15,7 @@ MonoBehaviour:
   attack: 6
   accuracy: 100
   critChance: 1
-  maxHP: 19
+  maxHP: 23
   defense: 0
   dodge: 0
   speed: 9

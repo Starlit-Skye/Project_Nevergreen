@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_Sharpshooter_5
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 18
+  attack: 26
   accuracy: 110
   critChance: 8
-  maxHP: 23
+  maxHP: 35
   defense: 0
   dodge: 0
   speed: 6

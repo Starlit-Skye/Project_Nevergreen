@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_Ceci_5
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 15
+  attack: 20
   accuracy: 100
   critChance: 9
-  maxHP: 36
+  maxHP: 50
   defense: 7
   dodge: 7
   speed: 7
