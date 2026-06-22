@@ -14,17 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: assassinate
   displayName: Assassinate
-  description: 'Deal low damage to an enemy. If stealthed, +100% damage.
+  description: 'Deal low damage to an enemy. If stealthed, +50% damage. If target
+    has Debuff, +50% damage.
 
-    Usable
-    Rank: 4'
+    Usable Rank: 4'
   modifier:
     damagePercent: 0.5
     healPercent: 0
     accuracyMod: 0
-    criticalMod: 100
+    criticalMod: 10
   effects:
   - rid: 356131318423355478
+  - rid: 4415245571925475329
   useRanks: 04000000
   targetRanks: 01000000020000000300000004000000
   targetScope: 2
@@ -45,4 +46,10 @@ MonoBehaviour:
       data:
         conditionSource: 1
         requiredStatus: 10
-        bonusScaling: 1
+        bonusScaling: 0.5
+    - rid: 4415245571925475329
+      type: {class: ConditionalDamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        conditionSource: 0
+        requiredStatus: 3
+        bonusScaling: 0.5
