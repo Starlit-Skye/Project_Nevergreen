@@ -21,6 +21,6 @@ MonoBehaviour:
   speed: 5
   bleedResist: 10
   blightResist: 10
-  stunResist: 60
-  debuffResist: 30
+  stunResist: 20
+  debuffResist: 10
   moveResist: 0

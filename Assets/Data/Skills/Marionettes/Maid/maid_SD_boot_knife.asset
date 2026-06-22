@@ -21,7 +21,7 @@ MonoBehaviour:
     damagePercent: 1
     healPercent: 0
     accuracyMod: 0
-    criticalMod: 7
+    criticalMod: 20
   effects:
   - rid: 356131225480986716
   useRanks: 020000000300000004000000

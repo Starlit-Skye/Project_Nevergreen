@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_metal_golem_1
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 7
+  attack: 6
   accuracy: 100
-  critChance: 5
+  critChance: 2
   maxHP: 24
   defense: 10
   dodge: 0
@@ -22,5 +22,5 @@ MonoBehaviour:
   bleedResist: 100
   blightResist: 0
   stunResist: 70
-  debuffResist: 20
+  debuffResist: 10
   moveResist: 70

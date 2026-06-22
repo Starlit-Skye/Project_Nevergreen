@@ -31,6 +31,7 @@ MonoBehaviour:
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
+  ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
@@ -45,7 +46,7 @@ MonoBehaviour:
       data:
         statusType: 2
         targetStat: 5
-        applicationChance: 80
+        applicationChance: 90
         amplitude: 1
         amplitudeType: 0
         duration: 1

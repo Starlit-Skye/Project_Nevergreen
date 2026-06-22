@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: unnerving_bark
   displayName: Unnerving Bark
-  description: High chance to debuff enemy acc
+  description: Debuff enemy acc
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -30,6 +30,7 @@ MonoBehaviour:
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
+  ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
@@ -41,7 +42,7 @@ MonoBehaviour:
       data:
         statusType: 3
         targetStat: 2
-        applicationChance: 90
+        applicationChance: 100
         amplitude: 10
         amplitudeType: 2
         duration: 3

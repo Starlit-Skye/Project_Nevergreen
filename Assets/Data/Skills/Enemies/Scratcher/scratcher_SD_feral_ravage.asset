@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Feral Ravage
   description: Medium AOE scratch, low Bleed chance
   modifier:
-    damagePercent: 0.33
+    damagePercent: 0.23
     healPercent: 0
     accuracyMod: -5
     criticalMod: -10
@@ -46,7 +46,7 @@ MonoBehaviour:
       data:
         statusType: 0
         targetStat: 5
-        applicationChance: 30
+        applicationChance: 60
         amplitude: 1
         amplitudeType: 0
         duration: 3
