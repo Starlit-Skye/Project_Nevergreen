@@ -29,7 +29,7 @@ MonoBehaviour:
   targetRanks: 0100000002000000
   targetScope: 2
   maxTargets: 1
-  ignoresDefense: 0
+  ignoresDefense: 1
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
