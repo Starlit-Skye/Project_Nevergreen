@@ -673,5 +673,177 @@ namespace Nevergreen.Tests
             Assert.AreEqual(0, target.statusEffects.Count, "All status effects should be removed.");
             Assert.IsFalse(target.isStunned, "Target stun should be cleared.");
         }
+
+        [Test]
+        public void HealReceivedReduction_Debuff_ReducesHealAmount()
+        {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, 1, maxHP: 100);
+            _cleanup.Add(target.gameObject);
+            target.currentHP = 10; // So we can heal
+
+            // Apply 30% reduction debuff
+            var debuff = new HealReceivedDebuffStatusInstance(battleSystem, 30, 3);
+            target.AddStatus(debuff);
+
+            var healer = CombatTestHelper.CreateCombatCharacter("healer", Team.Enemy, 2, attack: 50);
+            _cleanup.Add(healer.gameObject);
+
+            var healSkill = ScriptableObject.CreateInstance<SkillData>();
+            healSkill.skillId = "heal_skill";
+            healSkill.modifier = new SkillModifier { healPercent = 1.0f }; // 100% attack scaling
+            var healEffect = new HealEffect();
+            healSkill.effects.Add(healEffect);
+
+            var ctx = new SkillContext(healer, healSkill, new List<CombatCharacter> { target }, battleSystem, CombatTestHelper.CreateFixedRng());
+
+            var eventField = typeof(BattleSystem).GetField("OnBeforeDamageCalculation", 
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var handler = eventField.GetValue(battleSystem) as System.Action<SkillContext>;
+            handler?.Invoke(ctx);
+
+            // Healer has 50 atk, 1.0 multiplier. FixedRng returns a roll that makes base heal = 53.
+            // With 30% reduction, heal = 53 * 0.7 = 37.1 -> rounds to 37.
+            healEffect.Execute(ctx, target);
+
+            Assert.AreEqual(47, target.currentHP, "HP should increase by 37 (53 base - 30% reduction).");
+        }
+
+        [Test]
+        public void HealReceivedReduction_Debuff_ChecksDebuffResistance()
+        {
+            _character.baseStats.debuffResist = 40;
+            int resist = _character.GetResistance(StatusType.HealReceivedReduction);
+            Assert.AreEqual(40, resist, "HealReceivedReduction should map to debuffResist.");
+        }
+
+        [Test]
+        public void BleedOnAttack_AppliesBleed_OnAttackHit()
+        {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            var effect = new BleedOnAttackStatusEffect
+            {
+                targetSelf = true,
+                applicationChance = 100f,
+                duration = 3,
+                bleedAmplitude = 2,
+                bleedDuration = 4,
+                bleedChance = 100f
+            };
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, 1);
+            _cleanup.Add(target.gameObject);
+
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { target }, battleSystem, rng);
+            ctx.didHit = true; // Assume hit
+
+            // 1. Apply buff to character
+            effect.Execute(ctx, target);
+            Assert.AreEqual(1, _character.statusEffects.Count, "Character should have BleedOnAttack buff.");
+
+            // 2. Trigger ActionResolved
+            var eventField = typeof(BattleSystem).GetField("OnActionResolved", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var handler = eventField?.GetValue(battleSystem) as System.Action<CombatCharacter, SkillData, SkillContext>;
+            handler?.Invoke(_character, skill, ctx);
+
+            Assert.AreEqual(1, target.statusEffects.Count, "Target should receive Bleed status.");
+            Assert.AreEqual(StatusType.Bleed, target.statusEffects[0].type);
+            Assert.AreEqual(2, target.statusEffects[0].amplitude);
+            Assert.AreEqual(4, target.statusEffects[0].remainingDuration);
+        }
+
+        [Test]
+        public void BleedOnAttack_NoBleed_OnAttackMiss()
+        {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            _character.AddStatus(new BleedOnAttackStatusInstance(battleSystem, 3, 2, 4, 100f) { Source = _character });
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, 1);
+            _cleanup.Add(target.gameObject);
+
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { target }, battleSystem, rng);
+            ctx.didHit = false; // MISS
+
+            var eventField = typeof(BattleSystem).GetField("OnActionResolved", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var handler = eventField?.GetValue(battleSystem) as System.Action<CombatCharacter, SkillData, SkillContext>;
+            handler?.Invoke(_character, skill, ctx);
+
+            Assert.AreEqual(0, target.statusEffects.Count, "Target should NOT receive Bleed status on a miss.");
+        }
+
+        [Test]
+        public void BleedOnAttack_RiposteCounter_AppliesBleed()
+        {
+            var bsGo = new GameObject("BS");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            var attacker = CombatTestHelper.CreateCombatCharacter("Attacker", Team.Enemy, 1);
+            _cleanup.Add(attacker.gameObject);
+            
+            var defender = CombatTestHelper.CreateCombatCharacter("Defender", Team.Player, 1);
+            _cleanup.Add(defender.gameObject);
+
+            // Need to set max HP higher so they don't die instantly to high damage
+            attacker.baseStats.maxHP = 200;
+            attacker.currentHP = 200;
+            defender.baseStats.maxHP = 200;
+            defender.currentHP = 200;
+
+            battleSystem.StartBattle(new List<CombatCharacter> { defender }, new List<CombatCharacter> { attacker });
+
+            // Defender has Riposte and BleedOnAttack
+            defender.AddStatus(new StatusEffectInstance(StatusType.Riposte, 100, 3));
+            defender.AddStatus(new BleedOnAttackStatusInstance(battleSystem, 3, 2, 4, 100f) { Source = defender });
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            skill.guaranteedHit = true;
+            skill.effects.Add(new DamageEffect());
+
+            // Attacker attacks defender
+            var method = typeof(BattleSystem).GetMethod("ExecuteSkill", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            method?.Invoke(battleSystem, new object[] { attacker, skill, new List<CombatCharacter> { defender } });
+
+            // Defender should counter attack, which triggers OnActionResolved, applying Bleed to Attacker
+            Assert.AreEqual(1, attacker.statusEffects.Count(s => s.type == StatusType.Bleed), "Attacker should receive Bleed from defender's riposte.");
+        }
+
+        [Test]
+        public void BleedOnAttack_RespectsResistance()
+        {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            _character.AddStatus(new BleedOnAttackStatusInstance(battleSystem, 3, 2, 4, 100f) { Source = _character });
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, 1);
+            target.baseStats.bleedResist = 100; // 100% resistance
+            _cleanup.Add(target.gameObject);
+
+            var rng = CombatTestHelper.CreateFixedRng(42);
+            var ctx = new SkillContext(_character, skill, new List<CombatCharacter> { target }, battleSystem, rng);
+            ctx.didHit = true;
+
+            var eventField = typeof(BattleSystem).GetField("OnActionResolved", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var handler = eventField?.GetValue(battleSystem) as System.Action<CombatCharacter, SkillData, SkillContext>;
+            handler?.Invoke(_character, skill, ctx);
+
+            Assert.AreEqual(0, target.statusEffects.Count, "Target should NOT receive Bleed status because of 100% resistance.");
+        }
     }
 }

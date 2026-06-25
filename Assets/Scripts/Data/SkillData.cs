@@ -111,7 +111,9 @@ namespace Nevergreen.Data
         Restore,
         Move,
         Stealth,
-        Shuffle
+        Shuffle,
+        HealReceivedReduction,
+        BleedOnAttack
     }
 
     /// <summary>
