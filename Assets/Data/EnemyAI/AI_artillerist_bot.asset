@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbacf546f511b25458a18339fa5b8624, type: 3}
+  m_Name: AI_artillerist_bot
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.AI.EnemyAIProfile
+  behaviors:
+  - rid: 4415245671264419915
+  - rid: 4415245671264419922
+  references:
+    version: 2
+    RefIds:
+    - rid: 4415245671264419915
+      type: {class: RuleBasedBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        skillToUse: {fileID: 11400000, guid: 45d304a1ef317874ca41e337ad957f68, type: 2}
+        targeting:
+          rid: 4415245671264419919
+        conditions:
+        - rid: 4415245671264419920
+    - rid: 4415245671264419919
+      type: {class: StatusPrioritizedTargeting, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        statusType: 4
+        strict: 1
+        sortingStrategy: 0
+    - rid: 4415245671264419920
+      type: {class: HasStatusCondition, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        target: 1
+        statusType: 4
+    - rid: 4415245671264419922
+      type: {class: RandomSkillBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        maxConsecutiveUses: 2

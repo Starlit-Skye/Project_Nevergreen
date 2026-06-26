@@ -4,6 +4,7 @@ using UnityEngine;
 using Nevergreen.Combat;
 using Nevergreen.Combat.AI;
 using Nevergreen.Combat.AI.Nodes;
+using Nevergreen.Data;
 
 namespace Nevergreen.Tests
 {
@@ -227,6 +228,168 @@ namespace Nevergreen.Tests
             _brainChar.currentHP = 10;
             var decision3 = _brain.EvaluateTurn(_battleSystem);
             Assert.AreEqual(skill1, decision3.skill, "Should select rule 1 since conditions are now met.");
+
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void HasStatusCondition_OpponentMarked_EvaluatesCorrectly()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+
+            var condition = new HasStatusCondition
+            {
+                target = HasStatusCondition.ComparisonTarget.AnyEnemy,
+                statusType = StatusType.Mark
+            };
+
+            // Player is not marked
+            Assert.IsFalse(condition.IsMet(_brain, _battleSystem));
+
+            // Mark the player
+            p1.AddStatus(new StatusEffectInstance(StatusType.Mark, 0, 1));
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem));
+
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void StatusPrioritizedTargeting_Strict_FailsIfNoMarkedTargets()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+
+            var targeting = new StatusPrioritizedTargeting
+            {
+                statusType = StatusType.Mark,
+                strict = true
+            };
+            
+            var skill = CombatTestHelper.CreateDamageSkill();
+
+            // Should return false because no one is marked
+            bool success = targeting.TryResolveTargets(_brain, _battleSystem, skill, out var targets);
+            Assert.IsFalse(success);
+            Assert.IsNull(targets);
+
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void StatusPrioritizedTargeting_Strict_FindsMarkedTarget()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1);
+            var p2 = CombatTestHelper.CreateCombatCharacter("p2", Team.Player, 2);
+            SetPlayerTeam(new List<CombatCharacter> { p1, p2 });
+
+            // Mark p2 only
+            p2.AddStatus(new StatusEffectInstance(StatusType.Mark, 0, 1));
+
+            var targeting = new StatusPrioritizedTargeting
+            {
+                statusType = StatusType.Mark,
+                strict = true
+            };
+            
+            var skill = CombatTestHelper.CreateDamageSkill();
+
+            bool success = targeting.TryResolveTargets(_brain, _battleSystem, skill, out var targets);
+            Assert.IsTrue(success);
+            Assert.AreEqual(1, targets.Count);
+            Assert.AreEqual(p2, targets[0], "Should target the marked character.");
+
+            Object.DestroyImmediate(p1.gameObject);
+            Object.DestroyImmediate(p2.gameObject);
+        }
+
+        [Test]
+        public void StatusPrioritizedTargeting_NonStrict_FallsBack()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1);
+            var p2 = CombatTestHelper.CreateCombatCharacter("p2", Team.Player, 2);
+            SetPlayerTeam(new List<CombatCharacter> { p1, p2 });
+            p1.currentHP = 100;
+            p2.currentHP = 50;
+
+            var targeting = new StatusPrioritizedTargeting
+            {
+                statusType = StatusType.Mark,
+                strict = false, // non-strict
+                sortingStrategy = SimpleTargeting.Strategy.LowestHP
+            };
+            
+            var skill = CombatTestHelper.CreateDamageSkill();
+
+            // No one is marked, should fallback to LowestHP (p2)
+            bool success = targeting.TryResolveTargets(_brain, _battleSystem, skill, out var targets);
+            Assert.IsTrue(success);
+            Assert.AreEqual(1, targets.Count);
+            Assert.AreEqual(p2, targets[0]);
+
+            // Now mark p1
+            p1.AddStatus(new StatusEffectInstance(StatusType.Mark, 0, 1));
+
+            // Even though p2 has lower HP, p1 has Mark and we prioritize marked
+            bool successMark = targeting.TryResolveTargets(_brain, _battleSystem, skill, out var targetsMark);
+            Assert.IsTrue(successMark);
+            Assert.AreEqual(1, targetsMark.Count);
+            Assert.AreEqual(p1, targetsMark[0], "Should prioritize the marked character even if HP is higher.");
+
+            Object.DestroyImmediate(p1.gameObject);
+            Object.DestroyImmediate(p2.gameObject);
+        }
+
+        [Test]
+        public void AIBrain_Fallthrough_WithStatusRules()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+
+            var skillSpecific = CombatTestHelper.CreateDamageSkill();
+            skillSpecific.skillId = "skill_specific";
+            var skillRandom = CombatTestHelper.CreateDamageSkill();
+            skillRandom.skillId = "skill_random";
+
+            _brainChar.equippedSkills.Add(skillSpecific);
+            _brainChar.equippedSkills.Add(skillRandom);
+
+            var profile = ScriptableObject.CreateInstance<EnemyAIProfile>();
+
+            // Behavior 1: Only use specific skill on marked target
+            var rule1 = new RuleBasedBehavior
+            {
+                skillToUse = skillSpecific,
+                conditions = new List<AIConditionNode>
+                {
+                    new HasStatusCondition { target = HasStatusCondition.ComparisonTarget.AnyEnemy, statusType = StatusType.Mark }
+                },
+                targeting = new StatusPrioritizedTargeting { statusType = StatusType.Mark, strict = true }
+            };
+
+            // Behavior 2: Fallback random
+            var rule2 = new RuleBasedBehavior
+            {
+                skillToUse = skillRandom,
+                conditions = new List<AIConditionNode>(),
+                targeting = new SimpleTargeting()
+            };
+
+            profile.behaviors.Add(rule1);
+            profile.behaviors.Add(rule2);
+            _brain.profile = profile;
+
+            // p1 is not marked, should fallback to rule2
+            var decision = _brain.EvaluateTurn(_battleSystem);
+            Assert.AreEqual(skillRandom, decision.skill);
+
+            // mark p1
+            p1.AddStatus(new StatusEffectInstance(StatusType.Mark, 0, 1));
+            
+            // p1 is marked, should use rule1
+            var decision2 = _brain.EvaluateTurn(_battleSystem);
+            Assert.AreEqual(skillSpecific, decision2.skill);
+            Assert.AreEqual(p1, decision2.targets[0]);
 
             Object.DestroyImmediate(p1.gameObject);
         }
