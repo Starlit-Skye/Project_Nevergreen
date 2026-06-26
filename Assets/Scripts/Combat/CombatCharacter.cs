@@ -484,6 +484,7 @@ namespace Nevergreen.Combat
                 StatusType.Blight => eff.blightResist,
                 StatusType.Stun => eff.stunResist,
                 StatusType.Debuff => eff.debuffResist,
+                StatusType.HealReceivedReduction => eff.debuffResist,
                 StatusType.Move => eff.moveResist,
                 _ => 0
             };

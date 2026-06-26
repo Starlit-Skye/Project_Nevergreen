@@ -70,6 +70,11 @@ namespace Nevergreen.Combat
                     instance = new StealthStatusInstance(duration);
                     instance.Source = context.user;
                 }
+                else if (statusType == StatusType.HealReceivedReduction)
+                {
+                    instance = new HealReceivedDebuffStatusInstance(context.battleSystem, amplitude, duration);
+                    instance.Source = context.user;
+                }
                 else
                 {
                     instance = new StatusEffectInstance(statusType, targetStat, amplitude, duration, amplitudeType);
