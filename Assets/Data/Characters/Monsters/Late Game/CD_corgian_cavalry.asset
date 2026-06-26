@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
-  m_Name: CD_artillerist_bot
+  m_Name: CD_corgian_cavalry
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
-  characterId: artillerist_bot
-  displayName: Artillerist Bot
-  characterPrefab: {fileID: 5239835786447253822, guid: 8f4ca114a2b487a49ac20d3b9988799e, type: 3}
+  characterId: corgian_cavalry
+  displayName: Corgian Cavalry
+  characterPrefab: {fileID: 7664516674936550575, guid: 64831ff897a99bc40aced76873bbc533, type: 3}
   teamType: 1
   actionsPerRound: 1
   statPerLevel:
-  - {fileID: 11400000, guid: 0dbf6ee5390d8d84aad50060750d2cc5, type: 2}
+  - {fileID: 11400000, guid: 47048e8496cfa8e41a37b41f2520336b, type: 2}
   availableSkills:
-  - {fileID: 11400000, guid: 45d304a1ef317874ca41e337ad957f68, type: 2}
-  - {fileID: 11400000, guid: e092d4ec486203848ad50b220f47da85, type: 2}
-  - {fileID: 11400000, guid: fdc3f695e7047fa45a334e3abf0b0975, type: 2}
+  - {fileID: 11400000, guid: 8745a3c129aa8ab4ea56c4fddbb0f7e8, type: 2}
+  - {fileID: 11400000, guid: 845d46a49d214d340939673833891d30, type: 2}
+  - {fileID: 11400000, guid: 7ac4225e754e4e64e844bcec9890454c, type: 2}
   totalSkillPool: []
-  size: 1
+  size: 2
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 11400000, guid: a240646757d3a1f48998dbcb6aed6234, type: 2}
   deathSFX: {fileID: 0}

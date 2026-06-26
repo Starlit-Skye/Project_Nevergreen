@@ -10,19 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
-  m_Name: CD_artillerist_bot
+  m_Name: CD_protector_bot
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
-  characterId: artillerist_bot
-  displayName: Artillerist Bot
-  characterPrefab: {fileID: 5239835786447253822, guid: 8f4ca114a2b487a49ac20d3b9988799e, type: 3}
+  characterId: protector_bot
+  displayName: Protector Bot
+  characterPrefab: {fileID: 5239835786447253822, guid: 54ce4bf67bdeb8544a6ba122d75c2cfd, type: 3}
   teamType: 1
   actionsPerRound: 1
   statPerLevel:
-  - {fileID: 11400000, guid: 0dbf6ee5390d8d84aad50060750d2cc5, type: 2}
+  - {fileID: 11400000, guid: cfa31efd9cf5178489ba6001bc435848, type: 2}
   availableSkills:
-  - {fileID: 11400000, guid: 45d304a1ef317874ca41e337ad957f68, type: 2}
-  - {fileID: 11400000, guid: e092d4ec486203848ad50b220f47da85, type: 2}
-  - {fileID: 11400000, guid: fdc3f695e7047fa45a334e3abf0b0975, type: 2}
+  - {fileID: 11400000, guid: 99ac87d69305faf478d6117bd6cdc1d9, type: 2}
+  - {fileID: 11400000, guid: 96b86825d6734a14f8eee7c98400cf5f, type: 2}
   totalSkillPool: []
   size: 1
   leavesPileOnDeath: 1
