@@ -393,5 +393,163 @@ namespace Nevergreen.Tests
 
             Object.DestroyImmediate(p1.gameObject);
         }
+        [Test]
+        public void TeamCountCondition_ExcludesPilesAndEvaluatesCorrectly()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("Player1", Team.Player, 1);
+            var p2 = CombatTestHelper.CreateCombatCharacter("Player2", Team.Player, 2);
+            _battleSystem.PlayerTeam.Add(p1);
+            _battleSystem.PlayerTeam.Add(p2);
+
+            var condition = new TeamCountCondition 
+            { 
+                targetTeam = TeamCountCondition.TargetTeam.PlayerTeam,
+                comparison = TeamCountCondition.ComparisonOp.Equals,
+                targetCount = 2
+            };
+
+            // Both alive, count = 2
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem));
+
+            // Set p2 to pile, should count as 1
+            p2.state = LifeState.Pile;
+            Assert.IsFalse(condition.IsMet(_brain, _battleSystem));
+            
+            condition.targetCount = 1;
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem));
+
+            // Set p1 to destroyed, should count as 0
+            p1.state = LifeState.Destroyed;
+            Assert.IsFalse(condition.IsMet(_brain, _battleSystem));
+            
+            condition.targetCount = 0;
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem));
+
+            Object.DestroyImmediate(p1.gameObject);
+            Object.DestroyImmediate(p2.gameObject);
+        }
+
+        [Test]
+        public void TeamCountCondition_Comparisons_WorkCorrectly()
+        {
+            var e1 = CombatTestHelper.CreateCombatCharacter("Enemy1", Team.Enemy, 1);
+            var e2 = CombatTestHelper.CreateCombatCharacter("Enemy2", Team.Enemy, 2);
+            var e3 = CombatTestHelper.CreateCombatCharacter("Enemy3", Team.Enemy, 3);
+            _battleSystem.EnemyTeam.Add(e1);
+            _battleSystem.EnemyTeam.Add(e2);
+            _battleSystem.EnemyTeam.Add(e3); // Count is 3
+
+            var condition = new TeamCountCondition 
+            { 
+                targetTeam = TeamCountCondition.TargetTeam.EnemyTeam,
+                targetCount = 2
+            };
+
+            condition.comparison = TeamCountCondition.ComparisonOp.GreaterThan;
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem)); // 3 > 2
+
+            condition.comparison = TeamCountCondition.ComparisonOp.LessThan;
+            Assert.IsFalse(condition.IsMet(_brain, _battleSystem)); // 3 < 2 is false
+
+            condition.comparison = TeamCountCondition.ComparisonOp.NotEquals;
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem)); // 3 != 2
+
+            condition.targetCount = 3;
+            condition.comparison = TeamCountCondition.ComparisonOp.LessThanOrEqual;
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem)); // 3 <= 3
+
+            condition.comparison = TeamCountCondition.ComparisonOp.GreaterThanOrEqual;
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem)); // 3 >= 3
+
+            Object.DestroyImmediate(e1.gameObject);
+            Object.DestroyImmediate(e2.gameObject);
+            Object.DestroyImmediate(e3.gameObject);
+        }
+        [Test]
+        public void SimpleTargeting_RandomNotSelf_ExcludesSelf()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("Player1", Team.Player, 1);
+            var e1 = CombatTestHelper.CreateCombatCharacter("Enemy1", Team.Enemy, 1);
+            _battleSystem.PlayerTeam.Add(p1);
+            _battleSystem.EnemyTeam.Add(_brainChar);
+            _battleSystem.EnemyTeam.Add(e1);
+
+            // Give skill that targets ANY ally (so it could target self or e1)
+            var skill = CombatTestHelper.CreateDamageSkill();
+            skill.targetScope = TargetScope.Allies;
+            
+            var targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.RandomNotSelf };
+
+            // Attempt to resolve targets
+            bool result = targeting.TryResolveTargets(_brain, _battleSystem, skill, out var targets);
+
+            // Should successfully find e1
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, targets.Count);
+            Assert.AreEqual(e1, targets[0]);
+
+            // Now remove e1, only self remains
+            _battleSystem.EnemyTeam.Remove(e1);
+            
+            // Should fail since RandomNotSelf excludes the only valid target (self)
+            bool result2 = targeting.TryResolveTargets(_brain, _battleSystem, skill, out var targets2);
+            Assert.IsFalse(result2);
+
+            Object.DestroyImmediate(p1.gameObject);
+            Object.DestroyImmediate(e1.gameObject);
+        }
+        [Test]
+        public void RandomSkillBehavior_ExcludesSkill_WorksCorrectly()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("Player1", Team.Player, 1);
+            _battleSystem.PlayerTeam.Add(p1);
+
+            var skill1 = CombatTestHelper.CreateDamageSkill();
+            skill1.skillId = "skill_1";
+            var skill2 = CombatTestHelper.CreateDamageSkill();
+            skill2.skillId = "skill_2";
+
+            _brainChar.equippedSkills.Add(skill1);
+            _brainChar.equippedSkills.Add(skill2);
+
+            var behavior = new RandomSkillBehavior
+            {
+                excludeSkill = skill1
+            };
+
+            // It should always pick skill2 since skill1 is excluded
+            bool result = behavior.TryGetDecision(_brain, _battleSystem, out var decision);
+            
+            Assert.IsTrue(result);
+            Assert.AreEqual(skill2, decision.skill);
+
+            Object.DestroyImmediate(p1.gameObject);
+        }
+        [Test]
+        public void NotHasStatusCondition_EvaluatesCorrectly()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("Player1", Team.Player, 1);
+            var p2 = CombatTestHelper.CreateCombatCharacter("Player2", Team.Player, 2);
+            _battleSystem.PlayerTeam.Add(p1);
+            _battleSystem.PlayerTeam.Add(p2);
+
+            var condition = new NotHasStatusCondition 
+            { 
+                target = NotHasStatusCondition.ComparisonTarget.AnyEnemy, // From brain's perspective (Enemy team), the Player team is the Enemy.
+                statusType = StatusType.Mark
+            };
+
+            // Neither has Mark, so "NotHasStatusCondition" should be TRUE
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem));
+
+            // Give p1 Mark
+            p1.AddStatus(new StatusEffectInstance(StatusType.Mark, 0, 2));
+
+            // Now p1 has Mark, so "NotHasStatusCondition" on the enemy team should be FALSE
+            Assert.IsFalse(condition.IsMet(_brain, _battleSystem));
+
+            Object.DestroyImmediate(p1.gameObject);
+            Object.DestroyImmediate(p2.gameObject);
+        }
     }
 }

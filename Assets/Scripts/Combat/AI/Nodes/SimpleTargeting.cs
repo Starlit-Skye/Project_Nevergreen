@@ -24,7 +24,9 @@ namespace Nevergreen.Combat.AI.Nodes
             /// <summary>Prioritize the target in the frontmost rank (lowest rank number).</summary>
             FrontRank,
             /// <summary>Prioritize the target in the backmost rank (highest rank number).</summary>
-            BackRank
+            BackRank,
+            /// <summary>Pick targets at random from the valid pool, explicitly excluding the caster.</summary>
+            RandomNotSelf
         }
 
         [Tooltip("The strategy used to pick targets.")]
@@ -35,11 +37,18 @@ namespace Nevergreen.Combat.AI.Nodes
             targets = null;
 
             List<CombatCharacter> pool = battle.GetValidTargets(brain.Self, skill);
+            
+            if (strategy == Strategy.RandomNotSelf)
+            {
+                pool.Remove(brain.Self);
+            }
+
             if (pool.Count == 0) return false;
 
             switch (strategy)
             {
                 case Strategy.Random:
+                case Strategy.RandomNotSelf:
                     Shuffle(pool);
                     break;
 
