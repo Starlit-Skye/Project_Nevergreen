@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
-  m_Name: CD_royal_wolf
+  m_Name: CD_infestor
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
-  characterId: royal_wolf
-  displayName: Royal Wolf
+  characterId: infestor
+  displayName: Infestor
+  characterPrefab: {fileID: 5239835786447253822, guid: f0364bddfb8a4934d803bf493dc45a09, type: 3}
   teamType: 1
   actionsPerRound: 1
   statPerLevel:
-  - {fileID: 11400000, guid: 773a8e95d001a8c4781e691954074b34, type: 2}
+  - {fileID: 11400000, guid: 85404b6020d4a0d4294c588495779862, type: 2}
   availableSkills:
-  - {fileID: 11400000, guid: 43f025bed5317d2488388d861063df48, type: 2}
-  - {fileID: 11400000, guid: 71fab0a467dd0b14785ed2cc9926de9a, type: 2}
-  - {fileID: 11400000, guid: 5867806a6d6348b4a9e1d25972e2c48d, type: 2}
+  - {fileID: 11400000, guid: b9489ef1c3f7caa4990c97f5bf0aa354, type: 2}
+  totalSkillPool: []
   size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 11400000, guid: a240646757d3a1f48998dbcb6aed6234, type: 2}

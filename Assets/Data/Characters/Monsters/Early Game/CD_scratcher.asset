@@ -10,15 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
-  m_Name: CD_infestor
+  m_Name: CD_scratcher
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
-  characterId: infestor
-  displayName: Infestor
+  characterId: scratcher
+  displayName: Scratcher
+  characterPrefab: {fileID: 5239835786447253822, guid: 87f25fe2c66db064aa01ca1a5643b9da, type: 3}
   teamType: 1
   actionsPerRound: 1
   statPerLevel:
-  - {fileID: 11400000, guid: 85404b6020d4a0d4294c588495779862, type: 2}
+  - {fileID: 11400000, guid: a5566ad2fc500544984870d0ba53c1b5, type: 2}
   availableSkills:
-  - {fileID: 11400000, guid: b9489ef1c3f7caa4990c97f5bf0aa354, type: 2}
+  - {fileID: 11400000, guid: 151b826c79279b64094147f11507d526, type: 2}
+  - {fileID: 11400000, guid: 47bb8ed9926ca814e92a6fceff2bfa16, type: 2}
+  totalSkillPool: []
+  size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 11400000, guid: a240646757d3a1f48998dbcb6aed6234, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}
