@@ -26,6 +26,6 @@ MonoBehaviour:
   totalSkillPool: []
   size: 1
   leavesPileOnDeath: 1
-  defaultAIProfile: {fileID: 11400000, guid: a240646757d3a1f48998dbcb6aed6234, type: 2}
+  defaultAIProfile: {fileID: 11400000, guid: 2502a99553a63e240b7aa91a5b94fe69, type: 2}
   deathSFX: {fileID: 0}
   bossMusicOverride: {fileID: 0}

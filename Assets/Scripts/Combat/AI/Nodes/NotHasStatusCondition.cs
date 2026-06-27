@@ -26,6 +26,15 @@ namespace Nevergreen.Combat.AI.Nodes
         [Tooltip("The status effect type to check for absence of.")]
         public StatusType statusType = StatusType.Mark;
 
+        [Tooltip("The stat targeted by the Buff/Debuff (Only used if statusType is Buff or Debuff).")]
+        public StatTarget stat = StatTarget.Speed;
+
+        [Tooltip("How to compare the amplitude of the Buff/Debuff.")]
+        public HealthCondition.ComparisonOp amplitudeComparison = HealthCondition.ComparisonOp.GreaterThanOrEqual;
+
+        [Tooltip("The required amplitude of the Buff/Debuff to be considered a match (Only used if statusType is Buff or Debuff).")]
+        public int targetAmplitude = 1;
+
         public override bool IsMet(AIBrain brain, BattleSystem battle)
         {
             switch (target)
@@ -60,7 +69,28 @@ namespace Nevergreen.Combat.AI.Nodes
 
         private bool HasActiveStatus(CombatCharacter character)
         {
-            return character.statusEffects.Any(s => s.type == statusType && !s.IsExpired);
+            return character.statusEffects.Any(s => 
+            {
+                if (s.IsExpired) return false;
+                if (s.type != statusType) return false;
+
+                if (statusType == StatusType.Buff || statusType == StatusType.Debuff)
+                {
+                    if (s.targetStat != stat) return false;
+                    
+                    return amplitudeComparison switch
+                    {
+                        HealthCondition.ComparisonOp.Equal => s.amplitude == targetAmplitude,
+                        HealthCondition.ComparisonOp.LessThan => s.amplitude < targetAmplitude,
+                        HealthCondition.ComparisonOp.LessThanOrEqual => s.amplitude <= targetAmplitude,
+                        HealthCondition.ComparisonOp.GreaterThan => s.amplitude > targetAmplitude,
+                        HealthCondition.ComparisonOp.GreaterThanOrEqual => s.amplitude >= targetAmplitude,
+                        _ => false
+                    };
+                }
+
+                return true;
+            });
         }
     }
 }
