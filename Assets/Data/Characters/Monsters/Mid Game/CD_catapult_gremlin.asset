@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
-  m_Name: CD_toxic_catapult_gremlin
+  m_Name: CD_catapult_gremlin
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
-  characterId: toxic_catapult_gremlin
-  displayName: Toxic Catapult Gremlin
+  characterId: catapult_gremlin
+  displayName: Catapult Gremlin
   characterPrefab: {fileID: 5239835786447253822, guid: f0036ad30423e5b4d8e9c4b48404dfe8, type: 3}
   teamType: 1
   actionsPerRound: 1

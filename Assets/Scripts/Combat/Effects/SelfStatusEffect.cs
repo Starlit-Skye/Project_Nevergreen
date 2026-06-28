@@ -86,7 +86,7 @@ namespace Nevergreen.Combat
             }
 
             // Trigger the status applied event on the user
-            context.user.TriggerStatusApplied(statusType, applied);
+            context.user.TriggerStatusApplied(statusType, applied, targetStat);
         }
     }
 }

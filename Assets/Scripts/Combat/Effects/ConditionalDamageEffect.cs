@@ -60,6 +60,7 @@ namespace Nevergreen.Combat
                 {
                     // 2. Math Resolution
                     int damage = CombatCalculator.CalculateDamage(context, GameDatabase.Instance.CombatConfig);
+                    context.calculatedValue += damage;
                     
                     // 3. Application
                     target.TakeDamage(damage, context.isCritical);

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: preventative_care
   displayName: Preventative Care
-  description: 'Give 1 ally debuff, bleed, and blight res
+  description: 'Give the team debuff, bleed, and blight res
 
     Usable Rank: 2-4'
   modifier:
@@ -27,9 +27,9 @@ MonoBehaviour:
   - rid: 356131228942336004
   - rid: 356131228942336005
   useRanks: 020000000300000004000000
-  targetRanks: 01000000020000000300000004000000
+  targetRanks: 01000000
   targetScope: 1
-  maxTargets: 1
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0

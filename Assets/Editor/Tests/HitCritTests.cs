@@ -104,8 +104,10 @@ namespace Nevergreen.Tests
             var t = Track("t", Team.Enemy, 1, defense: 0);
             var skill = CombatTestHelper.CreateDamageSkill(ignoresDefense: true, guaranteedHit: true);
             var (_, ctx) = MakeCtx(a, t, skill, new System.Random(0));
+            // Crit is now rolled by BattleSystem before effects; simulate that here
+            ctx.isCritical = true;
             int damage = CombatCalculator.CalculateDamage(ctx, _config);
-            Assert.IsTrue(ctx.isCritical, "100% crit => always crit.");
+            Assert.IsTrue(ctx.isCritical, "Pre-set crit => always crit.");
             int expected = Mathf.RoundToInt(Mathf.RoundToInt(ctx.baseAttackRoll * 1.0f) * 1.5f);
             Assert.AreEqual(expected, damage);
         }
@@ -117,6 +119,8 @@ namespace Nevergreen.Tests
             var t = Track("t", Team.Enemy, 1, defense: 0);
             var skill = CombatTestHelper.CreateDamageSkill(ignoresDefense: true, guaranteedHit: true, critMod: 0f);
             var (_, ctx) = MakeCtx(a, t, skill, CombatTestHelper.CreateFixedRng());
+            // Crit is now rolled by BattleSystem; simulate 0% crit here
+            ctx.isCritical = false;
             CombatCalculator.CalculateDamage(ctx, _config);
             Assert.IsFalse(ctx.isCritical, "0% crit => never crit.");
         }
@@ -128,6 +132,8 @@ namespace Nevergreen.Tests
             var t = Track("t", Team.Enemy, 1, defense: 0);
             var skill = CombatTestHelper.CreateDamageSkill(critMod: 100f, ignoresDefense: true, guaranteedHit: true);
             var (_, ctx) = MakeCtx(a, t, skill, CombatTestHelper.CreateFixedRng());
+            // Crit is now rolled by BattleSystem; simulate +100% critMod here
+            ctx.isCritical = true;
             CombatCalculator.CalculateDamage(ctx, _config);
             Assert.IsTrue(ctx.isCritical, "+100% critMod => guaranteed crit.");
         }

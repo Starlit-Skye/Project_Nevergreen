@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: tracking
   displayName: Tracking
-  description: Give allies crit buff. Move self back 2.
+  description: Give allies crit buff.
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -22,7 +22,6 @@ MonoBehaviour:
     criticalMod: 0
   effects:
   - rid: 4415245648690151514
-  - rid: 4415245648690151515
   useRanks: 01000000020000000300000004000000
   targetRanks: 01000000
   targetScope: 1
@@ -48,13 +47,3 @@ MonoBehaviour:
         amplitudeType: 2
         duration: 3
         ignoreMiss: 0
-    - rid: 4415245648690151515
-      type: {class: SelfStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
-        statusType: 9
-        targetStat: 5
-        applicationChance: 100
-        amplitude: 2
-        amplitudeType: 0
-        duration: 1
-        ignoreMiss: 1

@@ -28,6 +28,7 @@ namespace Nevergreen.Combat
             }
 
             // 2. Application
+            context.calculatedValue += healAmount;
             target.Heal(healAmount);
 
             Debug.Log($"  -> {target.DisplayName} healed for {healAmount} (HP: {target.currentHP}/{target.baseStats.maxHP})");

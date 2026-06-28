@@ -70,6 +70,7 @@ namespace Nevergreen.Combat
             int healAmount = CombatCalculator.CalculateHeal(context, config);
 
             // Application
+            context.calculatedValue += healAmount;
             guardianToTarget.Heal(healAmount);
 
             Debug.Log($"  -> Guardian {guardianToTarget.DisplayName} healed for {healAmount} (HP: {guardianToTarget.currentHP}/{guardianToTarget.baseStats.maxHP})");

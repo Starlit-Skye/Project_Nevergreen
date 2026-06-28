@@ -558,6 +558,17 @@ namespace Nevergreen.Combat
                     CombatCharacter finalTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
                     ctx.primaryTarget = finalTarget;
 
+                    // Reset accumulated value for this target/hit iteration
+                    ctx.calculatedValue = 0;
+
+                    // Roll crit once per target (only for damage skills)
+                    if (skill.modifier.IsDamage)
+                    {
+                        CombatStats userStats = ctx.user.GetEffectiveStats();
+                        float critChance = userStats.critChance + skill.modifier.criticalMod;
+                        ctx.isCritical = (float)ctx.rng.NextDouble() * 100f < critChance;
+                    }
+
                     // The pure strategy approach: Execute modular effects
                     foreach (var effect in skill.effects)
                     {

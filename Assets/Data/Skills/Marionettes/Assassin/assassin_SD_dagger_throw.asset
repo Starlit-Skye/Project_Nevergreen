@@ -17,16 +17,16 @@ MonoBehaviour:
   description: 'Deal reduced damage to an enemy. Move self back 1.
 
     Usable Rank:
-    2-4'
+    1-3'
   modifier:
-    damagePercent: 0.8
+    damagePercent: 0.9
     healPercent: 0
     accuracyMod: -5
     criticalMod: 0
   effects:
   - rid: 356131318423355392
   - rid: 356131318423355395
-  useRanks: 020000000300000004000000
+  useRanks: 010000000200000003000000
   targetRanks: 0300000004000000
   targetScope: 2
   maxTargets: 1

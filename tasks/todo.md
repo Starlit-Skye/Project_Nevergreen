@@ -1,9 +1,10 @@
-# Plan: Swap Rank Formation in Party Management Panel
+# Todo: Fix Combat Log Calculations for Multi-Effect Skills
 
 ## Tasks
-- [x] 1. Update `PartyManagementPanelController.cs` to add move feature fields (`moveButton`, `highlightColor`, states) and dynamic fallback binding in `Start()`.
-- [x] 2. Refactor `InitializeSlots()` to extract `RefreshSlotUI()` to update buttons and names.
-- [x] 3. Implement move highlighting and cancel logic in `PartyManagementPanelController.cs`.
-- [x] 4. Implement slot swapping, rank persistence update in `RunSessionManager.CurrentParty`, and save game trigger (`SaveManager.SaveRun()`).
-- [x] 5. Add unit tests for the rank swapping feature in `PartyManagementPanelTests.cs`.
-- [x] 6. Run all tests to verify correct implementation.
+- [x] 1. Reset `calculatedValue` and `isCritical` per target iteration in `BattleSystem.cs`.
+- [x] 2. Update `CombatCalculator.cs` to return calculated values without overwriting `ctx.calculatedValue`, and remove crit roll (now done by BattleSystem).
+- [x] 3. Update `DamageEffect.cs` and `ConditionalDamageEffect.cs` to accumulate `context.calculatedValue`.
+- [x] 4. Update `HealEffect.cs` and `HealGuardianEffect.cs` to accumulate `context.calculatedValue`.
+- [x] 5. Fix existing `HitCritTests` that relied on `CalculateDamage` rolling crit.
+- [x] 6. Write new `CumulativeDamageTests` verifying accumulation, resets, and shared crit.
+- [x] 7. Run all unit tests to confirm success — 340/340 passed.

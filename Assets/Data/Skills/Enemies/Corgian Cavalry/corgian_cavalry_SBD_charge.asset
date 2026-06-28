@@ -22,7 +22,6 @@ MonoBehaviour:
     criticalMod: 3
   effects:
   - rid: 4415245653262205020
-  - rid: 4415245653262205019
   - rid: 4415245653262205021
   - rid: 4415245653262205022
   useRanks: 020000000300000004000000
@@ -40,9 +39,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 4415245653262205019
-      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data: 
     - rid: 4415245653262205020
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:

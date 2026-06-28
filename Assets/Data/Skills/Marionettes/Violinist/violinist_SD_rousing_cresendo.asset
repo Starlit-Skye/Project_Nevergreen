@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: rousing_cresendo
   displayName: Rousing Cresendo
-  description: 'Give an ally Attack and Crit Rate buff
+  description: 'Give the team Debuff Res and Crit Rate buff
 
     Usable Rank: 2-3'
   modifier:
@@ -26,9 +26,9 @@ MonoBehaviour:
   - rid: 356131294886494289
   - rid: 356131294886494291
   useRanks: 0200000003000000
-  targetRanks: 01000000020000000300000004000000
+  targetRanks: 01000000
   targetScope: 1
-  maxTargets: 1
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -54,9 +54,9 @@ MonoBehaviour:
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
         statusType: 5
-        targetStat: 4
+        targetStat: 10
         applicationChance: 300
-        amplitude: 10
+        amplitude: 20
         amplitudeType: 2
         duration: 3
         ignoreMiss: 1

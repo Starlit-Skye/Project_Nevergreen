@@ -123,7 +123,7 @@ namespace Nevergreen.Combat
             }
 
             // Trigger the status applied event on the target ally
-            targetAlly.TriggerStatusApplied(statusType, applied);
+            targetAlly.TriggerStatusApplied(statusType, applied, targetStat);
         }
     }
 }

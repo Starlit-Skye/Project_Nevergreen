@@ -15,16 +15,16 @@ namespace Nevergreen.Prototype
     {
         private static readonly string[] MarionettePaths = new string[]
         {
-            "Assets/Data/Characters/Marionettes/CD_Alchemist.asset",
-            "Assets/Data/Characters/Marionettes/CD_Assassin.asset",
-            "Assets/Data/Characters/Marionettes/CD_Butler.asset",
-            "Assets/Data/Characters/Marionettes/CD_Cecilia.asset",
-            "Assets/Data/Characters/Marionettes/CD_Commander.asset",
-            "Assets/Data/Characters/Marionettes/CD_Enforcer.asset",
-            "Assets/Data/Characters/Marionettes/CD_Knight.asset",
-            "Assets/Data/Characters/Marionettes/CD_Maid.asset",
-            "Assets/Data/Characters/Marionettes/CD_Princess.asset",
-            "Assets/Data/Characters/Marionettes/CD_Sharpshooter.asset"
+            "Assets/Data/Characters/Marionettes/CD_Alchemist.asset",   //1
+            "Assets/Data/Characters/Marionettes/CD_Assassin.asset",    //2
+            "Assets/Data/Characters/Marionettes/CD_Butler.asset",      //3
+            "Assets/Data/Characters/Marionettes/CD_Violinist.asset",   //4
+            "Assets/Data/Characters/Marionettes/CD_Commander.asset",   //5
+            "Assets/Data/Characters/Marionettes/CD_Enforcer.asset",    //6
+            "Assets/Data/Characters/Marionettes/CD_Knight.asset",      //7
+            "Assets/Data/Characters/Marionettes/CD_Maid.asset",        //8
+            "Assets/Data/Characters/Marionettes/CD_Princess.asset",    //9
+            "Assets/Data/Characters/Marionettes/CD_Sharpshooter.asset" //0
         };
 
         private class DebugBehaviour : MonoBehaviour
@@ -68,6 +68,24 @@ namespace Nevergreen.Prototype
                             }
                         }
                     }
+                }
+
+                if (Keyboard.current.upArrowKey.wasPressedThisFrame)
+                {
+                    RunSessionManager.Parts += 100;
+                    Debug.Log($"[EditorDebugUtility] Up Arrow pressed. Added 100 Parts. Total Parts: {RunSessionManager.Parts}");
+                }
+
+                if (Keyboard.current.rightArrowKey.wasPressedThisFrame)
+                {
+                    RunSessionManager.RoomProgression += 1;
+                    Debug.Log($"[EditorDebugUtility] Right Arrow pressed. Increased Room Progression by 1. New Room Progression: {RunSessionManager.RoomProgression}");
+                }
+
+                if (Keyboard.current.leftArrowKey.wasPressedThisFrame)
+                {
+                    RunSessionManager.RoomProgression = Mathf.Max(0, RunSessionManager.RoomProgression - 1);
+                    Debug.Log($"[EditorDebugUtility] Left Arrow pressed. Decreased Room Progression by 1. New Room Progression: {RunSessionManager.RoomProgression}");
                 }
 
                 int digitIndex = -1;

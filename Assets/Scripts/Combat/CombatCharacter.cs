@@ -127,7 +127,7 @@ namespace Nevergreen.Combat
         // --- Events ---
         public event Action<CombatCharacter, int> OnDamageTaken; // character, amount
         public event Action<CombatCharacter, int> OnHealed;      // character, amount
-        public event Action<CombatCharacter, StatusType, bool> OnStatusApplied;
+        public event Action<CombatCharacter, StatusType, bool, StatTarget?> OnStatusApplied;
         public event Action<CombatCharacter, StatusType, int> OnPeriodicEffectApplied;
         public event Action<CombatCharacter, bool> OnDefeated; // character, wasCritical
         public event Action<CombatCharacter> OnStatsChanged;
@@ -424,9 +424,9 @@ namespace Nevergreen.Combat
             }
         }
 
-        public void TriggerStatusApplied(StatusType type, bool succeeded)
+        public void TriggerStatusApplied(StatusType type, bool succeeded, StatTarget? targetStat = null)
         {
-            OnStatusApplied?.Invoke(this, type, succeeded);
+            OnStatusApplied?.Invoke(this, type, succeeded, targetStat);
         }
 
         public void TriggerPeriodicEffectApplied(StatusType type, int amount)
