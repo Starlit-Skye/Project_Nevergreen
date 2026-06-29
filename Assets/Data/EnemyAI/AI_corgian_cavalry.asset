@@ -31,7 +31,7 @@ MonoBehaviour:
       data:
         targetTeam: 1
         comparison: 5
-        targetCount: 2
+        targetCount: 3
     - rid: 4415245694282498133
       type: {class: SimpleTargeting, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
       data:

@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_jetpack_menace
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 7
+  attack: 8
   accuracy: 90
   critChance: 5
   maxHP: 20
   defense: 0
   dodge: 20
-  speed: 9
+  speed: 8
   bleedResist: 20
   blightResist: 40
   stunResist: 20

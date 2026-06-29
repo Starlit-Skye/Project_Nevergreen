@@ -15,9 +15,9 @@ MonoBehaviour:
   attack: 19
   accuracy: 100
   critChance: 7
-  maxHP: 57
+  maxHP: 49
   defense: 0
-  dodge: 20
+  dodge: 10
   speed: 6
   bleedResist: 60
   blightResist: 20

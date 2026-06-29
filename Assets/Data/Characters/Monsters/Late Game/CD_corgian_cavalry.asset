@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: corgian_cavalry
   displayName: Corgian Cavalry
-  characterPrefab: {fileID: 7664516674936550575, guid: 64831ff897a99bc40aced76873bbc533, type: 3}
+  characterPrefab: {fileID: 5239835786447253822, guid: b87ee16e9831ef04cbf78372260b468b, type: 3}
   teamType: 1
   actionsPerRound: 1
   statPerLevel:
@@ -24,7 +24,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 845d46a49d214d340939673833891d30, type: 2}
   - {fileID: 11400000, guid: 7ac4225e754e4e64e844bcec9890454c, type: 2}
   totalSkillPool: []
-  size: 2
+  size: 1
   leavesPileOnDeath: 1
   defaultAIProfile: {fileID: 11400000, guid: f949273f1be7f614abc2da21c226e7bd, type: 2}
   deathSFX: {fileID: 0}

@@ -26,7 +26,7 @@ MonoBehaviour:
   - rid: 356131202693857280
   - rid: 356131202693857378
   useRanks: 010000000200000003000000
-  targetRanks: 01000000020000000300000004000000
+  targetRanks: 0100000002000000
   targetScope: 2
   maxTargets: 1
   ignoresDefense: 0

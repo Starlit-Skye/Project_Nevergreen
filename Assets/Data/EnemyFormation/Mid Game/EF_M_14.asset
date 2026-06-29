@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.EnemyFormationData
   formationId: EF_M_14
   enemyPrefabs:
-  - {fileID: 8677282494213934289, guid: 3eb6248bfc597fe4692f27a71d6a8c82, type: 3}
+  - {fileID: 7786762382236842581, guid: 54ce4bf67bdeb8544a6ba122d75c2cfd, type: 3}
+  - {fileID: 7786762382236842581, guid: 54ce4bf67bdeb8544a6ba122d75c2cfd, type: 3}
   - {fileID: 7786762382236842581, guid: e6857650b32254c4dafdb39dfb54abab, type: 3}
   - {fileID: 7786762382236842581, guid: 678db03559a5779488df54d7058ca578, type: 3}
