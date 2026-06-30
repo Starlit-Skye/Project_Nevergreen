@@ -50,7 +50,7 @@ MonoBehaviour:
         statusType: 3
         targetStat: 0
         applicationChance: 100
-        amplitude: 30
+        amplitude: 25
         amplitudeType: 1
         duration: 3
         ignoreMiss: 0

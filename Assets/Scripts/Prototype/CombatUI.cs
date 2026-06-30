@@ -246,15 +246,21 @@ namespace Nevergreen.Prototype
             if (sr != null) sr.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
         }
 
-        private void HandleStatusApplied(CombatCharacter target, StatusType type, bool succeeded)
+        private void HandleStatusApplied(CombatCharacter target, StatusType type, bool succeeded, StatTarget? targetStat)
         {
+            string statusName = type.ToString();
+            if ((type == StatusType.Buff || type == StatusType.Debuff) && targetStat.HasValue)
+            {
+                statusName = $"{targetStat.Value} {type}";
+            }
+
             if (succeeded)
             {
-                AddLog($"{target.DisplayName} afflicted with {type}!");
+                AddLog($"{target.DisplayName} afflicted with {statusName}!");
             }
             else
             {
-                AddLog($"{target.DisplayName} resisted {type}.");
+                AddLog($"{target.DisplayName} resisted {statusName}.");
             }
         }
 

@@ -47,8 +47,8 @@ namespace Nevergreen.Combat
             if (actor != Host) return;
             if (!ctx.didHit) return;
 
-            // Healing skills should not apply Bleed
-            if (skill != null && skill.modifier != null && skill.modifier.IsHeal) return;
+            // Only apply Bleed if the skill is a damage-dealing skill
+            if (skill == null || skill.modifier == null || !skill.modifier.IsDamage) return;
 
             if (ctx.primaryTarget != null && ctx.primaryTarget.IsAlive)
             {

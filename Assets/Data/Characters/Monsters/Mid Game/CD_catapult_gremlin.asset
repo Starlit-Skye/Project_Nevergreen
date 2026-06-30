@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_catapult_gremlin
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: catapult_gremlin
+  displayName: Catapult Gremlin
+  characterPrefab: {fileID: 5239835786447253822, guid: f0036ad30423e5b4d8e9c4b48404dfe8, type: 3}
+  teamType: 1
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: 54e6347f5355e5e4fb9523eb1864513a, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: ab5b5ae65da0a4342aee52232be855bb, type: 2}
+  totalSkillPool: []
+  size: 1
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 11400000, guid: 3ff44703f33f95b47b2fae67c370fa22, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

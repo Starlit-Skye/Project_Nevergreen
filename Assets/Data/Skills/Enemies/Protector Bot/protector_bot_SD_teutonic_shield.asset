@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: teutonic_shield
   displayName: Teutonic Shield
-  description: Protect and ally, gain +30% Defemse
+  description: Protect and ally, gain +30% Defense
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -24,7 +24,7 @@ MonoBehaviour:
   - rid: 4415245626395590677
   - rid: 4415245626395590678
   useRanks: 0100000002000000
-  targetRanks: 020000000300000004000000
+  targetRanks: 0300000004000000
   targetScope: 1
   maxTargets: 1
   ignoresDefense: 0

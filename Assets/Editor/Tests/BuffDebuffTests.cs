@@ -713,6 +713,43 @@ namespace Nevergreen.Tests
         }
 
         [Test]
+        public void HealReceivedReduction_Debuff_ClampsAt100Percent()
+        {
+            var bsGo = new GameObject("BattleSystem");
+            var battleSystem = bsGo.AddComponent<BattleSystem>();
+            _cleanup.Add(bsGo);
+
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, 1, maxHP: 100);
+            _cleanup.Add(target.gameObject);
+            target.currentHP = 10; // So we can heal
+
+            // Apply 120% reduction debuff (exceeds 100%)
+            var debuff = new HealReceivedDebuffStatusInstance(battleSystem, 120, 3);
+            target.AddStatus(debuff);
+
+            var healer = CombatTestHelper.CreateCombatCharacter("healer", Team.Enemy, 2, attack: 50);
+            _cleanup.Add(healer.gameObject);
+
+            var healSkill = ScriptableObject.CreateInstance<SkillData>();
+            healSkill.skillId = "heal_skill";
+            healSkill.modifier = new SkillModifier { healPercent = 1.0f }; // 100% attack scaling
+            var healEffect = new HealEffect();
+            healSkill.effects.Add(healEffect);
+
+            var ctx = new SkillContext(healer, healSkill, new List<CombatCharacter> { target }, battleSystem, CombatTestHelper.CreateFixedRng());
+
+            var eventField = typeof(BattleSystem).GetField("OnBeforeDamageCalculation", 
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var handler = eventField.GetValue(battleSystem) as System.Action<SkillContext>;
+            handler?.Invoke(ctx);
+
+            // With 120% reduction, the multiplier would be -0.2f. It should clamp to 0f, making the final heal 0.
+            healEffect.Execute(ctx, target);
+
+            Assert.AreEqual(10, target.currentHP, "HP should not change (healing clamped to 0, not negative).");
+        }
+
+        [Test]
         public void HealReceivedReduction_Debuff_ChecksDebuffResistance()
         {
             _character.baseStats.debuffResist = 40;
@@ -804,6 +841,10 @@ namespace Nevergreen.Tests
             defender.currentHP = 200;
 
             battleSystem.StartBattle(new List<CombatCharacter> { defender }, new List<CombatCharacter> { attacker });
+
+            // Force a deterministic RNG to avoid flaky hit rolls
+            var rngField = typeof(BattleSystem).GetField("_rng", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            rngField?.SetValue(battleSystem, CombatTestHelper.CreateFixedRng(42));
 
             // Defender has Riposte and BleedOnAttack
             defender.AddStatus(new StatusEffectInstance(StatusType.Riposte, 100, 3));

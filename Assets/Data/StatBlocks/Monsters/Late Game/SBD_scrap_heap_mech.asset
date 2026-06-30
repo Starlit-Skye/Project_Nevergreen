@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_scrap_heap_mech
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 19
+  attack: 13
   accuracy: 80
-  critChance: 7
+  critChance: 3
   maxHP: 57
   defense: 30
   dodge: 0

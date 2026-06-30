@@ -41,7 +41,7 @@ MonoBehaviour:
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
         statusType: 5
-        targetStat: 5
+        targetStat: 0
         applicationChance: 300
         amplitude: 20
         amplitudeType: 1

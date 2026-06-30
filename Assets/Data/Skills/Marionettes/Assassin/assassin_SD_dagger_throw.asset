@@ -14,20 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: dagger_throw
   displayName: Dagger Throw
-  description: 'Deal reduced damage to an enemy. Move self back 1.
+  description: 'Deal reduced damage to an enemy. Move self back 1. Apply bleed.
 
-    Usable Rank:
-    2-4'
+    Usable
+    Rank: 1-3'
   modifier:
-    damagePercent: 0.8
+    damagePercent: 0.9
     healPercent: 0
     accuracyMod: -5
     criticalMod: 0
   effects:
   - rid: 356131318423355392
   - rid: 356131318423355395
-  useRanks: 020000000300000004000000
-  targetRanks: 0300000004000000
+  - rid: 4415245739308613707
+  useRanks: 010000000200000003000000
+  targetRanks: 020000000300000004000000
   targetScope: 2
   maxTargets: 1
   ignoresDefense: 0
@@ -54,3 +55,13 @@ MonoBehaviour:
         amplitudeType: 0
         duration: 1
         ignoreMiss: 1
+    - rid: 4415245739308613707
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 0
+        targetStat: 5
+        applicationChance: 100
+        amplitude: 3
+        amplitudeType: 0
+        duration: 3
+        ignoreMiss: 0

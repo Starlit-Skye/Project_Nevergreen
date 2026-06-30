@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5835373b4b08d14ea5a9a0c496e4764, type: 3}
+  m_Name: EF_L_7
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.EnemyFormationData
+  formationId: EF_L_7
+  enemyPrefabs:
+  - {fileID: 7786762382236842581, guid: b87ee16e9831ef04cbf78372260b468b, type: 3}
+  - {fileID: 7786762382236842581, guid: fe29d368c347f994bb81655f21471d4d, type: 3}
+  - {fileID: 7786762382236842581, guid: cab1ccfdc0fb208468b3d43c42450834, type: 3}
+  - {fileID: 7786762382236842581, guid: cab1ccfdc0fb208468b3d43c42450834, type: 3}

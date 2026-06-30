@@ -89,7 +89,7 @@ namespace Nevergreen.Combat
                 Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (amp:{amplitude}, dur:{duration})");
             }
 
-            target.TriggerStatusApplied(statusType, applied);
+            target.TriggerStatusApplied(statusType, applied, targetStat);
         }
     }
 }

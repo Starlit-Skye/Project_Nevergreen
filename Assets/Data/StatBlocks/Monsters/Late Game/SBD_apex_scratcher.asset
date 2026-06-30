@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_apex_scratcher
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 10
+  attack: 7
   accuracy: 100
   critChance: 7
-  maxHP: 52
+  maxHP: 46
   defense: 0
-  dodge: 20
+  dodge: 40
   speed: 7
   bleedResist: 60
   blightResist: 60

@@ -120,7 +120,7 @@ namespace Nevergreen.Combat
                 Debug.Log($"  -> Guardian {guardianToTarget.DisplayName} afflicted with {statusType} (amp:{amplitude}, dur:{duration})");
             }
 
-            guardianToTarget.TriggerStatusApplied(statusType, applied);
+            guardianToTarget.TriggerStatusApplied(statusType, applied, targetStat);
         }
 
         private CombatCharacter GetActiveGuardian(CombatCharacter character)

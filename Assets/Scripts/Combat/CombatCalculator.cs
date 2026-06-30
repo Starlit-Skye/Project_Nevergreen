@@ -35,9 +35,7 @@ namespace Nevergreen.Combat
             // Apply damage multiplier from buffs/effects
             scaled = Mathf.RoundToInt(scaled * ctx.damageMultiplier);
 
-            // Crit check
-            float critChance = userStats.critChance + ctx.skill.modifier.criticalMod;
-            ctx.isCritical = (float)ctx.rng.NextDouble() * 100f < critChance;
+            // Crit was already rolled by BattleSystem — just apply multiplier
 
             if (ctx.isCritical)
             {
@@ -52,8 +50,7 @@ namespace Nevergreen.Combat
                 scaled = Mathf.RoundToInt(scaled * reduction);
             }
 
-            ctx.calculatedValue = Mathf.Max(0, scaled);
-            return ctx.calculatedValue;
+            return Mathf.Max(0, scaled);
         }
 
         /// <summary>
@@ -77,8 +74,7 @@ namespace Nevergreen.Combat
 
             int baseHeal = Mathf.RoundToInt(ctx.baseAttackRoll * ctx.skillScaling);
             baseHeal = Mathf.RoundToInt(baseHeal * ctx.damageMultiplier);
-            ctx.calculatedValue = Mathf.Max(0, baseHeal);
-            return ctx.calculatedValue;
+            return Mathf.Max(0, baseHeal);
         }
 
         /// <summary>

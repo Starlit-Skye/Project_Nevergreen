@@ -21,6 +21,7 @@ namespace Nevergreen.Combat.AI.Nodes
 
         public enum ComparisonOp
         {
+            Equal,
             LessThan,
             LessThanOrEqual,
             GreaterThan,
@@ -79,6 +80,7 @@ namespace Nevergreen.Combat.AI.Nodes
 
             return comparison switch
             {
+                ComparisonOp.Equal => Mathf.Approximately(value, threshold),
                 ComparisonOp.LessThan => value < threshold,
                 ComparisonOp.LessThanOrEqual => value <= threshold,
                 ComparisonOp.GreaterThan => value > threshold,

@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: toss_dust
   displayName: Toss Dust
-  description: 'Apply Accuracy debuff to enemies
+  description: 'Apply Accuracy debuff and Crit debuff to enemies
 
-    Usable Rank: 2-4'
+    Usable Rank:
+    2-4'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -24,10 +25,11 @@ MonoBehaviour:
     criticalMod: 0
   effects:
   - rid: 356131228942336006
+  - rid: 4415245720044961889
   useRanks: 020000000300000004000000
-  targetRanks: 01000000020000000300000004000000
+  targetRanks: 01000000
   targetScope: 2
-  maxTargets: 1
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -45,7 +47,17 @@ MonoBehaviour:
         statusType: 3
         targetStat: 2
         applicationChance: 100
-        amplitude: 25
+        amplitude: 20
+        amplitudeType: 2
+        duration: 3
+        ignoreMiss: 0
+    - rid: 4415245720044961889
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 3
+        targetStat: 4
+        applicationChance: 100
+        amplitude: 20
         amplitudeType: 2
         duration: 3
         ignoreMiss: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: rousing_cresendo
   displayName: Rousing Cresendo
-  description: 'Give an ally Attack and Crit Rate buff
+  description: 'Give an ally Attack and Acc Buff
 
     Usable Rank: 2-3'
   modifier:
@@ -46,7 +46,7 @@ MonoBehaviour:
         statusType: 5
         targetStat: 0
         applicationChance: 300
-        amplitude: 20
+        amplitude: 30
         amplitudeType: 1
         duration: 3
         ignoreMiss: 1
@@ -54,9 +54,9 @@ MonoBehaviour:
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
         statusType: 5
-        targetStat: 4
+        targetStat: 2
         applicationChance: 300
-        amplitude: 10
+        amplitude: 30
         amplitudeType: 2
         duration: 3
         ignoreMiss: 1

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_gremling_shade
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: gremling_shade
+  displayName: Gremling Shade
+  characterPrefab: {fileID: 5239835786447253822, guid: 96069a6c657f24247843ffed60ca46b4, type: 3}
+  teamType: 1
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: bb8f796d1feff81419f81abf2b7570e6, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: 9329cdd067dd8cd4aac8f215e3b0e52e, type: 2}
+  - {fileID: 11400000, guid: 91a11ff8c8c18b84e922112629bd9c24, type: 2}
+  totalSkillPool: []
+  size: 1
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 11400000, guid: a240646757d3a1f48998dbcb6aed6234, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

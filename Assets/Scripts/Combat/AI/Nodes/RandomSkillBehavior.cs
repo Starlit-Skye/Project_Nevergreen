@@ -18,14 +18,17 @@ namespace Nevergreen.Combat.AI.Nodes
         [Tooltip("If greater than 0, prevents the AI from picking the same skill more than this many times in a row.")]
         public int maxConsecutiveUses = 0;
 
+        [Tooltip("If assigned, the AI will ignore this specific skill when making its random selection.")]
+        public SkillData excludeSkill;
+
         public override bool TryGetDecision(AIBrain brain, BattleSystem battle, out AIDecision decision)
         {
             decision = default;
             CombatCharacter self = brain.Self;
 
-            // Filter to skills usable from the current rank with remaining uses
+            // Filter to skills usable from the current rank with remaining uses, excluding the excludeSkill if set
             var validSkills = self.equippedSkills
-                .Where(s => self.CanUseSkillFromRank(s) && self.HasRemainingUses(s))
+                .Where(s => self.CanUseSkillFromRank(s) && self.HasRemainingUses(s) && (excludeSkill == null || s != excludeSkill))
                 .ToList();
 
             // Enforce repetition limit

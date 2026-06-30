@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbacf546f511b25458a18339fa5b8624, type: 3}
+  m_Name: AI_corgian_cavalry
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.AI.EnemyAIProfile
+  behaviors:
+  - rid: 4415245694282498131
+  - rid: 4415245694282498134
+  references:
+    version: 2
+    RefIds:
+    - rid: 4415245694282498131
+      type: {class: RuleBasedBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        skillToUse: {fileID: 11400000, guid: 7ac4225e754e4e64e844bcec9890454c, type: 2}
+        targeting:
+          rid: 4415245694282498133
+        conditions:
+        - rid: 4415245694282498132
+    - rid: 4415245694282498132
+      type: {class: TeamCountCondition, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        targetTeam: 1
+        comparison: 5
+        targetCount: 3
+    - rid: 4415245694282498133
+      type: {class: SimpleTargeting, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        strategy: 0
+    - rid: 4415245694282498134
+      type: {class: RandomSkillBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        maxConsecutiveUses: 0
+        excludeSkill: {fileID: 11400000, guid: 7ac4225e754e4e64e844bcec9890454c, type: 2}

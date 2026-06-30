@@ -23,7 +23,7 @@ MonoBehaviour:
   effects:
   - rid: 4415245626395590658
   - rid: 4415245626395590659
-  useRanks: 0300000004000000
+  useRanks: 0100000002000000
   targetRanks: 03000000
   targetScope: 0
   maxTargets: 1

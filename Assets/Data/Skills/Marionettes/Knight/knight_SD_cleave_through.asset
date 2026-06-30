@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: cleave_through
   displayName: Cleave Through
-  description: ' Deal damage to front most 2 enemies, high damage, reduced accuracy.
+  description: 'Deal damage to front most 2 enemies, high damage, reduced accuracy.
 
     Usable
     Rank: 1-2'
   modifier:
     damagePercent: 0.6
     healPercent: 0
-    accuracyMod: -20
+    accuracyMod: -15
     criticalMod: -3
   effects:
   - rid: 356131240495284224

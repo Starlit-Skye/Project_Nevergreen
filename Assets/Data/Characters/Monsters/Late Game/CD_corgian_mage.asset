@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_corgian_mage
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: corgian_mage
+  displayName: Corgian Mage
+  characterPrefab: {fileID: 5239835786447253822, guid: cab1ccfdc0fb208468b3d43c42450834, type: 3}
+  teamType: 1
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: 1a1e38e3524c62c4b9ff98207380d0bd, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: 33b7a8783ea87384f92995b4623cf8a4, type: 2}
+  - {fileID: 11400000, guid: 1f5fa1c4f5cda7c438f9aab02867885e, type: 2}
+  - {fileID: 11400000, guid: b43fbd95217ea6a44b7d53f66a54a616, type: 2}
+  totalSkillPool: []
+  size: 1
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 11400000, guid: 8c767a5f4b2728143944be7330ab9d52, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_metal_golem
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: metal_golem
+  displayName: Metal Golem
+  characterPrefab: {fileID: 7664516674936550575, guid: 45477f77c1518894fb5340061fb6adce, type: 3}
+  teamType: 1
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: a3e3e56a1772464478e5cc09bdca1296, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: 591f21c491a89de4eb01643eae818b6c, type: 2}
+  - {fileID: 11400000, guid: d4cbc6a0eb823294e950893c1b86ac55, type: 2}
+  totalSkillPool: []
+  size: 2
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 11400000, guid: a240646757d3a1f48998dbcb6aed6234, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

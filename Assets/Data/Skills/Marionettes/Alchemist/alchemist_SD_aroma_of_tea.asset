@@ -20,7 +20,7 @@ MonoBehaviour:
     3-4'
   modifier:
     damagePercent: 0
-    healPercent: 0.2
+    healPercent: 0.5
     accuracyMod: 0
     criticalMod: 0
   effects:
@@ -48,7 +48,7 @@ MonoBehaviour:
         statusType: 5
         targetStat: 7
         applicationChance: 300
-        amplitude: 20
+        amplitude: 30
         amplitudeType: 2
         duration: 3
         ignoreMiss: 1
@@ -58,7 +58,7 @@ MonoBehaviour:
         statusType: 5
         targetStat: 8
         applicationChance: 100
-        amplitude: 20
+        amplitude: 30
         amplitudeType: 2
         duration: 3
         ignoreMiss: 1

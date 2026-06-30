@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: running_start
   displayName: Running Start
-  description: Move self back 2. Gain +20% damage.
+  description: Move self back 3. Gain +25% damage.
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -44,7 +44,7 @@ MonoBehaviour:
         statusType: 9
         targetStat: 5
         applicationChance: 300
-        amplitude: 2
+        amplitude: 3
         amplitudeType: 0
         duration: 1
         ignoreMiss: 0
@@ -54,7 +54,7 @@ MonoBehaviour:
         statusType: 5
         targetStat: 0
         applicationChance: 100
-        amplitude: 20
+        amplitude: 25
         amplitudeType: 1
         duration: 2
         ignoreMiss: 0

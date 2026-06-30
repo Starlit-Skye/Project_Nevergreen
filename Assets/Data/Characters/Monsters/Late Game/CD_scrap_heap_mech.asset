@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_scrap_heap_mech
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: scrap_heap_mech
+  displayName: Scrap Heap Mech
+  characterPrefab: {fileID: 7664516674936550575, guid: 29e8d6acc34114b47910a9c966fa94c9, type: 3}
+  teamType: 1
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: 6610ebdcd1cfbdb48bdb2e381354750c, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: a9823ce6592d4db4286ae8e79334714a, type: 2}
+  totalSkillPool: []
+  size: 2
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 11400000, guid: 3ff44703f33f95b47b2fae67c370fa22, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

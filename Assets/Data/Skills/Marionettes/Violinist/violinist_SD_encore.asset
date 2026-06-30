@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: encore
   displayName: Encore
-  description: 'Increase duration of an ally''s Buff by 2.
+  description: 'Increase duration of the team''s Buff by 2.
 
     Usable Rank: 2-3'
   modifier:
@@ -25,9 +25,9 @@ MonoBehaviour:
   effects:
   - rid: 356131294886494288
   useRanks: 0200000003000000
-  targetRanks: 01000000020000000300000004000000
+  targetRanks: 01000000
   targetScope: 1
-  maxTargets: 1
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0

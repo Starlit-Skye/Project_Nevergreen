@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
+  m_Name: princess_SD_praise_the_troops
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
+  skillId: praise_the_troops
+  displayName: Praise The Troops
+  description: 'Apply Attack buff to all allies, and heal all allies a small amount
+
+    Usable
+    Rank: 3-4'
+  modifier:
+    damagePercent: 0
+    healPercent: 0.5
+    accuracyMod: 0
+    criticalMod: 0
+  effects:
+  - rid: 356131266422636631
+  - rid: 4415245736801206274
+  useRanks: 0300000004000000
+  targetRanks: 01000000
+  targetScope: 1
+  maxTargets: 4
+  ignoresDefense: 0
+  ignoresDodge: 0
+  guaranteedHit: 0
+  bypassGuard: 0
+  ignoresStealth: 0
+  hitCount: 1
+  maxUsesPerBattle: -1
+  sfx: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 356131266422636631
+      type: {class: ApplyStatusToGuardianEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 5
+        targetStat: 0
+        applicationChance: 300
+        amplitude: 20
+        amplitudeType: 1
+        duration: 3
+        ignoreMiss: 1
+    - rid: 4415245736801206274
+      type: {class: HealEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 

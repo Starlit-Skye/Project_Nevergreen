@@ -1,9 +1,11 @@
-# Plan: Swap Rank Formation in Party Management Panel
+# Todo: Extract and Update Mid-Game Enemy Stat Blocks
 
 ## Tasks
-- [x] 1. Update `PartyManagementPanelController.cs` to add move feature fields (`moveButton`, `highlightColor`, states) and dynamic fallback binding in `Start()`.
-- [x] 2. Refactor `InitializeSlots()` to extract `RefreshSlotUI()` to update buttons and names.
-- [x] 3. Implement move highlighting and cancel logic in `PartyManagementPanelController.cs`.
-- [x] 4. Implement slot swapping, rank persistence update in `RunSessionManager.CurrentParty`, and save game trigger (`SaveManager.SaveRun()`).
-- [x] 5. Add unit tests for the rank swapping feature in `PartyManagementPanelTests.cs`.
-- [x] 6. Run all tests to verify correct implementation.
+- [ ] 1. Programmatically extract current stats from the 8 mid-game monster `.asset` files.
+- [ ] 2. Update the "Mid Game" section of `Assets/Data/StatBlocks/Monsters/monster_stat_blocks.md` with the extracted values.
+- [ ] 3. Generate/update the copy-and-pasteable markdown artifact in the brain folder.
+- [ ] 4. Run verification C# script to verify that the documentation matches the ScriptableObject assets.
+- [ ] 5. Run Unity EditMode unit tests to ensure everything is stable and passes cleanly.
+
+## Review
+- [ ] Verify MD file changes and diffs.

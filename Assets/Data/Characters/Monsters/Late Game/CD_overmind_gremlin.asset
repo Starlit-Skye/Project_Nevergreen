@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_overmind_gremlin
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: overmind_gremlin
+  displayName: Overmind Gremlin
+  characterPrefab: {fileID: 5239835786447253822, guid: 9a863d0c07fbd7c4ca162e49079b2069, type: 3}
+  teamType: 1
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: abb77b7fb23d6a3419a887d8baf70ab2, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: bf6e55302d074a94ca2329a2816fb2a2, type: 2}
+  - {fileID: 11400000, guid: 2d7aec0815fd7d747a165805ce819ba7, type: 2}
+  totalSkillPool: []
+  size: 1
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 11400000, guid: 08fd0ef9b1d96d0468c527fda92e982c, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

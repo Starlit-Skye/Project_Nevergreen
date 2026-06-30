@@ -44,7 +44,7 @@ namespace Nevergreen.Combat
             Host.OnDefeated += HandleHostDefeated;
         }
 
-        private void HandleGuardianStatusChange(CombatCharacter c, StatusType type, bool success)
+        private void HandleGuardianStatusChange(CombatCharacter c, StatusType type, bool success, StatTarget? targetStat)
         {
             if (success && type == StatusType.Stun)
             {

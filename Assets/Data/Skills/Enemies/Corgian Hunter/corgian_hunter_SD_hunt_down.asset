@@ -21,7 +21,6 @@ MonoBehaviour:
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 4415245626395590674
   - rid: 4415245626395590675
   - rid: 4415245626395590676
   useRanks: 01000000020000000300000004000000
@@ -39,9 +38,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 4415245626395590674
-      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data: 
     - rid: 4415245626395590675
       type: {class: ConditionalDamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
