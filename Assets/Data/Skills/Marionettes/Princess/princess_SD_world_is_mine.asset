@@ -25,6 +25,7 @@ MonoBehaviour:
     criticalMod: 5
   effects:
   - rid: 356131266422636544
+  - rid: 4415245765289443424
   useRanks: 0300000004000000
   targetRanks: 01000000020000000300000004000000
   targetScope: 2
@@ -42,4 +43,7 @@ MonoBehaviour:
     RefIds:
     - rid: 356131266422636544
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 
+    - rid: 4415245765289443424
+      type: {class: GainPartOnKillEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 

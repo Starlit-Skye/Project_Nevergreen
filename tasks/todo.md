@@ -1,11 +1,12 @@
-# Todo: Extract and Update Mid-Game Enemy Stat Blocks
+# Princess "World is Mine" Skill Kill Effect Plan
 
 ## Tasks
-- [ ] 1. Programmatically extract current stats from the 8 mid-game monster `.asset` files.
-- [ ] 2. Update the "Mid Game" section of `Assets/Data/StatBlocks/Monsters/monster_stat_blocks.md` with the extracted values.
-- [ ] 3. Generate/update the copy-and-pasteable markdown artifact in the brain folder.
-- [ ] 4. Run verification C# script to verify that the documentation matches the ScriptableObject assets.
-- [ ] 5. Run Unity EditMode unit tests to ensure everything is stable and passes cleanly.
+- [x] 1. Create the `GainPartOnKillEffect.cs` skill effect class.
+- [x] 2. Create and run a Roslyn script via `script-execute` to append `GainPartOnKillEffect` to the Princess skill "World is Mine" asset (`princess_SD_world_is_mine.asset`).
+- [x] 2. Create and run a Roslyn script via `script-execute` to append `GainPartOnKillEffect` to the Princess skill "World is Mine" asset (`princess_SD_world_is_mine.asset`).
+- [x] 3. Implement unit tests in `GainPartOnKillEffectTests.cs` to verify the kill logic and parts addition.
+- [x] 4. Run unit tests using `tests-run` and verify correct behavior.
 
 ## Review
-- [ ] Verify MD file changes and diffs.
+- [x] Verify that tests compile and pass.
+- [x] Verify that the skill asset correctly references the new effect in Unity.
