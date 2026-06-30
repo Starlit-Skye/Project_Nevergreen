@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: snipe
   displayName: Snipe
-  description: 'Deal damage to 1 enemy. Extra damage against Marked enemies.
+  description: 'Deal damage to 1 enemy. -50% damage against Marked enemies.
 
     Usable
     Rank: 3-4'

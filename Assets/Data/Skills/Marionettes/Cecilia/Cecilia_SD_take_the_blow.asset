@@ -57,7 +57,7 @@ MonoBehaviour:
         statusType: 5
         targetStat: 1
         applicationChance: 100
-        amplitude: 5
+        amplitude: 20
         amplitudeType: 2
         duration: 3
         direction: 0
@@ -68,7 +68,7 @@ MonoBehaviour:
         statusType: 5
         targetStat: 3
         applicationChance: 100
-        amplitude: 5
+        amplitude: 20
         amplitudeType: 2
         duration: 3
         direction: 0
