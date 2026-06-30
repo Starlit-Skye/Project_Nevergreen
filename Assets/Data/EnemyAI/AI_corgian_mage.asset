@@ -21,19 +21,11 @@ MonoBehaviour:
     - rid: 4415245694282498048
       type: {class: RuleBasedBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
       data:
-        skillToUse: {fileID: 11400000, guid: 33b7a8783ea87384f92995b4623cf8a4, type: 2}
+        skillToUse: {fileID: 11400000, guid: b43fbd95217ea6a44b7d53f66a54a616, type: 2}
         targeting:
           rid: 4415245694282498126
         conditions:
-        - rid: 4415245694282498049
-    - rid: 4415245694282498049
-      type: {class: NotHasStatusCondition, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
-      data:
-        target: 0
-        statusType: 5
-        stat: 0
-        amplitudeComparison: 0
-        targetAmplitude: 20
+        - rid: 4415245762099675138
     - rid: 4415245694282498126
       type: {class: SimpleTargeting, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
       data:
@@ -43,3 +35,11 @@ MonoBehaviour:
       data:
         maxConsecutiveUses: 1
         excludeSkill: {fileID: 11400000, guid: b43fbd95217ea6a44b7d53f66a54a616, type: 2}
+    - rid: 4415245762099675138
+      type: {class: HasStatusCondition, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        target: 0
+        statusType: 5
+        stat: 0
+        amplitudeComparison: 0
+        targetAmplitude: 20

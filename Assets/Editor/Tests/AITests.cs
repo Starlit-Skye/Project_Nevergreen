@@ -584,5 +584,38 @@ namespace Nevergreen.Tests
 
             Object.DestroyImmediate(p1.gameObject);
         }
+
+        [Test]
+        public void HasStatusCondition_BuffDebuffEvaluatesCorrectly()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("Player1", Team.Player, 1);
+            _battleSystem.PlayerTeam.Add(p1);
+
+            var condition = new HasStatusCondition 
+            { 
+                target = HasStatusCondition.ComparisonTarget.AnyEnemy, 
+                statusType = StatusType.Buff,
+                stat = StatTarget.Speed,
+                amplitudeComparison = HealthCondition.ComparisonOp.GreaterThanOrEqual,
+                targetAmplitude = 2
+            };
+
+            // No Buff on player yet, should return FALSE
+            Assert.IsFalse(condition.IsMet(_brain, _battleSystem));
+
+            // Give player Buff on Speed with amplitude 1 (less than target of 2)
+            p1.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.Speed, 1, 2));
+
+            // Still doesn't match the condition criteria of amplitude >= 2 -> FALSE
+            Assert.IsFalse(condition.IsMet(_brain, _battleSystem));
+
+            // Give player Buff on Speed with amplitude 3 (matches criteria)
+            p1.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.Speed, 3, 2));
+
+            // Now p1 has the matching Buff -> TRUE
+            Assert.IsTrue(condition.IsMet(_brain, _battleSystem));
+
+            Object.DestroyImmediate(p1.gameObject);
+        }
     }
 }
