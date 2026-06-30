@@ -1966,7 +1966,6 @@ GameObject:
   - component: {fileID: 3348540704106099921}
   - component: {fileID: 8254285264929838364}
   - component: {fileID: 5708093827130987676}
-  - component: {fileID: 4082325377673628102}
   - component: {fileID: -5826870051277043968}
   m_Layer: 0
   m_Name: Close
@@ -2089,19 +2088,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &4082325377673628102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5142089728904008008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f107e6c0bcc3f8e47af4bb1e86a5ff38, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CloseMenu
-  parent: {fileID: 3726751528361500350}
 --- !u!114 &-5826870051277043968
 MonoBehaviour:
   m_ObjectHideFlags: 0
