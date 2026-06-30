@@ -21,7 +21,7 @@ MonoBehaviour:
     - rid: 4415245694282498048
       type: {class: RuleBasedBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
       data:
-        skillToUse: {fileID: 11400000, guid: b43fbd95217ea6a44b7d53f66a54a616, type: 2}
+        skillToUse: {fileID: 11400000, guid: 33b7a8783ea87384f92995b4623cf8a4, type: 2}
         targeting:
           rid: 4415245694282498126
         conditions:

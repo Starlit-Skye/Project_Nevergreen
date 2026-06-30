@@ -33,7 +33,7 @@ MonoBehaviour:
         statusType: 5
         stat: 0
         amplitudeComparison: 0
-        targetAmplitude: 50
+        targetAmplitude: 30
     - rid: 4415245694282498126
       type: {class: SimpleTargeting, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
       data:

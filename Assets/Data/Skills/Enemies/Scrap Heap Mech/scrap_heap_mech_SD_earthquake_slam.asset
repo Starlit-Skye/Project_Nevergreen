@@ -16,11 +16,13 @@ MonoBehaviour:
   displayName: Earthquake Slam
   description: Deal damage to all enemies, chance to stun
   modifier:
-    damagePercent: 1
+    damagePercent: 0.3
     healPercent: 0
-    accuracyMod: -30
+    accuracyMod: 0
     criticalMod: 0
-  effects: []
+  effects:
+  - rid: 4415245753505808465
+  - rid: 4415245753505808466
   useRanks: 01000000020000000300000004000000
   targetRanks: 01000000
   targetScope: 2
@@ -35,4 +37,17 @@ MonoBehaviour:
   sfx: {fileID: 0}
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 4415245753505808465
+      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 
+    - rid: 4415245753505808466
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 2
+        targetStat: 5
+        applicationChance: 80
+        amplitude: 1
+        amplitudeType: 0
+        duration: 1
+        ignoreMiss: 0

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: pile_puker_SBD_puke
+  m_Name: bile_puker_SBD_puke
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: puke
   displayName: Puke
@@ -25,6 +25,7 @@ MonoBehaviour:
   - rid: 4415245648690151516
   - rid: 4415245648690151517
   - rid: 4415245648690151518
+  - rid: 4415245753505808464
   useRanks: 0300000004000000
   targetRanks: 01000000020000000300000004000000
   targetScope: 2
@@ -48,7 +49,7 @@ MonoBehaviour:
         statusType: 1
         targetStat: 5
         applicationChance: 120
-        amplitude: 3
+        amplitude: 2
         amplitudeType: 0
         duration: 3
         ignoreMiss: 0
@@ -70,5 +71,15 @@ MonoBehaviour:
         applicationChance: 120
         amplitude: 60
         amplitudeType: 2
+        duration: 3
+        ignoreMiss: 0
+    - rid: 4415245753505808464
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 4
+        targetStat: 5
+        applicationChance: 100
+        amplitude: 1
+        amplitudeType: 0
         duration: 3
         ignoreMiss: 0

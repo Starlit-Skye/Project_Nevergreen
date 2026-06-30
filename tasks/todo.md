@@ -1,10 +1,11 @@
-# Todo: Fix Combat Log Calculations for Multi-Effect Skills
+# Todo: Extract and Update Mid-Game Enemy Stat Blocks
 
 ## Tasks
-- [x] 1. Reset `calculatedValue` and `isCritical` per target iteration in `BattleSystem.cs`.
-- [x] 2. Update `CombatCalculator.cs` to return calculated values without overwriting `ctx.calculatedValue`, and remove crit roll (now done by BattleSystem).
-- [x] 3. Update `DamageEffect.cs` and `ConditionalDamageEffect.cs` to accumulate `context.calculatedValue`.
-- [x] 4. Update `HealEffect.cs` and `HealGuardianEffect.cs` to accumulate `context.calculatedValue`.
-- [x] 5. Fix existing `HitCritTests` that relied on `CalculateDamage` rolling crit.
-- [x] 6. Write new `CumulativeDamageTests` verifying accumulation, resets, and shared crit.
-- [x] 7. Run all unit tests to confirm success — 340/340 passed.
+- [ ] 1. Programmatically extract current stats from the 8 mid-game monster `.asset` files.
+- [ ] 2. Update the "Mid Game" section of `Assets/Data/StatBlocks/Monsters/monster_stat_blocks.md` with the extracted values.
+- [ ] 3. Generate/update the copy-and-pasteable markdown artifact in the brain folder.
+- [ ] 4. Run verification C# script to verify that the documentation matches the ScriptableObject assets.
+- [ ] 5. Run Unity EditMode unit tests to ensure everything is stable and passes cleanly.
+
+## Review
+- [ ] Verify MD file changes and diffs.

@@ -40,4 +40,4 @@ MonoBehaviour:
       type: {class: RandomSkillBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
       data:
         maxConsecutiveUses: 0
-        excludeSkill: {fileID: 0}
+        excludeSkill: {fileID: 11400000, guid: 7ac4225e754e4e64e844bcec9890454c, type: 2}

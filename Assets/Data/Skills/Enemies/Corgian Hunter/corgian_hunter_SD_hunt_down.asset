@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: hunt_down
   displayName: Hunt Down
-  description: Deal damage to 1 enemy. Deal +10% damage to marked. Apply bleed.
+  description: Deal damage to 1 enemy. Deal +50% damage to marked. Apply bleed.
   modifier:
     damagePercent: 1
     healPercent: 0
@@ -43,7 +43,7 @@ MonoBehaviour:
       data:
         conditionSource: 0
         requiredStatus: 4
-        bonusScaling: 0.1
+        bonusScaling: 0.5
     - rid: 4415245626395590676
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
   m_Name: violinist_SD_soothing_tunes
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: inspire
-  displayName: Inspire
+  skillId: soothing_tunes
+  displayName: Soothing Tunes
   description: 'Give all allies Restore 3.
 
     Usable Rank: 2-3'

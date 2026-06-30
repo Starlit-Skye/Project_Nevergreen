@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: focused_fire
   displayName: Focused Fire
-  description: Deal damage to 1 backrow target, +20% damage against Marked
+  description: Deal damage to 1 backrow target, +30% damage against Marked
   modifier:
     damagePercent: 1
     healPercent: 0
@@ -42,4 +42,4 @@ MonoBehaviour:
       data:
         conditionSource: 0
         requiredStatus: 4
-        bonusScaling: 0.2
+        bonusScaling: 0.3
