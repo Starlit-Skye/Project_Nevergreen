@@ -213,6 +213,13 @@ namespace Nevergreen.Combat
             isStunned = false;
             state = LifeState.Alive;
 
+            // Apply On-Spawn Status Effects
+            var spawnEffects = GetComponents<StatusEffectOnSpawn>();
+            foreach (var effect in spawnEffects)
+            {
+                effect.ApplyTo(this);
+            }
+
             // Activate traits from PartyMemberInfo
             DeactivateAllTraits();
             if (team == Team.Player && resolvedPartyInfo != null)

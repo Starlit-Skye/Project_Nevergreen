@@ -24,7 +24,8 @@ namespace Nevergreen.Combat
             string key = $"HealReceived_{target.GetInstanceID()}";
             if (context.extra.TryGetValue(key, out object bonusObj) && bonusObj is float bonusPercent)
             {
-                healAmount = Mathf.RoundToInt(healAmount * (1f + bonusPercent));
+                float multiplier = Mathf.Max(0f, 1f + bonusPercent);
+                healAmount = Mathf.RoundToInt(healAmount * multiplier);
             }
 
             // 2. Application
