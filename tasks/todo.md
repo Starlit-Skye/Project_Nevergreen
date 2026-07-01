@@ -1,9 +1,12 @@
-# Exclude Piles from "World is Mine" Skill Kill Effect
+# Increase Mid Game Enemy Damage by 20%
 
 ## Tasks
-- [x] 1. Refine `GainPartOnKillEffect.cs` using Option 2 (exclude Pile/Destroyed targets).
-- [x] 2. Update and add unit tests in `GainPartOnKillEffectTests.cs` to verify Piles are excluded.
-- [x] 3. Run unit tests using `tests-run` and verify correct behavior.
+- [x] 1. Run EditMode tests to confirm everything is passing as a baseline.
+- [x] 2. Run Unity Editor C# script via `script-execute` to load and update `attack` (damage) for all assets in the `Mid Game` monster directory.
+- [x] 3. Update the `monster_stat_blocks.md` table to reflect new Atk values.
+- [x] 4. Run `git diff` or view files to verify all asset changes and table edits.
+- [x] 5. Run EditMode tests again to ensure no regressions.
 
 ## Review
+- [x] Verify that modified Atk values match expected calculations.
 - [x] Verify that tests compile and pass.

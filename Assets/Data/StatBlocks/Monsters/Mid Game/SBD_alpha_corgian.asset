@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_alpha_corgian
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 8
+  attack: 10
   accuracy: 100
   critChance: 5
-  maxHP: 46
+  maxHP: 60
   defense: 20
   dodge: 0
   speed: 7
