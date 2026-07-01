@@ -294,5 +294,93 @@ namespace Nevergreen.Tests
             // Assert
             Assert.IsTrue(generatedWithoutHealer, "Should be able to generate a batch without a healer if Cecilia has Hasty Repair.");
         }
+
+        [Test]
+        public void GenerateRandomMarionette_ViolinistInParty_AllowsNoHealerInBatch()
+        {
+            // Arrange
+            _marionetteDb.marionettes.Clear();
+            for (int i = 0; i < 10; i++) // Plenty of non-healers
+            {
+                var temp = ScriptableObject.CreateInstance<CharacterData>();
+                temp.characterId = $"char_{i}";
+                _marionetteDb.marionettes.Add(temp);
+            }
+            var healer = ScriptableObject.CreateInstance<CharacterData>();
+            healer.characterId = "maid_marionette";
+            _marionetteDb.marionettes.Add(healer);
+
+            var existingHealerData = ScriptableObject.CreateInstance<CharacterData>();
+            existingHealerData.characterId = "violinist_marionette";
+            RunSessionManager.CurrentParty.Add(new PartyMemberInfo { character = existingHealerData });
+
+            // Act
+            bool generatedWithoutHealer = false;
+            for (int i = 0; i < 50; i++)
+            {
+                var list = MarionetteGenerator.GenerateRandomMarionette(3);
+                bool batchHasHealer = false;
+                foreach (var item in list)
+                {
+                    if (item.character.characterId == "maid_marionette")
+                    {
+                        batchHasHealer = true;
+                        break;
+                    }
+                }
+                if (!batchHasHealer)
+                {
+                    generatedWithoutHealer = true;
+                    break;
+                }
+            }
+
+            // Assert
+            Assert.IsTrue(generatedWithoutHealer, "Should be able to generate a batch without a healer if the party already has a Violinist.");
+        }
+
+        [Test]
+        public void GenerateRandomMarionette_PrincessInParty_AllowsNoHealerInBatch()
+        {
+            // Arrange
+            _marionetteDb.marionettes.Clear();
+            for (int i = 0; i < 10; i++) // Plenty of non-healers
+            {
+                var temp = ScriptableObject.CreateInstance<CharacterData>();
+                temp.characterId = $"char_{i}";
+                _marionetteDb.marionettes.Add(temp);
+            }
+            var healer = ScriptableObject.CreateInstance<CharacterData>();
+            healer.characterId = "maid_marionette";
+            _marionetteDb.marionettes.Add(healer);
+
+            var existingHealerData = ScriptableObject.CreateInstance<CharacterData>();
+            existingHealerData.characterId = "princess_marionette";
+            RunSessionManager.CurrentParty.Add(new PartyMemberInfo { character = existingHealerData });
+
+            // Act
+            bool generatedWithoutHealer = false;
+            for (int i = 0; i < 50; i++)
+            {
+                var list = MarionetteGenerator.GenerateRandomMarionette(3);
+                bool batchHasHealer = false;
+                foreach (var item in list)
+                {
+                    if (item.character.characterId == "maid_marionette")
+                    {
+                        batchHasHealer = true;
+                        break;
+                    }
+                }
+                if (!batchHasHealer)
+                {
+                    generatedWithoutHealer = true;
+                    break;
+                }
+            }
+
+            // Assert
+            Assert.IsTrue(generatedWithoutHealer, "Should be able to generate a batch without a healer if the party already has a Princess.");
+        }
     }
 }

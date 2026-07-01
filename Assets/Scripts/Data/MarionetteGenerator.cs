@@ -128,7 +128,9 @@ namespace Nevergreen.Data
             
             return template.characterId == "maid_marionette" || template.displayName == "Maid" ||
                    template.characterId == "commander_marionette" || template.displayName == "Commander" ||
-                   template.characterId == "alchemist_marionette" || template.displayName == "Alchemist";
+                   template.characterId == "alchemist_marionette" || template.displayName == "Alchemist" ||
+                   template.characterId == "violinist_marionette" || template.displayName == "Violinist" ||
+                   template.characterId == "princess_marionette" || template.displayName == "Princess";
         }
 
         /// <summary>
