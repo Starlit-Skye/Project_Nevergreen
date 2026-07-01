@@ -93,5 +93,55 @@ namespace Nevergreen.Tests
             Assert.AreEqual(initialParts, RunSessionManager.Parts, "Parts should not increase if target survives.");
             Assert.IsFalse(_rewardUI.panel.activeSelf, "In-battle reward panel should not pop up.");
         }
+
+        [Test]
+        public void Execute_TargetIsPile_NoPartGranted()
+        {
+            var user = CombatTestHelper.CreateCombatCharacter("user", Team.Player, 1);
+            _cleanup.Add(user.gameObject);
+            var skill = ScriptableObject.CreateInstance<Nevergreen.Data.SkillData>();
+
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, 1, maxHP: 100);
+            _cleanup.Add(target.gameObject);
+
+            // Target is a Pile (but not destroyed)
+            target.currentHP = 50;
+            target.state = LifeState.Pile;
+
+            var ctx = new SkillContext(user, skill, new List<CombatCharacter> { target }, null, new System.Random());
+            var effect = new GainPartOnKillEffect();
+
+            int initialParts = RunSessionManager.Parts;
+
+            effect.Execute(ctx, target);
+
+            Assert.AreEqual(initialParts, RunSessionManager.Parts, "Parts should not increase if target is a Pile.");
+            Assert.IsFalse(_rewardUI.panel.activeSelf, "In-battle reward panel should not pop up.");
+        }
+
+        [Test]
+        public void Execute_TargetWasPileAndDestroyed_NoPartGranted()
+        {
+            var user = CombatTestHelper.CreateCombatCharacter("user", Team.Player, 1);
+            _cleanup.Add(user.gameObject);
+            var skill = ScriptableObject.CreateInstance<Nevergreen.Data.SkillData>();
+
+            var target = CombatTestHelper.CreateCombatCharacter("target", Team.Enemy, 1, maxHP: 100);
+            _cleanup.Add(target.gameObject);
+
+            // Target was a Pile and got destroyed (currentHP <= 0, state == Destroyed)
+            target.currentHP = 0;
+            target.state = LifeState.Destroyed;
+
+            var ctx = new SkillContext(user, skill, new List<CombatCharacter> { target }, null, new System.Random());
+            var effect = new GainPartOnKillEffect();
+
+            int initialParts = RunSessionManager.Parts;
+
+            effect.Execute(ctx, target);
+
+            Assert.AreEqual(initialParts, RunSessionManager.Parts, "Parts should not increase if target is a Destroyed Pile.");
+            Assert.IsFalse(_rewardUI.panel.activeSelf, "In-battle reward panel should not pop up.");
+        }
     }
 }

@@ -16,8 +16,12 @@ namespace Nevergreen.Combat
             if (context == null || target == null)
                 return;
 
-            // Check if the target was actually defeated (HP <= 0 or in Dying/Destroyed state)
-            bool isDefeated = target.currentHP <= 0 || target.state == LifeState.Dying || target.state == LifeState.Destroyed;
+            // Exclude targets that are currently Piles, or were Piles and got Destroyed
+            if (target.state == LifeState.Pile || target.state == LifeState.Destroyed)
+                return;
+
+            // Check if the target was actually defeated
+            bool isDefeated = target.currentHP <= 0 || target.state == LifeState.Dying;
             if (!isDefeated)
                 return;
 
