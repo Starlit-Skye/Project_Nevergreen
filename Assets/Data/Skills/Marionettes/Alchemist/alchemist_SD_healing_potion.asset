@@ -18,8 +18,8 @@ MonoBehaviour:
 
     Usable Rank: 3-4'
   modifier:
-    damagePercent: 0.3
-    healPercent: 0
+    damagePercent: 0
+    healPercent: 0.2
     accuracyMod: 0
     criticalMod: 0
   effects:

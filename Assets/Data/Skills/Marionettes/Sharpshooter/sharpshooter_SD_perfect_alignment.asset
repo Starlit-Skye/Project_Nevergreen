@@ -19,10 +19,10 @@ MonoBehaviour:
 
     Usable Rank: 4'
   modifier:
-    damagePercent: 1.3
+    damagePercent: 0.9
     healPercent: 0
     accuracyMod: -30
-    criticalMod: 5
+    criticalMod: 0
   effects:
   - rid: 356131309606142051
   useRanks: 04000000

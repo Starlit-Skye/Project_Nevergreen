@@ -24,7 +24,7 @@ MonoBehaviour:
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 356131266422636631
+  - rid: 3450807377827201100
   - rid: 4415245736801206274
   useRanks: 0300000004000000
   targetRanks: 01000000
@@ -41,16 +41,16 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131266422636631
-      type: {class: ApplyStatusToGuardianEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+    - rid: 3450807377827201100
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
         statusType: 5
         targetStat: 0
         applicationChance: 300
         amplitude: 20
-        amplitudeType: 1
+        amplitudeType: 0
         duration: 3
-        ignoreMiss: 1
+        ignoreMiss: 0
     - rid: 4415245736801206274
       type: {class: HealEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 

@@ -21,11 +21,11 @@ MonoBehaviour:
     damagePercent: 1
     healPercent: 0
     accuracyMod: 0
-    criticalMod: 20
+    criticalMod: 30
   effects:
   - rid: 356131225480986716
-  useRanks: 020000000300000004000000
-  targetRanks: 010000000200000003000000
+  useRanks: 0100000002000000
+  targetRanks: 0100000002000000
   targetScope: 2
   maxTargets: 1
   ignoresDefense: 0

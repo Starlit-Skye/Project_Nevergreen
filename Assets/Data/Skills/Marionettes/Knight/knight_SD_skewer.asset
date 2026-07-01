@@ -18,7 +18,7 @@ MonoBehaviour:
 
     Usable Rank: 2-4'
   modifier:
-    damagePercent: 1
+    damagePercent: 0.9
     healPercent: 0
     accuracyMod: 0
     criticalMod: 3
@@ -26,7 +26,7 @@ MonoBehaviour:
   - rid: 356131240495284224
   - rid: 356131240495284225
   useRanks: 020000000300000004000000
-  targetRanks: 01000000020000000300000004000000
+  targetRanks: 010000000200000003000000
   targetScope: 2
   maxTargets: 1
   ignoresDefense: 0
