@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: passenger_princess
   displayName: Passenger Princess
-  description: 'Makes an ally guard this character.
+  description: 'Makes an ally guard this character and grant that ally Defense buff
+    and Acc buff.
 
     Usable Rank: 3-4'
   modifier:
@@ -25,6 +26,7 @@ MonoBehaviour:
   effects:
   - rid: 356131266422636620
   - rid: 356131266422636621
+  - rid: 3450807383106781264
   useRanks: 0300000004000000
   targetRanks: 01000000020000000300000004000000
   targetScope: 1
@@ -52,7 +54,17 @@ MonoBehaviour:
         statusType: 5
         targetStat: 1
         applicationChance: 300
-        amplitude: 25
+        amplitude: 20
         amplitudeType: 2
         duration: 3
         ignoreMiss: 1
+    - rid: 3450807383106781264
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 5
+        targetStat: 2
+        applicationChance: 300
+        amplitude: 20
+        amplitudeType: 0
+        duration: 3
+        ignoreMiss: 0

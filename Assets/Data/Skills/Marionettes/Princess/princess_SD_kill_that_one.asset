@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: kill_that_one
   displayName: Kill That One
-  description: 'Mark and enemy. Apply Def debuff.
+  description: 'Mark an enemy. Apply Def debuff.
 
     Usable Rank: 3-4'
   modifier:

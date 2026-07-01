@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: one_on_one
   displayName: One On One
-  description: 'Deal low damage to an enemy, move the target and self to front.
+  description: 'Deal low damage to an enemy, move the target and self to front. High
+    stun chance.
 
-    Usable
-    Rank: 2-4'
+    Usable Rank: 2-4'
   modifier:
     damagePercent: 0.1
     healPercent: 0
@@ -27,6 +27,7 @@ MonoBehaviour:
   - rid: 356131331783786496
   - rid: 356131331783786499
   - rid: 356131331783786501
+  - rid: 3450807383106781260
   useRanks: 020000000300000004000000
   targetRanks: 0300000004000000
   targetScope: 2
@@ -65,3 +66,13 @@ MonoBehaviour:
         amplitudeType: 0
         duration: 1
         ignoreMiss: 1
+    - rid: 3450807383106781260
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 2
+        targetStat: 5
+        applicationChance: 120
+        amplitude: 1
+        amplitudeType: 0
+        duration: 3
+        ignoreMiss: 0
