@@ -55,6 +55,6 @@ MonoBehaviour:
         applicationChance: 100
         duration: 4
         ignoreMiss: 1
-        bleedAmplitude: 3
+        bleedAmplitude: 2
         bleedDuration: 3
         bleedChance: 100
