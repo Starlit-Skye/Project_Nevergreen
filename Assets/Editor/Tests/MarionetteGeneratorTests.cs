@@ -382,5 +382,82 @@ namespace Nevergreen.Tests
             // Assert
             Assert.IsTrue(generatedWithoutHealer, "Should be able to generate a batch without a healer if the party already has a Princess.");
         }
+
+        [Test]
+        public void CalculateLowestTeamLevel_EmptyParty_Returns1()
+        {
+            // Arrange
+            RunSessionManager.CurrentParty.Clear();
+
+            // Act
+            int lowestLevel = MarionetteGenerator.CalculateLowestTeamLevel(RunSessionManager.CurrentParty);
+
+            // Assert
+            Assert.AreEqual(1, lowestLevel);
+        }
+
+        [Test]
+        public void CalculateLowestTeamLevel_VariousLevels_ReturnsLowest()
+        {
+            // Arrange
+            var ceci = new PartyMemberInfo { character = ScriptableObject.CreateInstance<CharacterData>(), currentLevel = 5, currentHP = 10 };
+            ceci.character.characterId = "ceci";
+            
+            var maid = new PartyMemberInfo { character = ScriptableObject.CreateInstance<CharacterData>(), currentLevel = 3, currentHP = 10 };
+            maid.character.characterId = "maid_marionette";
+
+            var commander = new PartyMemberInfo { character = ScriptableObject.CreateInstance<CharacterData>(), currentLevel = 7, currentHP = 10 };
+            commander.character.characterId = "commander_marionette";
+
+            RunSessionManager.CurrentParty.Add(ceci);
+            RunSessionManager.CurrentParty.Add(maid);
+            RunSessionManager.CurrentParty.Add(commander);
+
+            // Act
+            int lowestLevel = MarionetteGenerator.CalculateLowestTeamLevel(RunSessionManager.CurrentParty);
+
+            // Assert
+            Assert.AreEqual(3, lowestLevel, "Should return the lowest level among all party members (3).");
+        }
+
+        [Test]
+        public void CalculateLowestTeamLevel_DestroyedMember_IsExcluded()
+        {
+            // Arrange
+            var ceci = new PartyMemberInfo { character = ScriptableObject.CreateInstance<CharacterData>(), currentLevel = 5, currentHP = 10 };
+            ceci.character.characterId = "ceci";
+            
+            // Maid is level 2, but destroyed (HP <= 0)
+            var maid = new PartyMemberInfo { character = ScriptableObject.CreateInstance<CharacterData>(), currentLevel = 2, currentHP = 0 };
+            maid.character.characterId = "maid_marionette";
+
+            RunSessionManager.CurrentParty.Add(ceci);
+            RunSessionManager.CurrentParty.Add(maid);
+
+            // Act
+            int lowestLevel = MarionetteGenerator.CalculateLowestTeamLevel(RunSessionManager.CurrentParty);
+
+            // Assert
+            Assert.AreEqual(5, lowestLevel, "Should ignore the destroyed member (level 2) and return the lowest level among living members (5).");
+        }
+
+        [Test]
+        public void GenerateRandomMarionette_UsesLowestTeamLevel()
+        {
+            // Arrange
+            var ceci = new PartyMemberInfo { character = ScriptableObject.CreateInstance<CharacterData>(), currentLevel = 4, currentHP = 10 };
+            ceci.character.characterId = "ceci";
+            RunSessionManager.CurrentParty.Add(ceci);
+            
+            // Party has lowest level 4
+
+            // Act
+            var list = MarionetteGenerator.GenerateRandomMarionette(1);
+
+            // Assert
+            Assert.IsNotNull(list);
+            Assert.AreEqual(1, list.Count);
+            Assert.AreEqual(4, list[0].currentLevel, "Generated marionette should have its level set to the lowest team level.");
+        }
     }
 }

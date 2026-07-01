@@ -133,6 +133,41 @@ namespace Nevergreen.Data
                    template.characterId == "princess_marionette" || template.displayName == "Princess";
         }
 
+        public static int CalculateLowestTeamLevel(List<PartyMemberInfo> party)
+        {
+            if (party == null || party.Count == 0)
+            {
+                return 1;
+            }
+
+            int lowestLevel = int.MaxValue;
+            bool foundLivingMember = false;
+
+            foreach (var member in party)
+            {
+                if (member == null || member.character == null) continue;
+
+                // Exclude members destroyed during battle (currentHP <= 0)
+                if (member.currentHP.HasValue && member.currentHP.Value <= 0)
+                {
+                    continue;
+                }
+
+                if (member.currentLevel < lowestLevel)
+                {
+                    lowestLevel = member.currentLevel;
+                }
+                foundLivingMember = true;
+            }
+
+            if (!foundLivingMember)
+            {
+                return 1;
+            }
+
+            return lowestLevel;
+        }
+
         /// <summary>
         /// Populates skills and traits for a chosen template.
         /// traitDb is passed internally from the centralized database.
@@ -143,6 +178,8 @@ namespace Nevergreen.Data
             {
                 character = template
             };
+
+            info.currentLevel = CalculateLowestTeamLevel(RunSessionManager.CurrentParty);
 
             // Select exactly 4 unique random skills (if available)
             var pool = template.totalSkillPool != null && template.totalSkillPool.Count > 0

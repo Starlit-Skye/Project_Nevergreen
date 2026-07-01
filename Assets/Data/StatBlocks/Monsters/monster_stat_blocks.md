@@ -6,10 +6,10 @@ This file contains the stat blocks for all Monsters, extracted from `Assets/Data
 
 | Monster | HP | Atk | Acc | Crit | Def | Dg | Spd | Bleed | Blight | Stun | Debuff | Move |
 |---------|----|-----|-----|------|-----|----|-----|-------|--------|------|--------|------|
-| Infestor | 13 | 3 | 100% | 2% | 0 | 0% | 4 | 0% | 60% | 10% | 0% | 0% |
-| Metal Golem | 31 | 6 | 100% | 2% | 10 | 0% | 3 | 100% | 0% | 70% | 10% | 70% |
+| Infestor | 10 | 3 | 100% | 2% | 0 | 0% | 4 | 0% | 60% | 10% | 0% | 0% |
+| Metal Golem | 29 | 8 | 100% | 2% | 10 | 0% | 3 | 100% | 0% | 70% | 10% | 70% |
 | Royal Wolf | 16 | 3 | 100% | 2% | 0 | 0% | 5 | 10% | 10% | 20% | 10% | 0% |
-| Scratcher | 26 | 4 | 100% | 5% | 0 | 0% | 6 | 40% | 10% | 10% | 0% | 0% |
+| Scratcher | 23 | 4 | 100% | 5% | 0 | 0% | 6 | 40% | 10% | 10% | 0% | 0% |
 
 ## Mid Game
 
@@ -18,7 +18,7 @@ This file contains the stat blocks for all Monsters, extracted from `Assets/Data
 | Alpha Corgian | 60 | 10 | 100% | 5% | 20 | 0% | 7 | 30% | 20% | 70% | 50% | 70% |
 | Artillerist Bot | 22 | 11 | 100% | 7% | 0 | 0% | 5 | 100% | 20% | 20% | 70% | 30% |
 | Bulbous Gremlin | 68 | 6 | 100% | 5% | 0 | 0% | 2 | 10% | 60% | 70% | 20% | 70% |
-| Catapult Gremlin | 25 | 7 | 100% | 5% | 0 | 0% | 3 | 10% | 60% | 30% | 20% | 30% |
+| Catapult Gremlin | 23 | 7 | 100% | 5% | 0 | 0% | 3 | 10% | 60% | 30% | 20% | 30% |
 | Corgian Hunter | 29 | 7 | 100% | 5% | 0 | 20% | 7 | 40% | 20% | 20% | 30% | 20% |
 | Hooked Claws | 26 | 8 | 100% | 7% | 0 | 0% | 6 | 30% | 20% | 20% | 20% | 30% |
 | Jetpack Menace | 26 | 10 | 90% | 5% | 0 | 20% | 8 | 20% | 40% | 20% | 30% | 20% |
@@ -29,13 +29,13 @@ This file contains the stat blocks for all Monsters, extracted from `Assets/Data
 | Monster | HP | Atk | Acc | Crit | Def | Dg | Spd | Bleed | Blight | Stun | Debuff | Move |
 |---------|----|-----|-----|------|-----|----|-----|-------|--------|------|--------|------|
 | Apex Scratcher | 51 | 7 | 100% | 7% | 0 | 40% | 7 | 60% | 60% | 80% | 30% | 90% |
-| Bile Puker | 22 | 7 | 100% | 7% | 0 | 0% | 8 | 20% | 110% | 40% | 30% | 30% |
+| Bile Puker | 24 | 7 | 100% | 7% | 0 | 0% | 8 | 20% | 110% | 40% | 30% | 30% |
 | Corgian Cavalry | 54 | 12 | 100% | 7% | 0 | 10% | 6 | 60% | 20% | 30% | 30% | 50% |
 | Corgian Knight | 44 | 10 | 100% | 10% | 10 | 0% | 7 | 80% | 20% | 60% | 10% | 20% |
 | Corgian Mage | 24 | 13 | 100% | 7% | 0 | 0% | 5 | 30% | 30% | 20% | 50% | 30% |
 | Gremling Shade | 25 | 9 | 100% | 7% | 0 | 5% | 6 | 100% | 100% | 20% | 20% | 20% |
 | Hunter Stalker | 35 | 8 | 100% | 7% | 0 | 5% | 6 | 30% | 30% | 20% | 60% | 30% |
-| Jetpack Ace | 32 | 9 | 100% | 10% | 0 | 10% | 9 | 30% | 50% | 30% | 40% | 20% |
+| Jetpack Ace | 32 | 10 | 100% | 10% | 0 | 10% | 9 | 30% | 50% | 30% | 40% | 20% |
 | Overheating Golem | 39 | 9 | 80% | 7% | 10 | 0% | 3 | 110% | 20% | 100% | 70% | 20% |
 | Overmind Gremlin | 22 | 6 | 100% | 7% | 0 | 30% | 8 | 20% | 30% | 30% | 90% | 30% |
 | Scrap Heap Mech | 63 | 13 | 80% | 3% | 30 | 0% | 3 | 110% | 20% | 80% | 20% | 80% |
