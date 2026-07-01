@@ -16,12 +16,12 @@ This file contains the stat blocks for all Monsters, extracted from `Assets/Data
 | Monster | HP | Atk | Acc | Crit | Def | Dg | Spd | Bleed | Blight | Stun | Debuff | Move |
 |---------|----|-----|-----|------|-----|----|-----|-------|--------|------|--------|------|
 | Alpha Corgian | 60 | 10 | 100% | 5% | 20 | 0% | 7 | 30% | 20% | 70% | 50% | 70% |
-| Artillerist Bot | 22 | 11 | 100% | 7% | 0 | 0% | 5 | 100% | 20% | 20% | 70% | 30% |
+| Artillerist Bot | 22 | 9 | 100% | 7% | 0 | 0% | 5 | 100% | 20% | 20% | 70% | 30% |
 | Bulbous Gremlin | 68 | 6 | 100% | 5% | 0 | 0% | 2 | 10% | 60% | 70% | 20% | 70% |
 | Catapult Gremlin | 23 | 7 | 100% | 5% | 0 | 0% | 3 | 10% | 60% | 30% | 20% | 30% |
 | Corgian Hunter | 29 | 7 | 100% | 5% | 0 | 20% | 7 | 40% | 20% | 20% | 30% | 20% |
 | Hooked Claws | 26 | 8 | 100% | 7% | 0 | 0% | 6 | 30% | 20% | 20% | 20% | 30% |
-| Jetpack Menace | 26 | 10 | 90% | 5% | 0 | 20% | 8 | 20% | 40% | 20% | 30% | 20% |
+| Jetpack Menace | 24 | 8 | 90% | 5% | 0 | 20% | 8 | 20% | 40% | 20% | 30% | 20% |
 | Protector Bot | 44 | 6 | 80% | 5% | 20 | 0% | 3 | 70% | 10% | 50% | 20% | 40% |
 
 ## Late Game
