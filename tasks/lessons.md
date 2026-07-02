@@ -62,5 +62,10 @@
 - **Rule**: NEVER use GameDatabase.Initialize() in test code. Always use GameDatabase.SetInstanceForTesting().
 
 ### Reflection for Property Setters is Fragile
-- **Pattern**: Using 	ypeof(X).GetProperty(...).SetValue() to set private setters is fragile and silently fails on rename.
+- **Pattern**: Using typeof(X).GetProperty(...).SetValue() to set private setters is fragile and silently fails on rename.
 - **Solution**: Change private set to internal set when the setter needs to be accessed by same-assembly code (e.g., SaveManager setting RunSessionManager.LastSelectedFormation).
+
+### 11. Avoid LaTeX Notation in Markdown Artifacts
+- **Pattern**: Using LaTeX mathematical formatting (such as `$$formula$$` or `$\text{formula}$`) in markdown documents.
+- **Rule**: Avoid LaTeX equations in walkthroughs and documentation artifacts as the default markdown renderers (including the local UI) may not support LaTeX rendering and will display the raw code literally, rendering it unreadable.
+- **Solution**: Use standard inline code blocks (e.g., `a * b = c`) or code block quotes to display formulas clearly.
