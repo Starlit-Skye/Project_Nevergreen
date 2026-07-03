@@ -7,11 +7,20 @@ namespace Nevergreen.Combat
     {
         public static bool IsPeriodicType(StatusType type)
         {
-            return type == StatusType.Bleed || type == StatusType.Blight || type == StatusType.Restore;
+            return type == StatusType.Bleed || type == StatusType.Blight || type == StatusType.Restore || type == StatusType.Burn;
         }
 
         public static void ProcessPeriodicEffects(CombatCharacter character)
         {
+            // Burn increases its own damage by 1 right before triggering damage
+            foreach (var status in character.statusEffects)
+            {
+                if (status.type == StatusType.Burn && !status.IsExpired)
+                {
+                    status.amplitude += 1;
+                }
+            }
+
             // GroupBy preserves the order of the first occurrence in the source list.
             var periodicGroups = character.statusEffects
                 .Where(s => IsPeriodicType(s.type) && !s.IsExpired)

@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbacf546f511b25458a18339fa5b8624, type: 3}
+  m_Name: AI_corgian_bodyguard
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.AI.EnemyAIProfile
+  behaviors:
+  - rid: 3450807426638151758
+  - rid: 3450807426638151761
+  references:
+    version: 2
+    RefIds:
+    - rid: 3450807426638151758
+      type: {class: RuleBasedBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        skillToUse: {fileID: 11400000, guid: 1dcca0581d74be24ba1cadd372ccb6b3, type: 2}
+        targeting:
+          rid: 3450807426638151759
+        conditions:
+        - rid: 3450807426638151760
+    - rid: 3450807426638151759
+      type: {class: SimpleTargeting, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        strategy: 0
+    - rid: 3450807426638151760
+      type: {class: HasStatusCondition, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        target: 0
+        statusType: 14
+        stat: 5
+        amplitudeComparison: 4
+        targetAmplitude: 1
+    - rid: 3450807426638151761
+      type: {class: RandomSkillBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        maxConsecutiveUses: 0
+        excludeSkill: {fileID: 11400000, guid: 1dcca0581d74be24ba1cadd372ccb6b3, type: 2}

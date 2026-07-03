@@ -36,3 +36,5 @@ MonoBehaviour:
     tier: 2
   - roomCount: 12
     tier: 3
+  - roomCount: 17
+    tier: 4

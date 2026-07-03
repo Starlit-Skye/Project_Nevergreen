@@ -9,6 +9,7 @@ namespace Nevergreen.Data
         Trivial,
         EarlyGame,
         MidGame,
-        LateGame
+        LateGame,
+        Boss
     }
 }

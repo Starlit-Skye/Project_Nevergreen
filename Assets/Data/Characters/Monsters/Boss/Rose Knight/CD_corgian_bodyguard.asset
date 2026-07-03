@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_corgian_bodyguard
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: corgian_bodyguard
+  displayName: Corgian Bodyguard
+  characterPrefab: {fileID: 5239835786447253822, guid: 9e5069fae4afcb94fb506be6f94aaa12, type: 3}
+  teamType: 1
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: ca9d13adfcb8731408d2674e2ad477e4, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: 0ba7f46a22bab4d4997ddb3b3914b89a, type: 2}
+  - {fileID: 11400000, guid: 1dcca0581d74be24ba1cadd372ccb6b3, type: 2}
+  totalSkillPool: []
+  size: 1
+  leavesPileOnDeath: 0
+  defaultAIProfile: {fileID: 11400000, guid: 89a4e0297771ee046b753f932fea7d78, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

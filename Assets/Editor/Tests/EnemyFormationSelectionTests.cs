@@ -13,6 +13,7 @@ namespace Nevergreen.Tests
         private EnemyFormationData formationA;
         private EnemyFormationData formationB;
         private EnemyFormationData formationC;
+        private EnemyFormationData formationBoss;
         private CombatConfig combatConfig;
         private GameDatabase gameDatabase;
 
@@ -33,11 +34,16 @@ namespace Nevergreen.Tests
             formationC.name = "Formation_C";
             formationC.enemyPrefabs = new List<GameObject>();
 
+            formationBoss = ScriptableObject.CreateInstance<EnemyFormationData>();
+            formationBoss.name = "Formation_Boss";
+            formationBoss.enemyPrefabs = new List<GameObject>();
+
             database = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
             database.trivialFormations = new List<EnemyFormationData> { formationA, formationB, formationC };
             database.earlyGameFormations = new List<EnemyFormationData> { formationA };
             database.midGameFormations = new List<EnemyFormationData> { formationB };
             database.lateGameFormations = new List<EnemyFormationData> { formationC };
+            database.bossFormations = new List<EnemyFormationData> { formationBoss };
 
             combatConfig = ScriptableObject.CreateInstance<CombatConfig>();
             combatConfig.roomTierMappings = new List<RoomTierMapping>
@@ -45,7 +51,8 @@ namespace Nevergreen.Tests
                 new RoomTierMapping { roomCount = 1, tier = EnemyEncounterTier.Trivial },
                 new RoomTierMapping { roomCount = 3, tier = EnemyEncounterTier.EarlyGame },
                 new RoomTierMapping { roomCount = 6, tier = EnemyEncounterTier.MidGame },
-                new RoomTierMapping { roomCount = 10, tier = EnemyEncounterTier.LateGame }
+                new RoomTierMapping { roomCount = 10, tier = EnemyEncounterTier.LateGame },
+                new RoomTierMapping { roomCount = 15, tier = EnemyEncounterTier.Boss }
             };
 
             // Inject a mock GameDatabase with our formation database
@@ -69,6 +76,7 @@ namespace Nevergreen.Tests
             ScriptableObject.DestroyImmediate(formationA);
             ScriptableObject.DestroyImmediate(formationB);
             ScriptableObject.DestroyImmediate(formationC);
+            ScriptableObject.DestroyImmediate(formationBoss);
             ScriptableObject.DestroyImmediate(database);
             ScriptableObject.DestroyImmediate(combatConfig);
             if (gameDatabase != null) ScriptableObject.DestroyImmediate(gameDatabase);
@@ -88,7 +96,27 @@ namespace Nevergreen.Tests
             Assert.AreEqual(EnemyEncounterTier.MidGame, combatConfig.GetEncounterTierForRoom(9));
 
             Assert.AreEqual(EnemyEncounterTier.LateGame, combatConfig.GetEncounterTierForRoom(10));
-            Assert.AreEqual(EnemyEncounterTier.LateGame, combatConfig.GetEncounterTierForRoom(99));
+            Assert.AreEqual(EnemyEncounterTier.LateGame, combatConfig.GetEncounterTierForRoom(14));
+
+            Assert.AreEqual(EnemyEncounterTier.Boss, combatConfig.GetEncounterTierForRoom(15));
+            Assert.AreEqual(EnemyEncounterTier.Boss, combatConfig.GetEncounterTierForRoom(99));
+        }
+
+        [Test]
+        public void CombatConfig_GetEncounterTierForRoom_Fallback_ResolvesBossCorrectly()
+        {
+            var fallbackConfig = ScriptableObject.CreateInstance<CombatConfig>();
+            Assert.AreEqual(EnemyEncounterTier.Trivial, fallbackConfig.GetEncounterTierForRoom(0));
+            Assert.AreEqual(EnemyEncounterTier.Trivial, fallbackConfig.GetEncounterTierForRoom(1));
+            Assert.AreEqual(EnemyEncounterTier.EarlyGame, fallbackConfig.GetEncounterTierForRoom(2));
+            Assert.AreEqual(EnemyEncounterTier.EarlyGame, fallbackConfig.GetEncounterTierForRoom(3));
+            Assert.AreEqual(EnemyEncounterTier.MidGame, fallbackConfig.GetEncounterTierForRoom(4));
+            Assert.AreEqual(EnemyEncounterTier.MidGame, fallbackConfig.GetEncounterTierForRoom(5));
+            Assert.AreEqual(EnemyEncounterTier.LateGame, fallbackConfig.GetEncounterTierForRoom(6));
+            Assert.AreEqual(EnemyEncounterTier.LateGame, fallbackConfig.GetEncounterTierForRoom(7));
+            Assert.AreEqual(EnemyEncounterTier.Boss, fallbackConfig.GetEncounterTierForRoom(8));
+            Assert.AreEqual(EnemyEncounterTier.Boss, fallbackConfig.GetEncounterTierForRoom(99));
+            ScriptableObject.DestroyImmediate(fallbackConfig);
         }
 
         [Test]
@@ -158,6 +186,9 @@ namespace Nevergreen.Tests
 
             var late = RunSessionManager.GetNextRandomFormation(EnemyEncounterTier.LateGame);
             Assert.AreEqual(formationC, late, "LateGame should return only Formation C");
+
+            var boss = RunSessionManager.GetNextRandomFormation(EnemyEncounterTier.Boss);
+            Assert.AreEqual(formationBoss, boss, "Boss should return only Formation Boss");
         }
 
         [Test]

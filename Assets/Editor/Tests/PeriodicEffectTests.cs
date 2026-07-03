@@ -112,6 +112,33 @@ namespace Nevergreen.Tests
             Assert.AreEqual(82, c.currentHP, "Multiple Blight stacks should aggregate damage (100 - 10 - 8 = 82).");
         }
 
+        // --- Burn Tests ---
+
+        [Test]
+        public void Burn_SingleStack_IncrementsAmplitudeAndDealsDamage()
+        {
+            var c = Track("hero", maxHP: 100, currentHP: 100);
+            c.AddStatus(new StatusEffectInstance(StatusType.Burn, StatTarget.MaxHP, 2, 3));
+            
+            StatusProcessor.ProcessPeriodicEffects(c);
+            
+            // Starts at 2, increments to 3 before triggering, takes 3 damage
+            Assert.AreEqual(97, c.currentHP, "Burn should increment its amplitude to 3 and deal 3 damage (100 - 3 = 97).");
+        }
+
+        [Test]
+        public void Burn_MultipleStacks_IncrementsIndependently()
+        {
+            var c = Track("hero", maxHP: 100, currentHP: 100);
+            c.AddStatus(new StatusEffectInstance(StatusType.Burn, StatTarget.MaxHP, 2, 3));
+            c.AddStatus(new StatusEffectInstance(StatusType.Burn, StatTarget.MaxHP, 3, 3));
+            
+            StatusProcessor.ProcessPeriodicEffects(c);
+            
+            // First stack increments to 3, second increments to 4. Total = 7.
+            Assert.AreEqual(93, c.currentHP, "Multiple Burn stacks should increment independently and aggregate damage (100 - 7 = 93).");
+        }
+
         [Test]
         public void PeriodicDamage_DoesNotDropHPBelowZero()
         {
