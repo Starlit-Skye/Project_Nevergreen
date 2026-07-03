@@ -253,4 +253,4 @@ MonoBehaviour:
   strikeSkill: {fileID: 11400000, guid: 0922627237102bd4096dde9787ac1198, type: 2}
   summonSkill: {fileID: 11400000, guid: 892f413bdf2b27a48a79001913cd5c77, type: 2}
   allyPrefab: {fileID: 7786762382236842581, guid: 9e5069fae4afcb94fb506be6f94aaa12, type: 3}
-  telegraphVFXPrefab: {fileID: 0}
+  telegraphVFXPrefab: {fileID: 2075840254601136488, guid: a9ab9e19868b6e94ba243e4e9299cb62, type: 3}

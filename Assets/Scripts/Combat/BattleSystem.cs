@@ -949,6 +949,8 @@ namespace Nevergreen.Combat
             }
         }
 
+        public event Action<CombatCharacter> OnCharacterSpawned;
+
         /// <summary>
         /// Registers a dynamically spawned character into the active battle.
         /// Subscribes to defeat/state events, activates traits, and adds to the appropriate team list.
@@ -967,6 +969,8 @@ namespace Nevergreen.Combat
             character.OnDefeated += HandleCharacterDefeated;
             character.OnStateChanged += HandleCharacterStateChanged;
             character.ActivateTraits(this);
+
+            OnCharacterSpawned?.Invoke(character);
         }
 
         private void OnDestroy()

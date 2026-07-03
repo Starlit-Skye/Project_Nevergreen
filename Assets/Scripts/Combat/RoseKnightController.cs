@@ -40,10 +40,7 @@ namespace Nevergreen.Combat
         private void Awake()
         {
             _self = GetComponent<CombatCharacter>();
-        }
-
-        private void Start()
-        {
+            
             _battleSystem = FindFirstObjectByType<BattleSystem>();
             if (_battleSystem == null)
             {
@@ -189,6 +186,12 @@ namespace Nevergreen.Combat
             Vector3 spawnPos = new Vector3(xPos, 0f, 0f);
             GameObject allyGO = Instantiate(allyPrefab, spawnPos, Quaternion.identity);
 
+            // Face left (enemy team faces left)
+            allyGO.transform.localScale = new Vector3(
+                -Mathf.Abs(allyGO.transform.localScale.x),
+                allyGO.transform.localScale.y,
+                allyGO.transform.localScale.z);
+
             CombatCharacter allyCombat = allyGO.GetComponent<CombatCharacter>();
             if (allyCombat == null)
             {
@@ -198,15 +201,8 @@ namespace Nevergreen.Combat
                 return;
             }
 
-            allyCombat.rank = spawnRank;
-            allyCombat.team = Team.Enemy;
-
-            // Initialize HP from characterData
-            if (allyCombat.characterData != null)
-            {
-                var stats = allyCombat.characterData.GetStatsForLevel(allyCombat.currentLevel);
-                allyCombat.currentHP = stats.maxHP;
-            }
+            // properly initialize the combat character to set up stats, HP, skills, and AI brain
+            allyCombat.InitializeForCombat(Team.Enemy, spawnRank);
 
             _battleSystem.RegisterSpawnedCharacter(allyCombat);
 

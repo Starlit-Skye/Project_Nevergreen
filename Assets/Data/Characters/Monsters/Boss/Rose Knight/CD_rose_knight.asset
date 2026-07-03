@@ -24,7 +24,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a4e04b48c73164648a80954247c6c9d9, type: 2}
   - {fileID: 11400000, guid: 892f413bdf2b27a48a79001913cd5c77, type: 2}
   totalSkillPool: []
-  size: 1
+  size: 2
   leavesPileOnDeath: 0
   defaultAIProfile: {fileID: 11400000, guid: 6081408213d3a9143b2b1ee66306ca86, type: 2}
   deathSFX: {fileID: 0}

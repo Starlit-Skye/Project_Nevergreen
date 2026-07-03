@@ -89,6 +89,7 @@ namespace Nevergreen.Prototype
             _battleSystem.OnActionResolved += HandleActionResolved;
             _battleSystem.OnBattleEnded += HandleBattleEnded;
             _battleSystem.OnCharacterDefeated += HandleCharacterDefeated;
+            _battleSystem.OnCharacterSpawned += HandleCharacterSpawned;
 
             // Subscribe to animation queue lock state
             if (_animationQueue != null)
@@ -244,6 +245,23 @@ namespace Nevergreen.Prototype
             // Grey out defeated character
             var sr = character.GetComponentInChildren<SpriteRenderer>();
             if (sr != null) sr.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        }
+
+        private void HandleCharacterSpawned(CombatCharacter character)
+        {
+            if (hpBarPrefab == null || worldSpaceCanvas == null) return;
+
+            GameObject barGo = Instantiate(hpBarPrefab, worldSpaceCanvas.transform);
+            HPBar bar = barGo.GetComponent<HPBar>();
+            if (bar != null)
+            {
+                bar.Initialize(character, _animationQueue);
+                _hpBars[character] = bar;
+            }
+
+            // Subscribe to status events for logging
+            character.OnStatusApplied += HandleStatusApplied;
+            character.OnPeriodicEffectApplied += HandlePeriodicEffectApplied;
         }
 
         private void HandleStatusApplied(CombatCharacter target, StatusType type, bool succeeded, StatTarget? targetStat)
@@ -736,6 +754,7 @@ namespace Nevergreen.Prototype
                 _battleSystem.OnActionResolved -= HandleActionResolved;
                 _battleSystem.OnBattleEnded -= HandleBattleEnded;
                 _battleSystem.OnCharacterDefeated -= HandleCharacterDefeated;
+                _battleSystem.OnCharacterSpawned -= HandleCharacterSpawned;
             }
 
             foreach (var c in _playerTeam.Concat(_enemyTeam))

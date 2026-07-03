@@ -21,7 +21,7 @@ MonoBehaviour:
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: -2
+  - rid: 3450807430059393109
   useRanks: 01000000020000000300000004000000
   targetRanks: 01000000020000000300000004000000
   targetScope: 0
@@ -37,5 +37,7 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 3450807430059393109
+      type: {class: HealGuardianEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        ignoreMiss: 0

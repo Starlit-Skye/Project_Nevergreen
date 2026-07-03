@@ -14,14 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: erupt
   displayName: Erupt!
-  description: Deal damage to marked ranks.
+  description: Deal damage to marked ranks. Apply Burn.
   modifier:
     damagePercent: 1
     healPercent: 0
-    accuracyMod: 0
+    accuracyMod: -10
     criticalMod: 0
   effects:
   - rid: 3450807408354918400
+  - rid: 3450807430059393113
   useRanks: 01000000020000000300000004000000
   targetRanks: 01000000020000000300000004000000
   targetScope: 2
@@ -40,3 +41,13 @@ MonoBehaviour:
     - rid: 3450807408354918400
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 
+    - rid: 3450807430059393113
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 14
+        targetStat: 5
+        applicationChance: 100
+        amplitude: 3
+        amplitudeType: 0
+        duration: 3
+        ignoreMiss: 0
