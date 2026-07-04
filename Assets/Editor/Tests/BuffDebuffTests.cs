@@ -855,8 +855,7 @@ namespace Nevergreen.Tests
             skill.effects.Add(new DamageEffect());
 
             // Attacker attacks defender
-            var method = typeof(BattleSystem).GetMethod("ExecuteSkill", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            method?.Invoke(battleSystem, new object[] { attacker, skill, new List<CombatCharacter> { defender } });
+            battleSystem.ExecuteSkill(attacker, skill, new List<CombatCharacter> { defender });
 
             // Defender should counter attack, which triggers OnActionResolved, applying Bleed to Attacker
             Assert.AreEqual(1, attacker.statusEffects.Count(s => s.type == StatusType.Bleed), "Attacker should receive Bleed from defender's riposte.");

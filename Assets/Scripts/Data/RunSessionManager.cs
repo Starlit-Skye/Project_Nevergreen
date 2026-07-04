@@ -213,12 +213,14 @@ namespace Nevergreen
             var db = GameDatabase.Instance;
             if (db == null || db.EnemyFormationDatabase == null)
             {
+                LastSelectedFormation = null;
                 return null;
             }
 
             var formations = db.EnemyFormationDatabase.GetFormations(tier);
             if (formations == null || formations.Count == 0)
             {
+                LastSelectedFormation = null;
                 return null;
             }
 

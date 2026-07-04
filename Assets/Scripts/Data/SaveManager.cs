@@ -161,6 +161,7 @@ namespace Nevergreen.Data
                     allFormations.AddRange(db.EnemyFormationDatabase.earlyGameFormations);
                     allFormations.AddRange(db.EnemyFormationDatabase.midGameFormations);
                     allFormations.AddRange(db.EnemyFormationDatabase.lateGameFormations);
+                    allFormations.AddRange(db.EnemyFormationDatabase.bossFormations);
                     
                     var formation = allFormations.FirstOrDefault(f => f != null && f.formationId == dto.lastSelectedFormationId);
                     if (formation != null)

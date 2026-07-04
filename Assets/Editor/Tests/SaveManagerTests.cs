@@ -294,5 +294,41 @@ namespace Nevergreen.Tests
             GameDatabase.SetInstanceForTesting(null);
             Object.DestroyImmediate(db, true);
         }
+
+        [Test]
+        public void LoadRun_RestoresBossFormation_AndSetsShouldUseSavedFormation()
+        {
+            var db = ScriptableObject.CreateInstance<GameDatabase>();
+            var formationDb = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
+            var bossFormation = ScriptableObject.CreateInstance<EnemyFormationData>();
+            bossFormation.name = "Test_Boss_Formation";
+            bossFormation.formationId = "test_boss_01";
+
+            // Add formation to bossFormations specifically
+            formationDb.bossFormations = new List<EnemyFormationData> { bossFormation };
+            
+            typeof(GameDatabase).GetField("enemyFormationDatabase", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(db, formationDb);
+            GameDatabase.SetInstanceForTesting(db);
+
+            // Set up state as if it was saved mid-combat in boss room
+            RunSessionManager.RoomCompleted = false;
+            typeof(RunSessionManager).GetProperty("LastSelectedFormation", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).SetValue(null, bossFormation);
+            SaveManager.SaveRun();
+
+            RunSessionManager.Clear();
+            Assert.IsNull(RunSessionManager.LastSelectedFormation);
+            Assert.IsFalse(RunSessionManager.ShouldUseSavedFormation);
+
+            bool loaded = SaveManager.LoadRun();
+
+            Assert.IsTrue(loaded);
+            Assert.AreEqual(bossFormation, RunSessionManager.LastSelectedFormation, "Should restore boss formation.");
+            Assert.IsTrue(RunSessionManager.ShouldUseSavedFormation, "Should set ShouldUseSavedFormation to true because RoomCompleted is false.");
+
+            GameDatabase.SetInstanceForTesting(null);
+            if (!UnityEditor.EditorUtility.IsPersistent(db)) Object.DestroyImmediate(db, true);
+            if (!UnityEditor.EditorUtility.IsPersistent(formationDb)) Object.DestroyImmediate(formationDb, true);
+            if (!UnityEditor.EditorUtility.IsPersistent(bossFormation)) Object.DestroyImmediate(bossFormation, true);
+        }
     }
 }
