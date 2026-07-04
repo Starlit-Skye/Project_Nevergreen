@@ -76,20 +76,46 @@ namespace Nevergreen.Combat
             ClearVFX();
             _markedRanks.Clear();
 
+            // Gather all ranks currently occupied by living players
+            var occupiedRanks = _battleSystem.PlayerTeam
+                .Where(c => c.IsAlive)
+                .SelectMany(c => c.OccupiedRanks)
+                .Distinct()
+                .OrderBy(r => r)
+                .ToList();
+
+            if (occupiedRanks.Count == 0) return;
+
             // Determine how many ranks to mark: 1 or 2 adjacent (50/50)
-            bool markTwo = Random.Range(0, 2) == 1;
+            bool markTwo = Random.Range(0, 2) == 1 && occupiedRanks.Count > 1;
 
             if (markTwo)
             {
-                // Pick a starting rank from 1-3 so both rank and rank+1 are valid (1-4 range)
-                int startRank = Random.Range(1, 4); // 1, 2, or 3
-                _markedRanks.Add(startRank);
-                _markedRanks.Add(startRank + 1);
+                // Try to find adjacent pairs of occupied ranks
+                var adjacentPairs = new List<(int, int)>();
+                for (int i = 0; i < occupiedRanks.Count - 1; i++)
+                {
+                    if (occupiedRanks[i + 1] == occupiedRanks[i] + 1)
+                    {
+                        adjacentPairs.Add((occupiedRanks[i], occupiedRanks[i + 1]));
+                    }
+                }
+
+                if (adjacentPairs.Count > 0)
+                {
+                    var pair = adjacentPairs[Random.Range(0, adjacentPairs.Count)];
+                    _markedRanks.Add(pair.Item1);
+                    _markedRanks.Add(pair.Item2);
+                }
+                else
+                {
+                    // Fallback to 1 rank if no adjacent occupied pairs exist
+                    _markedRanks.Add(occupiedRanks[Random.Range(0, occupiedRanks.Count)]);
+                }
             }
             else
             {
-                int rank = Random.Range(1, 5); // 1, 2, 3, or 4
-                _markedRanks.Add(rank);
+                _markedRanks.Add(occupiedRanks[Random.Range(0, occupiedRanks.Count)]);
             }
 
             Debug.Log($"[RoseKnightController] Round {roundNumber}: Telegraphing ranks [{string.Join(", ", _markedRanks)}]");

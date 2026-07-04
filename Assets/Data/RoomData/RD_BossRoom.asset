@@ -15,11 +15,13 @@ MonoBehaviour:
   roomId: RD_BossRoom
   roomName: Boss Room
   description: Fight the run's boss.
-  activationType: 0
+  activationType: 2
   strategy:
-    rid: -2
+    rid: 3450807445630746624
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 3450807445630746624
+      type: {class: BossRoomEffectStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        endRunPrefab: {fileID: 3382358908111121812, guid: 8faac7987f501bc4591436a9a438bd73, type: 3}

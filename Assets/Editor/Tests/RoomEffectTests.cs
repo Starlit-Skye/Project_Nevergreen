@@ -492,5 +492,43 @@ namespace Nevergreen.Tests
             UnityEngine.Object.DestroyImmediate(c2GO);
             UnityEngine.Object.DestroyImmediate(c3GO);
         }
+        // ============================================================
+        // BossRoomEffectStrategy Tests
+        // ============================================================
+
+        [Test]
+        public void BossRoomEffectStrategy_Execute_CreatesUIWithEndRunButton()
+        {
+            // Arrange
+            var canvasGO = new GameObject("TestCanvas");
+            var canvas = canvasGO.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+
+            var endRunPrefab = new GameObject("EndRunPrefab");
+            endRunPrefab.AddComponent<RectTransform>(); // Need RectTransform to avoid null ref in strategy
+            
+            var strategy = new BossRoomEffectStrategy();
+            strategy.endRunPrefab = endRunPrefab;
+
+            // Act
+            strategy.ExecuteRoomEffect();
+
+            // Assert
+            var victoryPanel = canvasGO.transform.Find("BossRoomVictoryPanel");
+            Assert.IsNotNull(victoryPanel, "BossRoomVictoryPanel should be created under Canvas.");
+
+            var textGo = victoryPanel.Find("RunCompletedText");
+            Assert.IsNotNull(textGo, "RunCompletedText should be created under the panel.");
+            var textComp = textGo.GetComponent<TMPro.TextMeshProUGUI>();
+            Assert.IsNotNull(textComp, "TextMeshProUGUI component should be attached.");
+            Assert.AreEqual("Run Completed", textComp.text);
+
+            var endRunClone = victoryPanel.Find("EndRunPrefab(Clone)");
+            Assert.IsNotNull(endRunClone, "EndRun prefab should be instantiated under the panel.");
+
+            // Cleanup
+            UnityEngine.Object.DestroyImmediate(canvasGO);
+            UnityEngine.Object.DestroyImmediate(endRunPrefab);
+        }
     }
 }

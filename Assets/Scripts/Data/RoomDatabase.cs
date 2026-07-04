@@ -12,5 +12,8 @@ namespace Nevergreen.Data
     {
         [Tooltip("Pool of available room types the player can choose from.")]
         public List<RoomData> availableRooms = new List<RoomData>();
+
+        [Tooltip("The room in which the player fights the run boss in.")]
+        public RoomData bossRoom;
     }
 }
