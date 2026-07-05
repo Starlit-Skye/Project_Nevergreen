@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_feline_protector
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: feline_protector
+  displayName: Feline Protector
+  characterPrefab: {fileID: 5239835786447253822, guid: c87a5caf6d6401147a01a0fc7a4a6cc5, type: 3}
+  teamType: 1
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: a583df47092ea6245a765097af735b75, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: f60b4e2610e58ce40977ae93bb572a52, type: 2}
+  - {fileID: 11400000, guid: c5d43c18acdb0cf4d85a87f8860c4fbf, type: 2}
+  totalSkillPool: []
+  size: 1
+  leavesPileOnDeath: 0
+  defaultAIProfile: {fileID: 11400000, guid: cc737fc0280e0c44691152ae3896ccbb, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}
