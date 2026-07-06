@@ -50,7 +50,7 @@ namespace Nevergreen.Tests
 
             // Create test skills
             _ultimateSkill = CreateEnemySkill("ultimate", "Ultimate Attack");
-            _summonSkill = CreateSelfSkill("summon_ally", "Summon Ally");
+            _summonSkill = CreateEnemySkill("summon_ally", "Summon Ally");
             _buffSkill = CreateAllySkill("buff_ally", "Buff Ally");
             _markSkill = CreateEnemySkill("mark_target", "Mark Target");
             
@@ -203,7 +203,7 @@ namespace Nevergreen.Tests
 
             Assert.IsTrue(result, "Should produce a decision.");
             Assert.AreEqual(_summonSkill, decision.skill, "Should summon when team < 4.");
-            Assert.Contains(_boss, decision.targets, "Summon target should be self.");
+            Assert.Contains(p1, decision.targets, "Summon target should be the player character.");
         }
 
         [Test]
@@ -339,7 +339,7 @@ namespace Nevergreen.Tests
             
             var spawned = _battleSystem.EnemyTeam.Last();
             Assert.AreNotEqual(_boss, spawned, "A new character should be spawned.");
-            Assert.AreEqual(2, spawned.rank, "Should spawn at next available rank (2).");
+            Assert.AreEqual(1, spawned.rank, "Should shift to front rank (1) after boss moves back.");
             Assert.AreEqual("ProtectorPrefab(Clone)", spawned.gameObject.name, "Should spawn protector when none exists.");
         }
         

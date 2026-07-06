@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: rose_knight_SD_erupt
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: erupt
-  displayName: Erupt!
+  displayName: Ignition Great Slash
   description: Deal damage to marked ranks. Apply Burn.
   modifier:
     damagePercent: 1

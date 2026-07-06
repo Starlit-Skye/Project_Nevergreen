@@ -32,7 +32,7 @@ namespace Nevergreen.Combat.AI.Nodes
 
             if (teamSize < 4)
             {
-                if (TrySummon(brain, out decision)) return true;
+                if (TrySummon(brain, battle, out decision)) return true;
                 
                 // Fallback if summon can't be used
                 return TryBuffOrMark(brain, battle, out decision);
@@ -43,14 +43,21 @@ namespace Nevergreen.Combat.AI.Nodes
             }
         }
 
-        private bool TrySummon(AIBrain brain, out AIDecision decision)
+        private bool TrySummon(AIBrain brain, BattleSystem battle, out AIDecision decision)
         {
             decision = default;
             if (summonSkill == null) return false;
             if (!brain.Self.CanUseSkillFromRank(summonSkill) || !brain.Self.HasRemainingUses(summonSkill))
                 return false;
 
-            decision = AIDecision.UseSkill(summonSkill, new List<CombatCharacter> { brain.Self });
+            var validTargets = battle.GetValidTargets(brain.Self, summonSkill);
+            if (validTargets.Count == 0) return false;
+
+            // Pick a random target to damage
+            var primaryTarget = validTargets[UnityEngine.Random.Range(0, validTargets.Count)];
+            var targets = battle.GetAOETargets(summonSkill, primaryTarget);
+
+            decision = AIDecision.UseSkill(summonSkill, targets);
             return true;
         }
 

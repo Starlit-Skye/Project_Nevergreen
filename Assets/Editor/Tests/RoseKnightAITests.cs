@@ -53,6 +53,8 @@ namespace Nevergreen.Tests
             _strikeSkill = CombatTestHelper.CreateDamageSkill(damagePercent: 1.0f, guaranteedHit: true);
             _strikeSkill.skillId = "roseknight_strike";
             _strikeSkill.displayName = "Rose Strike";
+            _strikeSkill.maxTargets = 2;
+            _strikeSkill.effects.Add(new DamageEffect());
 
             // Configure controller
             _controller.telegraphSkill = _telegraphSkill;
@@ -295,6 +297,8 @@ namespace Nevergreen.Tests
         [Test]
         public void Strike_HitsCharactersInMarkedRanks()
         {
+            _strikeSkill.maxTargets = 1; // Explicitly set to 1 for this test
+            
             var p1 = CreateTrackedCharacter("p1", Team.Player, 1, maxHP: 200);
             var p2 = CreateTrackedCharacter("p2", Team.Player, 2, maxHP: 200);
             var p3 = CreateTrackedCharacter("p3", Team.Player, 3, maxHP: 200);
@@ -309,9 +313,37 @@ namespace Nevergreen.Tests
 
             // p2 is at rank 2 and should have been targeted
             // p1 and p3 should be untouched
-            // (We can't check HP here because ExecuteSkill requires full combat pipeline,
-            // but we verified the controller calls ExecuteSkill with the right targets
-            // by checking that it doesn't error and the marked ranks were cleared)
+            Assert.Less(p2.currentHP, 200, "p2 should have taken damage.");
+            Assert.AreEqual(200, p1.currentHP, "p1 should not have taken damage.");
+            Assert.AreEqual(200, p3.currentHP, "p3 should not have taken damage.");
+
+            Assert.AreEqual(0, _controller.MarkedRanks.Count,
+                "Marked ranks should be cleared after strike.");
+        }
+
+        [Test]
+        public void Strike_HitsMultipleCharactersInMarkedRanks()
+        {
+            _strikeSkill.maxTargets = 2; // Should hit 2 targets
+            
+            var p1 = CreateTrackedCharacter("p1", Team.Player, 1, maxHP: 200);
+            var p2 = CreateTrackedCharacter("p2", Team.Player, 2, maxHP: 200);
+            var p3 = CreateTrackedCharacter("p3", Team.Player, 3, maxHP: 200);
+            SetPlayerTeam(new List<CombatCharacter> { p1, p2, p3 });
+            SetEnemyTeam(new List<CombatCharacter> { _boss });
+
+            // Mark ranks 1 and 2
+            SetMarkedRanks(new List<int> { 1, 2 });
+
+            // Fire round ended
+            InvokeRoundEnded(1);
+
+            // p1 and p2 should have been targeted
+            // p3 should be untouched
+            Assert.Less(p1.currentHP, 200, "p1 should have taken damage.");
+            Assert.Less(p2.currentHP, 200, "p2 should have taken damage.");
+            Assert.AreEqual(200, p3.currentHP, "p3 should not have taken damage.");
+
             Assert.AreEqual(0, _controller.MarkedRanks.Count,
                 "Marked ranks should be cleared after strike.");
         }

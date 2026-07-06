@@ -94,9 +94,11 @@ namespace Nevergreen.Combat
         {
             if (ultimateSkill == null) return;
 
-            var targets = _battleSystem.GetValidTargets(_self, ultimateSkill);
-            if (targets.Count > 0)
+            var validPool = _battleSystem.GetValidTargets(_self, ultimateSkill);
+            if (validPool.Count > 0)
             {
+                var primaryTarget = validPool[0];
+                var targets = _battleSystem.GetAOETargets(ultimateSkill, primaryTarget);
                 _battleSystem.ExecuteSkill(_self, ultimateSkill, targets);
             }
             else
@@ -165,6 +167,9 @@ namespace Nevergreen.Combat
 
             string allyType = hasProtector ? "Damage" : "Protector";
             Debug.Log($"[GodEyeController] Summoned {allyType} ally '{allyCombat.DisplayName}' at rank {spawnRank}.");
+
+            // Shift the boss back 1 rank after successfully spawning the ally
+            _battleSystem.ExecuteMoveAndShift(_self, _self.rank + 1);
         }
     }
 }

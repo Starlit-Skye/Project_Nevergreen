@@ -93,9 +93,21 @@ namespace Nevergreen.Combat.AI.Nodes
             if (!brain.Self.CanUseSkillFromRank(buffSkill) || !brain.Self.HasRemainingUses(buffSkill))
                 return false;
 
-            List<CombatCharacter> targets = battle.GetValidTargets(brain.Self, buffSkill);
-            if (targets.Count == 0) return false;
+            List<CombatCharacter> candidates = battle.GetValidTargets(brain.Self, buffSkill);
+            
+            // Remove self from candidates since skill says "except self"
+            candidates.Remove(brain.Self);
+            
+            if (candidates.Count == 0) return false;
 
+            // Pick front-most ally to maximize AOE sweep for GetAOETargets
+            var primaryTarget = candidates.OrderBy(c => c.rank).First();
+            List<CombatCharacter> targets = battle.GetAOETargets(buffSkill, primaryTarget);
+
+            // Double check to ensure self is not in the final target list
+            targets.Remove(brain.Self);
+
+            Debug.Log($"[RoseKnight] Decided to cast Buff '{buffSkill.displayName}' on {targets.Count} target(s).");
             decision = AIDecision.UseSkill(buffSkill, targets);
             return true;
         }

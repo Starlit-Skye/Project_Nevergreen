@@ -252,7 +252,7 @@ MonoBehaviour:
   ultimateSkill: {fileID: 11400000, guid: 73ec75e5e1f09c24fb4d97ed62aa17d9, type: 2}
   ultimateRoundInterval: 3
   summonSkill: {fileID: 11400000, guid: 1a95d44a61107b241bc827348a56a835, type: 2}
-  protectorData: {fileID: 0}
-  protectorAllyPrefab: {fileID: 0}
-  damageData: {fileID: 0}
-  damageAllyPrefab: {fileID: 0}
+  protectorData: {fileID: 11400000, guid: d9a3a7e7d773e9f42a456c3ea0beb7d7, type: 2}
+  protectorAllyPrefab: {fileID: 7786762382236842581, guid: c87a5caf6d6401147a01a0fc7a4a6cc5, type: 3}
+  damageData: {fileID: 11400000, guid: 73c0803c9412b904aba2d22a175a0a2a, type: 2}
+  damageAllyPrefab: {fileID: 7786762382236842581, guid: ba16b5dc98263314ab3bfff3b9acc205, type: 3}

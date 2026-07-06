@@ -1,0 +1,507 @@
+fileFormatVersion: 2
+guid: 0b08ac953650e5a4aad0d3c0b65b65cd
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6861328999880192582
+    second: cc_atlas_base_sk3_2_0
+  - first:
+      213: -7852386331847437175
+    second: cc_atlas_base_sk3_2_1
+  - first:
+      213: 7422919227210881945
+    second: cc_atlas_base_sk3_2_2
+  - first:
+      213: -3331277482406884293
+    second: cc_atlas_base_sk3_2_3
+  - first:
+      213: -4326093522988942876
+    second: cc_atlas_base_sk3_2_4
+  - first:
+      213: 8151862661820017540
+    second: cc_atlas_base_sk3_2_5
+  - first:
+      213: -4906727208029713572
+    second: cc_atlas_base_sk3_2_6
+  - first:
+      213: -1163121609814995198
+    second: cc_atlas_base_sk3_2_7
+  - first:
+      213: -8497760302782009380
+    second: cc_atlas_base_sk3_2_8
+  - first:
+      213: 9068823849608823302
+    second: cc_atlas_base_sk3_2_9
+  - first:
+      213: -2782849562725030315
+    second: cc_atlas_base_sk3_2_10
+  - first:
+      213: 1745922789484890815
+    second: cc_atlas_base_sk3_2_11
+  - first:
+      213: 5672290941304362111
+    second: cc_atlas_base_sk3_2_12
+  - first:
+      213: -4493064749978536576
+    second: cc_atlas_base_sk3_2_13
+  - first:
+      213: -4059273548467545923
+    second: cc_atlas_base_sk3_2_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_0
+      rect:
+        serializedVersion: 2
+        x: 131
+        y: 2478
+        width: 581
+        height: 1147
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: abd0e03a0a9a7c0a0800000000000000
+      internalID: -6861328999880192582
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_1
+      rect:
+        serializedVersion: 2
+        x: 1555
+        y: 2486
+        width: 655
+        height: 1118
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 984d9132c38b60390800000000000000
+      internalID: -7852386331847437175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_2
+      rect:
+        serializedVersion: 2
+        x: 2453
+        y: 2483
+        width: 1223
+        height: 1082
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99b525675b1830760800000000000000
+      internalID: 7422919227210881945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_3
+      rect:
+        serializedVersion: 2
+        x: 3697
+        y: 2493
+        width: 976
+        height: 1110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3c41e497cce4c1d0800000000000000
+      internalID: -3331277482406884293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_4
+      rect:
+        serializedVersion: 2
+        x: 5025
+        y: 2490
+        width: 940
+        height: 1080
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e930298cd0a6f3c0800000000000000
+      internalID: -4326093522988942876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_5
+      rect:
+        serializedVersion: 2
+        x: 6355
+        y: 2481
+        width: 813
+        height: 990
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48b6d8786eb312170800000000000000
+      internalID: 8151862661820017540
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_6
+      rect:
+        serializedVersion: 2
+        x: 141
+        y: 1260
+        width: 814
+        height: 1166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5b05abe99dc7ebb0800000000000000
+      internalID: -4906727208029713572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_7
+      rect:
+        serializedVersion: 2
+        x: 1234
+        y: 1268
+        width: 987
+        height: 797
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20f8560fe03cbdfe0800000000000000
+      internalID: -1163121609814995198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_8
+      rect:
+        serializedVersion: 2
+        x: 2619
+        y: 1263
+        width: 713
+        height: 1150
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cdf23461704e11a80800000000000000
+      internalID: -8497760302782009380
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_9
+      rect:
+        serializedVersion: 2
+        x: 3800
+        y: 1251
+        width: 716
+        height: 1053
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60246861e3feadd70800000000000000
+      internalID: 9068823849608823302
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_10
+      rect:
+        serializedVersion: 2
+        x: 4823
+        y: 1271
+        width: 755
+        height: 1073
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5566c6e11155169d0800000000000000
+      internalID: -2782849562725030315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_11
+      rect:
+        serializedVersion: 2
+        x: 5354
+        y: 1953
+        width: 289
+        height: 321
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fba8188d683ca3810800000000000000
+      internalID: 1745922789484890815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_12
+      rect:
+        serializedVersion: 2
+        x: 6290
+        y: 1263
+        width: 755
+        height: 1092
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f74dc1bde8608be40800000000000000
+      internalID: 5672290941304362111
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_13
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 28
+        width: 983
+        height: 1142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 08533b84a6d65a1c0800000000000000
+      internalID: -4493064749978536576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cc_atlas_base_sk3_2_14
+      rect:
+        serializedVersion: 2
+        x: 1373
+        y: 32
+        width: 707
+        height: 1050
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db8d371f6309aa7c0800000000000000
+      internalID: -4059273548467545923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      cc_atlas_base_sk3_2_0: -6861328999880192582
+      cc_atlas_base_sk3_2_1: -7852386331847437175
+      cc_atlas_base_sk3_2_10: -2782849562725030315
+      cc_atlas_base_sk3_2_11: 1745922789484890815
+      cc_atlas_base_sk3_2_12: 5672290941304362111
+      cc_atlas_base_sk3_2_13: -4493064749978536576
+      cc_atlas_base_sk3_2_14: -4059273548467545923
+      cc_atlas_base_sk3_2_2: 7422919227210881945
+      cc_atlas_base_sk3_2_3: -3331277482406884293
+      cc_atlas_base_sk3_2_4: -4326093522988942876
+      cc_atlas_base_sk3_2_5: 8151862661820017540
+      cc_atlas_base_sk3_2_6: -4906727208029713572
+      cc_atlas_base_sk3_2_7: -1163121609814995198
+      cc_atlas_base_sk3_2_8: -8497760302782009380
+      cc_atlas_base_sk3_2_9: 9068823849608823302
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
