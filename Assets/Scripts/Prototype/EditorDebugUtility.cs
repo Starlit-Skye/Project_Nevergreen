@@ -88,6 +88,46 @@ namespace Nevergreen.Prototype
                     Debug.Log($"[EditorDebugUtility] Left Arrow pressed. Decreased Room Progression by 1. New Room Progression: {RunSessionManager.RoomProgression}");
                 }
 
+                if (Keyboard.current.hKey.wasPressedThisFrame)
+                {
+                    Debug.Log("[EditorDebugUtility] 'H' pressed. Instantly healing all player marionettes for 999999 HP...");
+                    
+                    var battleSystem = Object.FindAnyObjectByType<Nevergreen.Combat.BattleSystem>();
+                    if (battleSystem != null && battleSystem.CurrentState != Nevergreen.Combat.BattleState.Inactive && battleSystem.CurrentState != Nevergreen.Combat.BattleState.BattleEnd)
+                    {
+                        var players = new System.Collections.Generic.List<Nevergreen.Combat.CombatCharacter>(battleSystem.PlayerTeam);
+                        foreach (var player in players)
+                        {
+                            if (player != null)
+                            {
+                                if (!player.IsAlive)
+                                {
+                                    player.state = Nevergreen.Combat.LifeState.Alive;
+                                }
+                                player.Heal(999999);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (RunSessionManager.CurrentParty != null)
+                        {
+                            foreach (var member in RunSessionManager.CurrentParty)
+                            {
+                                if (member != null && member.character != null)
+                                {
+                                    var stats = member.character.GetStatsForLevel(member.currentLevel);
+                                    if (stats != null)
+                                    {
+                                        member.currentHP = stats.maxHP;
+                                    }
+                                }
+                            }
+                            SaveManager.SaveRun();
+                        }
+                    }
+                }
+
                 int digitIndex = -1;
                 if (Keyboard.current.digit1Key.wasPressedThisFrame) digitIndex = 0;
                 else if (Keyboard.current.digit2Key.wasPressedThisFrame) digitIndex = 1;

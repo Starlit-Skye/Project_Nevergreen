@@ -168,8 +168,8 @@ namespace Nevergreen.Combat
             string allyType = hasProtector ? "Damage" : "Protector";
             Debug.Log($"[GodEyeController] Summoned {allyType} ally '{allyCombat.DisplayName}' at rank {spawnRank}.");
 
-            // Shift the boss back 1 rank after successfully spawning the ally
-            _battleSystem.ExecuteMoveAndShift(_self, _self.rank + 1);
+            // Shift the newly summoned ally to rank 1, pushing everyone else back
+            _battleSystem.ExecuteMoveAndShift(allyCombat, 1);
         }
     }
 }

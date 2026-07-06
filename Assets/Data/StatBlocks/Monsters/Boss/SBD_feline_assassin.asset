@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
   m_Name: SBD_feline_assassin
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 9
+  attack: 12
   accuracy: 100
   critChance: 3
   maxHP: 24
   defense: 0
   dodge: 3
-  speed: 5
+  speed: 6
   bleedResist: 20
   blightResist: 20
   stunResist: 10

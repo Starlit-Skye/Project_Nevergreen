@@ -1,12 +1,8 @@
-# Add Boss Tier to Enemy Encounters and Formation Database
+# Plan: Specific Character Targeting Strategy in AI Rule-Based Behaviour
 
 ## Tasks
-- [x] 1. Modify `EnemyEncounterTier.cs` to append `Boss` tier.
-- [x] 2. Modify `EnemyFormationDatabase.cs` to add `bossFormations` list and update `GetFormations` method.
-- [x] 3. Modify `CombatConfig.cs` to handle default fallback for roomCount >= 8 to return `Boss` tier.
-- [x] 4. Update unit tests in `EnemyFormationSelectionTests.cs` to mock and verify the Boss tier.
-- [x] 5. Run tests to verify all changes function correctly and there are no regressions.
-
-## Review
-- [x] Verify that `EnemyEncounterTier.Boss` is placed at the end of the enum.
-- [x] Verify that test suite passes for formation selection and bootstrapping.
+- [x] 1. Create `SpecificCharacterTargeting.cs` subclassing `AITargetingNode` inside the namespace `Nevergreen.Combat.AI.Nodes`.
+- [x] 2. Implement `TryResolveTargets` scanning the target pool for a matching character ID.
+- [x] 3. Add unit tests in `AIRuleTests.cs` to verify successful targeting, missing character, and null reference handling.
+- [x] 4. Run `mcp_ai-game-developer_tests-run` to verify compilation and that the new tests pass.
+- [x] 5. Review results and document in walkthrough.

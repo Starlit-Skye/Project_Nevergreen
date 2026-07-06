@@ -355,7 +355,9 @@ namespace Nevergreen.Tests
             var spawned = _battleSystem.EnemyTeam.Last();
             Assert.AreNotEqual(_boss, spawned, "A new character should be spawned.");
             Assert.AreNotEqual(protector, spawned, "A new character should be spawned.");
-            Assert.AreEqual(3, spawned.rank, "Should spawn at next available rank (3).");
+            Assert.AreEqual(1, spawned.rank, "Should shift newly summoned ally to rank 1.");
+            Assert.AreEqual(2, _boss.rank, "Boss should be shifted back to rank 2.");
+            Assert.AreEqual(3, protector.rank, "Existing protector should be shifted back to rank 3.");
             Assert.AreEqual("DamagePrefab(Clone)", spawned.gameObject.name, "Should spawn damage when protector already exists.");
         }
 

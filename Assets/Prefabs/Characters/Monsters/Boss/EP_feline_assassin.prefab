@@ -125,6 +125,7 @@ GameObject:
   - component: {fileID: 6466302305001531570}
   - component: {fileID: 6234070145080811027}
   - component: {fileID: 5239835786447253822}
+  - component: {fileID: -7222561828465568013}
   m_Layer: 0
   m_Name: EP_feline_assassin
   m_TagString: Untagged
@@ -236,3 +237,20 @@ MonoBehaviour:
     imperfections: []
   isStunned: 0
   skillUsesThisBattle_count: 0
+--- !u!114 &-7222561828465568013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7786762382236842581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5ed2b387fc85384c9f4f182a7f61a77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.StatusEffectOnSpawn
+  statusType: 10
+  duration: 2
+  amplitude: 0
+  amplitudeType: 0
+  targetStat: 6
