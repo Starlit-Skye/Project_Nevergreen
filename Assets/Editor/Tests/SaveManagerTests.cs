@@ -9,34 +9,34 @@ namespace Nevergreen.Tests
     [TestFixture]
     public class SaveManagerTests
     {
-        private string testSavePath;
+        private string testRunSavePath;
+        private string testProfileSavePath;
 
         [SetUp]
         public void Setup()
         {
-            // Redirect all save operations to a temporary test file — never touch production save.dat
-            testSavePath = Path.Combine(Application.temporaryCachePath, "test_save.dat");
-            SaveManager.SetSavePathForTesting(testSavePath);
+            // Redirect all save operations to temporary test files — never touch production saves
+            testRunSavePath = Path.Combine(Application.temporaryCachePath, "test_run.dat");
+            testProfileSavePath = Path.Combine(Application.temporaryCachePath, "test_profile.dat");
+            SaveManager.SetSavePathsForTesting(testRunSavePath, testProfileSavePath);
 
-            if (File.Exists(testSavePath))
-            {
-                File.Delete(testSavePath);
-            }
+            if (File.Exists(testRunSavePath)) File.Delete(testRunSavePath);
+            if (File.Exists(testProfileSavePath)) File.Delete(testProfileSavePath);
 
-            RunSessionManager.Clear();
+            RunSessionManager.ClearAll();
         }
 
         [TearDown]
         public void Teardown()
         {
-            if (!string.IsNullOrEmpty(testSavePath) && File.Exists(testSavePath))
-            {
-                File.Delete(testSavePath);
-            }
+            if (!string.IsNullOrEmpty(testRunSavePath) && File.Exists(testRunSavePath))
+                File.Delete(testRunSavePath);
+            if (!string.IsNullOrEmpty(testProfileSavePath) && File.Exists(testProfileSavePath))
+                File.Delete(testProfileSavePath);
 
-            // Restore default save path
-            SaveManager.SetSavePathForTesting(null);
-            RunSessionManager.Clear();
+            // Restore default save paths
+            SaveManager.SetSavePathsForTesting(null, null);
+            RunSessionManager.ClearAll();
         }
 
         [Test]
@@ -47,10 +47,10 @@ namespace Nevergreen.Tests
 
             SaveManager.SaveRun();
 
-            Assert.IsTrue(File.Exists(testSavePath), "Save file should be created.");
+            Assert.IsTrue(File.Exists(testRunSavePath), "Run save file should be created.");
             
             // File should not be plain text JSON
-            string content = File.ReadAllText(testSavePath);
+            string content = File.ReadAllText(testRunSavePath);
             Assert.IsFalse(content.Contains("RoomProgression"), "File should be encrypted and not contain plain text keys.");
         }
 
@@ -73,7 +73,7 @@ namespace Nevergreen.Tests
 
             SaveManager.ClearActiveRun();
             
-            Assert.IsTrue(File.Exists(testSavePath), "Save file should still exist after clearing (meta progression).");
+            Assert.IsTrue(File.Exists(testRunSavePath), "Save file should still exist after clearing.");
             Assert.IsFalse(SaveManager.HasSavedRun(), "HasSavedRun should return false after clearing the active run.");
         }
 
@@ -329,6 +329,59 @@ namespace Nevergreen.Tests
             if (!UnityEditor.EditorUtility.IsPersistent(db)) Object.DestroyImmediate(db, true);
             if (!UnityEditor.EditorUtility.IsPersistent(formationDb)) Object.DestroyImmediate(formationDb, true);
             if (!UnityEditor.EditorUtility.IsPersistent(bossFormation)) Object.DestroyImmediate(bossFormation, true);
+        }
+
+        [Test]
+        public void SaveProfile_CreatesEncryptedProfileFile()
+        {
+            // Trigger lazy load to set initial state if needed, or directly modify
+            RunSessionManager.BossFormationChances["test_boss"] = 0.8f;
+            
+            SaveManager.SaveProfile();
+
+            Assert.IsTrue(File.Exists(testProfileSavePath), "Profile save file should be created.");
+            
+            string content = File.ReadAllText(testProfileSavePath);
+            Assert.IsFalse(content.Contains("test_boss"), "Profile file should be encrypted.");
+        }
+
+        [Test]
+        public void ClearActiveRun_DoesNotDeleteOrAlterProfileFile()
+        {
+            // Setup profile
+            RunSessionManager.BossFormationChances["test_boss"] = 0.8f;
+            SaveManager.SaveProfile();
+            long profileSize = new FileInfo(testProfileSavePath).Length;
+
+            // Setup run
+            SaveManager.SaveRun();
+            Assert.IsTrue(SaveManager.HasSavedRun());
+
+            // Clear run
+            SaveManager.ClearActiveRun();
+
+            Assert.IsFalse(SaveManager.HasSavedRun());
+            Assert.IsTrue(File.Exists(testProfileSavePath), "Profile save should still exist.");
+            Assert.AreEqual(profileSize, new FileInfo(testProfileSavePath).Length, "Profile save should not be modified by ClearActiveRun.");
+        }
+
+        [Test]
+        public void LoadProfile_RestoresBossChances_WithoutActiveRun()
+        {
+            // Setup profile file
+            RunSessionManager.BossFormationChances["test_boss_01"] = 0.4f;
+            RunSessionManager.BossFormationChances["test_boss_02"] = 0.6f;
+            SaveManager.SaveProfile();
+
+            // Clear in-memory state
+            RunSessionManager.ClearAll();
+            Assert.IsFalse(SaveManager.HasSavedRun());
+
+            // Trigger lazy load
+            float chance = RunSessionManager.BossFormationChances["test_boss_01"];
+
+            Assert.AreEqual(0.4f, chance);
+            Assert.AreEqual(0.6f, RunSessionManager.BossFormationChances["test_boss_02"]);
         }
     }
 }

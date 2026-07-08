@@ -20,6 +20,13 @@ namespace Nevergreen.Data
     }
 
     [Serializable]
+    public class BossProbabilityDTO
+    {
+        public string formationId;
+        public float chance;
+    }
+
+    [Serializable]
     public class SaveDataDTO
     {
         public bool hasActiveRun;
@@ -32,21 +39,31 @@ namespace Nevergreen.Data
         public List<string> nextRoomChoices = new List<string>();
     }
 
+    [Serializable]
+    public class ProfileSaveDataDTO
+    {
+        public List<BossProbabilityDTO> bossChances = new List<BossProbabilityDTO>();
+    }
+
     /// <summary>
     /// Handles serialization and AES-256 encryption of the current RunSessionManager state.
     /// </summary>
     public static class SaveManager
     {
-        private static string _customSavePath;
-        private static string SavePath => _customSavePath ?? Path.Combine(Application.persistentDataPath, "save.dat");
+        private static string _customRunSavePath;
+        private static string _customProfileSavePath;
+
+        private static string RunSavePath => _customRunSavePath ?? Path.Combine(Application.persistentDataPath, "run.dat");
+        private static string ProfileSavePath => _customProfileSavePath ?? Path.Combine(Application.persistentDataPath, "profile.dat");
 
         /// <summary>
-        /// Sets a temporary save path override for unit tests.
-        /// Pass null to restore the default production path.
+        /// Sets temporary save paths override for unit tests.
+        /// Pass null to restore the default production paths.
         /// </summary>
-        public static void SetSavePathForTesting(string path)
+        public static void SetSavePathsForTesting(string runPath, string profilePath)
         {
-            _customSavePath = path;
+            _customRunSavePath = runPath;
+            _customProfileSavePath = profilePath;
         }
 
         // Fixed obfuscated key for simple local AES encryption
@@ -98,9 +115,9 @@ namespace Nevergreen.Data
 
             string json = JsonUtility.ToJson(dto, false);
             byte[] encryptedData = EncryptAES(json);
-            File.WriteAllBytes(SavePath, encryptedData);
+            File.WriteAllBytes(RunSavePath, encryptedData);
             
-            Debug.Log($"[SaveManager] Run saved successfully to {SavePath}");
+            Debug.Log($"[SaveManager] Run saved successfully to {RunSavePath}");
         }
 
         /// <summary>
@@ -108,11 +125,11 @@ namespace Nevergreen.Data
         /// </summary>
         public static bool LoadRun()
         {
-            if (!File.Exists(SavePath)) return false;
+            if (!File.Exists(RunSavePath)) return false;
 
             try
             {
-                byte[] encryptedData = File.ReadAllBytes(SavePath);
+                byte[] encryptedData = File.ReadAllBytes(RunSavePath);
                 string json = DecryptAES(encryptedData);
                 SaveDataDTO dto = JsonUtility.FromJson<SaveDataDTO>(json);
 
@@ -243,11 +260,9 @@ namespace Nevergreen.Data
         {
             var dto = new SaveDataDTO { hasActiveRun = false };
             
-            // We could preserve existing meta-progression data here if we had any.
-            
             string json = JsonUtility.ToJson(dto, false);
             byte[] encryptedData = EncryptAES(json);
-            File.WriteAllBytes(SavePath, encryptedData);
+            File.WriteAllBytes(RunSavePath, encryptedData);
             
             Debug.Log("[SaveManager] Active run cleared.");
         }
@@ -257,11 +272,11 @@ namespace Nevergreen.Data
         /// </summary>
         public static bool HasSavedRun()
         {
-            if (!File.Exists(SavePath)) return false;
+            if (!File.Exists(RunSavePath)) return false;
 
             try
             {
-                byte[] encryptedData = File.ReadAllBytes(SavePath);
+                byte[] encryptedData = File.ReadAllBytes(RunSavePath);
                 string json = DecryptAES(encryptedData);
                 SaveDataDTO dto = JsonUtility.FromJson<SaveDataDTO>(json);
                 return dto.hasActiveRun;
@@ -269,6 +284,49 @@ namespace Nevergreen.Data
             catch
             {
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Serializes and saves the meta-progression profile to disk.
+        /// </summary>
+        public static void SaveProfile()
+        {
+            var dto = new ProfileSaveDataDTO();
+            foreach (var kvp in RunSessionManager.BossFormationChances)
+            {
+                dto.bossChances.Add(new BossProbabilityDTO
+                {
+                    formationId = kvp.Key,
+                    chance = kvp.Value
+                });
+            }
+
+            string json = JsonUtility.ToJson(dto, false);
+            byte[] encryptedData = EncryptAES(json);
+            File.WriteAllBytes(ProfileSavePath, encryptedData);
+
+            Debug.Log($"[SaveManager] Profile saved successfully to {ProfileSavePath}");
+        }
+
+        /// <summary>
+        /// Loads and decrypts the meta-progression profile from disk.
+        /// Returns null if the file does not exist or fails to load.
+        /// </summary>
+        public static ProfileSaveDataDTO LoadProfile()
+        {
+            if (!File.Exists(ProfileSavePath)) return null;
+
+            try
+            {
+                byte[] encryptedData = File.ReadAllBytes(ProfileSavePath);
+                string json = DecryptAES(encryptedData);
+                return JsonUtility.FromJson<ProfileSaveDataDTO>(json);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[SaveManager] Failed to load profile: {ex.Message}");
+                return null;
             }
         }
 

@@ -23,7 +23,7 @@ namespace Nevergreen.Tests
             }
         }
 
-        private string _testSavePath;
+        private string _testRunPath; private string _testProfilePath;
 
         [SetUp]
         public void SetUp()
@@ -33,8 +33,8 @@ namespace Nevergreen.Tests
             TestRoomEffectStrategy.ExecutionCount = 0;
 
             // Redirect save operations to a temp file so tests never touch production save.dat
-            _testSavePath = Path.Combine(Application.temporaryCachePath, "room_effect_test_save.dat");
-            SaveManager.SetSavePathForTesting(_testSavePath);
+            _testRunPath = Path.Combine(Application.temporaryCachePath, "room_effect_test_run.dat"); _testProfilePath = Path.Combine(Application.temporaryCachePath, "room_effect_test_profile.dat");
+            SaveManager.SetSavePathsForTesting(_testRunPath, _testProfilePath);
         }
 
         [TearDown]
@@ -43,11 +43,11 @@ namespace Nevergreen.Tests
             RunSessionManager.Clear();
             RunSessionManager.IsResumingRun = false;
 
-            if (!string.IsNullOrEmpty(_testSavePath) && File.Exists(_testSavePath))
+            if (!string.IsNullOrEmpty(_testRunPath) && File.Exists(_testRunPath)) File.Delete(_testRunPath); if (!string.IsNullOrEmpty(_testProfilePath) && File.Exists(_testProfilePath))
             {
-                File.Delete(_testSavePath);
+                File.Delete(_testProfilePath);
             }
-            SaveManager.SetSavePathForTesting(null);
+            SaveManager.SetSavePathsForTesting(null, null);
         }
 
         // ============================================================
