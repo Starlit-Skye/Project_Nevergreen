@@ -113,7 +113,8 @@ namespace Nevergreen.Data
         Stealth,
         Shuffle,
         HealReceivedReduction,
-        BleedOnAttack
+        BleedOnAttack,
+        Burn
     }
 
     /// <summary>

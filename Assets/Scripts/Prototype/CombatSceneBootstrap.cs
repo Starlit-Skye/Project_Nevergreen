@@ -68,6 +68,9 @@ namespace Nevergreen.Prototype
             SpawnTeams();
             InitializeBattle();
 
+            // Save the run to persist the chosen formation and any pre-combat state changes
+            SaveManager.SaveRun();
+
             // If a ContinuousCombat room effect is queued, activate it now (after battle init)
             if (RunSessionManager.NextRoomData != null &&
                 RunSessionManager.NextRoomData.activationType == Nevergreen.Data.RoomActivationType.ContinuousCombat)

@@ -23,6 +23,9 @@ namespace Nevergreen.Data
         [Tooltip("Formations for the Late Game encounter tier.")]
         public List<EnemyFormationData> lateGameFormations = new List<EnemyFormationData>();
 
+        [Tooltip("Formations for the Boss encounter tier.")]
+        public List<EnemyFormationData> bossFormations = new List<EnemyFormationData>();
+
         /// <summary>
         /// Retrieves the list of formations corresponding to the provided difficulty tier.
         /// </summary>
@@ -34,6 +37,7 @@ namespace Nevergreen.Data
                 EnemyEncounterTier.EarlyGame => earlyGameFormations,
                 EnemyEncounterTier.MidGame => midGameFormations,
                 EnemyEncounterTier.LateGame => lateGameFormations,
+                EnemyEncounterTier.Boss => bossFormations,
                 _ => trivialFormations
             };
         }

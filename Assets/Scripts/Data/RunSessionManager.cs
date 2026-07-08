@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 using Nevergreen.Data;
 using Nevergreen.Combat;
 
@@ -41,6 +42,36 @@ namespace Nevergreen
         /// When true, the next combat scene load will use the saved LastSelectedFormation instead of generating a new random one.
         /// </summary>
         public static bool ShouldUseSavedFormation { get; set; }
+
+        /// <summary>
+        /// Tracks boss formation selection probabilities keyed by formationId.
+        /// This is meta-progression data that persists across runs.
+        /// </summary>
+        public static Dictionary<string, float> BossFormationChances
+        {
+            get
+            {
+                if (!_bossChancesLoaded)
+                {
+                    _bossChancesLoaded = true;
+                    var profile = SaveManager.LoadProfile();
+                    if (profile != null && profile.bossChances != null)
+                    {
+                        _bossFormationChances.Clear();
+                        foreach (var bc in profile.bossChances)
+                        {
+                            if (!string.IsNullOrEmpty(bc.formationId))
+                            {
+                                _bossFormationChances[bc.formationId] = bc.chance;
+                            }
+                        }
+                    }
+                }
+                return _bossFormationChances;
+            }
+        }
+        private static bool _bossChancesLoaded = false;
+        private static Dictionary<string, float> _bossFormationChances = new Dictionary<string, float>();
 
         /// <summary>Invoked when the current room is completed.</summary>
         public static event System.Action RoomComplete;
@@ -206,6 +237,8 @@ namespace Nevergreen
         /// <summary>
         /// Picks a random formation from the centralized GameDatabase, ensuring it is not
         /// the same as the last selected formation (unless only one formation exists).
+        /// For the Boss tier with exactly 2 formations, uses weighted probability selection
+        /// with a -10%/+10% adjustment per selection.
         /// </summary>
         /// <returns>The selected formation, or null if no database/formations are available.</returns>
         public static EnemyFormationData GetNextRandomFormation(EnemyEncounterTier tier)
@@ -213,12 +246,14 @@ namespace Nevergreen
             var db = GameDatabase.Instance;
             if (db == null || db.EnemyFormationDatabase == null)
             {
+                LastSelectedFormation = null;
                 return null;
             }
 
             var formations = db.EnemyFormationDatabase.GetFormations(tier);
             if (formations == null || formations.Count == 0)
             {
+                LastSelectedFormation = null;
                 return null;
             }
 
@@ -227,6 +262,12 @@ namespace Nevergreen
             {
                 LastSelectedFormation = formations[0];
                 return LastSelectedFormation;
+            }
+
+            // Boss tier with exactly 2 formations: use weighted probability selection
+            if (tier == EnemyEncounterTier.Boss && formations.Count == 2)
+            {
+                return SelectBossFormationWeighted(formations[0], formations[1]);
             }
 
             // Pick randomly, excluding the last selected
@@ -245,7 +286,61 @@ namespace Nevergreen
         }
 
         /// <summary>
+        /// Selects one of two boss formations using weighted probabilities.
+        /// Each starts at 50%. When selected, the chosen formation's chance decreases by 10%
+        /// and the other's increases by 10%. Probabilities are clamped to [0, 1].
+        /// </summary>
+        private static EnemyFormationData SelectBossFormationWeighted(EnemyFormationData bossA, EnemyFormationData bossB)
+        {
+            string idA = bossA.formationId;
+            string idB = bossB.formationId;
+
+            // Initialize to 50/50 if not present
+            if (!BossFormationChances.ContainsKey(idA))
+                BossFormationChances[idA] = 0.5f;
+            if (!BossFormationChances.ContainsKey(idB))
+                BossFormationChances[idB] = 0.5f;
+
+            float chanceA = BossFormationChances[idA];
+            float chanceB = BossFormationChances[idB];
+            float total = chanceA + chanceB;
+
+            // Roll weighted random
+            float roll = (float)(_rng.NextDouble() * total);
+            EnemyFormationData selected;
+            EnemyFormationData other;
+            string selectedId;
+            string otherId;
+
+            if (roll < chanceA)
+            {
+                selected = bossA;
+                other = bossB;
+                selectedId = idA;
+                otherId = idB;
+            }
+            else
+            {
+                selected = bossB;
+                other = bossA;
+                selectedId = idB;
+                otherId = idA;
+            }
+
+            // Adjust probabilities: selected -10%, other +10%, clamp [0, 1]
+            BossFormationChances[selectedId] = Mathf.Clamp01(BossFormationChances[selectedId] - 0.10f);
+            BossFormationChances[otherId] = Mathf.Clamp01(BossFormationChances[otherId] + 0.10f);
+
+            SaveManager.SaveProfile();
+
+            LastSelectedFormation = selected;
+            return selected;
+        }
+
+        /// <summary>
         /// Clear all party and encounter data (e.g., on returning to main menu).
+        /// Note: BossFormationChances is NOT cleared here — it is meta-progression
+        /// data that persists across runs.
         /// </summary>
         public static void Clear()
         {
@@ -264,6 +359,17 @@ namespace Nevergreen
                 _activeBattleSystem.OnBattleEnded -= OnBattleEnded;
                 _activeBattleSystem = null;
             }
+        }
+
+        /// <summary>
+        /// Clears all state including meta-progression data.
+        /// Used only in test teardowns.
+        /// </summary>
+        public static void ClearAll()
+        {
+            Clear();
+            _bossFormationChances.Clear();
+            _bossChancesLoaded = false;
         }
     }
 }

@@ -100,8 +100,7 @@ namespace Nevergreen.Tests
             skill.skillId = "special_attack";
 
             // 3. Execute skill
-            typeof(BattleSystem).GetMethod("ExecuteSkill", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .Invoke(_battleSystem, new object[] { user, skill, new List<CombatCharacter> { enemy } });
+            _battleSystem.ExecuteSkill(user, skill, new List<CombatCharacter> { enemy });
 
             // 4. Assert buff is consumed
             Assert.AreEqual(0, user.statusEffects.Count, "Buff should be consumed upon matching skill execution");
@@ -129,8 +128,7 @@ namespace Nevergreen.Tests
             var diffSkill = ScriptableObject.CreateInstance<SkillData>();
             diffSkill.skillId = "basic_attack";
 
-            typeof(BattleSystem).GetMethod("ExecuteSkill", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .Invoke(_battleSystem, new object[] { user, diffSkill, new List<CombatCharacter> { enemy } });
+            _battleSystem.ExecuteSkill(user, diffSkill, new List<CombatCharacter> { enemy });
 
             Assert.AreEqual(1, user.statusEffects.Count, "Buff should NOT be consumed for a different skill");
             

@@ -61,8 +61,11 @@ namespace Nevergreen.Tests
             database = ScriptableObject.CreateInstance<EnemyFormationDatabase>();
             database.trivialFormations = new List<EnemyFormationData> { formationSingle, formationMulti };
 
-            // Redirect save operations to a temp file so tests never touch production save.dat
-            SaveManager.SetSavePathForTesting(Path.Combine(Application.temporaryCachePath, "bootstrap_test_save.dat"));
+            // Redirect save operations to temp files so tests never touch production saves
+            SaveManager.SetSavePathsForTesting(
+                Path.Combine(Application.temporaryCachePath, "bootstrap_test_run.dat"),
+                Path.Combine(Application.temporaryCachePath, "bootstrap_test_profile.dat")
+            );
         }
 
         [TearDown]
@@ -71,9 +74,11 @@ namespace Nevergreen.Tests
             RunSessionManager.Clear();
             GameDatabase.SetInstanceForTesting(null);
 
-            var testPath = Path.Combine(Application.temporaryCachePath, "bootstrap_test_save.dat");
-            if (File.Exists(testPath)) File.Delete(testPath);
-            SaveManager.SetSavePathForTesting(null);
+            var runPath = Path.Combine(Application.temporaryCachePath, "bootstrap_test_run.dat");
+            var profilePath = Path.Combine(Application.temporaryCachePath, "bootstrap_test_profile.dat");
+            if (File.Exists(runPath)) File.Delete(runPath);
+            if (File.Exists(profilePath)) File.Delete(profilePath);
+            SaveManager.SetSavePathsForTesting(null, null);
 
             ScriptableObject.DestroyImmediate(config);
             ScriptableObject.DestroyImmediate(formationSingle);

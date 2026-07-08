@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbacf546f511b25458a18339fa5b8624, type: 3}
+  m_Name: AI_god_eye
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.AI.EnemyAIProfile
+  behaviors:
+  - rid: 3450807472416358400
+  references:
+    version: 2
+    RefIds:
+    - rid: 3450807472416358400
+      type: {class: GodEyeTurnBehaviorNode, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        summonSkill: {fileID: 11400000, guid: 1a95d44a61107b241bc827348a56a835, type: 2}
+        buffSkill: {fileID: 11400000, guid: 546c218f41ee4994ca2eefeda487c0da, type: 2}
+        markSkill: {fileID: 11400000, guid: 077eed6121cac4642a873f17b721686a, type: 2}

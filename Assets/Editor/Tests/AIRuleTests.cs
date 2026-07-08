@@ -382,5 +382,87 @@ namespace Nevergreen.Tests
             history.AdvanceSequenceIndex(id, length);
             Assert.AreEqual(0, history.GetSequenceIndex(id));
         }
+
+        // ===================================================================
+        // SpecificCharacterTargeting Tests
+        // ===================================================================
+
+        [Test]
+        public void SpecificCharacterTargeting_TargetsCorrectCharacter_WhenPresentInValidPool()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            var p2 = CombatTestHelper.CreateCombatCharacter("p2", Team.Player, 2, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1, p2 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            // Create a matching CharacterData scriptable object
+            var targetData = ScriptableObject.CreateInstance<CharacterData>();
+            targetData.characterId = "p2";
+
+            var targeting = new SpecificCharacterTargeting { targetCharacterData = targetData };
+            var skill = CombatTestHelper.CreateDamageSkill();
+
+            // Setup mock valid pool targeting
+            bool success = targeting.TryResolveTargets(_brain, _battleSystem, skill, out var targets);
+
+            Assert.IsTrue(success, "Targeting should succeed when the character is present.");
+            Assert.IsNotNull(targets, "Targets list should not be null.");
+            Assert.AreEqual(1, targets.Count, "Should target exactly one character (the matched one).");
+            Assert.AreEqual("p2", targets[0].CharacterId, "Should target the correct specific character.");
+
+            Object.DestroyImmediate(p1.gameObject);
+            Object.DestroyImmediate(p2.gameObject);
+            Object.DestroyImmediate(targetData);
+        }
+
+        [Test]
+        public void SpecificCharacterTargeting_ReturnsFalse_WhenCharacterNotPresent()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var targetData = ScriptableObject.CreateInstance<CharacterData>();
+            targetData.characterId = "missing_character";
+
+            var targeting = new SpecificCharacterTargeting { targetCharacterData = targetData };
+            var skill = CombatTestHelper.CreateDamageSkill();
+
+            bool success = targeting.TryResolveTargets(_brain, _battleSystem, skill, out var targets);
+
+            Assert.IsFalse(success, "Targeting should fail when the character is missing.");
+            Assert.IsNull(targets, "Targets should be null on failure.");
+
+            Object.DestroyImmediate(p1.gameObject);
+            Object.DestroyImmediate(targetData);
+        }
+
+        [Test]
+        public void SpecificCharacterTargeting_ReturnsFalse_WhenCharacterDataNotAssigned()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            // Pass null for targetCharacterData
+            var targeting = new SpecificCharacterTargeting { targetCharacterData = null };
+            var skill = CombatTestHelper.CreateDamageSkill();
+
+            bool success = targeting.TryResolveTargets(_brain, _battleSystem, skill, out var targets);
+
+            Assert.IsFalse(success, "Targeting should fail when the character data is null.");
+            Assert.IsNull(targets, "Targets should be null on failure.");
+
+            // Also test when CharacterData exists but ID is null
+            var emptyData = ScriptableObject.CreateInstance<CharacterData>();
+            emptyData.characterId = "";
+            targeting.targetCharacterData = emptyData;
+
+            success = targeting.TryResolveTargets(_brain, _battleSystem, skill, out targets);
+            Assert.IsFalse(success, "Targeting should fail when the character data ID is empty.");
+
+            Object.DestroyImmediate(p1.gameObject);
+            Object.DestroyImmediate(emptyData);
+        }
     }
 }

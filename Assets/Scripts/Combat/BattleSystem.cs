@@ -45,6 +45,7 @@ namespace Nevergreen.Combat
         // --- Events ---
         public event Action OnBattleStarted;
         public event Action<int> OnRoundStarted; // round number
+        public event Action<int> OnRoundEnded; // round number
         public event Action<CombatCharacter> OnTurnStarted;
         public event Action<SkillContext> OnBeforeDamageCalculation;
         public event Action<CombatCharacter, SkillData, SkillContext> OnActionResolved; // actor, skill, context
@@ -115,7 +116,7 @@ namespace Nevergreen.Combat
                         break;
 
                     case BattleState.RoundEnd:
-                        EndRound();
+                        yield return EndRound();
                         break;
                 }
 
@@ -132,6 +133,13 @@ namespace Nevergreen.Combat
             OnRoundStarted?.Invoke(CurrentRound);
             Debug.Log($"[BattleSystem] === Round {CurrentRound} Start === Turn order: " +
                       string.Join(", ", _turnOrder.Select(t => $"{t.character.DisplayName}(spd:{t.speed})")));
+
+            // Wait for any round-start animations (e.g., boss telegraph)
+            if (animationQueue != null)
+            {
+                while (animationQueue.IsBusy)
+                    yield return null;
+            }
 
             CurrentState = BattleState.CharacterTurn;
             yield return null;
@@ -493,7 +501,7 @@ namespace Nevergreen.Combat
             }
         }
 
-        private void ExecuteSkill(CombatCharacter user, SkillData skill, List<CombatCharacter> targets)
+        public void ExecuteSkill(CombatCharacter user, SkillData skill, List<CombatCharacter> targets)
         {
             user.RecordSkillUse(skill);
 
@@ -783,10 +791,20 @@ namespace Nevergreen.Combat
             return false;
         }
 
-        private void EndRound()
+        private IEnumerator EndRound()
         {
             Debug.Log($"[BattleSystem] === Round {CurrentRound} End ===");
+            OnRoundEnded?.Invoke(CurrentRound);
+
+            // Wait for any round-end animations (e.g., boss strike)
+            if (animationQueue != null)
+            {
+                while (animationQueue.IsBusy)
+                    yield return null;
+            }
+
             CurrentState = BattleState.RoundStart;
+            yield return null;
         }
 
         private void HandleCharacterDefeated(CombatCharacter character, bool wasCritical)
@@ -929,6 +947,30 @@ namespace Nevergreen.Combat
             {
                 animationQueue.Enqueue(shiftParallel);
             }
+        }
+
+        public event Action<CombatCharacter> OnCharacterSpawned;
+
+        /// <summary>
+        /// Registers a dynamically spawned character into the active battle.
+        /// Subscribes to defeat/state events, activates traits, and adds to the appropriate team list.
+        /// The character will receive turns starting from the next round.
+        /// </summary>
+        public void RegisterSpawnedCharacter(CombatCharacter character)
+        {
+            if (character == null) return;
+
+            var team = character.IsPlayerTeam ? _playerTeam : _enemyTeam;
+            if (!team.Contains(character))
+            {
+                team.Add(character);
+            }
+
+            character.OnDefeated += HandleCharacterDefeated;
+            character.OnStateChanged += HandleCharacterStateChanged;
+            character.ActivateTraits(this);
+
+            OnCharacterSpawned?.Invoke(character);
         }
 
         private void OnDestroy()

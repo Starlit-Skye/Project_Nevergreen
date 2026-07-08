@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_feline_assassin
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: feline_assassin
+  displayName: Feline Assassin
+  characterPrefab: {fileID: 5239835786447253822, guid: ba16b5dc98263314ab3bfff3b9acc205, type: 3}
+  teamType: 1
+  actionsPerRound: 1
+  statPerLevel:
+  - {fileID: 11400000, guid: ee99d41b3f7fb7f4595e0f85bb9fb3d3, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: e6522af4c0450b24f947dfa86678da50, type: 2}
+  totalSkillPool: []
+  size: 1
+  leavesPileOnDeath: 0
+  defaultAIProfile: {fileID: 11400000, guid: 3ff44703f33f95b47b2fae67c370fa22, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

@@ -89,6 +89,7 @@ namespace Nevergreen.Prototype
             _battleSystem.OnActionResolved += HandleActionResolved;
             _battleSystem.OnBattleEnded += HandleBattleEnded;
             _battleSystem.OnCharacterDefeated += HandleCharacterDefeated;
+            _battleSystem.OnCharacterSpawned += HandleCharacterSpawned;
 
             // Subscribe to animation queue lock state
             if (_animationQueue != null)
@@ -246,6 +247,23 @@ namespace Nevergreen.Prototype
             if (sr != null) sr.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
         }
 
+        private void HandleCharacterSpawned(CombatCharacter character)
+        {
+            if (hpBarPrefab == null || worldSpaceCanvas == null) return;
+
+            GameObject barGo = Instantiate(hpBarPrefab, worldSpaceCanvas.transform);
+            HPBar bar = barGo.GetComponent<HPBar>();
+            if (bar != null)
+            {
+                bar.Initialize(character, _animationQueue);
+                _hpBars[character] = bar;
+            }
+
+            // Subscribe to status events for logging
+            character.OnStatusApplied += HandleStatusApplied;
+            character.OnPeriodicEffectApplied += HandlePeriodicEffectApplied;
+        }
+
         private void HandleStatusApplied(CombatCharacter target, StatusType type, bool succeeded, StatTarget? targetStat)
         {
             string statusName = type.ToString();
@@ -365,11 +383,15 @@ namespace Nevergreen.Prototype
 
             // Check if we have the config and prefab to create dynamic buttons
             var globalConfig = GameDatabase.Instance != null ? GameDatabase.Instance.GlobalConfig : null;
+            var combatConfig = GameDatabase.Instance != null ? GameDatabase.Instance.CombatConfig : null;
             var roomDb = GameDatabase.Instance != null ? GameDatabase.Instance.RoomDatabase : null;
             var availableRooms = roomDb != null ? roomDb.availableRooms : null;
+            
+            bool hasAvailableRooms = availableRooms != null && availableRooms.Count > 0;
+            bool hasBossRoom = roomDb != null && roomDb.bossRoom != null;
+
             bool canSpawnDynamic = globalConfig != null
-                && availableRooms != null
-                && availableRooms.Count > 0
+                && (hasAvailableRooms || hasBossRoom)
                 && roomChoiceButtonPrefab != null
                 && roomChoiceButtonsContainer != null;
 
@@ -383,8 +405,30 @@ namespace Nevergreen.Prototype
                 var choices = RunSessionManager.NextRoomChoices;
                 if (choices == null || choices.Count == 0)
                 {
-                    // Pick random rooms (up to roomChoiceCount)
-                    choices = PickRandomRooms(availableRooms, globalConfig.roomChoiceCount);
+                    bool isBossNext = false;
+                    if (combatConfig != null)
+                    {
+                        var nextTier = combatConfig.GetEncounterTierForRoom(RunSessionManager.RoomProgression + 1);
+                        if (nextTier == EnemyEncounterTier.Boss && hasBossRoom)
+                        {
+                            isBossNext = true;
+                        }
+                    }
+
+                    if (isBossNext)
+                    {
+                        choices = new List<RoomData> { roomDb.bossRoom };
+                    }
+                    else if (hasAvailableRooms)
+                    {
+                        // Pick random rooms (up to roomChoiceCount)
+                        choices = PickRandomRooms(availableRooms, globalConfig.roomChoiceCount);
+                    }
+                    else
+                    {
+                        choices = new List<RoomData>();
+                    }
+
                     RunSessionManager.CompleteRoom(choices);
                 }
 
@@ -736,6 +780,7 @@ namespace Nevergreen.Prototype
                 _battleSystem.OnActionResolved -= HandleActionResolved;
                 _battleSystem.OnBattleEnded -= HandleBattleEnded;
                 _battleSystem.OnCharacterDefeated -= HandleCharacterDefeated;
+                _battleSystem.OnCharacterSpawned -= HandleCharacterSpawned;
             }
 
             foreach (var c in _playerTeam.Concat(_enemyTeam))

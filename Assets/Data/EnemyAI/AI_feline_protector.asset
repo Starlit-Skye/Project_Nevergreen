@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbacf546f511b25458a18339fa5b8624, type: 3}
+  m_Name: AI_feline_protector
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.AI.EnemyAIProfile
+  behaviors:
+  - rid: 4415245671264419930
+  - rid: 4415245671264419936
+  references:
+    version: 2
+    RefIds:
+    - rid: 3450807497938698319
+      type: {class: SpecificCharacterTargeting, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        targetCharacterData: {fileID: 11400000, guid: 3102ba6658f2da947b2c0b46ccd1dc22, type: 2}
+    - rid: 4415245671264419930
+      type: {class: RuleBasedBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        skillToUse: {fileID: 11400000, guid: c5d43c18acdb0cf4d85a87f8860c4fbf, type: 2}
+        targeting:
+          rid: 3450807497938698319
+        conditions:
+        - rid: 4415245671264419932
+        - rid: 4415245671264419935
+    - rid: 4415245671264419932
+      type: {class: TeamCountCondition, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        targetTeam: 1
+        comparison: 5
+        targetCount: 2
+    - rid: 4415245671264419935
+      type: {class: NotHasStatusCondition, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        target: 2
+        statusType: 6
+        stat: 5
+        amplitudeComparison: 4
+        targetAmplitude: 1
+    - rid: 4415245671264419936
+      type: {class: RandomSkillBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        maxConsecutiveUses: 0
+        excludeSkill: {fileID: 11400000, guid: c5d43c18acdb0cf4d85a87f8860c4fbf, type: 2}

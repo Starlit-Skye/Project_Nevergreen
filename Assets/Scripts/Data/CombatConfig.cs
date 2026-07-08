@@ -106,6 +106,7 @@ namespace Nevergreen.Data
             if (roomTierMappings == null || roomTierMappings.Count == 0)
             {
                 // Fallback defaults if not configured
+                if (roomCount >= 8) return EnemyEncounterTier.Boss;
                 if (roomCount >= 6) return EnemyEncounterTier.LateGame;
                 if (roomCount >= 4) return EnemyEncounterTier.MidGame;
                 if (roomCount >= 2) return EnemyEncounterTier.EarlyGame;

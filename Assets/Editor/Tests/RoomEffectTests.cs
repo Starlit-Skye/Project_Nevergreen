@@ -23,7 +23,7 @@ namespace Nevergreen.Tests
             }
         }
 
-        private string _testSavePath;
+        private string _testRunPath; private string _testProfilePath;
 
         [SetUp]
         public void SetUp()
@@ -33,8 +33,8 @@ namespace Nevergreen.Tests
             TestRoomEffectStrategy.ExecutionCount = 0;
 
             // Redirect save operations to a temp file so tests never touch production save.dat
-            _testSavePath = Path.Combine(Application.temporaryCachePath, "room_effect_test_save.dat");
-            SaveManager.SetSavePathForTesting(_testSavePath);
+            _testRunPath = Path.Combine(Application.temporaryCachePath, "room_effect_test_run.dat"); _testProfilePath = Path.Combine(Application.temporaryCachePath, "room_effect_test_profile.dat");
+            SaveManager.SetSavePathsForTesting(_testRunPath, _testProfilePath);
         }
 
         [TearDown]
@@ -43,11 +43,11 @@ namespace Nevergreen.Tests
             RunSessionManager.Clear();
             RunSessionManager.IsResumingRun = false;
 
-            if (!string.IsNullOrEmpty(_testSavePath) && File.Exists(_testSavePath))
+            if (!string.IsNullOrEmpty(_testRunPath) && File.Exists(_testRunPath)) File.Delete(_testRunPath); if (!string.IsNullOrEmpty(_testProfilePath) && File.Exists(_testProfilePath))
             {
-                File.Delete(_testSavePath);
+                File.Delete(_testProfilePath);
             }
-            SaveManager.SetSavePathForTesting(null);
+            SaveManager.SetSavePathsForTesting(null, null);
         }
 
         // ============================================================
@@ -491,6 +491,44 @@ namespace Nevergreen.Tests
             UnityEngine.Object.DestroyImmediate(c1GO);
             UnityEngine.Object.DestroyImmediate(c2GO);
             UnityEngine.Object.DestroyImmediate(c3GO);
+        }
+        // ============================================================
+        // BossRoomEffectStrategy Tests
+        // ============================================================
+
+        [Test]
+        public void BossRoomEffectStrategy_Execute_CreatesUIWithEndRunButton()
+        {
+            // Arrange
+            var canvasGO = new GameObject("TestCanvas");
+            var canvas = canvasGO.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+
+            var endRunPrefab = new GameObject("EndRunPrefab");
+            endRunPrefab.AddComponent<RectTransform>(); // Need RectTransform to avoid null ref in strategy
+            
+            var strategy = new BossRoomEffectStrategy();
+            strategy.endRunPrefab = endRunPrefab;
+
+            // Act
+            strategy.ExecuteRoomEffect();
+
+            // Assert
+            var victoryPanel = canvasGO.transform.Find("BossRoomVictoryPanel");
+            Assert.IsNotNull(victoryPanel, "BossRoomVictoryPanel should be created under Canvas.");
+
+            var textGo = victoryPanel.Find("RunCompletedText");
+            Assert.IsNotNull(textGo, "RunCompletedText should be created under the panel.");
+            var textComp = textGo.GetComponent<TMPro.TextMeshProUGUI>();
+            Assert.IsNotNull(textComp, "TextMeshProUGUI component should be attached.");
+            Assert.AreEqual("Run Completed", textComp.text);
+
+            var endRunClone = victoryPanel.Find("EndRunPrefab(Clone)");
+            Assert.IsNotNull(endRunClone, "EndRun prefab should be instantiated under the panel.");
+
+            // Cleanup
+            UnityEngine.Object.DestroyImmediate(canvasGO);
+            UnityEngine.Object.DestroyImmediate(endRunPrefab);
         }
     }
 }

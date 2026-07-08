@@ -69,3 +69,7 @@
 - **Pattern**: Using LaTeX mathematical formatting (such as `$$formula$$` or `$\text{formula}$`) in markdown documents.
 - **Rule**: Avoid LaTeX equations in walkthroughs and documentation artifacts as the default markdown renderers (including the local UI) may not support LaTeX rendering and will display the raw code literally, rendering it unreadable.
 - **Solution**: Use standard inline code blocks (e.g., `a * b = c`) or code block quotes to display formulas clearly.
+
+### 12. Ground-Telegraphed Hazard Targeting vs. Unit-Targeted AOE
+- **Pattern**: Converting location-targeted hazards or ground telegraph skills to use the game's standard unit-targeted AOE system (`GetAOETargets`).
+- **Rule**: Do NOT use standard unit-targeted AOE expansion (e.g., `GetAOETargets`) for ground hazards or telegraphed rank mechanics. Because unit-targeted AOE propagates dynamically from a primary target to adjacent ranks up to `maxTargets`, it can hit characters in non-telegraphed safe ranks, violating the visual boundaries shown to the player. Ground hazards must always target and affect only the exact telegraphed ranks/locations.

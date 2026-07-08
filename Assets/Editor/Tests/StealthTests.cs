@@ -53,8 +53,7 @@ namespace Nevergreen.Tests
 
         private void CallExecuteSkill(BattleSystem bs, CombatCharacter user, SkillData skill, List<CombatCharacter> targets)
         {
-            var method = typeof(BattleSystem).GetMethod("ExecuteSkill", BindingFlags.NonPublic | BindingFlags.Instance);
-            method.Invoke(bs, new object[] { user, skill, targets });
+            bs.ExecuteSkill(user, skill, targets);
         }
 
         [Test]
