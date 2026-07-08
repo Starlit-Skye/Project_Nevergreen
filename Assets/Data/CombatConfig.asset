@@ -24,7 +24,7 @@ MonoBehaviour:
   maxPartySize: 4
   rankCount: 4
   globalMaxLevel: 5
-  levelUpCostCurve: 02000000030000000400000005000000
+  levelUpCostCurve: 02000000020000000300000003000000
   minPartsPerBattle: 1
   maxPartsPerBattle: 2
   roomTierMappings:

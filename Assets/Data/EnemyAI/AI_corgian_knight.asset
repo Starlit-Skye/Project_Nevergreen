@@ -41,5 +41,5 @@ MonoBehaviour:
     - rid: 4415245694282498127
       type: {class: RandomSkillBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
       data:
-        maxConsecutiveUses: 1
+        maxConsecutiveUses: 2
         excludeSkill: {fileID: 11400000, guid: aaaa31d7833a9e549a261e208db2dc15, type: 2}

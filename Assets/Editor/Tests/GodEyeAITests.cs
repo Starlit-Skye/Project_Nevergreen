@@ -346,18 +346,23 @@ namespace Nevergreen.Tests
         [Test]
         public void Controller_SummonsDamage_WhenProtectorExists()
         {
-            var protector = CreateTrackedCharacter("existing_protector", Team.Enemy, 2);
+            var protector = CreateTrackedCharacter("existing_protector", Team.Enemy, 1);
             protector.characterData = _protectorData;
-            SetEnemyTeam(new List<CombatCharacter> { _boss, protector });
+            
+            // Move boss to rank 2 for this test
+            _boss.rank = 2;
+            
+            SetEnemyTeam(new List<CombatCharacter> { protector, _boss });
             
             InvokeActionResolved(_summonSkill);
             
             var spawned = _battleSystem.EnemyTeam.Last();
             Assert.AreNotEqual(_boss, spawned, "A new character should be spawned.");
             Assert.AreNotEqual(protector, spawned, "A new character should be spawned.");
-            Assert.AreEqual(1, spawned.rank, "Should shift newly summoned ally to rank 1.");
-            Assert.AreEqual(2, _boss.rank, "Boss should be shifted back to rank 2.");
-            Assert.AreEqual(3, protector.rank, "Existing protector should be shifted back to rank 3.");
+            
+            Assert.AreEqual(2, spawned.rank, "Should shift newly summoned ally to the boss's original rank (2).");
+            Assert.AreEqual(3, _boss.rank, "Boss should be shifted back to rank 3.");
+            Assert.AreEqual(1, protector.rank, "Existing protector at rank 1 should not be shifted.");
             Assert.AreEqual("DamagePrefab(Clone)", spawned.gameObject.name, "Should spawn damage when protector already exists.");
         }
 
