@@ -38,3 +38,8 @@ MonoBehaviour:
     tier: 3
   - roomCount: 17
     tier: 4
+  statusIcons:
+  - statusType: 1
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: -6358388820573773839, guid: 0d06090fb04ee6c48a7ddd1c8a9e2640, type: 3}

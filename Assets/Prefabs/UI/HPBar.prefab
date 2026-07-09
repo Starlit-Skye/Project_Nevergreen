@@ -673,6 +673,7 @@ RectTransform:
   - {fileID: 263834247834768439}
   - {fileID: 111257559523264680}
   - {fileID: 4181753730862050136}
+  - {fileID: 3130568095757330421}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -719,9 +720,71 @@ MonoBehaviour:
   fillImage: {fileID: 2155388549087291623}
   nameText: {fileID: 8526159908819821673}
   hpText: {fileID: 7268219050350885343}
+  statusIconContainer: {fileID: 3130568095757330421}
+  statusIconPrefab: {fileID: 1675720806161799374, guid: 05bfddfb026741c43a0a8924ed524c6c, type: 3}
   offset: {x: 0, y: 1.5, z: 0}
-  fullColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
-  lowColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
+  aliveColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
+  pileColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+--- !u!1 &7234131651040438860
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3130568095757330421}
+  - component: {fileID: 8078212326601345402}
+  m_Layer: 0
+  m_Name: StatusIconContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3130568095757330421
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7234131651040438860}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2000577628423818362}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -14.9, y: 76.9}
+  m_SizeDelta: {x: 170.2, y: 63}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8078212326601345402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7234131651040438860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 6
+  m_StartCorner: 2
+  m_StartAxis: 0
+  m_CellSize: {x: 30, y: 30}
+  m_Spacing: {x: 5, y: 3}
+  m_Constraint: 0
+  m_ConstraintCount: 2
 --- !u!1 &7832836619823466497
 GameObject:
   m_ObjectHideFlags: 0

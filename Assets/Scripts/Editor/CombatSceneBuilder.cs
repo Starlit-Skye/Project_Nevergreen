@@ -342,11 +342,61 @@ namespace Nevergreen.Prototype
             hpRT.anchorMax = Vector2.one;
             hpRT.sizeDelta = Vector2.zero;
 
+            // Status Icon Container
+            var statusContainerGO = new GameObject("StatusIconContainer");
+            statusContainerGO.transform.SetParent(barRoot.transform, false);
+            var statusRT = statusContainerGO.AddComponent<RectTransform>();
+            // Position above NameText
+            statusRT.anchorMin = new Vector2(0, 1.8f);
+            statusRT.anchorMax = new Vector2(1, 2.6f);
+            statusRT.sizeDelta = Vector2.zero;
+            var hlg = statusContainerGO.AddComponent<HorizontalLayoutGroup>();
+            hlg.childAlignment = TextAnchor.LowerCenter;
+            hlg.childControlHeight = true;
+            hlg.childControlWidth = true;
+            hlg.childForceExpandHeight = false;
+            hlg.childForceExpandWidth = false;
+            hlg.spacing = 2f;
+
+            // Create default StatusIcon prefab if it doesn't exist
+            string statusIconPrefabPath = "Assets/Prefabs/UI/StatusIcon.prefab";
+            var statusIconPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(statusIconPrefabPath);
+            if (statusIconPrefab == null)
+            {
+                var iconRoot = new GameObject("StatusIcon");
+                var iconRT = iconRoot.AddComponent<RectTransform>();
+                iconRT.sizeDelta = new Vector2(24, 24);
+                
+                var iconImg = iconRoot.AddComponent<Image>();
+                iconImg.color = Color.white;
+
+                var countTextGO = new GameObject("CountText");
+                countTextGO.transform.SetParent(iconRoot.transform, false);
+                var countText = countTextGO.AddComponent<TextMeshProUGUI>();
+                countText.text = "";
+                countText.fontSize = 12;
+                countText.alignment = TextAlignmentOptions.BottomRight;
+                countText.color = Color.white;
+                countText.outlineWidth = 0.2f;
+                countText.outlineColor = Color.black;
+                var countRT = countTextGO.GetComponent<RectTransform>();
+                countRT.anchorMin = Vector2.zero;
+                countRT.anchorMax = Vector2.one;
+                countRT.sizeDelta = Vector2.zero;
+                countRT.anchoredPosition = new Vector2(2, -2);
+
+                EnsureFolderExists("Assets/Prefabs/UI");
+                statusIconPrefab = PrefabUtility.SaveAsPrefabAsset(iconRoot, statusIconPrefabPath);
+                Object.DestroyImmediate(iconRoot);
+            }
+
             // Add HPBar component
             var hpBar = barRoot.AddComponent<HPBar>();
             hpBar.fillImage = fillImage;
             hpBar.nameText = nameText;
             hpBar.hpText = hpText;
+            hpBar.statusIconContainer = statusRT;
+            hpBar.statusIconPrefab = statusIconPrefab;
 
             // Save as prefab
             EnsureFolderExists("Assets/Prefabs");
