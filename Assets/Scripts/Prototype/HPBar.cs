@@ -267,6 +267,13 @@ namespace Nevergreen.Prototype
                     int stackCount = group.Count();
                     txt.text = stackCount > 1 ? stackCount.ToString() : "";
                 }
+
+                // Initialize the tooltip trigger (which is already on the prefab)
+                var trigger = iconGO.GetComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+                if (trigger != null)
+                {
+                    trigger.Initialize(group.First());
+                }
             }
         }
 

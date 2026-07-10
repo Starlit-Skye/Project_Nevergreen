@@ -129,6 +129,7 @@ namespace Nevergreen.Prototype
             var worldCanvas = worldCanvasGO.AddComponent<Canvas>();
             worldCanvas.renderMode = RenderMode.WorldSpace;
             worldCanvasGO.AddComponent<CanvasScaler>();
+            worldCanvasGO.AddComponent<GraphicRaycaster>();
 
             var worldCanvasRT = worldCanvasGO.GetComponent<RectTransform>();
             worldCanvasRT.sizeDelta = new Vector2(20, 12);
@@ -291,6 +292,7 @@ namespace Nevergreen.Prototype
 
             var canvasOnBar = barRoot.AddComponent<Canvas>();
             canvasOnBar.renderMode = RenderMode.WorldSpace;
+            barRoot.AddComponent<GraphicRaycaster>();
             barRoot.GetComponent<RectTransform>().sizeDelta = new Vector2(120, 30);
 
             // Background

@@ -150,8 +150,99 @@ namespace Nevergreen.Tests
             // Tick duration so it expires
             StatusProcessor.TickDurations(character, 0);
 
-            // Icon should be removed
+        // Icon should be removed
             Assert.AreEqual(0, statusIconContainer.childCount);
+        }
+
+        [Test]
+        public void StatusIcon_Hover_TriggersGlobalEvent()
+        {
+            var sprite = Sprite.Create(new Texture2D(2, 2), new Rect(0, 0, 2, 2), Vector2.zero);
+            config.statusIcons.Add(new StatusIconMapping { statusType = StatusType.Bleed, icon = sprite });
+
+            // Add the trigger component to the prefab before instantiation
+            statusIconPrefab.AddComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+
+            hpBar.Initialize(character, null);
+            var bleedStatus = new StatusEffectInstance(StatusType.Bleed, StatTarget.Attack, 10, 1);
+            character.AddStatus(bleedStatus);
+
+            var instIcon = statusIconContainer.GetChild(0).gameObject;
+            var trigger = instIcon.GetComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+            Assert.IsNotNull(trigger, "Trigger should be attached to instantiated icon.");
+
+            bool showEventFired = false;
+            bool hideEventFired = false;
+
+            System.Action<Nevergreen.UI.StatusIconTooltipTrigger> onShow = t => { if (t == trigger) showEventFired = true; };
+            System.Action<Nevergreen.UI.StatusIconTooltipTrigger> onHide = t => { if (t == trigger) hideEventFired = true; };
+
+            Nevergreen.UI.TooltipEvents.OnShowStatusTooltip += onShow;
+            Nevergreen.UI.TooltipEvents.OnHideStatusTooltip += onHide;
+
+            try
+            {
+                trigger.OnPointerEnter(null);
+                Assert.IsTrue(showEventFired, "OnShowStatusTooltip should be fired on pointer enter.");
+
+                trigger.OnPointerExit(null);
+                Assert.IsTrue(hideEventFired, "OnHideStatusTooltip should be fired on pointer exit.");
+            }
+            finally
+            {
+                Nevergreen.UI.TooltipEvents.OnShowStatusTooltip -= onShow;
+                Nevergreen.UI.TooltipEvents.OnHideStatusTooltip -= onHide;
+            }
+        }
+
+        [Test]
+        public void StatusTooltipDisplay_FiltersByHPBar()
+        {
+            var sprite = Sprite.Create(new Texture2D(2, 2), new Rect(0, 0, 2, 2), Vector2.zero);
+            config.statusIcons.Add(new StatusIconMapping { statusType = StatusType.Bleed, icon = sprite });
+            statusIconPrefab.AddComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+
+            // Setup a local tooltip on the HPBar
+            var visualPanelGO = new GameObject("VisualPanel");
+            visualPanelGO.transform.SetParent(hpBarGO.transform, false);
+
+            var tooltipDisplay = hpBarGO.AddComponent<Nevergreen.UI.StatusTooltipDisplay>();
+            // Use reflection to set private serialized fields for the test
+            var visualPanelField = typeof(Nevergreen.UI.StatusTooltipDisplay).GetField("visualPanel", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            visualPanelField.SetValue(tooltipDisplay, visualPanelGO);
+
+            // Initialize tooltip (Awake/OnEnable equivalent)
+            visualPanelGO.SetActive(false);
+            var onEnableMethod = typeof(Nevergreen.UI.StatusTooltipDisplay).GetMethod("OnEnable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnableMethod.Invoke(tooltipDisplay, null);
+
+            hpBar.Initialize(character, null);
+            var bleedStatus = new StatusEffectInstance(StatusType.Bleed, StatTarget.Attack, 10, 1);
+            character.AddStatus(bleedStatus);
+
+            var trigger = statusIconContainer.GetChild(0).GetComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+            
+            // Hover enter
+            trigger.OnPointerEnter(null);
+            Assert.IsTrue(visualPanelGO.activeSelf, "Visual panel should be active after valid hover enter.");
+
+            // Hover exit
+            trigger.OnPointerExit(null);
+            Assert.IsFalse(visualPanelGO.activeSelf, "Visual panel should be inactive after valid hover exit.");
+
+            // Create a fake trigger that doesn't belong to this HPBar
+            var fakeIcon = new GameObject("FakeIcon");
+            var fakeTrigger = fakeIcon.AddComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+            fakeTrigger.Initialize(bleedStatus);
+
+            // Hover fake trigger
+            fakeTrigger.OnPointerEnter(null);
+            Assert.IsFalse(visualPanelGO.activeSelf, "Visual panel should not activate for a trigger from another HPBar.");
+
+            var onDisableMethod = typeof(Nevergreen.UI.StatusTooltipDisplay).GetMethod("OnDisable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onDisableMethod.Invoke(tooltipDisplay, null);
+            
+            Object.DestroyImmediate(fakeIcon);
         }
     }
 }
