@@ -1,12 +1,12 @@
-# Goal: Implement Status Effect Icons above HP Bars
+# Goal: Aggregating Status Effect Amplitudes in Tooltips
 
 ## Tasks
-- [x] 1. Expose `BleedChance` on `BleedOnAttackStatusInstance`.
-- [x] 2. Format tooltip texts dynamically in `StatusTooltipDisplay.cs`.
-- [x] 3. Include `[Skillboosted] + [amplitude]% dmg` formatting for `SkillBoostStatusInstance`.
-- [x] 4. Run tests to ensure correctness.
-- [x] 5. Document results.
-
-## Results
-- **Implementation**: The HPBar status icons now display dynamic, data-driven tooltip strings matching GDD format. Skillboost tooltips also dynamically display the boosted skill's name using game databases/character references to look up the string dynamically.
-- **Test Results**: All 395 EditMode unit tests have successfully passed.
+- [x] 1. Implement amplitude/customAmplitude aggregation helper `GetAggregateAmplitude` in `StatusTooltipDisplay.cs`.
+  - [x] Support Bleed, Blight, Burn, Restore, HealReceivedReduction aggregation (by status type).
+  - [x] Support SkillBoostStatusInstance aggregation (by targetSkillId).
+  - [x] Support Buff, Debuff aggregation (by type and targetStat).
+- [x] 2. Update `FormatTooltipText` in `StatusTooltipDisplay.cs` to format tooltips using the aggregated amplitude values.
+- [x] 3. Add Riposte tooltip case returning `"Counter when attacked"`.
+- [x] 4. Write unit tests in `StatusIconTests.cs` to verify aggregation behavior for Bleed, Blight, Burn, Restore, HealReceivedReduction (same type), SkillBoostStatusInstance (same targetSkillId), Buff/Debuff (same targetStat), and Riposte tooltip.
+- [x] 5. Run all tests to ensure compilation and correctness.
+- [x] 6. Document results.

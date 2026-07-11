@@ -63,6 +63,10 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(character.gameObject);
             Object.DestroyImmediate(statusIconPrefab);
             Object.DestroyImmediate(config);
+
+            var type = typeof(Nevergreen.UI.TooltipEvents);
+            type.GetField("OnShowStatusTooltip", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)?.SetValue(null, null);
+            type.GetField("OnHideStatusTooltip", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)?.SetValue(null, null);
         }
 
         [Test]
@@ -240,9 +244,7 @@ namespace Nevergreen.Tests
             fakeTrigger.OnPointerEnter(null);
             Assert.IsFalse(visualPanelGO.activeSelf, "Visual panel should not activate for a trigger from another HPBar.");
 
-            var onDisableMethod = typeof(Nevergreen.UI.StatusTooltipDisplay).GetMethod("OnDisable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            onDisableMethod.Invoke(tooltipDisplay, null);
-            
+            Object.DestroyImmediate(tooltipDisplay);
             Object.DestroyImmediate(fakeIcon);
         }
 
@@ -274,9 +276,9 @@ namespace Nevergreen.Tests
             TestFormat(new StatusEffectInstance(StatusType.Bleed, StatTarget.Attack, 10, 3), "10 dmg for 3 rounds");
             
             // Buff/Debuff
-            TestFormat(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 15, 2, AmplitudeType.Default), "+15 Attack% for 2 rounds");
+            TestFormat(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 15, 2, AmplitudeType.Default), "+15% Attack for 2 rounds");
             TestFormat(new StatusEffectInstance(StatusType.Buff, StatTarget.CritChance, 15, 2, AmplitudeType.Default), "+15 CritChance for 2 rounds");
-            TestFormat(new StatusEffectInstance(StatusType.Debuff, StatTarget.Speed, 15, 2, AmplitudeType.Percentage), "-15 Speed% for 2 rounds");
+            TestFormat(new StatusEffectInstance(StatusType.Debuff, StatTarget.Speed, 15, 2, AmplitudeType.Percentage), "-15% Speed for 2 rounds");
             TestFormat(new StatusEffectInstance(StatusType.Debuff, StatTarget.Speed, 15, 2, AmplitudeType.Flat), "-15 Speed for 2 rounds");
 
             // Guard
@@ -295,9 +297,80 @@ namespace Nevergreen.Tests
             // SkillBoost
             TestFormat(new Nevergreen.Combat.SkillBoostStatusInstance("slash", 50, 2, "Slash"), "Slash + 50% dmg");
 
-            var onDisableMethod = typeof(Nevergreen.UI.StatusTooltipDisplay).GetMethod("OnDisable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            onDisableMethod.Invoke(tooltipDisplay, null);
+            Object.DestroyImmediate(tooltipDisplay);
+            Object.DestroyImmediate(textGO);
+            Object.DestroyImmediate(iconGO);
+        }
 
+        [Test]
+        public void StatusTooltipDisplay_FormatTooltipText_AggregatesAmplitudesCorrectly()
+        {
+            var textGO = new GameObject("Text");
+            var tooltipText = textGO.AddComponent<TextMeshProUGUI>();
+
+            var tooltipDisplay = hpBarGO.AddComponent<Nevergreen.UI.StatusTooltipDisplay>();
+            var textField = typeof(Nevergreen.UI.StatusTooltipDisplay).GetField("tooltipText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            textField.SetValue(tooltipDisplay, tooltipText);
+
+            var onEnableMethod = typeof(Nevergreen.UI.StatusTooltipDisplay).GetMethod("OnEnable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnableMethod.Invoke(tooltipDisplay, null);
+
+            var iconGO = new GameObject("Icon");
+            iconGO.transform.SetParent(hpBarGO.transform, false);
+            var trigger = iconGO.AddComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+
+            void TestFormat(StatusEffectInstance status, string expectedText)
+            {
+                trigger.Initialize(status);
+                trigger.OnPointerEnter(null);
+                Assert.AreEqual(expectedText, tooltipText.text, $"Formatting failed for {status.type}");
+            }
+
+            hpBar.Initialize(character, null);
+
+            // Test 1: Bleed (Aggregation by StatusType)
+            character.statusEffects.Clear();
+            var bleed1 = new StatusEffectInstance(StatusType.Bleed, StatTarget.Speed, 10, 3);
+            var bleed2 = new StatusEffectInstance(StatusType.Bleed, StatTarget.Speed, 5, 2);
+            character.AddStatus(bleed1);
+            character.AddStatus(bleed2);
+            TestFormat(bleed1, "15 dmg for 3 rounds");
+
+            // Test 2: Buff (Aggregation by StatusType and TargetStat)
+            character.statusEffects.Clear();
+            var buffSpeed1 = new StatusEffectInstance(StatusType.Buff, StatTarget.Speed, 10, 3, AmplitudeType.Flat);
+            var buffSpeed2 = new StatusEffectInstance(StatusType.Buff, StatTarget.Speed, 15, 2, AmplitudeType.Flat);
+            var buffAttack = new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 20, 2, AmplitudeType.Percentage);
+            character.AddStatus(buffSpeed1);
+            character.AddStatus(buffSpeed2);
+            character.AddStatus(buffAttack);
+            TestFormat(buffSpeed1, "+25 Speed for 3 rounds");
+
+            // Test 3: SkillBoostStatusInstance (Aggregation by targetSkillId)
+            character.statusEffects.Clear();
+            var skillBoost1 = new Nevergreen.Combat.SkillBoostStatusInstance("slash", 20, 3, "Slash");
+            var skillBoost2 = new Nevergreen.Combat.SkillBoostStatusInstance("slash", 10, 2, "Slash");
+            var skillBoost3 = new Nevergreen.Combat.SkillBoostStatusInstance("stab", 50, 2, "Stab");
+            character.AddStatus(skillBoost1);
+            character.AddStatus(skillBoost2);
+            character.AddStatus(skillBoost3);
+            TestFormat(skillBoost1, "Slash + 30% dmg");
+
+            // Test 4: HealReceivedReduction (Aggregation by StatusType)
+            character.statusEffects.Clear();
+            var healDebuff1 = new Nevergreen.Combat.HealReceivedDebuffStatusInstance(null, 20, 3);
+            var healDebuff2 = new Nevergreen.Combat.HealReceivedDebuffStatusInstance(null, 30, 2);
+            character.AddStatus(healDebuff1);
+            character.AddStatus(healDebuff2);
+            TestFormat(healDebuff1, "Heal received -50% for 3 rounds");
+
+            // Test 5: Riposte (No aggregation, static string)
+            character.statusEffects.Clear();
+            var riposte = new StatusEffectInstance(StatusType.Riposte, StatTarget.Speed, 50, 3);
+            character.AddStatus(riposte);
+            TestFormat(riposte, "Counter when attacked");
+
+            Object.DestroyImmediate(tooltipDisplay);
             Object.DestroyImmediate(textGO);
             Object.DestroyImmediate(iconGO);
         }
