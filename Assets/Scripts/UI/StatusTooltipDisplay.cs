@@ -112,10 +112,15 @@ namespace Nevergreen.UI
                     return "Skips the next turn";
                 case StatusType.Debuff:
                     string dMark = IsPercentageModifier(status) ? "%" : "";
-                    return $"-{status.amplitude}{dMark} {status.targetStat} for {status.remainingDuration} rounds";
+                    return $"-{status.amplitude} {status.targetStat}{dMark} for {status.remainingDuration} rounds";
                 case StatusType.Buff:
+                    if (status is SkillBoostStatusInstance skillBoost)
+                    {
+                        string skillName = skillBoost.targetSkillDisplayName ?? "null";
+                        return $"{skillName} + {skillBoost.customAmplitude}% dmg";
+                    }
                     string bMark = IsPercentageModifier(status) ? "%" : "";
-                    return $"+{status.amplitude}{bMark} {status.targetStat} for {status.remainingDuration} rounds";
+                    return $"+{status.amplitude} {status.targetStat}{bMark} for {status.remainingDuration} rounds";
                 case StatusType.Mark:
                     return $"Marked as target for {status.remainingDuration} rounds";
                 case StatusType.Guard:

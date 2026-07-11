@@ -11,13 +11,15 @@ namespace Nevergreen.Combat
     public class SkillBoostStatusInstance : StatusEffectInstance
     {
         public string targetSkillId;
+        public string targetSkillDisplayName;
         public int customAmplitude; // Prevents base stat system from applying it as a stat modifier
 
-        public SkillBoostStatusInstance(string targetSkillId, int customAmplitude, int duration)
+        public SkillBoostStatusInstance(string targetSkillId, int customAmplitude, int duration, string targetSkillDisplayName = null)
             : base(StatusType.Buff, StatTarget.Attack, 0, duration, AmplitudeType.Percentage)
         {
             this.targetSkillId = targetSkillId;
             this.customAmplitude = customAmplitude;
+            this.targetSkillDisplayName = targetSkillDisplayName;
         }
 
         public override void OnAdded(CombatCharacter host)

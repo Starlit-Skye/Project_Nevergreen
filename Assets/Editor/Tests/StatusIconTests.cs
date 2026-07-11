@@ -292,6 +292,9 @@ namespace Nevergreen.Tests
             // Burn
             TestFormat(new StatusEffectInstance(StatusType.Burn, StatTarget.Speed, 5, 2), "5dmg, dmg + 1 each turn, for 2 rounds");
 
+            // SkillBoost
+            TestFormat(new Nevergreen.Combat.SkillBoostStatusInstance("slash", 50, 2, "Slash"), "Slash + 50% dmg");
+
             var onDisableMethod = typeof(Nevergreen.UI.StatusTooltipDisplay).GetMethod("OnDisable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             onDisableMethod.Invoke(tooltipDisplay, null);
 
