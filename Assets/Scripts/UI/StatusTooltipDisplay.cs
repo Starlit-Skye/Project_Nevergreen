@@ -1,6 +1,8 @@
 using UnityEngine;
 using TMPro;
 using Nevergreen.Prototype;
+using Nevergreen.Combat;
+using Nevergreen.Data;
 
 namespace Nevergreen.UI
 {
@@ -79,7 +81,7 @@ namespace Nevergreen.UI
                 
                 if (tooltipText != null && trigger.StatusEffect != null)
                 {
-                    tooltipText.text = trigger.StatusEffect.type.ToString();
+                    tooltipText.text = FormatTooltipText(trigger.StatusEffect);
                 }
                 else if (tooltipText == null)
                 {
@@ -97,6 +99,62 @@ namespace Nevergreen.UI
                     visualPanel.SetActive(false);
                 }
             }
+        }
+
+        private string FormatTooltipText(StatusEffectInstance status)
+        {
+            switch (status.type)
+            {
+                case StatusType.Bleed:
+                case StatusType.Blight:
+                    return $"{status.amplitude} dmg for {status.remainingDuration} rounds";
+                case StatusType.Stun:
+                    return "Skips the next turn";
+                case StatusType.Debuff:
+                    string dMark = IsPercentageModifier(status) ? "%" : "";
+                    return $"-{status.amplitude}{dMark} {status.targetStat} for {status.remainingDuration} rounds";
+                case StatusType.Buff:
+                    string bMark = IsPercentageModifier(status) ? "%" : "";
+                    return $"+{status.amplitude}{bMark} {status.targetStat} for {status.remainingDuration} rounds";
+                case StatusType.Mark:
+                    return $"Marked as target for {status.remainingDuration} rounds";
+                case StatusType.Guard:
+                    string guardianName = (status.Source != null) ? status.Source.DisplayName : "unknown";
+                    return $"Guarded by {guardianName} for {status.remainingDuration} rounds";
+                case StatusType.Restore:
+                    return $"Heal {status.amplitude} for {status.remainingDuration} rounds";
+                case StatusType.Stealth:
+                    return $"Cannot be directly targeted by enemies for {status.remainingDuration} rounds";
+                case StatusType.Burn:
+                    return $"{status.amplitude}dmg, dmg + 1 each turn, for {status.remainingDuration} rounds";
+                case StatusType.HealReceivedReduction:
+                    return $"Heal received -{status.amplitude}% for {status.remainingDuration} rounds";
+                case StatusType.BleedOnAttack:
+                    if (status is BleedOnAttackStatusInstance bleedOnAttack)
+                    {
+                        return $"Attacks apply Bleed({bleedOnAttack.BleedChance}% chance) for {status.remainingDuration} rounds";
+                    }
+                    return $"Attacks apply Bleed for {status.remainingDuration} rounds";
+                default:
+                    return status.type.ToString();
+            }
+        }
+
+        private bool IsPercentageModifier(StatusEffectInstance status)
+        {
+            if (status.amplitudeType == AmplitudeType.Percentage) return true;
+            if (status.amplitudeType == AmplitudeType.Flat) return false;
+            return !IsFlatStat(status.targetStat);
+        }
+
+        private bool IsFlatStat(StatTarget target)
+        {
+            return target == StatTarget.CritChance ||
+                   target == StatTarget.BleedResist ||
+                   target == StatTarget.BlightResist ||
+                   target == StatTarget.StunResist ||
+                   target == StatTarget.DebuffResist ||
+                   target == StatTarget.MoveResist;
         }
     }
 }

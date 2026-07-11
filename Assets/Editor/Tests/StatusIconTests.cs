@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using Nevergreen.Combat;
 using Nevergreen.Data;
 using Nevergreen.Prototype;
@@ -243,6 +244,59 @@ namespace Nevergreen.Tests
             onDisableMethod.Invoke(tooltipDisplay, null);
             
             Object.DestroyImmediate(fakeIcon);
+        }
+
+        [Test]
+        public void StatusTooltipDisplay_FormatsTooltipText_Correctly()
+        {
+            var textGO = new GameObject("Text");
+            var tooltipText = textGO.AddComponent<TextMeshProUGUI>();
+
+            var tooltipDisplay = hpBarGO.AddComponent<Nevergreen.UI.StatusTooltipDisplay>();
+            var textField = typeof(Nevergreen.UI.StatusTooltipDisplay).GetField("tooltipText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            textField.SetValue(tooltipDisplay, tooltipText);
+
+            var onEnableMethod = typeof(Nevergreen.UI.StatusTooltipDisplay).GetMethod("OnEnable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnableMethod.Invoke(tooltipDisplay, null);
+
+            var iconGO = new GameObject("Icon");
+            iconGO.transform.SetParent(hpBarGO.transform, false);
+            var trigger = iconGO.AddComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+
+            void TestFormat(StatusEffectInstance status, string expectedText)
+            {
+                trigger.Initialize(status);
+                trigger.OnPointerEnter(null);
+                Assert.AreEqual(expectedText, tooltipText.text, $"Formatting failed for {status.type}");
+            }
+
+            // Bleed
+            TestFormat(new StatusEffectInstance(StatusType.Bleed, StatTarget.Attack, 10, 3), "10 dmg for 3 rounds");
+            
+            // Buff/Debuff
+            TestFormat(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 15, 2, AmplitudeType.Default), "+15 Attack% for 2 rounds");
+            TestFormat(new StatusEffectInstance(StatusType.Buff, StatTarget.CritChance, 15, 2, AmplitudeType.Default), "+15 CritChance for 2 rounds");
+            TestFormat(new StatusEffectInstance(StatusType.Debuff, StatTarget.Speed, 15, 2, AmplitudeType.Percentage), "-15 Speed% for 2 rounds");
+            TestFormat(new StatusEffectInstance(StatusType.Debuff, StatTarget.Speed, 15, 2, AmplitudeType.Flat), "-15 Speed for 2 rounds");
+
+            // Guard
+            var guardStatus = new Nevergreen.Combat.GuardStatusInstance(character, 2);
+            TestFormat(guardStatus, $"Guarded by {character.DisplayName} for 2 rounds");
+
+            // HealReceivedReduction
+            TestFormat(new StatusEffectInstance(StatusType.HealReceivedReduction, StatTarget.Speed, 50, 2), "Heal received -50% for 2 rounds");
+
+            // BleedOnAttack
+            TestFormat(new Nevergreen.Combat.BleedOnAttackStatusInstance(null, 2, 5, 3, 25f), "Attacks apply Bleed(25% chance) for 2 rounds");
+            
+            // Burn
+            TestFormat(new StatusEffectInstance(StatusType.Burn, StatTarget.Speed, 5, 2), "5dmg, dmg + 1 each turn, for 2 rounds");
+
+            var onDisableMethod = typeof(Nevergreen.UI.StatusTooltipDisplay).GetMethod("OnDisable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onDisableMethod.Invoke(tooltipDisplay, null);
+
+            Object.DestroyImmediate(textGO);
+            Object.DestroyImmediate(iconGO);
         }
     }
 }
