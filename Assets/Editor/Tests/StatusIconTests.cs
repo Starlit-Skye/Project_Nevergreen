@@ -101,6 +101,26 @@ namespace Nevergreen.Tests
         }
 
         [Test]
+        public void HPBar_Refresh_GroupsDifferentBuffStatsIntoSingleIcon()
+        {
+            var sprite = Sprite.Create(new Texture2D(2, 2), new Rect(0, 0, 2, 2), Vector2.zero);
+            config.statusIcons.Add(new StatusIconMapping { statusType = StatusType.Buff, icon = sprite });
+            statusIconPrefab.AddComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+
+            hpBar.Initialize(character, null);
+
+            var buff1 = new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 10, 2);
+            var buff2 = new StatusEffectInstance(StatusType.Buff, StatTarget.Speed, 5, 2);
+
+            character.AddStatus(buff1);
+            character.AddStatus(buff2);
+
+            Assert.AreEqual(1, statusIconContainer.childCount, "Expected exactly 1 icon since both are Buffs.");
+            var trigger = statusIconContainer.GetChild(0).GetComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+            Assert.IsNotNull(trigger);
+        }
+
+        [Test]
         public void HPBar_Refresh_InstantiatesStatusIcons()
         {
             var sprite = Sprite.Create(new Texture2D(2, 2), new Rect(0, 0, 2, 2), Vector2.zero);
@@ -295,7 +315,74 @@ namespace Nevergreen.Tests
             TestFormat(new StatusEffectInstance(StatusType.Burn, StatTarget.Speed, 5, 2), "5dmg, dmg + 1 each turn, for 2 rounds");
 
             // SkillBoost
-            TestFormat(new Nevergreen.Combat.SkillBoostStatusInstance("slash", 50, 2, "Slash"), "Slash + 50% dmg");
+            TestFormat(new Nevergreen.Combat.SkillBoostStatusInstance("slash", 50, 2, "Slash"), "Slash + 50% dmg for 2 rounds");
+
+            Object.DestroyImmediate(tooltipDisplay);
+            Object.DestroyImmediate(textGO);
+            Object.DestroyImmediate(iconGO);
+        }
+
+        [Test]
+        public void StatusTooltipDisplay_FormatsGroupedTooltipText_Correctly()
+        {
+            var textGO = new GameObject("Text");
+            var tooltipText = textGO.AddComponent<TextMeshProUGUI>();
+
+            var tooltipDisplay = hpBarGO.AddComponent<Nevergreen.UI.StatusTooltipDisplay>();
+            var textField = typeof(Nevergreen.UI.StatusTooltipDisplay).GetField("tooltipText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            textField.SetValue(tooltipDisplay, tooltipText);
+
+            var onEnableMethod = typeof(Nevergreen.UI.StatusTooltipDisplay).GetMethod("OnEnable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnableMethod.Invoke(tooltipDisplay, null);
+
+            var iconGO = new GameObject("Icon");
+            iconGO.transform.SetParent(hpBarGO.transform, false);
+            var trigger = iconGO.AddComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+
+            void TestFormat(StatusEffectInstance triggerStatus, string expectedText)
+            {
+                trigger.Initialize(triggerStatus);
+                trigger.OnPointerEnter(null);
+                Assert.AreEqual(expectedText, tooltipText.text);
+            }
+
+            // Buff Grouping
+            var buff1 = new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 10, 2);
+            var buff2 = new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 15, 3);
+            var buff3 = new StatusEffectInstance(StatusType.Buff, StatTarget.Speed, 5, 1);
+            var skillBoost1 = new Nevergreen.Combat.SkillBoostStatusInstance("slash", 50, 2, "Slash");
+            var skillBoost2 = new Nevergreen.Combat.SkillBoostStatusInstance("slash", 20, 3, "Slash");
+
+            character.AddStatus(buff1);
+            character.AddStatus(buff2);
+            character.AddStatus(buff3);
+            character.AddStatus(skillBoost1);
+            character.AddStatus(skillBoost2);
+
+            // Triggering with buff1 should display all buffs formatted and grouped
+            string expectedBuffsActual = "+25% Attack for 3 rounds\n+5% Speed for 1 rounds\nSlash + 70% dmg for 3 rounds".Replace("\n", System.Environment.NewLine);
+            TestFormat(buff1, expectedBuffsActual);
+
+            character.statusEffects.Clear();
+
+            // HealReceivedReduction Grouping
+            var hrr1 = new StatusEffectInstance(StatusType.HealReceivedReduction, StatTarget.Speed, 20, 2);
+            var hrr2 = new StatusEffectInstance(StatusType.HealReceivedReduction, StatTarget.Speed, 30, 4);
+            character.AddStatus(hrr1);
+            character.AddStatus(hrr2);
+
+            TestFormat(hrr1, "Heal received -50% for 4 rounds");
+
+            character.statusEffects.Clear();
+
+            // BleedOnAttack Grouping
+            var boa1 = new Nevergreen.Combat.BleedOnAttackStatusInstance(null, 2, 5, 3, 25f);
+            var boa2 = new Nevergreen.Combat.BleedOnAttackStatusInstance(null, 3, 5, 2, 50f);
+            character.AddStatus(boa1);
+            character.AddStatus(boa2);
+
+            string expectedBoa = "Attacks apply Bleed(25% chance) for 2 rounds\nAttacks apply Bleed(50% chance) for 3 rounds".Replace("\n", System.Environment.NewLine);
+            TestFormat(boa1, expectedBoa);
 
             Object.DestroyImmediate(tooltipDisplay);
             Object.DestroyImmediate(textGO);
@@ -344,7 +431,8 @@ namespace Nevergreen.Tests
             character.AddStatus(buffSpeed1);
             character.AddStatus(buffSpeed2);
             character.AddStatus(buffAttack);
-            TestFormat(buffSpeed1, "+25 Speed for 3 rounds");
+            string expectedAggregatedBuffsActual = "+25 Speed for 3 rounds\n+20% Attack for 2 rounds".Replace("\n", System.Environment.NewLine);
+            TestFormat(buffSpeed1, expectedAggregatedBuffsActual);
 
             // Test 3: SkillBoostStatusInstance (Aggregation by targetSkillId)
             character.statusEffects.Clear();
@@ -354,7 +442,8 @@ namespace Nevergreen.Tests
             character.AddStatus(skillBoost1);
             character.AddStatus(skillBoost2);
             character.AddStatus(skillBoost3);
-            TestFormat(skillBoost1, "Slash + 30% dmg");
+            string expectedAggregatedSkillBoosts = "Slash + 30% dmg for 3 rounds\nStab + 50% dmg for 2 rounds".Replace("\n", System.Environment.NewLine);
+            TestFormat(skillBoost1, expectedAggregatedSkillBoosts);
 
             // Test 4: HealReceivedReduction (Aggregation by StatusType)
             character.statusEffects.Clear();

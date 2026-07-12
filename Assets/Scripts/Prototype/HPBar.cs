@@ -237,16 +237,15 @@ namespace Nevergreen.Prototype
             var config = Data.GameDatabase.Instance != null ? Data.GameDatabase.Instance.CombatConfig : null;
             if (config == null) return;
 
-            // Group active statuses by Type and TargetStat
+            // Group active statuses by Type
             var activeStatuses = _target.statusEffects.Where(s => !s.IsExpired);
-            var grouped = activeStatuses.GroupBy(s => new { s.type, s.targetStat });
+            var grouped = activeStatuses.GroupBy(s => s.type);
 
             foreach (var group in grouped)
             {
-                var statusType = group.Key.type;
-                var targetStat = group.Key.targetStat;
+                var statusType = group.Key;
 
-                Sprite iconSprite = config.GetStatusIcon(statusType, targetStat);
+                Sprite iconSprite = config.GetStatusIcon(statusType, (Nevergreen.Data.StatTarget)(-1));
                 if (iconSprite == null) continue; // Skip if no icon is mapped
 
                 GameObject iconGO = Instantiate(statusIconPrefab, statusIconContainer);

@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Linq;
 using Nevergreen.Prototype;
 using Nevergreen.Combat;
 using Nevergreen.Data;
@@ -101,98 +102,108 @@ namespace Nevergreen.UI
             }
         }
 
-        private int GetAggregateAmplitude(StatusEffectInstance status)
+        private string FormatTooltipText(StatusEffectInstance firstStatus)
         {
-            if (status == null) return 0;
-            if (status.Host == null)
+            if (firstStatus == null) return "";
+            if (firstStatus.Host == null)
             {
-                if (status is SkillBoostStatusInstance skillBoost) return skillBoost.customAmplitude;
-                return status.amplitude;
+                int amp = firstStatus.amplitude;
+                if (firstStatus is SkillBoostStatusInstance sb) amp = sb.customAmplitude;
+                // Fallback to single status formatting
+                return FormatSingleTooltipText(firstStatus, amp, firstStatus.remainingDuration);
             }
 
-            if (status is SkillBoostStatusInstance sbBoost)
+            var type = firstStatus.type;
+            var host = firstStatus.Host;
+            var activeStatuses = host.statusEffects.Where(s => s.type == type && !s.IsExpired).ToList();
+
+            if (type == StatusType.Buff || type == StatusType.Debuff)
             {
-                int totalCustom = 0;
-                foreach (var s in status.Host.statusEffects)
+                var sb = new System.Text.StringBuilder();
+                
+                // Group normal buffs by targetStat
+                var normalBuffs = activeStatuses.Where(s => !(s is SkillBoostStatusInstance))
+                                                .GroupBy(s => s.targetStat);
+                foreach (var group in normalBuffs)
                 {
-                    if (s is SkillBoostStatusInstance sb && !sb.IsExpired && sb.targetSkillId == sbBoost.targetSkillId)
-                    {
-                        totalCustom += sb.customAmplitude;
-                    }
+                    int totalAmp = group.Sum(s => s.amplitude);
+                    int maxDur = group.Max(s => s.remainingDuration);
+                    var rep = group.First();
+                    sb.AppendLine(FormatSingleTooltipText(rep, totalAmp, maxDur));
                 }
-                return totalCustom;
-            }
 
-            if (status.type == StatusType.Bleed || status.type == StatusType.Blight || status.type == StatusType.Burn || status.type == StatusType.Restore || status.type == StatusType.HealReceivedReduction)
-            {
-                int total = 0;
-                foreach (var s in status.Host.statusEffects)
+                // Group skill boosts by targetSkillId
+                var skillBoosts = activeStatuses.OfType<SkillBoostStatusInstance>()
+                                                .GroupBy(s => s.targetSkillId);
+                foreach (var group in skillBoosts)
                 {
-                    if (s.type == status.type && !s.IsExpired)
-                    {
-                        total += s.amplitude;
-                    }
+                    int totalCustom = group.Sum(s => s.customAmplitude);
+                    int maxDur = group.Max(s => s.remainingDuration);
+                    var rep = group.First();
+                    sb.AppendLine(FormatSingleTooltipText(rep, totalCustom, maxDur));
                 }
-                return total;
-            }
 
-            if (status.type == StatusType.Buff || status.type == StatusType.Debuff)
+                return sb.ToString().TrimEnd();
+            }
+            else if (type == StatusType.BleedOnAttack)
             {
-                int total = 0;
-                foreach (var s in status.Host.statusEffects)
+                var sb = new System.Text.StringBuilder();
+                foreach (var status in activeStatuses)
                 {
-                    if (s.type == status.type && s.targetStat == status.targetStat && !s.IsExpired)
-                    {
-                        total += s.amplitude;
-                    }
+                    sb.AppendLine(FormatSingleTooltipText(status, status.amplitude, status.remainingDuration));
                 }
-                return total;
+                return sb.ToString().TrimEnd();
             }
-
-            return status.amplitude;
+            else
+            {
+                // For Bleed, Blight, Burn, Restore, HealReceivedReduction, Stun, Mark, Guard, Riposte, etc.
+                // We aggregate amplitude and max duration across ALL active statuses of this type
+                int totalAmp = activeStatuses.Sum(s => s.amplitude);
+                int maxDur = activeStatuses.Max(s => s.remainingDuration);
+                // Also handles Guard, Stun, Riposte (which ignore amplitude/duration or handle them generically)
+                return FormatSingleTooltipText(firstStatus, totalAmp, maxDur);
+            }
         }
 
-        private string FormatTooltipText(StatusEffectInstance status)
+        private string FormatSingleTooltipText(StatusEffectInstance status, int aggregateAmplitude, int maxDuration)
         {
-            int aggregateAmplitude = GetAggregateAmplitude(status);
-
             switch (status.type)
             {
                 case StatusType.Bleed:
                 case StatusType.Blight:
-                    return $"{aggregateAmplitude} dmg for {status.remainingDuration} rounds";
+                    return $"{aggregateAmplitude} dmg for {maxDuration} rounds";
                 case StatusType.Stun:
                     return "Skips the next turn";
                 case StatusType.Debuff:
                     string dMark = IsPercentageModifier(status) ? "%" : "";
-                    return $"-{aggregateAmplitude}{dMark} {status.targetStat} for {status.remainingDuration} rounds";
+                    return $"-{aggregateAmplitude}{dMark} {status.targetStat} for {maxDuration} rounds";
                 case StatusType.Buff:
                     if (status is SkillBoostStatusInstance skillBoost)
                     {
                         string skillName = skillBoost.targetSkillDisplayName ?? "null";
-                        return $"{skillName} + {aggregateAmplitude}% dmg";
+                        return $"{skillName} + {aggregateAmplitude}% dmg for {maxDuration} rounds";
                     }
                     string bMark = IsPercentageModifier(status) ? "%" : "";
-                    return $"+{aggregateAmplitude}{bMark} {status.targetStat} for {status.remainingDuration} rounds";
+                    return $"+{aggregateAmplitude}{bMark} {status.targetStat} for {maxDuration} rounds";
                 case StatusType.Mark:
-                    return $"Marked as target for {status.remainingDuration} rounds";
+                    return $"Marked as target for {maxDuration} rounds";
                 case StatusType.Guard:
                     string guardianName = (status.Source != null) ? status.Source.DisplayName : "unknown";
-                    return $"Guarded by {guardianName} for {status.remainingDuration} rounds";
+                    return $"Guarded by {guardianName} for {maxDuration} rounds";
                 case StatusType.Restore:
-                    return $"Heal {aggregateAmplitude} for {status.remainingDuration} rounds";
+                    return $"Heal {aggregateAmplitude} for {maxDuration} rounds";
                 case StatusType.Stealth:
-                    return $"Cannot be directly targeted by enemies for {status.remainingDuration} rounds";
+                    return $"Cannot be directly targeted by enemies for {maxDuration} rounds";
                 case StatusType.Burn:
-                    return $"{aggregateAmplitude}dmg, dmg + 1 each turn, for {status.remainingDuration} rounds";
+                    return $"{aggregateAmplitude}dmg, dmg + 1 each turn, for {maxDuration} rounds";
                 case StatusType.HealReceivedReduction:
-                    return $"Heal received -{aggregateAmplitude}% for {status.remainingDuration} rounds";
+                    return $"Heal received -{aggregateAmplitude}% for {maxDuration} rounds";
                 case StatusType.BleedOnAttack:
                     if (status is BleedOnAttackStatusInstance bleedOnAttack)
                     {
-                        return $"Attacks apply Bleed({bleedOnAttack.BleedChance}% chance) for {status.remainingDuration} rounds";
+                        return $"Attacks apply Bleed({bleedOnAttack.BleedChance}% chance) for {maxDuration} rounds";
                     }
-                    return $"Attacks apply Bleed for {status.remainingDuration} rounds";
+                    return $"Attacks apply Bleed for {maxDuration} rounds";
                 case StatusType.Riposte:
                     return "Counter when attacked";
                 default:
