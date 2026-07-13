@@ -73,3 +73,9 @@
 ### 12. Ground-Telegraphed Hazard Targeting vs. Unit-Targeted AOE
 - **Pattern**: Converting location-targeted hazards or ground telegraph skills to use the game's standard unit-targeted AOE system (`GetAOETargets`).
 - **Rule**: Do NOT use standard unit-targeted AOE expansion (e.g., `GetAOETargets`) for ground hazards or telegraphed rank mechanics. Because unit-targeted AOE propagates dynamically from a primary target to adjacent ranks up to `maxTargets`, it can hit characters in non-telegraphed safe ranks, violating the visual boundaries shown to the player. Ground hazards must always target and affect only the exact telegraphed ranks/locations.
+
+### 13. System and Mechanic Spec Placement and Naming Conventions
+- **Pattern**: Creating new design specification documents in the root of the `Docs/specs/` directory or with arbitrary file names.
+- **Rule**: All specification documents MUST follow the project's folder layout and naming conventions:
+  - Place specifications in the correct category folders (e.g., `Docs/specs/systems/` for systems, `Docs/specs/mechanics/` for mechanics, `Docs/specs/architecture/` for architecture).
+  - Follow the exact filename prefix matching the template used (e.g., `SYSTEM_SPEC_<NAME>.md`, `MECHANIC_SPEC_<NAME>.md`, `ARCHITECTURE_SPEC_<NAME>.md` in all caps).
