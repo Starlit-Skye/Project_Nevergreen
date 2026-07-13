@@ -12,6 +12,16 @@ namespace Nevergreen.Data
         public EnemyEncounterTier tier;
     }
 
+    [System.Serializable]
+    public struct StatusIconMapping
+    {
+        public StatusType statusType;
+        [Tooltip("If checked, this mapping will only match if the status has the specified stat target.")]
+        public bool specifyStatTarget;
+        public StatTarget targetStat;
+        public Sprite icon;
+    }
+
     /// <summary>
     /// Global combat tuning variables. Single instance used by BattleSystem.
     /// Values derived from GDD Combat/Stats sections.
@@ -140,6 +150,39 @@ namespace Nevergreen.Data
             }
 
             return selectedTier;
+        }
+
+        [Header("Status Icons")]
+        [Tooltip("Configure icons for status effects. Can specify general status types or target specific stats for buff/debuff.")]
+        public System.Collections.Generic.List<StatusIconMapping> statusIcons = new System.Collections.Generic.List<StatusIconMapping>();
+
+        /// <summary>
+        /// Retrieves the configured status icon for the given type and stat target.
+        /// Prioritizes mappings with specific stat targets (for buff/debuff) before falling back to generic mappings.
+        /// </summary>
+        public Sprite GetStatusIcon(StatusType type, StatTarget targetStat)
+        {
+            if (statusIcons == null || statusIcons.Count == 0) return null;
+
+            // 1. Search for specific match first (if it's Buff/Debuff and specifyStatTarget is true)
+            foreach (var mapping in statusIcons)
+            {
+                if (mapping.statusType == type && mapping.specifyStatTarget && mapping.targetStat == targetStat)
+                {
+                    return mapping.icon;
+                }
+            }
+
+            // 2. Fallback to generic match (where specifyStatTarget is false)
+            foreach (var mapping in statusIcons)
+            {
+                if (mapping.statusType == type && !mapping.specifyStatTarget)
+                {
+                    return mapping.icon;
+                }
+            }
+
+            return null;
         }
     }
 }

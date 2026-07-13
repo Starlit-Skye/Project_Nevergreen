@@ -20,5 +20,19 @@ namespace Nevergreen.UI
         {
             OnHideTooltip?.Invoke();
         }
+
+        // Status effect tooltip events
+        public static event Action<StatusIconTooltipTrigger> OnShowStatusTooltip;
+        public static event Action<StatusIconTooltipTrigger> OnHideStatusTooltip;
+
+        public static void ShowStatusTooltip(StatusIconTooltipTrigger trigger)
+        {
+            OnShowStatusTooltip?.Invoke(trigger);
+        }
+
+        public static void HideStatusTooltip(StatusIconTooltipTrigger trigger)
+        {
+            OnHideStatusTooltip?.Invoke(trigger);
+        }
     }
 }

@@ -20,7 +20,7 @@ boss-room outcome transitions.
 - Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0
   (sections: UI Design -> Combat Screen, Inputs and Interactions -> Combat, Gameloop Flow, Combat,
   Alternative Game Start, Final Boss Fight, Technical)
-- Data: `Unknown` (UI flow config/state machine data not provided), `Assets/docs/specs/architecture/ARCHITECTURE_SPEC_COMBAT_RUNTIME.md` (module integration map), `Assets/docs/specs/systems/SYSTEM_SPEC_ECONOMY_RUNTIME.md` (battle and event reward application), `Assets/docs/specs/mechanics/MECHANIC_SPEC_COMBAT_INPUT_INTERACTIONS.md` (combat input interaction flow)
+- Data: `Unknown` (UI flow config/state machine data not provided), `Assets/docs/specs/architecture/ARCHITECTURE_SPEC_COMBAT_RUNTIME.md` (module integration map), `Assets/docs/specs/systems/SYSTEM_SPEC_ECONOMY_RUNTIME.md` (battle and event reward application), `Assets/docs/specs/mechanics/MECHANIC_SPEC_COMBAT_INPUT_INTERACTIONS.md` (combat input interaction flow), `Docs/specs/systems/SYSTEM_SPEC_STATUS_TOOLTIP_DISPLAY.md` (status icon UI and tooltip aggregation spec)
 - Issue/ADR: Unknown
 
 ## Responsibilities
@@ -29,7 +29,7 @@ boss-room outcome transitions.
 - Define combat orientation: player team on left facing right, enemy team on right facing left.
 - Define rank semantics: `rank 1` front-most and `rank 4` back-most for each team.
 - Display both teams in active rank order with `rank 1` closest to screen center and `rank 4` furthest.
-- Display HP bars above each combat character.
+- Display HP bars above each combat character, displaying active status effect icons grouped by type with consolidated multi-line tooltips (see [Docs/specs/systems/SYSTEM_SPEC_STATUS_TOOLTIP_DISPLAY.md](./SYSTEM_SPEC_STATUS_TOOLTIP_DISPLAY.md)).
 - Display bottom combat UI with skill selection section and stats section.
 - Show currently acting player character skills in the skill selection section.
 - Provide "Move" and "Pass" buttons for positioning swaps and turn skipping.

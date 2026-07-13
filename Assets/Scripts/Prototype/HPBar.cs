@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using Nevergreen.Combat;
+using System.Linq;
 
 namespace Nevergreen.Prototype
 {
@@ -17,6 +18,12 @@ namespace Nevergreen.Prototype
         public Image fillImage;
         public TextMeshProUGUI nameText;
         public TextMeshProUGUI hpText;
+
+        [Header("Status Icons")]
+        [Tooltip("The parent container for status effect icons. Should have a HorizontalLayoutGroup or similar layout component.")]
+        public RectTransform statusIconContainer;
+        [Tooltip("The template prefab used to display a single status effect icon. Should have an Image component in children.")]
+        public GameObject statusIconPrefab;
 
         [Header("Settings")]
         public Vector3 offset = new Vector3(0f, 1.5f, 0f);
@@ -200,9 +207,73 @@ namespace Nevergreen.Prototype
                     : "0/0";
             }
 
+            RefreshStatusIcons();
+
             // Hide if destroyed or dying (if we want dying to hide immediately)
             // But keep it for Alive and Pile.
             gameObject.SetActive(_target.IsAlive || _target.IsPile);
+        }
+
+        private void RefreshStatusIcons()
+        {
+            if (statusIconContainer == null || statusIconPrefab == null || _target == null) return;
+
+            // Clear existing icons
+            for (int i = statusIconContainer.childCount - 1; i >= 0; i--)
+            {
+                var child = statusIconContainer.GetChild(i);
+                if (Application.isPlaying)
+                {
+                    Destroy(child.gameObject);
+                }
+                else
+                {
+                    DestroyImmediate(child.gameObject);
+                }
+            }
+
+            if (!_target.IsAlive) return;
+
+            var config = Data.GameDatabase.Instance != null ? Data.GameDatabase.Instance.CombatConfig : null;
+            if (config == null) return;
+
+            // Group active statuses by Type
+            var activeStatuses = _target.statusEffects.Where(s => !s.IsExpired);
+            var grouped = activeStatuses.GroupBy(s => s.type);
+
+            foreach (var group in grouped)
+            {
+                var statusType = group.Key;
+
+                Sprite iconSprite = config.GetStatusIcon(statusType, (Nevergreen.Data.StatTarget)(-1));
+                if (iconSprite == null) continue; // Skip if no icon is mapped
+
+                GameObject iconGO = Instantiate(statusIconPrefab, statusIconContainer);
+                iconGO.SetActive(true);
+
+                Image img = iconGO.GetComponentInChildren<Image>();
+                if (img != null)
+                {
+                    img.sprite = iconSprite;
+                }
+
+                // If the prefab has text components, update them (e.g. for stack count)
+                var texts = iconGO.GetComponentsInChildren<TextMeshProUGUI>();
+                foreach (var txt in texts)
+                {
+                    // By convention, if there are multiple stacks, show the count. Otherwise empty.
+                    // Or if there's a specific need, can format it differently.
+                    int stackCount = group.Count();
+                    txt.text = stackCount > 1 ? stackCount.ToString() : "";
+                }
+
+                // Initialize the tooltip trigger (which is already on the prefab)
+                var trigger = iconGO.GetComponent<Nevergreen.UI.StatusIconTooltipTrigger>();
+                if (trigger != null)
+                {
+                    trigger.Initialize(group.First());
+                }
+            }
         }
 
         public void UpdatePosition()

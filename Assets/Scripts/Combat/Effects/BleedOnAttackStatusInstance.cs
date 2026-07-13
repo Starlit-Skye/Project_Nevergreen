@@ -12,6 +12,8 @@ namespace Nevergreen.Combat
         private int _bleedDuration;
         private float _bleedChance;
 
+        public float BleedChance => _bleedChance;
+
         public BleedOnAttackStatusInstance(BattleSystem battleSystem, int duration, int bleedAmplitude, int bleedDuration, float bleedChance)
             : base(StatusType.BleedOnAttack, StatTarget.Speed, 0, duration)
         {

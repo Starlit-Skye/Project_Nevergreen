@@ -32,7 +32,7 @@ namespace Nevergreen.Combat.Effects
             ctx.EnsureHitResolved(target);
             if (ctx.didHit)
             {
-                var buffInstance = new SkillBoostStatusInstance(targetSkill.skillId, amplitude, duration);
+                var buffInstance = new SkillBoostStatusInstance(targetSkill.skillId, amplitude, duration, targetSkill.displayName);
                 buffInstance.Source = ctx.user;
                 target.AddStatus(buffInstance);
             }

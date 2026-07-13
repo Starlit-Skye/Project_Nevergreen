@@ -38,3 +38,56 @@ MonoBehaviour:
     tier: 3
   - roomCount: 17
     tier: 4
+  statusIcons:
+  - statusType: 1
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: -6358388820573773839, guid: 0d06090fb04ee6c48a7ddd1c8a9e2640, type: 3}
+  - statusType: 0
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: -414829090968627211, guid: 389e3e16e9df4644699e7b06a582a71d, type: 3}
+  - statusType: 2
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: -1084185810795205667, guid: 31b92ada292958a41a33a18a4b26c6ab, type: 3}
+  - statusType: 3
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: -8846326904859176486, guid: 363bb660bef52da4c8f686626e786091, type: 3}
+  - statusType: 4
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: -4314671842131282984, guid: a4ba2ab7d6a1f764fb283466f45ddf6f, type: 3}
+  - statusType: 5
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: -4586998666485414837, guid: 53869a8acd599b64586d29134d7110ce, type: 3}
+  - statusType: 6
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: 2747426821582984545, guid: 9907d59d35077b947891db985da09194, type: 3}
+  - statusType: 7
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: -1920268292964772092, guid: b3549f83176c312408ed6b3e314c2d42, type: 3}
+  - statusType: 8
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: -6872809830333875242, guid: 7ed4ace70ebfdb34e8dfc7517759a27d, type: 3}
+  - statusType: 10
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: 4321373981391222031, guid: 846e76aff1637774f878c51bb477ceb4, type: 3}
+  - statusType: 14
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: -7731145901750399237, guid: a00f219edb572604baa332405ae2fd73, type: 3}
+  - statusType: 12
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: 7616775536688486994, guid: 495d8a8997582384ca7b31c110fe597f, type: 3}
+  - statusType: 13
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: 2548217174224036199, guid: 37ec90bb7ff23744fbd8ec98138bb85b, type: 3}
