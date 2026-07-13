@@ -34,5 +34,19 @@ namespace Nevergreen.UI
         {
             OnHideStatusTooltip?.Invoke(trigger);
         }
+
+        // Trait tooltip events
+        public static event Action<Nevergreen.Data.TraitData> OnShowTraitTooltip;
+        public static event Action OnHideTraitTooltip;
+
+        public static void ShowTraitTooltip(Nevergreen.Data.TraitData trait)
+        {
+            OnShowTraitTooltip?.Invoke(trait);
+        }
+
+        public static void HideTraitTooltip()
+        {
+            OnHideTraitTooltip?.Invoke();
+        }
     }
 }
