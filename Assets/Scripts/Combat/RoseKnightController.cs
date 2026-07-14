@@ -123,11 +123,13 @@ namespace Nevergreen.Combat
             // Execute the telegraph skill to announce the action (UI/animation), targeting self to ensure it plays
             if (telegraphSkill != null)
             {
-                _battleSystem.ExecuteSkill(_self, telegraphSkill, new List<CombatCharacter> { _self });
+                _battleSystem.QueueEnemySkill(_self, telegraphSkill, new List<CombatCharacter> { _self });
             }
-
-            // Spawn VFX at marked rank positions
-            SpawnTelegraphVFX();
+            else
+            {
+                // If there's no telegraph skill to play, spawn VFX immediately
+                SpawnTelegraphVFX();
+            }
         }
 
         private void SpawnTelegraphVFX()
@@ -174,15 +176,26 @@ namespace Nevergreen.Combat
             if (targets.Count > 0 && strikeSkill != null)
             {
                 Debug.Log($"[RoseKnightController] Round {roundNumber}: Striking {targets.Count} target(s) at ranks [{string.Join(", ", _markedRanks)}]");
-                _battleSystem.ExecuteSkill(_self, strikeSkill, targets);
+                _battleSystem.QueueEnemySkill(_self, strikeSkill, targets);
             }
             else
             {
                 Debug.Log($"[RoseKnightController] Round {roundNumber}: No valid targets at marked ranks. Strike skipped.");
             }
 
-            ClearVFX();
-            _markedRanks.Clear();
+            if (_battleSystem.animationQueue != null)
+            {
+                _battleSystem.animationQueue.Enqueue(new ActionStep("Clear Telegraph VFX", () => 
+                {
+                    ClearVFX();
+                    _markedRanks.Clear();
+                }));
+            }
+            else
+            {
+                ClearVFX();
+                _markedRanks.Clear();
+            }
         }
 
         // ==========================================
@@ -192,6 +205,29 @@ namespace Nevergreen.Combat
         private void HandleActionResolved(CombatCharacter user, SkillData skill, SkillContext context)
         {
             if (user != _self) return;
+            // Option 1: VFX appears right when the skill animation starts (synchronous)
+            if (skill == telegraphSkill && telegraphSkill != null)
+            {
+                SpawnTelegraphVFX();
+                return;
+            }
+
+            // Option 2: VFX appears after the skill animation completes (queued ActionStep)
+            /*
+            if (skill == telegraphSkill && telegraphSkill != null)
+            {
+                if (_battleSystem.animationQueue != null)
+                {
+                    _battleSystem.animationQueue.Enqueue(new ActionStep("Spawn Telegraph VFX", () => SpawnTelegraphVFX()));
+                }
+                else
+                {
+                    SpawnTelegraphVFX();
+                }
+                return;
+            }
+            */
+
             if (skill != summonSkill) return;
             if (allyPrefab == null) return;
 

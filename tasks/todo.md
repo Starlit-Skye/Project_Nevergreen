@@ -1,19 +1,12 @@
-# Trait Tooltip Formatting Implementation Plan
+# Enemy Skill Banner Implementation Plan
 
-- [x] Modify `TraitEffectStrategy.cs` to add virtual `GetTooltipDescription`
-- [x] Implement overrides in:
-  - [x] `LowHpStatModifierTraitStrategy.cs`
-  - [x] `StatModifierTraitStrategy.cs`
-  - [x] `FirstRoundStatModifierTraitStrategy.cs`
-  - [x] `RankStatModifierTraitStrategy.cs`
-  - [x] `HealReceivedBonusTraitStrategy.cs`
-  - [x] `RankDamageBonusTraitStrategy.cs`
-  - [x] `HealOutputBonusTraitStrategy.cs`
-  - [x] `StatusApplicationBonusTraitStrategy.cs`
-- [x] Update `TraitTooltipDisplay.cs` to extract and populate multi-line descriptions
-- [x] Update `TraitTooltipTests.cs` with test cases verifying each strategy formatting
-- [x] Execute tests to verify all functionality works correctly
+- [x] Create `EnemySkillBanner.cs` script for the banner component
+- [x] Modify `BattleSystem.cs` to integrate the banner flow in `ExecuteEnemyAction` using `ActionStep` and `WaitTimerStep`
+- [x] Create and configure the Animator Controller and Animation Clip assets
+- [x] Instantiate the UI GameObject and connect references in the `CombatPrototype.unity` scene
+- [x] Run EditMode tests and verify visual playback in PlayMode
 
 ## Review & Verification
-- [x] Compile project and run EditMode tests.
-- [x] Confirm exact tooltip formatting output aligns with specs.
+- [x] All 403 EditMode tests pass (0 failures).
+- [x] Banner reference is null-safe: existing tests with no banner assigned continue to pass with direct skill execution fallback.
+- [x] Scene saved with `EnemySkillBanner` wired to `BattleSystem`.

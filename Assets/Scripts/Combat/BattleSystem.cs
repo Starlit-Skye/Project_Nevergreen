@@ -18,6 +18,9 @@ namespace Nevergreen.Combat
         [Tooltip("Animation queue processor. Auto-created at runtime if not assigned.")]
         public AnimationQueueProcessor animationQueue;
 
+        [Tooltip("Enemy skill announcement banner. Optional — if not assigned, enemies execute skills immediately.")]
+        public EnemySkillBanner enemySkillBanner;
+
         // --- Runtime State ---
         public BattleState CurrentState { get; private set; } = BattleState.Inactive;
         public int CurrentRound { get; private set; } = 0;
@@ -497,7 +500,22 @@ namespace Nevergreen.Combat
             }
             else
             {
-                ExecuteSkill(CurrentActor, decision.skill, decision.targets);
+                Debug.Log($"[BattleSystem] Enemy {CurrentActor.DisplayName} executes {decision.skill.displayName}");
+                QueueEnemySkill(CurrentActor, decision.skill, decision.targets);
+            }
+        }
+
+        public void QueueEnemySkill(CombatCharacter user, SkillData skill, List<CombatCharacter> targets)
+        {
+            if (enemySkillBanner != null && animationQueue != null && user.team == Team.Enemy)
+            {
+                animationQueue.Enqueue(new ActionStep($"{user.DisplayName} Skill Banner Show", () => enemySkillBanner.Show(skill.displayName)));
+                animationQueue.Enqueue(new WaitTimerStep($"{user.DisplayName} Skill Banner Wait", enemySkillBanner.AppearDuration));
+                animationQueue.Enqueue(new ActionStep($"{user.DisplayName} Execute {skill.displayName}", () => ExecuteSkill(user, skill, targets)));
+            }
+            else
+            {
+                ExecuteSkill(user, skill, targets);
             }
         }
 

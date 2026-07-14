@@ -99,7 +99,7 @@ namespace Nevergreen.Combat
             {
                 var primaryTarget = validPool[0];
                 var targets = _battleSystem.GetAOETargets(ultimateSkill, primaryTarget);
-                _battleSystem.ExecuteSkill(_self, ultimateSkill, targets);
+                _battleSystem.QueueEnemySkill(_self, ultimateSkill, targets);
             }
             else
             {

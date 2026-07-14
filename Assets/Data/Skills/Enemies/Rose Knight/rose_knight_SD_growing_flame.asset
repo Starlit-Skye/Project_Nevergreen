@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: rose_knight_SD_growing_flame
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: growing_flame
-  displayName: Growing Flame
+  displayName: Ignite Greatsword
   description: Mark ranks for attacks
   modifier:
     damagePercent: 0
