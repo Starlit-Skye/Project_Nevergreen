@@ -24,13 +24,16 @@ namespace Nevergreen.UI
         public GameObject skillListItemPrefab;
 
         [Header("Traits & Stats")]
-        public TextMeshProUGUI perfectionsText;
-        public TextMeshProUGUI imperfectionsText;
+        public Transform perfectionsContainer;
+        public Transform imperfectionsContainer;
+        public GameObject perfectionUIItemPrefab;
+        public GameObject imperfectionUIItemPrefab;
         public TextMeshProUGUI coreStatsText;
         public TextMeshProUGUI resText;
 
         private PartyMemberInfo _currentSelectedMember;
         private List<GameObject> _spawnedSkillItems = new List<GameObject>();
+        private List<GameObject> _spawnedTraitItems = new List<GameObject>();
 
         [Header("Move Feature")]
         [Tooltip("The Move button used to swap member ranks.")]
@@ -383,27 +386,45 @@ namespace Nevergreen.UI
 
         private void PopulateTraits(PartyMemberInfo member)
         {
-            string perfectionsStr = "";
-            string imperfectionsStr = "";
+            foreach (var item in _spawnedTraitItems)
+            {
+                if (item != null) Destroy(item);
+            }
+            _spawnedTraitItems.Clear();
 
-            if (member.perfections != null)
+            if (member.perfections != null && perfectionsContainer != null && perfectionUIItemPrefab != null)
             {
                 foreach (var trait in member.perfections)
                 {
-                    if (trait != null) perfectionsStr += $"- {trait.displayName}\n";
+                    if (trait == null) continue;
+                    GameObject item = Instantiate(perfectionUIItemPrefab, perfectionsContainer);
+                    _spawnedTraitItems.Add(item);
+
+                    var tooltipTrigger = item.GetComponent<TraitTooltipTrigger>();
+                    if (tooltipTrigger == null) tooltipTrigger = item.AddComponent<TraitTooltipTrigger>();
+                    tooltipTrigger.SetTrait(trait);
+
+                    var label = item.GetComponentInChildren<TextMeshProUGUI>();
+                    if (label != null) label.text = $"- {trait.displayName}";
                 }
             }
 
-            if (member.imperfections != null)
+            if (member.imperfections != null && imperfectionsContainer != null && imperfectionUIItemPrefab != null)
             {
                 foreach (var trait in member.imperfections)
                 {
-                    if (trait != null) imperfectionsStr += $"- {trait.displayName}\n";
+                    if (trait == null) continue;
+                    GameObject item = Instantiate(imperfectionUIItemPrefab, imperfectionsContainer);
+                    _spawnedTraitItems.Add(item);
+
+                    var tooltipTrigger = item.GetComponent<TraitTooltipTrigger>();
+                    if (tooltipTrigger == null) tooltipTrigger = item.AddComponent<TraitTooltipTrigger>();
+                    tooltipTrigger.SetTrait(trait);
+
+                    var label = item.GetComponentInChildren<TextMeshProUGUI>();
+                    if (label != null) label.text = $"- {trait.displayName}";
                 }
             }
-
-            if (perfectionsText != null) perfectionsText.text = string.IsNullOrEmpty(perfectionsStr) ? "None" : perfectionsStr;
-            if (imperfectionsText != null) imperfectionsText.text = string.IsNullOrEmpty(imperfectionsStr) ? "None" : imperfectionsStr;
         }
 
         private void PopulateStats(PartyMemberInfo member)
@@ -437,8 +458,6 @@ namespace Nevergreen.UI
             if (moveButton != null) moveButton.interactable = false;
             if (nameAndLevelText != null) nameAndLevelText.text = "Select a character";
             if (levelUpCostText != null) levelUpCostText.text = "";
-            if (perfectionsText != null) perfectionsText.text = "";
-            if (imperfectionsText != null) imperfectionsText.text = "";
             if (coreStatsText != null) coreStatsText.text = "";
             if (resText != null) resText.text = "";
 
@@ -447,6 +466,12 @@ namespace Nevergreen.UI
                 if (item != null) Destroy(item);
             }
             _spawnedSkillItems.Clear();
+
+            foreach (var item in _spawnedTraitItems)
+            {
+                if (item != null) Destroy(item);
+            }
+            _spawnedTraitItems.Clear();
         }
     }
 }

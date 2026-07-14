@@ -31,8 +31,10 @@ namespace Nevergreen.UI
         [Header("UI - Info Panel (Split)")]
         public TextMeshProUGUI coreStatsText;
         public TextMeshProUGUI resistancesText;
-        public TextMeshProUGUI perfectionsText;
-        public TextMeshProUGUI imperfectionsText;
+        public Transform perfectionsContainer;
+        public Transform imperfectionsContainer;
+        public GameObject perfectionUIItemPrefab;
+        public GameObject imperfectionUIItemPrefab;
 
         [Header("UI - Skills Panel")]
         public Transform skillsPanelContainer;
@@ -52,6 +54,7 @@ namespace Nevergreen.UI
         private List<Button> _instantiatedButtons = new List<Button>();
         private List<TextMeshProUGUI> _instantiatedTexts = new List<TextMeshProUGUI>();
         private List<GameObject> _spawnedSkillItems = new List<GameObject>();
+        private List<GameObject> _spawnedTraitItems = new List<GameObject>();
 
         private void Start()
         {
@@ -255,32 +258,44 @@ namespace Nevergreen.UI
                                        $"Move Res: {stats.moveResist}%";
             }
 
-            if (perfectionsText != null)
+            foreach (var item in _spawnedTraitItems)
             {
-                string perfText = "";
-                if (info.perfections != null)
+                if (item != null) Destroy(item);
+            }
+            _spawnedTraitItems.Clear();
+
+            if (info.perfections != null && perfectionsContainer != null && perfectionUIItemPrefab != null)
+            {
+                foreach (var trait in info.perfections)
                 {
-                    foreach (var perf in info.perfections)
-                    {
-                        if (perf != null)
-                            perfText += $"- <color=green>{perf.displayName}</color>\n";
-                    }
+                    if (trait == null) continue;
+                    GameObject item = Instantiate(perfectionUIItemPrefab, perfectionsContainer);
+                    _spawnedTraitItems.Add(item);
+
+                    var tooltipTrigger = item.GetComponent<TraitTooltipTrigger>();
+                    if (tooltipTrigger == null) tooltipTrigger = item.AddComponent<TraitTooltipTrigger>();
+                    tooltipTrigger.SetTrait(trait);
+
+                    var label = item.GetComponentInChildren<TextMeshProUGUI>();
+                    if (label != null) label.text = $"- {trait.displayName}";
                 }
-                perfectionsText.text = string.IsNullOrEmpty(perfText) ? "None" : perfText;
             }
 
-            if (imperfectionsText != null)
+            if (info.imperfections != null && imperfectionsContainer != null && imperfectionUIItemPrefab != null)
             {
-                string impText = "";
-                if (info.imperfections != null)
+                foreach (var trait in info.imperfections)
                 {
-                    foreach (var imp in info.imperfections)
-                    {
-                        if (imp != null)
-                            impText += $"- <color=red>{imp.displayName}</color>\n";
-                    }
+                    if (trait == null) continue;
+                    GameObject item = Instantiate(imperfectionUIItemPrefab, imperfectionsContainer);
+                    _spawnedTraitItems.Add(item);
+
+                    var tooltipTrigger = item.GetComponent<TraitTooltipTrigger>();
+                    if (tooltipTrigger == null) tooltipTrigger = item.AddComponent<TraitTooltipTrigger>();
+                    tooltipTrigger.SetTrait(trait);
+
+                    var label = item.GetComponentInChildren<TextMeshProUGUI>();
+                    if (label != null) label.text = $"- {trait.displayName}";
                 }
-                imperfectionsText.text = string.IsNullOrEmpty(impText) ? "None" : impText;
             }
 
 
@@ -322,14 +337,18 @@ namespace Nevergreen.UI
 
             if (coreStatsText != null) coreStatsText.text = "";
             if (resistancesText != null) resistancesText.text = "";
-            if (perfectionsText != null) perfectionsText.text = "";
-            if (imperfectionsText != null) imperfectionsText.text = "";
 
             foreach (var item in _spawnedSkillItems)
             {
                 if (item != null) Destroy(item);
             }
             _spawnedSkillItems.Clear();
+
+            foreach (var item in _spawnedTraitItems)
+            {
+                if (item != null) Destroy(item);
+            }
+            _spawnedTraitItems.Clear();
         }
 
         private void EvaluateConfirmButton()

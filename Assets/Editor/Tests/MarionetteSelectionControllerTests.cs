@@ -123,11 +123,23 @@ namespace Nevergreen.Tests
 
             var perfGo = new GameObject("Perfections");
             _createdObjects.Add(perfGo);
-            _controller.perfectionsText = perfGo.AddComponent<TextMeshProUGUI>();
+            _controller.perfectionsContainer = perfGo.AddComponent<RectTransform>();
 
             var impGo = new GameObject("Imperfections");
             _createdObjects.Add(impGo);
-            _controller.imperfectionsText = impGo.AddComponent<TextMeshProUGUI>();
+            _controller.imperfectionsContainer = impGo.AddComponent<RectTransform>();
+
+            var perfectionUIItemPrefabGo = new GameObject("PerfectionItemPrefab");
+            _createdObjects.Add(perfectionUIItemPrefabGo);
+            perfectionUIItemPrefabGo.AddComponent<TextMeshProUGUI>();
+            perfectionUIItemPrefabGo.AddComponent<RectTransform>();
+            _controller.perfectionUIItemPrefab = perfectionUIItemPrefabGo;
+
+            var imperfectionUIItemPrefabGo = new GameObject("ImperfectionItemPrefab");
+            _createdObjects.Add(imperfectionUIItemPrefabGo);
+            imperfectionUIItemPrefabGo.AddComponent<TextMeshProUGUI>();
+            imperfectionUIItemPrefabGo.AddComponent<RectTransform>();
+            _controller.imperfectionUIItemPrefab = imperfectionUIItemPrefabGo;
 
             var skillsContainerGo = new GameObject("SkillsContainer");
             _createdObjects.Add(skillsContainerGo);

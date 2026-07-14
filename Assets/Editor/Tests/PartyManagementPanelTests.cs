@@ -58,8 +58,18 @@ namespace Nevergreen.Tests
             controller.levelUpCostText = new GameObject("CostText").AddComponent<TextMeshProUGUI>();
             controller.coreStatsText = new GameObject("CoreStats").AddComponent<TextMeshProUGUI>();
             controller.resText = new GameObject("ResText").AddComponent<TextMeshProUGUI>();
-            controller.perfectionsText = new GameObject("Perfections").AddComponent<TextMeshProUGUI>();
-            controller.imperfectionsText = new GameObject("Imperfections").AddComponent<TextMeshProUGUI>();
+            controller.perfectionsContainer = new GameObject("PerfectionsContainer").AddComponent<RectTransform>();
+            controller.imperfectionsContainer = new GameObject("ImperfectionsContainer").AddComponent<RectTransform>();
+            
+            // Create dummy trait item prefab
+            controller.perfectionUIItemPrefab = new GameObject("PerfectionItemPrefab");
+            controller.perfectionUIItemPrefab.AddComponent<TextMeshProUGUI>();
+            controller.perfectionUIItemPrefab.AddComponent<RectTransform>();
+
+            controller.imperfectionUIItemPrefab = new GameObject("ImperfectionItemPrefab");
+            controller.imperfectionUIItemPrefab.AddComponent<TextMeshProUGUI>();
+            controller.imperfectionUIItemPrefab.AddComponent<RectTransform>();
+
             controller.skillsContainer = new GameObject("SkillsContainer").AddComponent<RectTransform>();
             
             // Create a dummy character using helper
