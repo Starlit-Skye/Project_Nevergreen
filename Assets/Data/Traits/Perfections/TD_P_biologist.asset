@@ -19,17 +19,14 @@ MonoBehaviour:
     +20% Blight Chance'
   traitType: 0
   effectStrategies:
-  - rid: 4415245172071727180
+  - rid: 3450807673322471424
   - rid: 4415245172071727181
   references:
     version: 2
     RefIds:
-    - rid: 4415245172071727180
-      type: {class: StatusApplicationBonusTraitStrategy, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
-        statusType: 0
-        applicationChanceBonus: 20
-        onlyAgainstEnemies: 0
+    - rid: 3450807673322471424
+      type: {class: Test_Perfection, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 
     - rid: 4415245172071727181
       type: {class: StatusApplicationBonusTraitStrategy, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:

@@ -16,7 +16,14 @@ MonoBehaviour:
   displayName: 
   description: 
   traitType: 0
-  effectStrategies: []
+  effectStrategies:
+  - rid: 3450807673322471435
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 3450807673322471435
+      type: {class: StatusApplicationBonusTraitStrategy, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 2
+        applicationChanceBonus: 20
+        onlyAgainstEnemies: 1

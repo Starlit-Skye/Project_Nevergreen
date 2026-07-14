@@ -19,13 +19,14 @@ MonoBehaviour:
 '
   traitType: 0
   effectStrategies:
-  - rid: 4415245153204436992
+  - rid: 3450807673322471512
   references:
     version: 2
     RefIds:
-    - rid: 4415245153204436992
-      type: {class: StatModifierTraitStrategy, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+    - rid: 3450807673322471512
+      type: {class: LowHpStatModifierTraitStrategy, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        targetStat: 0
-        amplitudeType: 1
-        amount: 20
+        hpThresholdPercent: 50
+        targetStat: 4
+        amplitudeType: 2
+        amount: 10

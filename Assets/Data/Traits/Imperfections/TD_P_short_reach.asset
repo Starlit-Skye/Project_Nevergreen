@@ -27,14 +27,14 @@ MonoBehaviour:
     - rid: 4415245238185230348
       type: {class: RankStatModifierTraitStrategy, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        requiredRank: 1
+        requiredRank: 4
         targetStat: 0
         amplitudeType: 1
         amount: -10
     - rid: 4415245238185230349
       type: {class: RankStatModifierTraitStrategy, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        requiredRank: 1
+        requiredRank: 4
         targetStat: 2
         amplitudeType: 2
         amount: -10
