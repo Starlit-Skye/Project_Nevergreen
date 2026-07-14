@@ -44,8 +44,30 @@ namespace Nevergreen.UI
 
             if (tooltipText != null)
             {
-                // Just display the displayName for testing purposes
-                tooltipText.text = trait.displayName;
+                var lines = new System.Collections.Generic.List<string>();
+                if (trait.effectStrategies != null)
+                {
+                    foreach (var strategy in trait.effectStrategies)
+                    {
+                        if (strategy != null)
+                        {
+                            string desc = strategy.GetTooltipDescription(trait.traitType);
+                            if (!string.IsNullOrEmpty(desc))
+                            {
+                                lines.Add(desc);
+                            }
+                        }
+                    }
+                }
+                
+                if (lines.Count > 0)
+                {
+                    tooltipText.text = string.Join("\n", lines);
+                }
+                else
+                {
+                    tooltipText.text = trait.displayName;
+                }
             }
 
             if (visualPanel != null)

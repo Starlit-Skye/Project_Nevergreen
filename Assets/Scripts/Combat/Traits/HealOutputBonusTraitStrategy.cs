@@ -40,5 +40,11 @@ namespace Nevergreen.Combat
                 instance.extra.Remove("OnBeforeDamageCalculation_HealOutput");
             }
         }
+
+        public override string GetTooltipDescription(TraitType traitType)
+        {
+            char sign = traitType == TraitType.Perfection ? '+' : '-';
+            return $"{sign}{Math.Abs(healBonusPercent)}% healing";
+        }
     }
 }

@@ -83,7 +83,76 @@ namespace Nevergreen.Tests
             
             // Assert - tooltip should be active and display the correct text
             Assert.IsTrue(_displayGo.activeSelf, "Tooltip should be active after hover.");
+            // Because no strategies were added, it defaults to the display name
             Assert.AreEqual("Test Perfection", _nameText.text, "Tooltip name text should match the trait's display name.");
+        }
+
+        [Test]
+        public void HoverEnter_WithStrategies_FormatsCorrectly()
+        {
+            // Add strategies to the test trait
+            var statMod = new Nevergreen.Combat.StatModifierTraitStrategy 
+            { 
+                amount = 10, 
+                targetStat = StatTarget.Attack,
+                amplitudeType = Nevergreen.Combat.AmplitudeType.Percentage
+            };
+            
+            var healMod = new Nevergreen.Combat.HealReceivedBonusTraitStrategy
+            {
+                healBonusPercent = 20
+            };
+
+            _testTrait.effectStrategies.Add(statMod);
+            _testTrait.effectStrategies.Add(healMod);
+
+            var pointerEventData = new PointerEventData(EventSystem.current);
+            _trigger.OnPointerEnter(pointerEventData);
+
+            Assert.IsTrue(_displayGo.activeSelf);
+            string expected = "+10% Attack\n+20% heal received";
+            Assert.AreEqual(expected, _nameText.text);
+        }
+
+        [Test]
+        public void Formatting_Imperfection_AppliesNegativeSign()
+        {
+            _testTrait.traitType = TraitType.Imperfection;
+            var statMod = new Nevergreen.Combat.StatModifierTraitStrategy 
+            { 
+                amount = -5, 
+                targetStat = StatTarget.Defense,
+                amplitudeType = Nevergreen.Combat.AmplitudeType.Flat
+            };
+            _testTrait.effectStrategies.Add(statMod);
+
+            var pointerEventData = new PointerEventData(EventSystem.current);
+            _trigger.OnPointerEnter(pointerEventData);
+
+            Assert.IsTrue(_displayGo.activeSelf);
+            string expected = "-5 Defense";
+            Assert.AreEqual(expected, _nameText.text);
+        }
+
+        [Test]
+        public void Formatting_LowHpStatModifier_FormatsCorrectly()
+        {
+            _testTrait.traitType = TraitType.Perfection;
+            var lowHpMod = new Nevergreen.Combat.LowHpStatModifierTraitStrategy
+            {
+                amount = 15,
+                targetStat = StatTarget.Attack,
+                amplitudeType = Nevergreen.Combat.AmplitudeType.Percentage,
+                hpThresholdPercent = 50f
+            };
+            _testTrait.effectStrategies.Add(lowHpMod);
+
+            var pointerEventData = new PointerEventData(EventSystem.current);
+            _trigger.OnPointerEnter(pointerEventData);
+
+            Assert.IsTrue(_displayGo.activeSelf);
+            string expected = "+15% Attack when below 50% HP";
+            Assert.AreEqual(expected, _nameText.text);
         }
 
         [Test]

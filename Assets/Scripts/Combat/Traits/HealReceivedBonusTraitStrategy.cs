@@ -51,5 +51,11 @@ namespace Nevergreen.Combat
                 instance.extra.Remove("OnBeforeDamageCalculation");
             }
         }
+
+        public override string GetTooltipDescription(TraitType traitType)
+        {
+            char sign = traitType == TraitType.Perfection ? '+' : '-';
+            return $"{sign}{System.Math.Abs(healBonusPercent)}% heal received";
+        }
     }
 }

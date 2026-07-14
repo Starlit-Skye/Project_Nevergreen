@@ -26,5 +26,13 @@ namespace Nevergreen.Data
         /// passive stat modifiers. Writes into the provided modifier accumulator.
         /// </summary>
         public virtual void ModifyStats(Combat.TraitInstance instance, Combat.TraitStatModifier modifier) { }
+
+        /// <summary>
+        /// Generates the formatted tooltip text for this effect strategy based on the parent trait's type.
+        /// </summary>
+        public virtual string GetTooltipDescription(TraitType traitType)
+        {
+            return string.Empty;
+        }
     }
 }

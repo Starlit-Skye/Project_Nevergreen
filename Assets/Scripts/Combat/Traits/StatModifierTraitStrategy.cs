@@ -51,5 +51,14 @@ namespace Nevergreen.Combat
                    target == StatTarget.DebuffResist ||
                    target == StatTarget.MoveResist;
         }
+
+        public override string GetTooltipDescription(TraitType traitType)
+        {
+            char sign = traitType == TraitType.Perfection ? '+' : '-';
+            bool isFlat = amplitudeType == AmplitudeType.Flat || 
+                          (amplitudeType == AmplitudeType.Default && IsFlatStat(targetStat));
+            string unit = isFlat ? "" : "%";
+            return $"{sign}{System.Math.Abs(amount)}{unit} {targetStat}";
+        }
     }
 }
