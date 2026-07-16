@@ -25,12 +25,28 @@ namespace Nevergreen.Data
 
             // Find a Screen-Space Canvas in the scene
             Canvas canvas = null;
-            foreach (var c in GameObject.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+            var canvases = GameObject.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+
+            // 1. Try to find the main UI Canvas by name
+            foreach (var c in canvases)
             {
-                if (c.renderMode == RenderMode.ScreenSpaceOverlay || c.renderMode == RenderMode.ScreenSpaceCamera)
+                if (c.name == "UICanvas" && (c.renderMode == RenderMode.ScreenSpaceOverlay || c.renderMode == RenderMode.ScreenSpaceCamera))
                 {
                     canvas = c;
                     break;
+                }
+            }
+
+            // 2. Fallback to any Screen-Space canvas if "UICanvas" is missing
+            if (canvas == null)
+            {
+                foreach (var c in canvases)
+                {
+                    if (c.renderMode == RenderMode.ScreenSpaceOverlay || c.renderMode == RenderMode.ScreenSpaceCamera)
+                    {
+                        canvas = c;
+                        break;
+                    }
                 }
             }
 
