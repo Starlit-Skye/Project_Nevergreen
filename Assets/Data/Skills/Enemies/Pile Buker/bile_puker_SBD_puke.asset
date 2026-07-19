@@ -14,14 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: puke
   displayName: Puke
-  description: Apply Blight, Dodge and Speed Debuff.
+  description: Apply Blight, Dodge and Speed, and Mark Debuff.
   modifier:
     damagePercent: 0.6
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: -2
   - rid: 4415245648690151516
   - rid: 4415245648690151517
   - rid: 4415245648690151518
@@ -41,8 +40,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
     - rid: 4415245648690151516
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: pointblank_puke
   displayName: Pointblank Puke
-  description: Apply Blight, Dodge and Speed Debuff.
+  description: Apply Blight, Dodge and Speed, and Mark Debuff.
   modifier:
     damagePercent: 0.3
     healPercent: 0

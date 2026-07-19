@@ -1,9 +1,23 @@
-# Canvas Prioritization Fix Plan
+# Trinket System Implementation Tasks
 
-- [x] Modify `MarionetteRoomEffectStrategy.cs` to search for and prioritize a canvas named "UICanvas"
-- [x] Modify `BossRoomEffectStrategy.cs` to search for and prioritize a canvas named "UICanvas"
-- [x] Save all modified scenes (if open) and run EditMode tests to verify compilation and test suite status
-
-## Review & Verification
-- [x] Ensure all modified strategy scripts compile cleanly.
-- [x] All 403 EditMode tests pass (or 402 passing and transition test failure remains constant).
+- [ ] Create Trinket Data Structures & Strategies
+  - [ ] `TrinketData.cs` - ScriptableObject base
+  - [ ] `TrinketDatabase.cs` - Registry of trinkets
+  - [ ] `TrinketEffectStrategy.cs` - Abstract effect base
+  - [ ] `StatModifierTrinketStrategy.cs` - Stat modifier implementation
+  - [ ] `LowHpDamageBonusTrinketStrategy.cs` - Target threshold bonus damage strategy
+  - [ ] `GuaranteedHitTrinketStrategy.cs` - Guaranteed hit strategy
+- [ ] Create Runtime combat wrapper
+  - [ ] `TrinketInstance.cs` - Runtime instance container
+- [ ] Modify core models & serialization
+  - [ ] `PartyMemberInfo.cs` - Equip/unequip rules, 2 max cap, uniqueness, cannot remove cursed
+  - [ ] `SaveManager.cs` - Support serializing/deserializing equipped trinkets
+  - [ ] `GameDatabase.cs` - Include TrinketDatabase register
+- [ ] Integrate into Combat Runtime
+  - [ ] `CombatCharacter.cs` - Load and modify stats during combat initialization
+  - [ ] `BattleSystem.cs` - Event hook for target-specific damage calculation
+  - [ ] `DamageEffect.cs` - Trigger target-specific event hook during execute stage
+- [ ] Write Specification & Tests
+  - [ ] Create spec file `Docs/specs/systems/SYSTEM_SPEC_TRINKETS.md`
+  - [ ] Create unit tests in `Assets/Editor/Tests/TrinketTests.cs`
+  - [ ] Run edit mode tests and verify success
