@@ -19,9 +19,16 @@ namespace Nevergreen.Combat
 
             if (didHit)
             {
+                // Trigger per-target event and allow strategies to mutate context
+                float originalMultiplier = context.damageMultiplier;
+                context.battleSystem?.TriggerBeforeDamageCalculationPerTarget(context, target);
+
                 // 2. Math Resolution
                 int damage = CombatCalculator.CalculateDamage(context, GameDatabase.Instance.CombatConfig);
                 context.calculatedValue += damage;
+                
+                // Restore original multiplier to prevent pollution across targets in AOE attacks
+                context.damageMultiplier = originalMultiplier;
                 
                 // 3. Application
                 target.TakeDamage(damage, context.isCritical);

@@ -26,14 +26,19 @@ namespace Nevergreen.UI
         [Header("Traits & Stats")]
         public Transform perfectionsContainer;
         public Transform imperfectionsContainer;
-        public GameObject perfectionUIItemPrefab;
         public GameObject imperfectionUIItemPrefab;
+        
+        [Header("Trinkets")]
+        public Transform trinketsContainer;
+        public GameObject trinketUIItemPrefab;
+
         public TextMeshProUGUI coreStatsText;
         public TextMeshProUGUI resText;
 
         private PartyMemberInfo _currentSelectedMember;
         private List<GameObject> _spawnedSkillItems = new List<GameObject>();
         private List<GameObject> _spawnedTraitItems = new List<GameObject>();
+        private List<GameObject> _spawnedTrinketItems = new List<GameObject>();
 
         [Header("Move Feature")]
         [Tooltip("The Move button used to swap member ranks.")]
@@ -335,6 +340,9 @@ namespace Nevergreen.UI
             // Traits
             PopulateTraits(member);
 
+            // Trinkets
+            PopulateTrinkets(member);
+
             // Stats
             PopulateStats(member);
         }
@@ -427,6 +435,32 @@ namespace Nevergreen.UI
             }
         }
 
+        private void PopulateTrinkets(PartyMemberInfo member)
+        {
+            foreach (var item in _spawnedTrinketItems)
+            {
+                if (item != null) Destroy(item);
+            }
+            _spawnedTrinketItems.Clear();
+
+            if (member.equippedTrinkets != null && trinketsContainer != null && trinketUIItemPrefab != null)
+            {
+                foreach (var trinket in member.equippedTrinkets)
+                {
+                    if (trinket == null) continue;
+                    GameObject item = Instantiate(trinketUIItemPrefab, trinketsContainer);
+                    _spawnedTrinketItems.Add(item);
+
+                    var tooltipTrigger = item.GetComponent<TrinketTooltipTrigger>();
+                    if (tooltipTrigger == null) tooltipTrigger = item.AddComponent<TrinketTooltipTrigger>();
+                    tooltipTrigger.SetTrinket(trinket);
+
+                    var label = item.GetComponentInChildren<TextMeshProUGUI>();
+                    if (label != null) label.text = $"- {trinket.displayName}";
+                }
+            }
+        }
+
         private void PopulateStats(PartyMemberInfo member)
         {
             var stats = member.character.GetStatsForLevel(member.currentLevel);
@@ -472,6 +506,12 @@ namespace Nevergreen.UI
                 if (item != null) Destroy(item);
             }
             _spawnedTraitItems.Clear();
+
+            foreach (var item in _spawnedTrinketItems)
+            {
+                if (item != null) Destroy(item);
+            }
+            _spawnedTrinketItems.Clear();
         }
     }
 }

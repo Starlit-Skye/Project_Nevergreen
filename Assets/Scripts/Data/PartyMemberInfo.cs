@@ -31,6 +31,40 @@ namespace Nevergreen.Data
         /// <summary>Active Imperfection traits on this Marionette.</summary>
         public List<TraitData> imperfections = new List<TraitData>();
 
+        /// <summary>Active Trinkets on this Marionette.</summary>
+        public List<TrinketData> equippedTrinkets = new List<TrinketData>();
+
+        /// <summary>
+        /// Attempts to equip a trinket. Returns false if the trinket is already equipped
+        /// (by trinketId) or the capacity limit of 2 is reached.
+        /// </summary>
+        public bool TryEquipTrinket(TrinketData trinket)
+        {
+            if (trinket == null) return false;
+
+            // Capacity check: Each character can only equip 2 trinkets max
+            if (equippedTrinkets.Count >= 2) return false;
+
+            // Uniqueness check: Each character cannot equip 2 of the same trinket
+            if (equippedTrinkets.Any(t => t != null && t.trinketId == trinket.trinketId)) return false;
+
+            equippedTrinkets.Add(trinket);
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to unequip a trinket. Returns false if the trinket cannot be removed (e.g. cursed).
+        /// </summary>
+        public bool TryUnequipTrinket(TrinketData trinket)
+        {
+            if (trinket == null) return false;
+            
+            // Check if cursed/cannot be removed
+            if (trinket.cannotBeRemoved) return false;
+
+            return equippedTrinkets.Remove(trinket);
+        }
+
         /// <summary>
         /// Attempts to add a trait. Returns false if the trait is already present
         /// (by traitId) or the relevant list has reached its capacity.

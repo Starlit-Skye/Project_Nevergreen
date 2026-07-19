@@ -48,5 +48,19 @@ namespace Nevergreen.UI
         {
             OnHideTraitTooltip?.Invoke();
         }
+
+        // Trinket tooltip events
+        public static event Action<Nevergreen.Data.TrinketData> OnShowTrinketTooltip;
+        public static event Action OnHideTrinketTooltip;
+
+        public static void ShowTrinketTooltip(Nevergreen.Data.TrinketData trinket)
+        {
+            OnShowTrinketTooltip?.Invoke(trinket);
+        }
+
+        public static void HideTrinketTooltip()
+        {
+            OnHideTrinketTooltip?.Invoke();
+        }
     }
 }

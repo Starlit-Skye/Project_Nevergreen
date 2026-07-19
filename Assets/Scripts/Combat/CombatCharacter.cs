@@ -86,6 +86,7 @@ namespace Nevergreen.Combat
         [HideInInspector] public List<SkillData> equippedSkills = new List<SkillData>();
         [HideInInspector] public List<StatusEffectInstance> statusEffects = new List<StatusEffectInstance>();
         [HideInInspector] public List<TraitInstance> activeTraits = new List<TraitInstance>();
+        [HideInInspector] public List<TrinketInstance> activeTrinkets = new List<TrinketInstance>();
 
         /// <summary>
         /// Optional injectable reference to the PartyMemberInfo for this character.
@@ -222,6 +223,7 @@ namespace Nevergreen.Combat
 
             // Activate traits from PartyMemberInfo
             DeactivateAllTraits();
+            DeactivateAllTrinkets();
             if (team == Team.Player && resolvedPartyInfo != null)
             {
                 foreach (var traitData in resolvedPartyInfo.perfections)
@@ -238,6 +240,14 @@ namespace Nevergreen.Combat
                     {
                         var instance = new TraitInstance(traitData, this, null);
                         activeTraits.Add(instance);
+                    }
+                }
+                foreach (var trinketData in resolvedPartyInfo.equippedTrinkets)
+                {
+                    if (trinketData != null)
+                    {
+                        var instance = new TrinketInstance(trinketData, this, null);
+                        activeTrinkets.Add(instance);
                     }
                 }
             }
@@ -259,6 +269,10 @@ namespace Nevergreen.Combat
             foreach (var trait in activeTraits)
             {
                 trait.ModifyStats(traitMod);
+            }
+            foreach (var trinket in activeTrinkets)
+            {
+                trinket.ModifyStats(traitMod);
             }
 
             // Track accumulated percentage and flat modifiers for every stat target
@@ -510,7 +524,19 @@ namespace Nevergreen.Combat
         }
 
         /// <summary>
-        /// Activates all traits (called after BattleSystem reference is available).
+        /// Deactivates and clears all active trinkets. Called during cleanup or re-initialization.
+        /// </summary>
+        public void DeactivateAllTrinkets()
+        {
+            foreach (var trinket in activeTrinkets)
+            {
+                trinket.Deactivate();
+            }
+            activeTrinkets.Clear();
+        }
+
+        /// <summary>
+        /// Activates all traits and trinkets (called after BattleSystem reference is available).
         /// </summary>
         public void ActivateTraits(BattleSystem battleSystem)
         {
@@ -518,6 +544,11 @@ namespace Nevergreen.Combat
             {
                 trait.battleSystem = battleSystem;
                 trait.Activate();
+            }
+            foreach (var trinket in activeTrinkets)
+            {
+                trinket.battleSystem = battleSystem;
+                trinket.Activate();
             }
         }
     }
