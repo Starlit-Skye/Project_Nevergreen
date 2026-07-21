@@ -92,13 +92,20 @@ namespace Nevergreen.Tests
             var trinket = ScriptableObject.CreateInstance<TrinketData>();
             trinket.trinketId = "stat_up";
             
-            var statStrat = new StatModifierTrinketStrategy
+            var flatStrat = new StatModifierTrinketStrategy
             {
                 statTarget = StatTarget.Attack,
-                flatBonus = 5,
-                percentBonus = 50f // +50%
+                amplitudeType = AmplitudeType.Flat,
+                amount = 5f
             };
-            trinket.effectStrategies.Add(statStrat);
+            var percentStrat = new StatModifierTrinketStrategy
+            {
+                statTarget = StatTarget.Attack,
+                amplitudeType = AmplitudeType.Percentage,
+                amount = 50f // +50%
+            };
+            trinket.effectStrategies.Add(flatStrat);
+            trinket.effectStrategies.Add(percentStrat);
 
             _partyMember.TryEquipTrinket(trinket);
             _character.partyInfo = _partyMember;

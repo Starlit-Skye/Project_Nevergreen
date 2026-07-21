@@ -6,7 +6,7 @@ namespace Nevergreen.Data
     /// <summary>
     /// Central registry of all available Trinkets.
     /// </summary>
-    [CreateAssetMenu(fileName = "NewTrinketDatabase", menuName = "Nevergreen/Data/Trinket Database")]
+    [CreateAssetMenu(fileName = "NewTrinketDatabase", menuName = "Nevergreen/Databases/Trinket Database")]
     public class TrinketDatabase : ScriptableObject
     {
         [Tooltip("All available Trinkets.")]

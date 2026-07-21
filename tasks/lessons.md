@@ -79,3 +79,8 @@
 - **Rule**: All specification documents MUST follow the project's folder layout and naming conventions:
   - Place specifications in the correct category folders (e.g., `Docs/specs/systems/` for systems, `Docs/specs/mechanics/` for mechanics, `Docs/specs/architecture/` for architecture).
   - Follow the exact filename prefix matching the template used (e.g., `SYSTEM_SPEC_<NAME>.md`, `MECHANIC_SPEC_<NAME>.md`, `ARCHITECTURE_SPEC_<NAME>.md` in all caps).
+
+### 14. CreateAssetMenu Submenu Consistency for Databases
+- **Pattern**: Placing registry database assets (e.g., `TrinketDatabase`) under the generic `"Nevergreen/Data/"` menu folder.
+- **Rule**: All database registry ScriptableObjects (such as `TrinketDatabase`, `RoomDatabase`, `GameDatabase`) should be placed under the `"Nevergreen/Databases/"` submenu to ensure a consistent, clean asset creation menu in the Unity Editor.
+- **Verification**: Check the `[CreateAssetMenu]` attribute's `menuName` field to ensure database-related assets use `"Nevergreen/Databases/"` as the parent path rather than `"Nevergreen/Data/"`.

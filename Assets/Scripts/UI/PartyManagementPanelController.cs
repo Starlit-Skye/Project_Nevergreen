@@ -26,6 +26,7 @@ namespace Nevergreen.UI
         [Header("Traits & Stats")]
         public Transform perfectionsContainer;
         public Transform imperfectionsContainer;
+        public GameObject perfectionUIItemPrefab;
         public GameObject imperfectionUIItemPrefab;
         
         [Header("Trinkets")]
@@ -197,6 +198,15 @@ namespace Nevergreen.UI
             {
                 _selectedSlotIndex = slotIndex;
                 DisplayCharacterData(party[slotIndex]);
+            }
+        }
+
+        public void ForceRefresh()
+        {
+            if (_currentSelectedMember != null)
+            {
+                DisplayCharacterData(_currentSelectedMember);
+                RefreshSlotUI();
             }
         }
 
@@ -443,6 +453,13 @@ namespace Nevergreen.UI
             }
             _spawnedTrinketItems.Clear();
 
+            if (trinketsContainer != null)
+            {
+                var dropHandler = trinketsContainer.GetComponent<TrinketSlotDropHandler>();
+                if (dropHandler == null) dropHandler = trinketsContainer.gameObject.AddComponent<TrinketSlotDropHandler>();
+                dropHandler.TargetMember = member;
+            }
+
             if (member.equippedTrinkets != null && trinketsContainer != null && trinketUIItemPrefab != null)
             {
                 foreach (var trinket in member.equippedTrinkets)
@@ -454,6 +471,10 @@ namespace Nevergreen.UI
                     var tooltipTrigger = item.GetComponent<TrinketTooltipTrigger>();
                     if (tooltipTrigger == null) tooltipTrigger = item.AddComponent<TrinketTooltipTrigger>();
                     tooltipTrigger.SetTrinket(trinket);
+
+                    var uiItem = item.GetComponent<TrinketUIItem>();
+                    if (uiItem == null) uiItem = item.AddComponent<TrinketUIItem>();
+                    uiItem.Initialize(trinket, member, member.equippedTrinkets.IndexOf(trinket));
 
                     var label = item.GetComponentInChildren<TextMeshProUGUI>();
                     if (label != null) label.text = $"- {trinket.displayName}";

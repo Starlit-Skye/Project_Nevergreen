@@ -19,8 +19,12 @@ namespace Nevergreen.Data
         [Tooltip("If true, this trinket cannot be unequipped once equipped.")]
         public bool cannotBeRemoved;
 
+        [Tooltip("This trinket's illustration.")]
+        public Sprite illustration;
+
         [Tooltip("Modular strategies that define this trinket's mechanical effects.")]
         [SerializeReference]
+        [Nevergreen.Attributes.SubclassSelector]
         public List<TrinketEffectStrategy> effectStrategies = new List<TrinketEffectStrategy>();
     }
 }
