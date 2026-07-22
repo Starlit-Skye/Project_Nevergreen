@@ -15,7 +15,14 @@ namespace Nevergreen.UI
                 if (draggedItem.Owner.TryUnequipTrinket(data))
                 {
                     SaveManager.SaveRun();
+                    
+                    // Reparent to the inventory container so it doesn't get destroyed by ForceRefresh
+                    draggedItem.transform.SetParent(this.transform);
+                    draggedItem.Initialize(data, null, -1);
+                    
                     var controller = GetComponentInParent<PartyManagementPanelController>();
+                    if (controller == null) controller = Object.FindAnyObjectByType<PartyManagementPanelController>();
+                    
                     if (controller != null)
                     {
                         controller.ForceRefresh();

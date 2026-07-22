@@ -35,14 +35,34 @@ namespace Nevergreen.UI
                     if (!ownerA.TryUnequipTrinket(x)) return;
                 }
 
+                // TryEquipTrinket will automatically put it in an empty slot or append
                 if (TargetMember.TryEquipTrinket(x))
                 {
+                    // If we have a specific target slot, we want to try to place it exactly there.
+                    // TryEquipTrinket might have placed it in the first available slot.
+                    // We can reorder it to the TargetSlotIndex.
+                    int currentIndex = TargetMember.equippedTrinkets.IndexOf(x);
+                    if (currentIndex != -1 && TargetSlotIndex != -1 && currentIndex != TargetSlotIndex)
+                    {
+                        // Pad with nulls if necessary
+                        while (TargetMember.equippedTrinkets.Count <= TargetSlotIndex)
+                        {
+                            TargetMember.equippedTrinkets.Add(null);
+                        }
+                        
+                        // Swap
+                        var temp = TargetMember.equippedTrinkets[TargetSlotIndex];
+                        TargetMember.equippedTrinkets[TargetSlotIndex] = x;
+                        TargetMember.equippedTrinkets[currentIndex] = temp;
+                    }
+
                     SaveManager.SaveRun();
                     var controller = GetComponentInParent<PartyManagementPanelController>();
                     if (controller != null)
                     {
                         controller.ForceRefresh();
                     }
+                    Destroy(draggedItem.gameObject);
                 }
                 else
                 {
@@ -51,6 +71,31 @@ namespace Nevergreen.UI
                     {
                         ownerA.TryEquipTrinket(x);
                     }
+                }
+            }
+            else
+            {
+                // Dragging to an empty slot on the SAME character
+                int currentIndex = ownerA.equippedTrinkets.IndexOf(x);
+                if (currentIndex != -1 && TargetSlotIndex != -1 && currentIndex != TargetSlotIndex)
+                {
+                    // Pad with nulls if necessary
+                    while (ownerA.equippedTrinkets.Count <= TargetSlotIndex)
+                    {
+                        ownerA.equippedTrinkets.Add(null);
+                    }
+                    
+                    // Move the item to the new slot
+                    ownerA.equippedTrinkets[currentIndex] = null;
+                    ownerA.equippedTrinkets[TargetSlotIndex] = x;
+                    
+                    SaveManager.SaveRun();
+                    var controller = GetComponentInParent<PartyManagementPanelController>();
+                    if (controller != null)
+                    {
+                        controller.ForceRefresh();
+                    }
+                    Destroy(draggedItem.gameObject);
                 }
             }
         }

@@ -30,7 +30,7 @@ namespace Nevergreen.UI
         public GameObject imperfectionUIItemPrefab;
         
         [Header("Trinkets")]
-        public Transform trinketsContainer;
+        public Transform[] trinketsContainers;
         public GameObject trinketUIItemPrefab;
 
         public TextMeshProUGUI coreStatsText;
@@ -39,7 +39,6 @@ namespace Nevergreen.UI
         private PartyMemberInfo _currentSelectedMember;
         private List<GameObject> _spawnedSkillItems = new List<GameObject>();
         private List<GameObject> _spawnedTraitItems = new List<GameObject>();
-        private List<GameObject> _spawnedTrinketItems = new List<GameObject>();
 
         [Header("Move Feature")]
         [Tooltip("The Move button used to swap member ranks.")]
@@ -447,37 +446,48 @@ namespace Nevergreen.UI
 
         private void PopulateTrinkets(PartyMemberInfo member)
         {
-            foreach (var item in _spawnedTrinketItems)
+            if (trinketsContainers != null)
             {
-                if (item != null) Destroy(item);
-            }
-            _spawnedTrinketItems.Clear();
-
-            if (trinketsContainer != null)
-            {
-                var dropHandler = trinketsContainer.GetComponent<TrinketSlotDropHandler>();
-                if (dropHandler == null) dropHandler = trinketsContainer.gameObject.AddComponent<TrinketSlotDropHandler>();
-                dropHandler.TargetMember = member;
-            }
-
-            if (member.equippedTrinkets != null && trinketsContainer != null && trinketUIItemPrefab != null)
-            {
-                foreach (var trinket in member.equippedTrinkets)
+                foreach (var container in trinketsContainers)
                 {
-                    if (trinket == null) continue;
-                    GameObject item = Instantiate(trinketUIItemPrefab, trinketsContainer);
-                    _spawnedTrinketItems.Add(item);
+                    if (container == null) continue;
+                    foreach (Transform child in container)
+                    {
+                        Destroy(child.gameObject);
+                    }
+                }
+            }
 
-                    var tooltipTrigger = item.GetComponent<TrinketTooltipTrigger>();
-                    if (tooltipTrigger == null) tooltipTrigger = item.AddComponent<TrinketTooltipTrigger>();
-                    tooltipTrigger.SetTrinket(trinket);
+            if (trinketsContainers != null && trinketUIItemPrefab != null)
+            {
+                for (int i = 0; i < trinketsContainers.Length; i++)
+                {
+                    Transform container = trinketsContainers[i];
+                    if (container == null) continue;
 
-                    var uiItem = item.GetComponent<TrinketUIItem>();
-                    if (uiItem == null) uiItem = item.AddComponent<TrinketUIItem>();
-                    uiItem.Initialize(trinket, member, member.equippedTrinkets.IndexOf(trinket));
+                    var dropHandler = container.GetComponent<TrinketSlotDropHandler>();
+                    if (dropHandler == null) dropHandler = container.gameObject.AddComponent<TrinketSlotDropHandler>();
+                    dropHandler.TargetMember = member;
+                    dropHandler.TargetSlotIndex = i;
 
-                    var label = item.GetComponentInChildren<TextMeshProUGUI>();
-                    if (label != null) label.text = $"- {trinket.displayName}";
+                    if (member.equippedTrinkets != null && i < member.equippedTrinkets.Count)
+                    {
+                        var trinket = member.equippedTrinkets[i];
+                        if (trinket == null) continue;
+
+                        GameObject item = Instantiate(trinketUIItemPrefab, container);
+
+                        var tooltipTrigger = item.GetComponent<TrinketTooltipTrigger>();
+                        if (tooltipTrigger == null) tooltipTrigger = item.AddComponent<TrinketTooltipTrigger>();
+                        tooltipTrigger.SetTrinket(trinket);
+
+                        var uiItem = item.GetComponent<TrinketUIItem>();
+                        if (uiItem == null) uiItem = item.AddComponent<TrinketUIItem>();
+                        uiItem.Initialize(trinket, member, i);
+
+                        var label = item.GetComponentInChildren<TextMeshProUGUI>();
+                        if (label != null) label.text = $"- {trinket.displayName}";
+                    }
                 }
             }
         }
@@ -528,11 +538,17 @@ namespace Nevergreen.UI
             }
             _spawnedTraitItems.Clear();
 
-            foreach (var item in _spawnedTrinketItems)
+            if (trinketsContainers != null)
             {
-                if (item != null) Destroy(item);
+                foreach (var container in trinketsContainers)
+                {
+                    if (container == null) continue;
+                    foreach (Transform child in container)
+                    {
+                        Destroy(child.gameObject);
+                    }
+                }
             }
-            _spawnedTrinketItems.Clear();
         }
     }
 }

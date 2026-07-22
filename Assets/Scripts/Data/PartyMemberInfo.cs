@@ -43,12 +43,21 @@ namespace Nevergreen.Data
             if (trinket == null) return false;
 
             // Capacity check: Each character can only equip 2 trinkets max
-            if (equippedTrinkets.Count >= 2) return false;
+            int activeCount = equippedTrinkets.Count(t => t != null);
+            if (activeCount >= 2) return false;
 
             // Uniqueness check: Each character cannot equip 2 of the same trinket
             if (equippedTrinkets.Any(t => t != null && t.trinketId == trinket.trinketId)) return false;
 
-            equippedTrinkets.Add(trinket);
+            int nullIndex = equippedTrinkets.IndexOf(null);
+            if (nullIndex != -1)
+            {
+                equippedTrinkets[nullIndex] = trinket;
+            }
+            else
+            {
+                equippedTrinkets.Add(trinket);
+            }
             return true;
         }
 
@@ -62,7 +71,13 @@ namespace Nevergreen.Data
             // Check if cursed/cannot be removed
             if (trinket.cannotBeRemoved) return false;
 
-            return equippedTrinkets.Remove(trinket);
+            int index = equippedTrinkets.IndexOf(trinket);
+            if (index != -1)
+            {
+                equippedTrinkets[index] = null;
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

@@ -60,6 +60,8 @@ namespace Nevergreen.UI
 
         public void OnEndDrag(PointerEventData eventData)
         {
+            if (this == null || gameObject == null) return;
+            
             _canvasGroup.blocksRaycasts = true;
 
             // If we are not dropped onto a valid handler that changed our parent, revert to original parent
@@ -102,6 +104,10 @@ namespace Nevergreen.UI
                             {
                                 controller.ForceRefresh();
                             }
+                            
+                            // Reinitialize the dragged item (which goes back to inventory) 
+                            // to act as the unequipped item 'y'.
+                            draggedItem.Initialize(y, null, -1);
                         }
                         else
                         {
@@ -125,6 +131,8 @@ namespace Nevergreen.UI
                             {
                                 controller.ForceRefresh();
                             }
+                            
+                            Destroy(draggedItem.gameObject);
                         }
                     }
                     else
@@ -153,6 +161,8 @@ namespace Nevergreen.UI
                         {
                             controller.ForceRefresh();
                         }
+                        
+                        Destroy(draggedItem.gameObject);
                     }
                 }
             }
