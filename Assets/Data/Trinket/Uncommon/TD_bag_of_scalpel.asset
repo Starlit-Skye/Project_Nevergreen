@@ -10,30 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 455f532e4a4b6fa49936af04b683f5eb, type: 3}
-  m_Name: TD_fine_blade
+  m_Name: TD_bag_of_scalpel
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
-  trinketId: TD_fine_blade
-  displayName: Fine Blade
-  description: 'Increase Attack
-
-    Increase Acc'
+  trinketId: TD_bag_of_scalpel
+  displayName: Bag of Scalpel
+  description: Increased Healing + Decreased Bleed Resistance
   cannotBeRemoved: 0
-  illustration: {fileID: 21300000, guid: b30a75dd0794ad845a27a4207d9ff260, type: 3}
+  illustration: {fileID: 0}
   effectStrategies:
-  - rid: 3450807812442554448
-  - rid: 3450807814617301066
+  - rid: 3450807880175059047
+  - rid: 3450807880175059048
   references:
     version: 2
     RefIds:
-    - rid: 3450807812442554448
+    - rid: 3450807880175059047
+      type: {class: HealOutputBonusTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        healBonusPercent: 50
+    - rid: 3450807880175059048
       type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        statTarget: 0
-        amplitudeType: 1
-        amount: 10
-    - rid: 3450807814617301066
-      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
-      data:
-        statTarget: 2
+        statTarget: 7
         amplitudeType: 2
-        amount: 10
+        amount: -20

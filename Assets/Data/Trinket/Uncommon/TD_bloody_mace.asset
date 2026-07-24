@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455f532e4a4b6fa49936af04b683f5eb, type: 3}
+  m_Name: TD_bloody_mace
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
+  trinketId: TD_bloody_mace
+  displayName: Bloody Mace
+  description: Increased Attack + Decreased Accuracy
+  cannotBeRemoved: 0
+  illustration: {fileID: 0}
+  effectStrategies:
+  - rid: 3450807880175059045
+  - rid: 3450807880175059046
+  references:
+    version: 2
+    RefIds:
+    - rid: 3450807880175059045
+      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statTarget: 0
+        amplitudeType: 1
+        amount: 30
+    - rid: 3450807880175059046
+      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statTarget: 2
+        amplitudeType: 2
+        amount: -10

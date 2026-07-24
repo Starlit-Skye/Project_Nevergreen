@@ -50,23 +50,40 @@ namespace Nevergreen.Combat
             }
 
             int resistance = target.GetResistance(statusType);
+            
+            string unresistableKey = $"StatusUnresistable_{statusType}_{target.GetInstanceID()}";
+            if (context.extra.TryGetValue(unresistableKey, out object unresistObj) && unresistObj is bool unresist && unresist)
+            {
+                resistance = 0; // Bypass this specific target's resistance
+            }
+
             bool applied = CombatCalculator.ResolveStatusApplication(finalChance, resistance, context.rng);
 
             if (applied)
             {
+                int finalAmplitude = amplitude;
+                int finalDuration = duration;
+                
+                string burstKey = $"StatusBurst_{statusType}";
+                if (context.extra.TryGetValue(burstKey, out object burstObj) && burstObj is bool burst && burst)
+                {
+                    finalAmplitude = amplitude * duration;
+                    finalDuration = 1;
+                }
+
                 StatusEffectInstance instance;
                 if (statusType == StatusType.Guard)
                 {
-                    instance = new GuardStatusInstance(context.user, duration);
+                    instance = new GuardStatusInstance(context.user, finalDuration);
                 }
                 else if (statusType == StatusType.Move)
                 {
-                    instance = new MoveStatusInstance(context.battleSystem, amplitude);
+                    instance = new MoveStatusInstance(context.battleSystem, finalAmplitude);
                     instance.Source = context.user;
                 }
                 else if (statusType == StatusType.Stealth)
                 {
-                    instance = new StealthStatusInstance(duration);
+                    instance = new StealthStatusInstance(finalDuration);
                     instance.Source = context.user;
                 }
                 else if (statusType == StatusType.Shuffle)
@@ -76,17 +93,17 @@ namespace Nevergreen.Combat
                 }
                 else if (statusType == StatusType.HealReceivedReduction)
                 {
-                    instance = new HealReceivedDebuffStatusInstance(context.battleSystem, amplitude, duration);
+                    instance = new HealReceivedDebuffStatusInstance(context.battleSystem, finalAmplitude, finalDuration);
                     instance.Source = context.user;
                 }
                 else
                 {
-                    instance = new StatusEffectInstance(statusType, targetStat, amplitude, duration, amplitudeType);
+                    instance = new StatusEffectInstance(statusType, targetStat, finalAmplitude, finalDuration, amplitudeType);
                     instance.Source = context.user;
                 }
 
                 target.AddStatus(instance);
-                Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (amp:{amplitude}, dur:{duration})");
+                Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (amp:{finalAmplitude}, dur:{finalDuration})");
             }
 
             target.TriggerStatusApplied(statusType, applied, targetStat);

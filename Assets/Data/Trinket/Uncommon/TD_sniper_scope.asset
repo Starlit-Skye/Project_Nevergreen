@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455f532e4a4b6fa49936af04b683f5eb, type: 3}
+  m_Name: TD_sniper_scope
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
+  trinketId: TD_sniper_scope
+  displayName: Sniper Scope
+  description: Increased Critical Rate + Increased Critical Damage + Decreases Dodge
+    Chance + Decreased Defense
+  cannotBeRemoved: 0
+  illustration: {fileID: 0}
+  effectStrategies:
+  - rid: 3450807880175059051
+  - rid: 3450807880175059052
+  - rid: 3450807880175059053
+  - rid: 3450807880175059054
+  references:
+    version: 2
+    RefIds:
+    - rid: 3450807880175059051
+      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statTarget: 4
+        amplitudeType: 0
+        amount: 10
+    - rid: 3450807880175059052
+      type: {class: CritDamageMultiplierBonusTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        critMultiplierBonus: 0.5
+    - rid: 3450807880175059053
+      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statTarget: 3
+        amplitudeType: 2
+        amount: -10
+    - rid: 3450807880175059054
+      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statTarget: 1
+        amplitudeType: 2
+        amount: -10

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455f532e4a4b6fa49936af04b683f5eb, type: 3}
+  m_Name: TR_corrupted_remedy
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
+  trinketId: TR_corrupted_remedy
+  displayName: Corrupted Remedy
+  description: 'Bleed and Blight Duration decreased to 1 and deals its full damage
+    on expiration
+
+    Cannot resist Bleed and Blight'
+  cannotBeRemoved: 0
+  illustration: {fileID: 0}
+  effectStrategies:
+  - rid: 3450807900124479573
+  - rid: 3450807900124479576
+  references:
+    version: 2
+    RefIds:
+    - rid: 3450807900124479573
+      type: {class: StatusBurstTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statusTypes: 0000000001000000
+    - rid: 3450807900124479576
+      type: {class: StatusUnresistableTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statusTypes: 0000000001000000
