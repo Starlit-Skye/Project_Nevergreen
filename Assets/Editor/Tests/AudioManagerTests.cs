@@ -54,10 +54,10 @@ namespace Nevergreen.Tests
             }
             
             // Clear singleton
-            var prop = typeof(AudioManager).GetProperty("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-            if (prop != null && prop.CanWrite)
+            var instanceField = typeof(AudioManager).GetField("_instance", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            if (instanceField != null)
             {
-                prop.SetValue(null, null);
+                instanceField.SetValue(null, null);
             }
         }
 
@@ -178,6 +178,28 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(clipA);
             Object.DestroyImmediate(clipB);
             Object.DestroyImmediate(clipC);
+        }
+
+        [Test]
+        public void Instance_LazilyAutoInstantiates_WhenNull()
+        {
+            // Destroy existing test AudioManager object and clear static reference
+            Object.DestroyImmediate(_audioGo);
+            _audioGo = null;
+
+            var instanceField = typeof(AudioManager).GetField("_instance", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            instanceField.SetValue(null, null);
+
+            // Accessing Instance should auto-instantiate or auto-create an AudioManager GameObject
+            AudioManager instance = AudioManager.Instance;
+            Assert.IsNotNull(instance, "AudioManager.Instance should auto-instantiate when null.");
+
+            // Cleanup the created instance
+            if (instance != null)
+            {
+                Object.DestroyImmediate(instance.gameObject);
+                instanceField.SetValue(null, null);
+            }
         }
     }
 }
