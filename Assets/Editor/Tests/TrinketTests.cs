@@ -555,5 +555,133 @@ namespace Nevergreen.Tests
             // 10% of 100 max HP = 10 damage.
             Assert.AreEqual(90, _character.currentHP, "Wearer did not take the correct self-damage.");
         }
+
+        [Test]
+        public void StatModifierTrinket_Unequip_RemovesStatsCorrectly()
+        {
+            var trinket = ScriptableObject.CreateInstance<TrinketData>();
+            var strategy = new StatModifierTrinketStrategy
+            {
+                statTarget = StatTarget.Attack,
+                amplitudeType = AmplitudeType.Flat,
+                amount = 10f
+            };
+            trinket.effectStrategies.Add(strategy);
+
+            _partyMember.TryEquipTrinket(trinket);
+            _character.partyInfo = _partyMember;
+            _character.InitializeForCombat(Team.Player, 1);
+
+            var statsWithTrinket = _character.GetEffectiveStats();
+            Assert.AreEqual(20, statsWithTrinket.attack); // Base 10 + 10
+
+            _partyMember.TryUnequipTrinket(trinket);
+            _character.InitializeForCombat(Team.Player, 1); // Re-sync active traits
+            
+            var statsWithoutTrinket = _character.GetEffectiveStats();
+            Assert.AreEqual(10, statsWithoutTrinket.attack); // Back to base 10
+        }
+
+        [Test]
+        public void SingleTargetCritAoeHitTrinket_IgnoresAoeHeals()
+        {
+            var trinket = ScriptableObject.CreateInstance<TrinketData>();
+            var strategy = new SingleTargetCritAoeHitTrinketStrategy();
+            trinket.effectStrategies.Add(strategy);
+
+            _partyMember.TryEquipTrinket(trinket);
+            _character.partyInfo = _partyMember;
+            _character.InitializeForCombat(Team.Player, 1);
+            _character.ActivateTraits(_battleSystem);
+
+            // Create enemy team to make sure they aren't targeted
+            var enemyGo = new GameObject("Enemy1");
+            var enemy = enemyGo.AddComponent<CombatCharacter>();
+            var enemyData = ScriptableObject.CreateInstance<CharacterData>();
+            var enemyStatsMock = ScriptableObject.CreateInstance<StatBlockData>();
+            enemyData.statPerLevel.Add(enemyStatsMock);
+            enemy.characterData = enemyData;
+            enemy.InitializeForCombat(Team.Enemy, 1);
+            _battleSystem.StartBattle(new List<CombatCharacter> { _character }, new List<CombatCharacter> { enemy });
+
+            // AOE Heal Skill
+            var aoeHealSkill = ScriptableObject.CreateInstance<SkillData>();
+            aoeHealSkill.maxTargets = 4;
+            aoeHealSkill.targetScope = TargetScope.Allies;
+            aoeHealSkill.modifier = new SkillModifier { healPercent = 1f };
+
+            var targets = new List<CombatCharacter> { _character };
+            var ctx = new SkillContext(_character, aoeHealSkill, targets, _battleSystem, new System.Random(42));
+            
+            var evGlobal = _battleSystem.GetType().GetField("OnBeforeDamageCalculation", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var delGlobal = (System.Action<SkillContext>)evGlobal.GetValue(_battleSystem);
+            delGlobal?.Invoke(ctx);
+
+            Assert.AreEqual(1, ctx.targets.Count, "AOE Heal should not expand targets to enemies.");
+            Assert.AreSame(_character, ctx.targets[0], "AOE Heal should keep original ally targets.");
+
+            Object.DestroyImmediate(enemyGo);
+        }
+
+        [Test]
+        public void SelfDamageOnAttackTrinket_IgnoresHealSkills()
+        {
+            var trinket = ScriptableObject.CreateInstance<TrinketData>();
+            var strategy = new SelfDamageOnAttackTrinketStrategy { maxHpPercentageDamage = 10f };
+            trinket.effectStrategies.Add(strategy);
+
+            _partyMember.TryEquipTrinket(trinket);
+            _character.partyInfo = _partyMember;
+            
+            var playerStats = ScriptableObject.CreateInstance<StatBlockData>();
+            playerStats.maxHP = 100;
+            _character.characterData.statPerLevel[0] = playerStats;
+            _character.InitializeForCombat(Team.Player, 1);
+            _character.currentHP = 100;
+            _character.ActivateTraits(_battleSystem);
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.modifier = new SkillModifier { healPercent = 1f }; // Heal skill, not damage
+
+            var targets = new List<CombatCharacter>(); 
+            var ctx = new SkillContext(_character, skill, targets, _battleSystem, new System.Random(42));
+
+            var evGlobal = _battleSystem.GetType().GetField("OnBeforeDamageCalculation", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var delGlobal = (System.Action<SkillContext>)evGlobal.GetValue(_battleSystem);
+            delGlobal?.Invoke(ctx);
+
+            Assert.AreEqual(100, _character.currentHP, "Wearer should not take self-damage on non-damage skills.");
+        }
+
+        [Test]
+        public void StatusApplicationBonusTrinket_IgnoresAllyBuffs()
+        {
+            var trinket = ScriptableObject.CreateInstance<TrinketData>();
+            var strategy = new StatusApplicationBonusTrinketStrategy 
+            { 
+                statusType = StatusType.Buff, 
+                applicationChanceBonus = 50f,
+                onlyAgainstEnemies = true
+            };
+            trinket.effectStrategies.Add(strategy);
+
+            _partyMember.TryEquipTrinket(trinket);
+            _character.partyInfo = _partyMember;
+            _character.InitializeForCombat(Team.Player, 1);
+            _character.ActivateTraits(_battleSystem);
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.targetScope = TargetScope.Allies; // Ally targeting
+
+            var targets = new List<CombatCharacter> { _character };
+            var ctx = new SkillContext(_character, skill, targets, _battleSystem, new System.Random(42));
+
+            var ev = _battleSystem.GetType().GetField("OnBeforeDamageCalculation", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var del = (System.Action<SkillContext>)ev.GetValue(_battleSystem);
+            del?.Invoke(ctx);
+
+            string key = "StatusChanceBonus_Buff";
+            Assert.IsFalse(ctx.extra.ContainsKey(key), "Status chance bonus should not apply to ally-targeted skills when onlyAgainstEnemies is true.");
+        }
     }
 }

@@ -25,4 +25,4 @@ MonoBehaviour:
   leavesPileOnDeath: 0
   defaultAIProfile: {fileID: 11400000, guid: 427c1fdc69d2f8b4aa224b4ab7aed841, type: 2}
   deathSFX: {fileID: 0}
-  bossMusicOverride: {fileID: 0}
+  bossMusicOverride: {fileID: 8300000, guid: 018349b0953e071419729cceeff92c05, type: 3}

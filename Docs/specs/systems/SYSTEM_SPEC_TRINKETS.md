@@ -1,35 +1,89 @@
 # SYSTEM_SPEC_TRINKETS
 
-## Overview
-The Trinket System provides equippable items that grant passive stat bonuses and dynamic combat effects to player characters (Marionettes). Trinkets expand the customization layer by allowing players to mix and match modular strategies, similar to the Trait system.
+Owner: Gameplay Engineering
+Status: active
+Last verified: 2026-07-25
+Verified commit: 6d3a08a7d925fa1492604370b270ca1fb51517bd
+Target build: Unity 2022.3 (Windows)
 
-## Key Rules
-1. **Capacity Cap**: A character can equip a maximum of 2 Trinkets.
-2. **Uniqueness**: A character cannot equip multiple instances of the same Trinket (checked via `trinketId`).
-3. **Cursed Trinkets**: If a Trinket's `cannotBeRemoved` flag is true, it cannot be unequipped once attached.
-4. **Serialization**: Equipped Trinket IDs are serialized in `SaveManager` (`equippedTrinketIds` in `PartyMemberDTO`) and resolved at load time via the `TrinketDatabase`.
+## Purpose
+Provides equippable items (Trinkets) that grant passive stat modifications and dynamic event-driven combat effect strategies to Marionette party members.
 
-## Core Data Structures
+## Scope
+- In scope: Trinket data definitions, capacity rules, equipment constraints (cursed trinkets, uniqueness cap), runtime effect lifecycle (`OnActivate`, `OnDeactivate`), stat modifier aggregation, combat event subscriptions (`OnBeforeDamageCalculation`, `OnBeforeDamageCalculationPerTarget`), and persistence serialization (`PartyMemberDTO`).
+- Out of scope: UI rendering details for inventory management (handled by `PartyManagementPanelController`).
 
-### `TrinketData` (ScriptableObject)
-Defines the unchanging metadata for a Trinket:
-- `trinketId` (string)
-- `displayName` (string)
-- `description` (string)
-- `cannotBeRemoved` (bool)
-- `effectStrategies` (List<TrinketEffectStrategy>)
+## Source of Truth
+- Code: `Assets/Scripts/Data/PartyMemberInfo.cs` (Equipment constraints)
+- Code: `Assets/Scripts/Combat/CombatCharacter.cs` (Lifecycle, Stat aggregation)
+- Code: `Assets/Scripts/Data/Trinkets/TrinketData.cs` (`TrinketData` definition)
+- Code: `Assets/Scripts/Data/Trinkets/TrinketEffectStrategy.cs` (Strategy base class)
+- Code: `Assets/Scripts/Combat/TrinketInstance.cs` (Runtime instance wrapper)
+- Code: `Assets/Scripts/Data/TrinketDatabase.cs` (Trinket database registry)
+- Tests: `Assets/Editor/Tests/TrinketTests.cs` (Unit test suite)
+- Data: `Assets/Data/Trinket/` (ScriptableObject assets)
 
-### `TrinketInstance` (Runtime Wrapper)
-Instantiated at the start of combat in `CombatCharacter.InitializeForCombat`. Tracks dynamic state such as event closures.
+## Responsibilities
+- Enforce character equipment constraints (max 2 trinkets per character, no duplicate trinket IDs on the same character, non-removable cursed trinkets).
+- Instantiate runtime `TrinketInstance` objects during character combat initialization.
+- Hook into `BattleSystem` events (`OnBeforeDamageCalculation`, `OnBeforeDamageCalculationPerTarget`) to dynamically alter combat resolution via `SkillContext`.
+- Aggregate flat and percentage-based stat modifiers into `CombatStats` during `CombatCharacter.GetEffectiveStats()`.
 
-## Trinket Strategies
-Trinket behaviors are defined using a polymorphic strategy pattern leveraging `[SerializeReference]`.
+## Data Model
+- `TrinketData`: ScriptableObject containing `trinketId` (string), `displayName` (string), `description` (string), `cannotBeRemoved` (bool), and `effectStrategies` (`List<TrinketEffectStrategy>`).
+- `TrinketInstance`: Runtime wrapper containing `data` (`TrinketData`), `owner` (`CombatCharacter`), `battleSystem` (`BattleSystem`), and `extra` (`Dictionary<string, object>`).
+- `PartyMemberInfo`: Holds `equippedTrinkets` (`List<TrinketData>`) representing character inventory state.
+- `PartyMemberDTO`: Serializes `equippedTrinketIds` (`List<string>`) for save/load persistence.
 
-### StatModifierTrinketStrategy
-Grants flat and percentage-based modifiers to core stats (e.g., +10 MaxHP, +20% Attack). These are aggregated during `CombatCharacter.GetEffectiveStats()` alongside Traits.
+## Event Contracts
+- Subscribed Event: `BattleSystem.OnBeforeDamageCalculation`
+  - Producer: `BattleSystem`
+  - Consumers: `GuaranteedHitTrinketStrategy`, `HealOutputBonusTrinketStrategy`, `HealReceivedBonusTrinketStrategy`, `StatusApplicationBonusTrinketStrategy`, `CritDamageMultiplierBonusTrinketStrategy`, `DamageOutputBonusTrinketStrategy`, `StatusBurstTrinketStrategy`, `SingleTargetCritAoeHitTrinketStrategy`, `SelfDamageOnAttackTrinketStrategy`
+  - Payload schema: `SkillContext`
+- Subscribed Event: `BattleSystem.OnBeforeDamageCalculationPerTarget`
+  - Producer: `BattleSystem` / `DamageEffect`
+  - Consumers: `LowHpDamageBonusTrinketStrategy`, `DamageReceivedBonusTrinketStrategy`, `StatusUnresistableTrinketStrategy`, `SingleTargetCritAoeHitTrinketStrategy`
+  - Payload schema: `SkillContext`, `CombatCharacter` (target)
 
-### GuaranteedHitTrinketStrategy
-Subscribes to `BattleSystem.OnBeforeDamageCalculation` when the owner uses an attack. Overrides the `SkillContext.guaranteedHit` flag to true, ensuring the attack cannot miss.
+## Timing Model
+- Update domain: Event-driven during combat turn execution (`ExecuteSkill` in `BattleSystem`).
+- Tick/update order: Trinkets hook into `OnBeforeDamageCalculation` (prior to hit/damage resolution per skill) and `OnBeforeDamageCalculationPerTarget` (prior to individual target math resolution). Stat modifications are computed lazily on call to `CombatCharacter.GetEffectiveStats()`.
+- Budget: < 1 ms per frame (event-driven callbacks).
 
-### LowHpDamageBonusTrinketStrategy
-Subscribes to `BattleSystem.OnBeforeDamageCalculationPerTarget`. Applies a bonus multiplier to the attack's damage if the specific target's HP falls below a defined threshold (e.g., +20% damage to targets under 50% HP). The context multiplier is dynamically restored after calculating the individual target to prevent polluting multi-target AOE strikes.
+## Determinism
+- Required: Yes
+- Strategy: Synchronous sequential execution of event callbacks registered on `BattleSystem`. Deterministic mutation of `SkillContext`.
+- Known exceptions: None
+
+## Authority Model
+- Single-player/offline: Local authority managed by `BattleSystem` and `PartyMemberInfo`.
+- Multiplayer: Out of scope (Offline single-player architecture).
+
+## Performance Budget
+- CPU: < 0.1 ms per skill execution.
+- Memory: < 50 KB total allocated memory across active trinket instances.
+- Entity scale target: 4 player characters + 4 enemy characters max in combat.
+
+## Error Handling and Recovery
+- Null Trinket reference in equipment: `TryEquipTrinket` and `TryUnequipTrinket` guard against null input and return false.
+- Unregistered Trinket ID during deserialization: `TrinketDatabase.GetTrinket` returns null if ID is not found, leaving slot empty.
+- Missing BattleSystem reference: Strategies check `instance.battleSystem == null` before subscribing/unsubscribing to prevent NREs outside active combat.
+
+## Observability
+- Metrics: None
+- Logs: Debug logs outputted during strategy execution (e.g. `SelfDamageOnAttackTrinketStrategy` logs self-damage taken).
+- Traces/profilers: Standard Unity Profiler markers on `BattleSystem.ExecuteSkill`.
+
+## Acceptance Tests
+- Automated: `Assets/Editor/Tests/TrinketTests.cs` (19 passing EditMode unit tests verifying capacity caps, uniqueness, cursed locks, stat calculations, skill context mutations, status application, burst compression, resistance bypass, AOE targeting expansion, and edge cases).
+- Playtest: Equip trinkets in Party Management UI, enter combat, and verify tooltips and damage/heal/status calculations reflect equipped trinkets.
+
+## Missing Evidence
+- None
+
+## Validation
+- [x] Facts match current code/content
+- [x] Timing, authority, and determinism are explicit
+- [x] Performance budgets are stated with units
+- [x] Unknowns are explicitly labeled
+- [x] Acceptance tests are defined
