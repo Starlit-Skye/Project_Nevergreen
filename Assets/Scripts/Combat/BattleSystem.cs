@@ -78,6 +78,11 @@ namespace Nevergreen.Combat
                     animationQueue = gameObject.AddComponent<AnimationQueueProcessor>();
                 }
             }
+
+            if (GetComponent<BattleMusicController>() == null)
+            {
+                gameObject.AddComponent<BattleMusicController>();
+            }
         }
 
         /// <summary>
@@ -838,17 +843,24 @@ namespace Nevergreen.Combat
             // Character is already in Dying state (set by TakeDamage)
 
             // 1. Enqueue the death animation and sound
-            if (animationQueue != null && character.animator != null)
+            if (animationQueue != null)
             {
                 var deathParallel = new ParallelStep($"{character.DisplayName} Die Parallel");
-                deathParallel.AddStep(new AnimatorStep($"{character.DisplayName} Die", character.animator, "Die", 1.5f));
+
+                if (character.animator != null)
+                {
+                    deathParallel.AddStep(new AnimatorStep($"{character.DisplayName} Die", character.animator, "Die", 1.5f));
+                }
 
                 if (character.characterData != null && character.characterData.deathSFX != null)
                 {
                     deathParallel.AddStep(new PlaySoundStep(character.characterData.deathSFX));
                 }
 
-                animationQueue.Enqueue(deathParallel);
+                if (character.animator != null || (character.characterData != null && character.characterData.deathSFX != null))
+                {
+                    animationQueue.Enqueue(deathParallel);
+                }
             }
 
             // 3. Enqueue deferred transition (runs right after death animation finishes)

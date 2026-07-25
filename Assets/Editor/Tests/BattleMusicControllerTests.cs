@@ -45,8 +45,8 @@ namespace Nevergreen.Tests
             _audioManager.config.defaultBattleMusic = AudioClip.Create("DefaultBGM", 100, 1, 44100, false);
             
             // Force set Instance since Awake might not run properly in EditMode
-            var prop = typeof(AudioManager).GetProperty("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-            prop.SetValue(null, _audioManager);
+            var instanceField = typeof(AudioManager).GetField("_instance", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            instanceField.SetValue(null, _audioManager);
             
             // Setup teams to prevent null refs
             var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1);
@@ -65,10 +65,10 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(_audioGo);
             
             // Clear singleton
-            var prop = typeof(AudioManager).GetProperty("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-            if (prop != null && prop.CanWrite)
+            var instanceField = typeof(AudioManager).GetField("_instance", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            if (instanceField != null)
             {
-                prop.SetValue(null, null);
+                instanceField.SetValue(null, null);
             }
             
             if (_audioManager != null && _audioManager.config != null)
@@ -122,6 +122,21 @@ namespace Nevergreen.Tests
                 Object.DestroyImmediate(e1.characterData.bossMusicOverride, true);
             Object.DestroyImmediate(p1.gameObject);
             Object.DestroyImmediate(e1.gameObject);
+        }
+
+        [Test]
+        public void BattleSystem_AutoAttaches_BattleMusicController_OnAwake()
+        {
+            var go = new GameObject("TestBattleSystem");
+            var bs = go.AddComponent<BattleSystem>();
+
+            var awakeMethod = typeof(BattleSystem).GetMethod("Awake", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            awakeMethod?.Invoke(bs, null);
+
+            var bmc = go.GetComponent<BattleMusicController>();
+            Assert.IsNotNull(bmc, "BattleMusicController should be auto-attached by BattleSystem on Awake.");
+
+            Object.DestroyImmediate(go);
         }
     }
 }

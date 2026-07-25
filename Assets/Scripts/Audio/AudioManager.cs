@@ -7,7 +7,34 @@ namespace Nevergreen.Audio
 {
     public class AudioManager : MonoBehaviour
     {
-        public static AudioManager Instance { get; private set; }
+        private static AudioManager _instance;
+
+        public static AudioManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = Object.FindFirstObjectByType<AudioManager>();
+                    if (_instance == null)
+                    {
+                        var prefab = Resources.Load<GameObject>("AudioManager");
+                        if (prefab != null)
+                        {
+                            var go = Object.Instantiate(prefab);
+                            go.name = "AudioManager";
+                            _instance = go.GetComponent<AudioManager>();
+                        }
+                        else
+                        {
+                            var go = new GameObject("AudioManager");
+                            _instance = go.AddComponent<AudioManager>();
+                        }
+                    }
+                }
+                return _instance;
+            }
+        }
 
         [Header("Config")]
         public AudioConfig config;
@@ -19,20 +46,70 @@ namespace Nevergreen.Audio
 
         private void Awake()
         {
-            if (Instance != null && Instance != this)
+            if (_instance != null && _instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            _instance = this;
+            if (transform.parent == null)
+            {
+                DontDestroyOnLoad(gameObject);
+            }
 
+            EnsureAudioSources();
             ApplySavedVolumes();
+        }
+
+        public void EnsureAudioSources()
+        {
+            if (config == null)
+            {
+                config = Resources.Load<AudioConfig>("GlobalAudioConfig");
+            }
+
+            if (_bgmSourceMain == null)
+            {
+                _bgmSourceMain = gameObject.AddComponent<AudioSource>();
+                _bgmSourceMain.playOnAwake = false;
+            }
+
+            if (_bgmSourceFade == null)
+            {
+                _bgmSourceFade = gameObject.AddComponent<AudioSource>();
+                _bgmSourceFade.playOnAwake = false;
+            }
+
+            if (_sfxSource == null)
+            {
+                _sfxSource = gameObject.AddComponent<AudioSource>();
+                _sfxSource.playOnAwake = false;
+            }
+
+            if (config != null && config.mainMixer != null)
+            {
+                var bgmGroups = config.mainMixer.FindMatchingGroups("BGM");
+                if (bgmGroups != null && bgmGroups.Length > 0)
+                {
+                    if (_bgmSourceMain.outputAudioMixerGroup == null)
+                        _bgmSourceMain.outputAudioMixerGroup = bgmGroups[0];
+                    if (_bgmSourceFade.outputAudioMixerGroup == null)
+                        _bgmSourceFade.outputAudioMixerGroup = bgmGroups[0];
+                }
+
+                var sfxGroups = config.mainMixer.FindMatchingGroups("SFX");
+                if (sfxGroups != null && sfxGroups.Length > 0)
+                {
+                    if (_sfxSource.outputAudioMixerGroup == null)
+                        _sfxSource.outputAudioMixerGroup = sfxGroups[0];
+                }
+            }
         }
 
         public void PlaySFX(AudioClip clip)
         {
             if (clip == null) return;
+            EnsureAudioSources();
             _sfxSource.PlayOneShot(clip);
         }
 
@@ -47,8 +124,10 @@ namespace Nevergreen.Audio
                 return;
             }
 
+            EnsureAudioSources();
+
             // If it's already playing the same clip, don't restart unless we are force-looping
-            if (_bgmSourceMain.clip == clip && _bgmSourceMain.isPlaying) return;
+            if (_bgmSourceMain != null && _bgmSourceMain.clip == clip && _bgmSourceMain.isPlaying) return;
 
             if (_musicRoutine != null) StopCoroutine(_musicRoutine);
             if (_crossfadeRoutine != null) StopCoroutine(_crossfadeRoutine);

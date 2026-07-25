@@ -1,30 +1,20 @@
-# Trinket System Implementation Tasks
+# Battle Audio Fix Tasks
 
-- [x] Create Trinket Data Structures & Strategies
-  - [x] `TrinketData.cs` - ScriptableObject base
-  - [x] `TrinketDatabase.cs` - Registry of trinkets
-  - [x] `TrinketEffectStrategy.cs` - Abstract effect base
-  - [x] `StatModifierTrinketStrategy.cs` - Stat modifier implementation
-  - [x] `LowHpDamageBonusTrinketStrategy.cs` - Target threshold bonus damage strategy
-  - [x] `GuaranteedHitTrinketStrategy.cs` - Guaranteed hit strategy
-- [x] Create Runtime combat wrapper
-  - [x] `TrinketInstance.cs` - Runtime instance container
-- [x] Modify core models & serialization
-  - [x] `PartyMemberInfo.cs` - Equip/unequip rules, 2 max cap, uniqueness, cannot remove cursed
-  - [x] `SaveManager.cs` - Support serializing/deserializing equipped trinkets
-  - [x] `GameDatabase.cs` - Include TrinketDatabase register
-- [x] Integrate into Combat Runtime
-  - [x] `CombatCharacter.cs` - Load and modify stats during combat initialization
-  - [x] `BattleSystem.cs` - Event hook for target-specific damage calculation
-  - [x] `DamageEffect.cs` - Trigger target-specific event hook during execute stage
-- [x] Write Specification & Tests
-  - [x] Create spec file `Docs/specs/systems/SYSTEM_SPEC_TRINKETS.md`
-  - [x] Create unit tests in `Assets/Editor/Tests/TrinketTests.cs`
-  - [x] Run edit mode tests and verify success
+- [x] Setup Resources Assets
+  - [x] Move/copy `AudioManager.prefab` to `Assets/Resources/AudioManager.prefab`
+  - [x] Move/copy `GlobalAudioConfig.asset` to `Assets/Resources/GlobalAudioConfig.asset`
+- [x] Refactor `AudioManager.cs`
+  - [x] Implement lazy auto-instantiation in `AudioManager.Instance`
+- [x] Refactor `BattleSystem.cs` & `CombatSceneBootstrap.cs`
+  - [x] Ensure `BattleMusicController` is attached to `BattleSystem` on `Awake()`
+  - [x] Ensure `deathSFX` plays even if character lacks an `Animator`
+- [x] Unit Tests & Verification
+  - [x] Update `AudioManagerTests.cs` and `BattleMusicControllerTests.cs`
+  - [x] Run EditMode tests and verify all 424 tests pass
 
 ## Review & Results
 
-- **Modular Trinket System**: Fully implemented and validated.
-- **Unit Testing**: Tests verified capacity limitations (max 2), equipping uniqueness, cursed item locking (cannot unequip), stat calculations under Banker's Rounding, and BattleSystem event mutators (Guaranteed Hit strategy).
-- **Editor Menu Alignment**: Trinket Database was moved from `Nevergreen/Data/Trinket Database` to the `Nevergreen/Databases/Trinket Database` menu structure to sit alongside all other databases.
-- **UI & Tooltips**: UI hooks, display controllers, and tooltip triggers/panels were created and integrated into the main party management interface.
+- **Resources Auto-Loading**: `AudioManager.prefab` and `GlobalAudioConfig.asset` were added to `Assets/Resources/` so `AudioManager.Instance` can lazily instantiate itself at runtime if no `AudioManager` GameObject exists in the active scene.
+- **Auto-Attachment of BattleMusicController**: `BattleSystem.cs` now auto-attaches `BattleMusicController` during `Awake()`, ensuring battle music transitions (`OnBattleStarted`) and victory jingles (`OnBattleEnded`) are always handled.
+- **Animator-Independent Death SFX**: Character death sound effects (`deathSFX`) are now queued in `BattleSystem.cs` even if the character has no `Animator` component.
+- **Unit Test Suite**: Added tests for lazy auto-instantiation and auto-attachment; verified that all 424 EditMode unit tests pass cleanly.
