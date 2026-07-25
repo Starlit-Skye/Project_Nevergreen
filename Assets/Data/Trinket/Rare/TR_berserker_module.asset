@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455f532e4a4b6fa49936af04b683f5eb, type: 3}
+  m_Name: TR_berserker_module
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
+  trinketId: TR_berserker_module
+  displayName: Berserker Module
+  description: 'Increased Attack
+
+    Increased Damage Dealt
+
+    Increased Damage
+    Taken'
+  cannotBeRemoved: 0
+  illustration: {fileID: 0}
+  effectStrategies:
+  - rid: 3450807900124479488
+  - rid: 3450807900124479567
+  - rid: 3450807900124479568
+  references:
+    version: 2
+    RefIds:
+    - rid: 3450807900124479488
+      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statTarget: 0
+        amplitudeType: 1
+        amount: 20
+    - rid: 3450807900124479567
+      type: {class: DamageOutputBonusTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        damageBonusPercent: 20
+    - rid: 3450807900124479568
+      type: {class: DamageReceivedBonusTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        damageBonusPercent: 20

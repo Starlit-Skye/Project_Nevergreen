@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455f532e4a4b6fa49936af04b683f5eb, type: 3}
+  m_Name: TR_grafted_charm
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
+  trinketId: TR_grafted_charm
+  displayName: Grafted Charm
+  description: 'Increased Attack
+
+    Increased Defense
+
+    Increased Speed
+
+    Increased
+    Dodge
+
+    Cannot be removed'
+  cannotBeRemoved: 1
+  illustration: {fileID: 0}
+  effectStrategies:
+  - rid: 3450807900124479577
+  - rid: 3450807900124479578
+  - rid: 3450807900124479579
+  - rid: 3450807900124479580
+  references:
+    version: 2
+    RefIds:
+    - rid: 3450807900124479577
+      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statTarget: 0
+        amplitudeType: 1
+        amount: 15
+    - rid: 3450807900124479578
+      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statTarget: 5
+        amplitudeType: 2
+        amount: 3
+    - rid: 3450807900124479579
+      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statTarget: 1
+        amplitudeType: 2
+        amount: 15
+    - rid: 3450807900124479580
+      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statTarget: 3
+        amplitudeType: 2
+        amount: 15

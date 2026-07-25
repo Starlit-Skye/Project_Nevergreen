@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455f532e4a4b6fa49936af04b683f5eb, type: 3}
+  m_Name: TD_bag_of_scalpel
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
+  trinketId: TD_bag_of_scalpel
+  displayName: Bag of Scalpel
+  description: Increased Healing + Decreased Bleed Resistance
+  cannotBeRemoved: 0
+  illustration: {fileID: 0}
+  effectStrategies:
+  - rid: 3450807880175059047
+  - rid: 3450807880175059048
+  references:
+    version: 2
+    RefIds:
+    - rid: 3450807880175059047
+      type: {class: HealOutputBonusTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        healBonusPercent: 50
+    - rid: 3450807880175059048
+      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        statTarget: 7
+        amplitudeType: 2
+        amount: -20

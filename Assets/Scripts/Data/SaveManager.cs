@@ -17,6 +17,7 @@ namespace Nevergreen.Data
         public List<string> equippedSkillIds = new List<string>();
         public List<string> perfectionIds = new List<string>();
         public List<string> imperfectionIds = new List<string>();
+        public List<string> equippedTrinketIds = new List<string>();
     }
 
     [Serializable]
@@ -108,7 +109,8 @@ namespace Nevergreen.Data
                     level = member.currentLevel,
                     equippedSkillIds = member.equippedSkills.Where(s => s != null).Select(s => s.skillId).ToList(),
                     perfectionIds = member.perfections.Where(t => t != null).Select(t => t.traitId).ToList(),
-                    imperfectionIds = member.imperfections.Where(t => t != null).Select(t => t.traitId).ToList()
+                    imperfectionIds = member.imperfections.Where(t => t != null).Select(t => t.traitId).ToList(),
+                    equippedTrinketIds = member.equippedTrinkets.Where(t => t != null).Select(t => t.trinketId).ToList()
                 };
                 dto.party.Add(pDto);
             }
@@ -238,6 +240,16 @@ namespace Nevergreen.Data
                     {
                         var skill = availableSkillPool.FirstOrDefault(s => s != null && s.skillId == sId);
                         if (skill != null) member.equippedSkills.Add(skill);
+                    }
+
+                    // Lookup Trinkets
+                    if (db.TrinketDatabase != null)
+                    {
+                        foreach (string trId in pDto.equippedTrinketIds)
+                        {
+                            var trinket = db.TrinketDatabase.trinkets.FirstOrDefault(t => t != null && t.trinketId == trId);
+                            if (trinket != null) member.equippedTrinkets.Add(trinket);
+                        }
                     }
 
                     RunSessionManager.CurrentParty.Add(member);

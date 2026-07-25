@@ -31,6 +31,55 @@ namespace Nevergreen.Data
         /// <summary>Active Imperfection traits on this Marionette.</summary>
         public List<TraitData> imperfections = new List<TraitData>();
 
+        /// <summary>Active Trinkets on this Marionette.</summary>
+        public List<TrinketData> equippedTrinkets = new List<TrinketData>();
+
+        /// <summary>
+        /// Attempts to equip a trinket. Returns false if the trinket is already equipped
+        /// (by trinketId) or the capacity limit of 2 is reached.
+        /// </summary>
+        public bool TryEquipTrinket(TrinketData trinket)
+        {
+            if (trinket == null) return false;
+
+            // Capacity check: Each character can only equip 2 trinkets max
+            int activeCount = equippedTrinkets.Count(t => t != null);
+            if (activeCount >= 2) return false;
+
+            // Uniqueness check: Each character cannot equip 2 of the same trinket
+            if (equippedTrinkets.Any(t => t != null && t.trinketId == trinket.trinketId)) return false;
+
+            int nullIndex = equippedTrinkets.IndexOf(null);
+            if (nullIndex != -1)
+            {
+                equippedTrinkets[nullIndex] = trinket;
+            }
+            else
+            {
+                equippedTrinkets.Add(trinket);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to unequip a trinket. Returns false if the trinket cannot be removed (e.g. cursed).
+        /// </summary>
+        public bool TryUnequipTrinket(TrinketData trinket)
+        {
+            if (trinket == null) return false;
+            
+            // Check if cursed/cannot be removed
+            if (trinket.cannotBeRemoved) return false;
+
+            int index = equippedTrinkets.IndexOf(trinket);
+            if (index != -1)
+            {
+                equippedTrinkets[index] = null;
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>
         /// Attempts to add a trait. Returns false if the trait is already present
         /// (by traitId) or the relevant list has reached its capacity.

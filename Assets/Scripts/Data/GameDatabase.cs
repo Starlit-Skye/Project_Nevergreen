@@ -21,6 +21,7 @@ namespace Nevergreen.Data
         [SerializeField] private MarionetteDatabase marionetteDatabase;
         [SerializeField] private TraitDatabase traitDatabase;
         [SerializeField] private RoomDatabase roomDatabase;
+        [SerializeField] private TrinketDatabase trinketDatabase;
 
         // --- Read-only accessors ---
         public GlobalConfig GlobalConfig => globalConfig;
@@ -29,6 +30,7 @@ namespace Nevergreen.Data
         public MarionetteDatabase MarionetteDatabase => marionetteDatabase;
         public TraitDatabase TraitDatabase => traitDatabase;
         public RoomDatabase RoomDatabase => roomDatabase;
+        public TrinketDatabase TrinketDatabase => trinketDatabase;
 
         // --- Singleton ---
         private static GameDatabase _instance;
@@ -87,7 +89,8 @@ namespace Nevergreen.Data
             EnemyFormationDatabase enemyFormations = null,
             MarionetteDatabase marionettes = null,
             TraitDatabase traits = null,
-            RoomDatabase rooms = null)
+            RoomDatabase rooms = null,
+            TrinketDatabase trinkets = null)
         {
             var db = ScriptableObject.CreateInstance<GameDatabase>();
             db.globalConfig = globalCfg;
@@ -96,6 +99,7 @@ namespace Nevergreen.Data
             db.marionetteDatabase = marionettes;
             db.traitDatabase = traits;
             db.roomDatabase = rooms;
+            db.trinketDatabase = trinkets;
             return db;
         }
     }

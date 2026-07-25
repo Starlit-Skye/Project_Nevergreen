@@ -28,6 +28,11 @@ namespace Nevergreen.UI
         public Transform imperfectionsContainer;
         public GameObject perfectionUIItemPrefab;
         public GameObject imperfectionUIItemPrefab;
+        
+        [Header("Trinkets")]
+        public Transform[] trinketsContainers;
+        public GameObject trinketUIItemPrefab;
+
         public TextMeshProUGUI coreStatsText;
         public TextMeshProUGUI resText;
 
@@ -195,6 +200,15 @@ namespace Nevergreen.UI
             }
         }
 
+        public void ForceRefresh()
+        {
+            if (_currentSelectedMember != null)
+            {
+                DisplayCharacterData(_currentSelectedMember);
+                RefreshSlotUI();
+            }
+        }
+
         private void ToggleMoveMode()
         {
             if (_selectedSlotIndex == -1) return;
@@ -335,6 +349,9 @@ namespace Nevergreen.UI
             // Traits
             PopulateTraits(member);
 
+            // Trinkets
+            PopulateTrinkets(member);
+
             // Stats
             PopulateStats(member);
         }
@@ -427,6 +444,54 @@ namespace Nevergreen.UI
             }
         }
 
+        private void PopulateTrinkets(PartyMemberInfo member)
+        {
+            if (trinketsContainers != null)
+            {
+                foreach (var container in trinketsContainers)
+                {
+                    if (container == null) continue;
+                    foreach (Transform child in container)
+                    {
+                        Destroy(child.gameObject);
+                    }
+                }
+            }
+
+            if (trinketsContainers != null && trinketUIItemPrefab != null)
+            {
+                for (int i = 0; i < trinketsContainers.Length; i++)
+                {
+                    Transform container = trinketsContainers[i];
+                    if (container == null) continue;
+
+                    var dropHandler = container.GetComponent<TrinketSlotDropHandler>();
+                    if (dropHandler == null) dropHandler = container.gameObject.AddComponent<TrinketSlotDropHandler>();
+                    dropHandler.TargetMember = member;
+                    dropHandler.TargetSlotIndex = i;
+
+                    if (member.equippedTrinkets != null && i < member.equippedTrinkets.Count)
+                    {
+                        var trinket = member.equippedTrinkets[i];
+                        if (trinket == null) continue;
+
+                        GameObject item = Instantiate(trinketUIItemPrefab, container);
+
+                        var tooltipTrigger = item.GetComponent<TrinketTooltipTrigger>();
+                        if (tooltipTrigger == null) tooltipTrigger = item.AddComponent<TrinketTooltipTrigger>();
+                        tooltipTrigger.SetTrinket(trinket);
+
+                        var uiItem = item.GetComponent<TrinketUIItem>();
+                        if (uiItem == null) uiItem = item.AddComponent<TrinketUIItem>();
+                        uiItem.Initialize(trinket, member, i);
+
+                        var label = item.GetComponentInChildren<TextMeshProUGUI>();
+                        if (label != null) label.text = $"- {trinket.displayName}";
+                    }
+                }
+            }
+        }
+
         private void PopulateStats(PartyMemberInfo member)
         {
             var stats = member.character.GetStatsForLevel(member.currentLevel);
@@ -472,6 +537,18 @@ namespace Nevergreen.UI
                 if (item != null) Destroy(item);
             }
             _spawnedTraitItems.Clear();
+
+            if (trinketsContainers != null)
+            {
+                foreach (var container in trinketsContainers)
+                {
+                    if (container == null) continue;
+                    foreach (Transform child in container)
+                    {
+                        Destroy(child.gameObject);
+                    }
+                }
+            }
         }
     }
 }

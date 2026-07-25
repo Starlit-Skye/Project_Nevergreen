@@ -51,11 +51,17 @@ namespace Nevergreen.Combat
         public event Action<int> OnRoundEnded; // round number
         public event Action<CombatCharacter> OnTurnStarted;
         public event Action<SkillContext> OnBeforeDamageCalculation;
+        public event Action<SkillContext, CombatCharacter> OnBeforeDamageCalculationPerTarget;
         public event Action<CombatCharacter, SkillData, SkillContext> OnActionResolved; // actor, skill, context
         public event Action<BattleOutcome> OnBattleEnded;
         public event Action OnWaitingForPlayerInput;
         public event Action<CombatCharacter> OnCharacterDefeated;
         public event Action<CombatCharacter> OnCharacterRemoved;
+
+        public void TriggerBeforeDamageCalculationPerTarget(SkillContext ctx, CombatCharacter target)
+        {
+            OnBeforeDamageCalculationPerTarget?.Invoke(ctx, target);
+        }
 
         public List<CombatCharacter> PlayerTeam => _playerTeam;
         public List<CombatCharacter> EnemyTeam => _enemyTeam;

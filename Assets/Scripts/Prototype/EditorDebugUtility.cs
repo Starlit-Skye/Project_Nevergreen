@@ -128,6 +128,48 @@ namespace Nevergreen.Prototype
                     }
                 }
 
+                if (Keyboard.current.tKey.wasPressedThisFrame)
+                {
+                    Debug.Log("[EditorDebugUtility] 'T' pressed. Spawning Test_Trinket_Dropper and TrinketUIItemTest...");
+                    
+                    var dropperPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/UI/Test_Trinket_Dropper.prefab");
+                    var trinketPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/TrinketUIItemTest.prefab");
+                    var trinketData = UnityEditor.AssetDatabase.LoadAssetAtPath<Nevergreen.Data.TrinketData>("Assets/Data/Trinket/TD_fine_blade.asset");
+
+                    if (dropperPrefab != null && trinketPrefab != null && trinketData != null)
+                    {
+                        Canvas targetCanvas = null;
+                        var canvases = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+                        foreach (var c in canvases)
+                        {
+                            if (c.name == "UICanvas")
+                            {
+                                targetCanvas = c;
+                                break;
+                            }
+                        }
+                        if (targetCanvas == null && canvases.Length > 0)
+                        {
+                            targetCanvas = canvases[0];
+                        }
+
+                        GameObject dropper = targetCanvas != null ? Object.Instantiate(dropperPrefab, targetCanvas.transform) : Object.Instantiate(dropperPrefab);
+                        
+                        GameObject trinketObj = Object.Instantiate(trinketPrefab, dropper.transform);
+                        var uiItem = trinketObj.GetComponent<Nevergreen.UI.TrinketUIItem>();
+                        if (uiItem != null)
+                        {
+                            uiItem.Initialize(trinketData, null, -1);
+                        }
+                        
+                        Debug.Log("[EditorDebugUtility] Successfully spawned test dropper and trinket.");
+                    }
+                    else
+                    {
+                        Debug.LogError("[EditorDebugUtility] Failed to load one or more assets for the 'T' hotkey.");
+                    }
+                }
+
                 int digitIndex = -1;
                 if (Keyboard.current.digit1Key.wasPressedThisFrame) digitIndex = 0;
                 else if (Keyboard.current.digit2Key.wasPressedThisFrame) digitIndex = 1;
