@@ -55,17 +55,13 @@ namespace Nevergreen.Combat
         {
             if (AudioManager.Instance == null || AudioManager.Instance.config == null) return;
 
-            if (outcome == BattleOutcome.Victory)
+            if (outcome == BattleOutcome.Victory && AudioManager.Instance.config.victoryJingle != null)
             {
-                if (AudioManager.Instance.config.victoryJingle != null)
-                {
-                    AudioManager.Instance.StopMusic(0.5f);
-                    AudioManager.Instance.PlaySFX(AudioManager.Instance.config.victoryJingle);
-                }
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.config.victoryJingle);
             }
-            
-            // Note: Returning to exploration BGM is handled by the scene transitioner in a full game.
-            // For now, we just let the victory jingle play.
+
+            AudioClip explorationMusic = AudioManager.Instance.config.defaultExplorationMusic;
+            AudioManager.Instance.TransitionToBGM(explorationMusic);
         }
     }
 }

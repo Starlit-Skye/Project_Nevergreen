@@ -16,6 +16,6 @@ MonoBehaviour:
   masterVolume: 1
   bgmVolume: 1
   sfxVolume: 1
-  defaultExplorationMusic: {fileID: 0}
+  defaultExplorationMusic: {fileID: 8300000, guid: eca6e03c041d7bb48bbeafae31215070, type: 3}
   defaultBattleMusic: {fileID: 8300000, guid: bb2ad686ab801f44b94cb3a47870b71a, type: 3}
   victoryJingle: {fileID: 0}
