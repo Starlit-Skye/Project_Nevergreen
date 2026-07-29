@@ -22,6 +22,10 @@ namespace Nevergreen.Data
         [Tooltip("Whether this is a player unit or enemy unit.")]
         public CharacterTeamType teamType = CharacterTeamType.Enemy;
 
+        [Header("Animation")]
+        [Tooltip("Direct reference to the AnimationClip played when this character takes damage/flinches.")]
+        public AnimationClip takeDamageClip;
+
         [Tooltip("Number of actions this character gets per round. Most characters = 1, some bosses = 2.")]
         [Min(1)]
         public int actionsPerRound = 1;

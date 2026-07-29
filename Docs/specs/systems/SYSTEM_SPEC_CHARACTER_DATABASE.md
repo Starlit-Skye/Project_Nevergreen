@@ -35,6 +35,7 @@ Define ScriptableObject-backed character data templates for both player units (m
     - `displayName` (`string`): User-facing name.
     - `characterPrefab` (`CombatCharacter`): Target visual and component prefab to instantiate.
     - `teamType` (`CharacterTeamType`): Player or Enemy.
+    - `takeDamageClip` (`AnimationClip`): Direct reference to the AnimationClip played when this character takes damage/flinches.
     - `actionsPerRound` (`int`): Action count (defaults to 1, clamped to min 1).
     - `statPerLevel` (`List<StatBlockData>`): List of stat assets corresponding to each level.
     - `availableSkills` (`List<SkillData>`): Equipped or active skills.

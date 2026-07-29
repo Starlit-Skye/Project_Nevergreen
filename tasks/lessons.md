@@ -84,3 +84,8 @@
 - **Pattern**: Placing registry database assets (e.g., `TrinketDatabase`) under the generic `"Nevergreen/Data/"` menu folder.
 - **Rule**: All database registry ScriptableObjects (such as `TrinketDatabase`, `RoomDatabase`, `GameDatabase`) should be placed under the `"Nevergreen/Databases/"` submenu to ensure a consistent, clean asset creation menu in the Unity Editor.
 - **Verification**: Check the `[CreateAssetMenu]` attribute's `menuName` field to ensure database-related assets use `"Nevergreen/Databases/"` as the parent path rather than `"Nevergreen/Data/"`.
+
+### 15. Skill Animation Reference and Fallback Design
+- **Pattern**: Choosing string-based state names over direct asset references (`AnimationClip`) for ScriptableObjects when authoring animation data.
+- **Rule**: When adding animation fields to ScriptableObjects (like `SkillData`), prefer direct `AnimationClip` object references in the Inspector over raw string state names for stronger type safety and drag-and-drop authoring. Ensure missing asset references log clear diagnostic errors (`Debug.LogError`) while retaining graceful fallback behavior to generic animations.
+

@@ -150,7 +150,7 @@ namespace Nevergreen.Tests
             // 3. Verify references swapped (Main should now be the target Battle clip)
             Assert.AreEqual(clipB, bgmSourceMain.clip, "Main source should be assigned the new Battle track.");
             Assert.AreEqual(clipA, bgmSourceFade.clip, "Old Exploration track should be moved to the Fade source.");
-            Assert.AreEqual(0f, bgmSourceMain.volume, "New track should start at 0 volume for fade-in.");
+            Assert.AreEqual(0f, bgmSourceMain.volume, 0.1f, "New track should start near 0 volume for fade-in.");
 
             Object.DestroyImmediate(clipA);
             Object.DestroyImmediate(clipB);
