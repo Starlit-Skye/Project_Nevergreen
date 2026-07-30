@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Cecilia
   characterPrefab: {fileID: 5047933170817855005, guid: c218cb32f0c308744a1718c8aa3592a3, type: 3}
   teamType: 0
+  takeDamageClip: {fileID: 7400000, guid: 9851f502db7a35743bb0247b83ece9bc, type: 2}
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 54ce4d18e276f204d8afbafe18a03860, type: 2}

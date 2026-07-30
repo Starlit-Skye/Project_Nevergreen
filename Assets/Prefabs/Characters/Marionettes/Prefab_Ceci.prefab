@@ -27,9 +27,9 @@ Transform:
   m_GameObject: {fileID: 4308528512723724323}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.05, z: 0}
-  m_LocalScale: {x: 2, y: 2.4, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0.15, y: 2.19, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1.724138}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 385274858350172942}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -82,8 +82,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 5542857369475096237, guid: d0dc1af7b8ae9d44f9de7421c0398406, type: 3}
-  m_Color: {r: 0.5, g: 0.7, b: 1, a: 1}
+  m_Sprite: {fileID: -6861328999880192582, guid: 0b08ac953650e5a4aad0d3c0b65b65cd, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -102,7 +102,7 @@ Animator:
   m_GameObject: {fileID: 4308528512723724323}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 746bf7f58d3a2c24aabd258316924b46, type: 2}
+  m_Controller: {fileID: 9100000, guid: 7987d44ceeb2f714e9ad5b352fe3f73c, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -230,8 +230,10 @@ MonoBehaviour:
   statusEffects: []
   partyInfo:
     character: {fileID: 0}
+    currentLevel: 1
     equippedSkills: []
     perfections: []
     imperfections: []
+    equippedTrinkets: []
   isStunned: 0
   skillUsesThisBattle_count: 0
