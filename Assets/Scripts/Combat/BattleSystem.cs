@@ -40,7 +40,7 @@ namespace Nevergreen.Combat
         private List<CombatCharacter> _initialPlayerTeam = new List<CombatCharacter>();
         private List<TurnEntry> _turnOrder = new List<TurnEntry>();
         private int _currentTurnIndex = 0;
-        private System.Random _rng;
+        private System.Random _rng = new System.Random();
 
         // Player input state
         private bool _waitingForPlayerInput = false;
@@ -561,10 +561,26 @@ namespace Nevergreen.Combat
 
                 if (user.animator != null)
                 {
-                    string stateName = (skill.targetScope == TargetScope.Self || skill.targetScope == TargetScope.Allies)
-                        ? "Cast"
-                        : "Attack";
-                    skillAnimParallel.AddStep(new AnimatorStep($"{user.DisplayName}:{skill.displayName}_act", user.animator, stateName, 1.0f));
+                    string stateName;
+                    float duration = 1.0f;
+
+                    if (skill.animationClip != null)
+                    {
+                        stateName = skill.animationClip.name;
+                        if (skill.animationClip.length > 0f)
+                        {
+                            duration = skill.animationClip.length;
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError($"[BattleSystem] Skill '{skill.displayName}' ({skill.skillId}) has no AnimationClip assigned on {user.DisplayName}! Falling back to generic animation.");
+                        stateName = (skill.targetScope == TargetScope.Self || skill.targetScope == TargetScope.Allies)
+                            ? "Cast"
+                            : "Attack";
+                    }
+
+                    skillAnimParallel.AddStep(new AnimatorStep($"{user.DisplayName}:{skill.displayName}_act", user.animator, stateName, duration));
                 }
                 else
                 {
@@ -621,13 +637,13 @@ namespace Nevergreen.Combat
                         // The Guardian always flinches and takes the effects
                         if (finalTarget.animator != null)
                         {
-                            skillAnimParallel.AddStep(new AnimatorStep($"hit_{finalTarget.DisplayName}", finalTarget.animator, "TakeDamage", 0.5f));
+                            skillAnimParallel.AddStep(new AnimatorStep($"hit_{finalTarget.DisplayName}", finalTarget.animator, finalTarget.TakeDamageStateName, finalTarget.TakeDamageClipDuration));
                         }
 
                         // The Protected ally also flinches if they were the original target
                         if (finalTarget != target && target.animator != null)
                         {
-                            skillAnimParallel.AddStep(new AnimatorStep($"guard_flinch_{target.DisplayName}", target.animator, "TakeDamage", 0.5f));
+                            skillAnimParallel.AddStep(new AnimatorStep($"guard_flinch_{target.DisplayName}", target.animator, target.TakeDamageStateName, target.TakeDamageClipDuration));
                         }
                     }
 
@@ -883,11 +899,12 @@ namespace Nevergreen.Combat
         private void FinalizeCharacterDefeat(CombatCharacter character, bool wasCritical)
         {
             bool canFormPile = character.characterData != null && character.characterData.leavesPileOnDeath;
+            string displayName = character.DisplayName;
 
             if (wasCritical || !canFormPile)
             {
                 character.state = LifeState.Destroyed;
-                Debug.Log($"[BattleSystem] {character.DisplayName} is destroyed (no Pile formed).");
+                Debug.Log($"[BattleSystem] {displayName} is destroyed (no Pile formed).");
             }
             else
             {

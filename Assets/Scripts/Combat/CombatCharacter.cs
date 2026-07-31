@@ -27,6 +27,14 @@ namespace Nevergreen.Combat
         [Tooltip("Character definition data asset.")]
         public CharacterData characterData;
 
+        public string TakeDamageStateName => (characterData != null && characterData.takeDamageClip != null) 
+            ? characterData.takeDamageClip.name 
+            : "TakeDamage";
+
+        public float TakeDamageClipDuration => (characterData != null && characterData.takeDamageClip != null && characterData.takeDamageClip.length > 0f)
+            ? characterData.takeDamageClip.length 
+            : 0.5f;
+
         [Tooltip("Current level of this character.")]
         [Min(1)]
         public int currentLevel = 1;
@@ -102,7 +110,7 @@ namespace Nevergreen.Combat
         // Track per-skill uses this battle (skill id -> uses)
         private Dictionary<string, int> _skillUseTracker = new Dictionary<string, int>();
 
-        public string DisplayName => characterData != null ? characterData.displayName : gameObject.name;
+        public string DisplayName => characterData != null && !string.IsNullOrEmpty(characterData.displayName) ? characterData.displayName : gameObject.name;
         public string CharacterId => characterData != null ? characterData.characterId : "";
         public bool IsAlive => state == LifeState.Alive;
         public bool IsPile => state == LifeState.Pile;

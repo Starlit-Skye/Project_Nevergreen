@@ -49,6 +49,7 @@ Define how skill definitions are authored and consumed through ScriptableObject-
     - `hitCount` (`int`): Hit resolution count per skill activation.
     - `maxUsesPerBattle` (`int`): Maximum execution allowance per match.
     - `sfx` (`AudioClip`): Auditory feedback on activation.
+    - `animationClip` (`AnimationClip`): Direct reference to the AnimationClip played when executing this skill.
   - `SkillModifier`:
     - `damagePercent` (`float`): Percentage of user attack for damage output.
     - `healPercent` (`float`): Percentage of user attack for healing output.

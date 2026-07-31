@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Knight
   characterPrefab: {fileID: 4195842110423198999, guid: 2a5e61ec308b75245a5f203fd8d3024d, type: 3}
   teamType: 0
+  takeDamageClip: {fileID: 7400000, guid: 70fdb8d5008ee8f4a912b353833b661d, type: 2}
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: b5f322cbdcac5ee45a262df8d0ad8ae1, type: 2}

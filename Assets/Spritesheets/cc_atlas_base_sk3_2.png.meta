@@ -79,7 +79,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -95,7 +95,7 @@ TextureImporter:
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 1
+  spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -114,10 +114,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 16384
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -145,12 +145,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_0
       rect:
         serializedVersion: 2
-        x: 131
-        y: 2478
-        width: 581
-        height: 1147
+        x: 0
+        y: 4000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -167,12 +167,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_1
       rect:
         serializedVersion: 2
-        x: 1555
-        y: 2486
-        width: 655
-        height: 1118
+        x: 2000
+        y: 4000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -189,12 +189,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_2
       rect:
         serializedVersion: 2
-        x: 2453
-        y: 2483
-        width: 1223
-        height: 1082
+        x: 4000
+        y: 4000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -211,12 +211,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_3
       rect:
         serializedVersion: 2
-        x: 3697
-        y: 2493
-        width: 976
-        height: 1110
+        x: 6000
+        y: 4000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -233,12 +233,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_4
       rect:
         serializedVersion: 2
-        x: 5025
-        y: 2490
-        width: 940
-        height: 1080
+        x: 8000
+        y: 4000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -255,12 +255,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_5
       rect:
         serializedVersion: 2
-        x: 6355
-        y: 2481
-        width: 813
-        height: 990
+        x: 10000
+        y: 4000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -277,12 +277,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_6
       rect:
         serializedVersion: 2
-        x: 141
-        y: 1260
-        width: 814
-        height: 1166
+        x: 0
+        y: 2000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -299,12 +299,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_7
       rect:
         serializedVersion: 2
-        x: 1234
-        y: 1268
-        width: 987
-        height: 797
+        x: 2000
+        y: 2000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -321,12 +321,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_8
       rect:
         serializedVersion: 2
-        x: 2619
-        y: 1263
-        width: 713
-        height: 1150
+        x: 4000
+        y: 2000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -343,12 +343,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_9
       rect:
         serializedVersion: 2
-        x: 3800
-        y: 1251
-        width: 716
-        height: 1053
+        x: 6000
+        y: 2000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -365,12 +365,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_10
       rect:
         serializedVersion: 2
-        x: 4823
-        y: 1271
-        width: 755
-        height: 1073
+        x: 8000
+        y: 2000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -387,12 +387,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_11
       rect:
         serializedVersion: 2
-        x: 5354
-        y: 1953
-        width: 289
-        height: 321
+        x: 10000
+        y: 2000
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -409,12 +409,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_12
       rect:
         serializedVersion: 2
-        x: 6290
-        y: 1263
-        width: 755
-        height: 1092
+        x: 0
+        y: 0
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -431,12 +431,12 @@ TextureImporter:
       name: cc_atlas_base_sk3_2_13
       rect:
         serializedVersion: 2
-        x: 58
-        y: 28
-        width: 983
-        height: 1142
+        x: 2000
+        y: 0
+        width: 2000
+        height: 2000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -449,33 +449,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: cc_atlas_base_sk3_2_14
-      rect:
-        serializedVersion: 2
-        x: 1373
-        y: 32
-        width: 707
-        height: 1050
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: db8d371f6309aa7c0800000000000000
-      internalID: -4059273548467545923
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 93773060ae114f340b494569db2cb1a9
     internalID: 0
     vertices: []
     indices: 
@@ -483,7 +461,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":6.0,"y":3.0},"gridSpriteSize":{"x":2000.0,"y":2000.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       cc_atlas_base_sk3_2_0: -6861328999880192582
       cc_atlas_base_sk3_2_1: -7852386331847437175
@@ -491,7 +471,6 @@ TextureImporter:
       cc_atlas_base_sk3_2_11: 1745922789484890815
       cc_atlas_base_sk3_2_12: 5672290941304362111
       cc_atlas_base_sk3_2_13: -4493064749978536576
-      cc_atlas_base_sk3_2_14: -4059273548467545923
       cc_atlas_base_sk3_2_2: 7422919227210881945
       cc_atlas_base_sk3_2_3: -3331277482406884293
       cc_atlas_base_sk3_2_4: -4326093522988942876

@@ -74,6 +74,10 @@ namespace Nevergreen.Data
         [Header("Audio")]
         [Tooltip("Sound effect played when this skill is used.")]
         public AudioClip sfx;
+
+        [Header("Animation")]
+        [Tooltip("Direct reference to the AnimationClip played when executing this skill. Falls back to generic Cast/Attack if unassigned.")]
+        public AnimationClip animationClip;
     }
 
     public enum TargetScope
