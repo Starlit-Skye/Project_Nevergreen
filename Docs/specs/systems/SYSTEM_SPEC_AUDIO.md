@@ -12,6 +12,7 @@ Provide immersive audio feedback through dynamic background music (BGM) transiti
 ## Scope
 - In scope:
   - BGM playback and manual crossfade-looping.
+  - Main Menu music transitions via `MainMenuMusicController`.
   - Battle/Exploration music transitions via `BattleMusicController`.
   - Boss-specific music overrides via `CharacterData`.
   - Skill-based and event-based SFX.
@@ -24,8 +25,8 @@ Provide immersive audio feedback through dynamic background music (BGM) transiti
 
 ## Source of Truth
 - Code: `Assets/Scripts/Audio/AudioManager.cs` (`Nevergreen.Audio.AudioManager`)
-- Integration: `Assets/Scripts/Combat/BattleMusicController.cs` (`Nevergreen.Combat.BattleMusicController`)
-- Tests: `Assets/Editor/Tests/AudioManagerTests.cs`, `Assets/Editor/Tests/BattleMusicControllerTests.cs`
+- Integration: `Assets/Scripts/Combat/BattleMusicController.cs` (`Nevergreen.Combat.BattleMusicController`), `Assets/Scripts/UI/MainMenuMusicController.cs` (`Nevergreen.UI.MainMenuMusicController`)
+- Tests: `Assets/Editor/Tests/AudioManagerTests.cs`, `Assets/Editor/Tests/BattleMusicControllerTests.cs`, `Assets/Editor/Tests/MainMenuMusicTests.cs`
 - Design: `Docs/specs/mechanics/MECHANIC_SPEC_COMBAT_CORE.md` (Event hooks)
 - Data: `Assets/Data/AudioConfig.asset` (BGM/Mixer configuration)
 
@@ -33,7 +34,7 @@ Provide immersive audio feedback through dynamic background music (BGM) transiti
 - **BGM Management**: Handle seamless transitions using a dual-source overlapping crossfade.
 - **Manual Looping**: Detect track end proximity via polling and trigger crossfades to circumvent native Unity loop cuts.
 - **SFX Playback**: Execute one-shot sounds for character actions and UI using `PlayOneShot` on a dedicated SFX source.
-- **State Control**: React to `BattleSystem.OnBattleStarted` and `OnBattleEnded` events via the `BattleMusicController`.
+- **State Control**: React to Main Menu loads via `MainMenuMusicController`, and combat/exploration states via `BattleMusicController` checking `RunSessionManager.RoomCompleted` and reacting to `BattleSystem` events.
 - **Audio Mixing**: Convert linear volume (0-1) to logarithmic decibels (-80dB to 0dB) for `AudioMixer` parameters.
 - **Persistence**: Save and load volume settings to `PlayerPrefs` via the `AudioConfig` ScriptableObject.
 
@@ -43,6 +44,7 @@ Provide immersive audio feedback through dynamic background music (BGM) transiti
   - `bgmVolume`: float (0-1)
   - `sfxVolume`: float (0-1)
   - `mainMixer`: AudioMixer (Reference to Unity AudioMixer asset)
+  - `defaultMainMenuMusic`: AudioClip
   - `defaultExplorationMusic`: AudioClip
   - `defaultBattleMusic`: AudioClip
   - `victoryJingle`: AudioClip
@@ -53,6 +55,10 @@ Provide immersive audio feedback through dynamic background music (BGM) transiti
   - `bossMusicOverride`: AudioClip (Used instead of default battle music)
 
 ## Event Contracts
+- **Event**: `Scene Loaded (Main Menu)`
+  - Producer: Unity SceneManager
+  - Consumer: `MainMenuMusicController` -> `AudioManager`
+  - Payload: N/A
 - **Event**: `OnBattleStarted`
   - Producer: `BattleSystem`
   - Consumer: `BattleMusicController` -> `AudioManager`

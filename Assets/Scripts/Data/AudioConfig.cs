@@ -15,6 +15,7 @@ namespace Nevergreen.Data
         [Range(0f, 1f)] public float sfxVolume = 1f;
 
         [Header("Default Music")]
+        public AudioClip defaultMainMenuMusic;
         public AudioClip defaultExplorationMusic;
         public AudioClip defaultBattleMusic;
         public AudioClip victoryJingle;
