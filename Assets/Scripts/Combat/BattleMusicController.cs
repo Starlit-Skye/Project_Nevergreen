@@ -20,6 +20,17 @@ namespace Nevergreen.Combat
             }
         }
 
+        private void Start()
+        {
+            if (RunSessionManager.RoomCompleted)
+            {
+                if (AudioManager.Instance != null && AudioManager.Instance.config != null)
+                {
+                    AudioManager.Instance.TransitionToBGM(AudioManager.Instance.config.defaultExplorationMusic);
+                }
+            }
+        }
+
         private void OnDestroy()
         {
             if (_battleSystem != null)
