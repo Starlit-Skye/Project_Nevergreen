@@ -43,6 +43,8 @@ namespace Nevergreen.Combat.AI.Nodes
                 pool.Remove(brain.Self);
             }
 
+            pool = pool.FilterPilesIfAlternativesExist();
+
             if (pool.Count == 0) return false;
 
             switch (strategy)

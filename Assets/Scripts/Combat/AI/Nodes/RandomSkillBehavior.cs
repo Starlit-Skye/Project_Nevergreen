@@ -53,6 +53,7 @@ namespace Nevergreen.Combat.AI.Nodes
             foreach (var skill in validSkills)
             {
                 List<CombatCharacter> targets = battle.GetValidTargets(self, skill);
+                targets = targets.FilterPilesIfAlternativesExist();
 
                 if (targets.Count == 0) continue;
 

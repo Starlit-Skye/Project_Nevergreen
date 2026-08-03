@@ -71,6 +71,9 @@ if (skill_executed) {
 | `maxConsecutiveUses` | 0 (Unlimited) | 0 | 99 | uses | `RandomSkillBehavior` |
 | `skipOnFailure` | true | false | true | bool | `SequenceBehavior` |
 
+## Target Selection Rules
+- **Pile Avoidance**: When AI behaviors or targeting nodes (`SimpleTargeting`, `StatusPrioritizedTargeting`, etc.) evaluate valid targets, they actively prioritize non-pile targets. If active characters (`!c.IsPile`) exist in the valid target pool, all Piles are filtered out from primary target selection. Piles are only selected as primary targets if the entire valid target pool consists of Piles (fallback mode to avoid passing turn). Note that AOE trailing propagation may still hit Piles if they are positioned behind an active primary target.
+
 ## Edge Cases
 - **1-Skill Repetition**: If a character has only one skill and hits the `maxConsecutiveUses` limit, it will return an `AIDecision.Pass()`. The pass action resets the `consecutiveSkillUses` counter, allowing the skill to be used again on the next turn.
 - **Sequence Rank Failure**: If a skill in a sequence is unusable from the current rank:
