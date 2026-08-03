@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Sharpshooter
   characterPrefab: {fileID: 5047933170817855005, guid: 4d1ecf77737e3cc40b6a63ae4b14bddb, type: 3}
   teamType: 0
+  takeDamageClip: {fileID: 7400000, guid: c33e573e1f8901f4a828f0f59c97c8a5, type: 2}
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 0c102def51f64d84595154f5d09c1258, type: 2}

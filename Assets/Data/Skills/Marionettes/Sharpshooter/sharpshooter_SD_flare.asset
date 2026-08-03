@@ -25,7 +25,6 @@ MonoBehaviour:
     criticalMod: 0
   effects:
   - rid: 356131309606142036
-  - rid: 356131309606142037
   useRanks: 0300000004000000
   targetRanks: 01000000
   targetScope: 2
@@ -38,6 +37,7 @@ MonoBehaviour:
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
+  animationClip: {fileID: 7400000, guid: 888b0b80aca186b4e9de823ed399298b, type: 2}
   references:
     version: 2
     RefIds:
@@ -50,8 +50,4 @@ MonoBehaviour:
         amplitude: 20
         amplitudeType: 2
         duration: 3
-        ignoreMiss: 0
-    - rid: 356131309606142037
-      type: {class: RemoveStealthEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
         ignoreMiss: 0
