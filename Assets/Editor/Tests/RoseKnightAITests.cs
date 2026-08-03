@@ -290,6 +290,51 @@ namespace Nevergreen.Tests
             }
         }
 
+        [Test]
+        public void Telegraph_AvoidsPiles_WhenActivePlayerExists()
+        {
+            var p1 = CreateTrackedCharacter("hero", Team.Player, 1);
+            var p2 = CreateTrackedCharacter("pile", Team.Player, 2);
+            p2.state = LifeState.Pile;
+
+            SetPlayerTeam(new List<CombatCharacter> { p1, p2 });
+            SetEnemyTeam(new List<CombatCharacter> { _boss });
+
+            for (int i = 0; i < 20; i++)
+            {
+                InvokeRoundStarted(i + 1);
+
+                var marked = _controller.MarkedRanks;
+                Assert.AreEqual(1, marked.Count, "Should only mark 1 rank since only 1 valid target exists.");
+                Assert.AreEqual(1, marked[0], "Should only mark rank 1 where the active player is, ignoring the Pile at rank 2.");
+            }
+        }
+
+        [Test]
+        public void Telegraph_MarksPile_WhenOnlyPilesExist()
+        {
+            var p1 = CreateTrackedCharacter("pile1", Team.Player, 1);
+            var p2 = CreateTrackedCharacter("pile2", Team.Player, 3);
+            p1.state = LifeState.Pile;
+            p2.state = LifeState.Pile;
+
+            SetPlayerTeam(new List<CombatCharacter> { p1, p2 });
+            SetEnemyTeam(new List<CombatCharacter> { _boss });
+
+            for (int i = 0; i < 20; i++)
+            {
+                InvokeRoundStarted(i + 1);
+
+                var marked = _controller.MarkedRanks;
+                Assert.IsTrue(marked.Count > 0, "Should mark ranks even if only Piles exist (fallback).");
+
+                foreach (int r in marked)
+                {
+                    Assert.IsTrue(r == 1 || r == 3, "Should only mark ranks 1 or 3 where Piles are located.");
+                }
+            }
+        }
+
         // ===================================================================
         // RoseKnightController Strike Tests
         // ===================================================================

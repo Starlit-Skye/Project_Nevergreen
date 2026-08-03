@@ -50,7 +50,7 @@ namespace Nevergreen.Combat.AI.Nodes
             if (!brain.Self.CanUseSkillFromRank(summonSkill) || !brain.Self.HasRemainingUses(summonSkill))
                 return false;
 
-            var validTargets = battle.GetValidTargets(brain.Self, summonSkill);
+            var validTargets = battle.GetValidTargets(brain.Self, summonSkill).FilterPilesIfAlternativesExist();
             if (validTargets.Count == 0) return false;
 
             // Pick a random target to damage
@@ -86,7 +86,7 @@ namespace Nevergreen.Combat.AI.Nodes
             if (!brain.Self.CanUseSkillFromRank(buffSkill) || !brain.Self.HasRemainingUses(buffSkill))
                 return false;
 
-            var validAllies = battle.EnemyTeam.Where(c => c.IsAlive && c != brain.Self).ToList();
+            var validAllies = battle.EnemyTeam.Where(c => (c.IsAlive || c.IsPile) && c != brain.Self).FilterPilesIfAlternativesExist();
             if (validAllies.Count == 0) return false;
 
             var chosenAlly = validAllies[UnityEngine.Random.Range(0, validAllies.Count)];
@@ -101,7 +101,7 @@ namespace Nevergreen.Combat.AI.Nodes
             if (!brain.Self.CanUseSkillFromRank(markSkill) || !brain.Self.HasRemainingUses(markSkill))
                 return false;
 
-            var validPlayers = battle.PlayerTeam.Where(c => c.IsAlive).ToList();
+            var validPlayers = battle.PlayerTeam.Where(c => c.IsAlive || c.IsPile).FilterPilesIfAlternativesExist();
             if (validPlayers.Count == 0) return false;
 
             int minHP = validPlayers.Min(c => c.currentHP);

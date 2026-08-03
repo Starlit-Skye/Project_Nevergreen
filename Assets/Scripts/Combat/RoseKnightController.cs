@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Nevergreen.Data;
+using Nevergreen.Combat.AI;
 
 namespace Nevergreen.Combat
 {
@@ -76,9 +77,11 @@ namespace Nevergreen.Combat
             ClearVFX();
             _markedRanks.Clear();
 
-            // Gather all ranks currently occupied by living players
-            var occupiedRanks = _battleSystem.PlayerTeam
-                .Where(c => c.IsAlive)
+            // Gather all ranks currently occupied by player team candidates (avoiding Piles if non-pile players exist)
+            var candidates = _battleSystem.PlayerTeam.FilterPilesIfAlternativesExist();
+
+            var occupiedRanks = candidates
+                .Where(c => c.IsAlive || c.IsPile)
                 .SelectMany(c => c.OccupiedRanks)
                 .Distinct()
                 .OrderBy(r => r)

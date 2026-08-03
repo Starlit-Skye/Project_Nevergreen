@@ -97,6 +97,7 @@ namespace Nevergreen.Combat.AI.Nodes
             
             // Remove self from candidates since skill says "except self"
             candidates.Remove(brain.Self);
+            candidates = candidates.FilterPilesIfAlternativesExist();
             
             if (candidates.Count == 0) return false;
 

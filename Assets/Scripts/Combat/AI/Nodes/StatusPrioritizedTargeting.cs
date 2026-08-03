@@ -28,6 +28,7 @@ namespace Nevergreen.Combat.AI.Nodes
             targets = null;
 
             List<CombatCharacter> pool = battle.GetValidTargets(brain.Self, skill);
+            pool = pool.FilterPilesIfAlternativesExist();
             if (pool.Count == 0) return false;
 
             // Separate pool into those with the status and those without
