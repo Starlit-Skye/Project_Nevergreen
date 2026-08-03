@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Alpha Corgian
   characterPrefab: {fileID: 7664516674936550575, guid: 3eb6248bfc597fe4692f27a71d6a8c82, type: 3}
   teamType: 1
+  takeDamageClip: {fileID: 0}
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 5893409d830f08346ac5921a4ba6b230, type: 2}
@@ -26,6 +27,6 @@ MonoBehaviour:
   totalSkillPool: []
   size: 2
   leavesPileOnDeath: 1
-  defaultAIProfile: {fileID: 11400000, guid: a240646757d3a1f48998dbcb6aed6234, type: 2}
+  defaultAIProfile: {fileID: 11400000, guid: 7bc33bdff2f4bab45baeb311a5fde66b, type: 2}
   deathSFX: {fileID: 0}
   bossMusicOverride: {fileID: 0}

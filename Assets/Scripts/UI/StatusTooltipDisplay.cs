@@ -205,7 +205,7 @@ namespace Nevergreen.UI
                     }
                     return $"Attacks apply Bleed for {maxDuration} rounds";
                 case StatusType.Riposte:
-                    return "Counter when attacked";
+                    return $"Counter when attacked for {maxDuration} rounds";
                 default:
                     return status.type.ToString();
             }

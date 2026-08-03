@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Bulbous Gremlin
   characterPrefab: {fileID: 7664516674936550575, guid: fe19c4a5e9524db4d9478f7ad9d2198e, type: 3}
   teamType: 1
+  takeDamageClip: {fileID: 0}
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 314b5b2d334036f459f8702678eeb7f8, type: 2}
@@ -25,6 +26,6 @@ MonoBehaviour:
   totalSkillPool: []
   size: 2
   leavesPileOnDeath: 1
-  defaultAIProfile: {fileID: 11400000, guid: a240646757d3a1f48998dbcb6aed6234, type: 2}
+  defaultAIProfile: {fileID: 11400000, guid: 9645dbe22d0e1364983ef10e5aa69a1c, type: 2}
   deathSFX: {fileID: 0}
   bossMusicOverride: {fileID: 0}
