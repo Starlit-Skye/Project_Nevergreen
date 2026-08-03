@@ -170,6 +170,44 @@ namespace Nevergreen.Prototype
                     }
                 }
 
+                if (Keyboard.current.mKey.wasPressedThisFrame)
+                {
+                    var audioManager = Nevergreen.Audio.AudioManager.Instance;
+                    if (audioManager != null)
+                    {
+                        AudioSource bgmSource = null;
+                        var field = typeof(Nevergreen.Audio.AudioManager).GetField("_bgmSourceMain", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (field != null)
+                        {
+                            bgmSource = field.GetValue(audioManager) as AudioSource;
+                        }
+
+                        if (bgmSource == null)
+                        {
+                            var sources = audioManager.GetComponents<AudioSource>();
+                            foreach (var src in sources)
+                            {
+                                if (src != null && src.isPlaying && src.clip != null)
+                                {
+                                    bgmSource = src;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (bgmSource != null && bgmSource.clip != null && bgmSource.isPlaying)
+                        {
+                            float targetTime = Mathf.Max(0f, bgmSource.clip.length - 3f);
+                            bgmSource.time = targetTime;
+                            Debug.Log($"[EditorDebugUtility] 'M' pressed. Skipped BGM '{bgmSource.clip.name}' to {targetTime:F2}s (last 3s).");
+                        }
+                        else
+                        {
+                            Debug.Log("[EditorDebugUtility] 'M' pressed. No BGM is currently playing.");
+                        }
+                    }
+                }
+
                 int digitIndex = -1;
                 if (Keyboard.current.digit1Key.wasPressedThisFrame) digitIndex = 0;
                 else if (Keyboard.current.digit2Key.wasPressedThisFrame) digitIndex = 1;
