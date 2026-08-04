@@ -28,7 +28,7 @@ combat UI update animations.
 ## Responsibilities
 - Store queued animations as ordered entries with animation id and animation name.
 - Resolve skill execution animations via `SkillData.animationClip` reference, using `clip.name` and `clip.length` (logging an error and falling back to generic `Cast`/`Attack` if unassigned).
-- Resolve target flinch (TakeDamage) animations via `CharacterData.takeDamageClip` reference, using `clip.name` and `clip.length` (falling back to `"TakeDamage"` and `0.5f` if unassigned).
+- Resolve target flinch (TakeDamage) animations via `CharacterData.takeDamageClip` reference, using `clip.name` and `clip.length` (falling back to `"TakeDamage"` and `0.5f` if unassigned). Flinch animations are suppressed for healing skills and allied status skills (`user.team == target.team`), while remaining active for hostile skills and damage dealing skills.
 - Play queued animations in FIFO order.
 - Lock combat inputs while queue size is greater than `0`.
 - Dequeue current entry when its animation finishes.

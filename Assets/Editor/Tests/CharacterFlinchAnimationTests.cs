@@ -64,11 +64,13 @@ namespace Nevergreen.Tests
             user.team = Team.Player;
             user.baseStats = new CombatStats { maxHP = 100, attack = 10, speed = 5 };
             user.currentHP = 100;
-            userObj.AddComponent<Animator>();
+            var userAnim = userObj.AddComponent<Animator>();
+            SetAnimator(user, userAnim);
             
             _target.baseStats = new CombatStats { maxHP = 100, speed = 5 };
             _target.currentHP = 100;
-            _targetObj.AddComponent<Animator>();
+            var targetAnim = _targetObj.AddComponent<Animator>();
+            SetAnimator(_target, targetAnim);
 
             var clip = new AnimationClip { name = "SpecialFlinch" };
             _characterData.takeDamageClip = clip;
@@ -79,6 +81,7 @@ namespace Nevergreen.Tests
             damageSkill.targetScope = TargetScope.Enemies;
             damageSkill.modifier = new SkillModifier { damagePercent = 1.0f };
             damageSkill.animationClip = new AnimationClip { name = "AttackAnim" };
+            damageSkill.guaranteedHit = true; // Ensure hit for the test
             
             // Add a mock damage effect to guarantee hit
             var dmgEffect = new DamageEffect();
@@ -86,12 +89,156 @@ namespace Nevergreen.Tests
 
             battleSystem.ExecuteSkill(user, damageSkill, new List<CombatCharacter> { _target });
 
-            Assert.IsTrue(battleSystem.animationQueue.IsBusy);
+            StringAssert.Contains("hit_" + _target.DisplayName, GetQueuedStepNames(battleSystem.animationQueue));
             
             CombatTestHelper.CleanupTestDatabase();
             Object.DestroyImmediate(battleSystemObj);
             Object.DestroyImmediate(userObj);
             Object.DestroyImmediate(damageSkill);
+        }
+
+        [Test]
+        public void ExecuteSkill_WithStatusOnAlly_DoesNotEnqueueTakeDamageState()
+        {
+            CombatTestHelper.InitializeTestDatabase();
+            var battleSystemObj = new GameObject("BattleSystem");
+            var battleSystem = battleSystemObj.AddComponent<BattleSystem>();
+            battleSystem.animationQueue = battleSystemObj.AddComponent<AnimationQueueProcessor>();
+
+            var userObj = new GameObject("UserChar");
+            var user = userObj.AddComponent<CombatCharacter>();
+            user.team = Team.Player;
+            user.baseStats = new CombatStats { maxHP = 100, attack = 10, speed = 5 };
+            user.currentHP = 100;
+            var userAnim = userObj.AddComponent<Animator>();
+            SetAnimator(user, userAnim);
+            
+            _target.team = Team.Player; // Same team
+            _target.baseStats = new CombatStats { maxHP = 100, speed = 5 };
+            _target.currentHP = 100;
+            var targetAnim = _targetObj.AddComponent<Animator>();
+            SetAnimator(_target, targetAnim);
+
+            var statusSkill = ScriptableObject.CreateInstance<SkillData>();
+            statusSkill.skillId = "buff_skill";
+            statusSkill.animationClip = new AnimationClip { name = "Anim" };
+            statusSkill.targetScope = TargetScope.Allies;
+            statusSkill.modifier = new SkillModifier { damagePercent = 0f, healPercent = 0f };
+            statusSkill.effects = new List<ISkillEffect> { new StatusEffect() }; 
+
+            battleSystem.ExecuteSkill(user, statusSkill, new List<CombatCharacter> { _target });
+
+            StringAssert.DoesNotContain("hit_" + _target.DisplayName, GetQueuedStepNames(battleSystem.animationQueue));
+            
+            CombatTestHelper.CleanupTestDatabase();
+            Object.DestroyImmediate(battleSystemObj);
+            Object.DestroyImmediate(userObj);
+            Object.DestroyImmediate(statusSkill);
+        }
+
+        [Test]
+        public void ExecuteSkill_WithStatusOnEnemy_EnqueuesTakeDamageState()
+        {
+            CombatTestHelper.InitializeTestDatabase();
+            var battleSystemObj = new GameObject("BattleSystem");
+            var battleSystem = battleSystemObj.AddComponent<BattleSystem>();
+            battleSystem.animationQueue = battleSystemObj.AddComponent<AnimationQueueProcessor>();
+
+            var userObj = new GameObject("UserChar");
+            var user = userObj.AddComponent<CombatCharacter>();
+            user.team = Team.Player;
+            user.baseStats = new CombatStats { maxHP = 100, attack = 10, speed = 5 };
+            user.currentHP = 100;
+            var userAnim = userObj.AddComponent<Animator>();
+            SetAnimator(user, userAnim);
+            
+            _target.team = Team.Enemy; // Different team
+            _target.baseStats = new CombatStats { maxHP = 100, speed = 5 };
+            _target.currentHP = 100;
+            var targetAnim = _targetObj.AddComponent<Animator>();
+            SetAnimator(_target, targetAnim);
+
+            var statusSkill = ScriptableObject.CreateInstance<SkillData>();
+            statusSkill.skillId = "debuff_skill";
+            statusSkill.animationClip = new AnimationClip { name = "Anim" };
+            statusSkill.targetScope = TargetScope.Enemies;
+            statusSkill.modifier = new SkillModifier { damagePercent = 0f, healPercent = 0f };
+            statusSkill.guaranteedHit = true;
+            statusSkill.effects = new List<ISkillEffect> { new StatusEffect() }; 
+
+            battleSystem.ExecuteSkill(user, statusSkill, new List<CombatCharacter> { _target });
+
+            StringAssert.Contains("hit_" + _target.DisplayName, GetQueuedStepNames(battleSystem.animationQueue));
+            
+            CombatTestHelper.CleanupTestDatabase();
+            Object.DestroyImmediate(battleSystemObj);
+            Object.DestroyImmediate(userObj);
+            Object.DestroyImmediate(statusSkill);
+        }
+
+        [Test]
+        public void ExecuteSkill_WithHeal_DoesNotEnqueueTakeDamageState()
+        {
+            CombatTestHelper.InitializeTestDatabase();
+            var battleSystemObj = new GameObject("BattleSystem");
+            var battleSystem = battleSystemObj.AddComponent<BattleSystem>();
+            battleSystem.animationQueue = battleSystemObj.AddComponent<AnimationQueueProcessor>();
+
+            var userObj = new GameObject("UserChar");
+            var user = userObj.AddComponent<CombatCharacter>();
+            user.team = Team.Player;
+            user.baseStats = new CombatStats { maxHP = 100, attack = 10, speed = 5 };
+            user.currentHP = 100;
+            var userAnim = userObj.AddComponent<Animator>();
+            SetAnimator(user, userAnim);
+            
+            _target.team = Team.Player; // Same team
+            _target.baseStats = new CombatStats { maxHP = 100, speed = 5 };
+            _target.currentHP = 100;
+            var targetAnim = _targetObj.AddComponent<Animator>();
+            SetAnimator(_target, targetAnim);
+
+            var healSkill = ScriptableObject.CreateInstance<SkillData>();
+            healSkill.skillId = "heal_skill";
+            healSkill.animationClip = new AnimationClip { name = "Anim" };
+            healSkill.targetScope = TargetScope.Allies;
+            healSkill.modifier = new SkillModifier { damagePercent = 0f, healPercent = 1.0f };
+            healSkill.effects = new List<ISkillEffect> { new HealEffect() }; 
+
+            battleSystem.ExecuteSkill(user, healSkill, new List<CombatCharacter> { _target });
+
+            StringAssert.DoesNotContain("hit_" + _target.DisplayName, GetQueuedStepNames(battleSystem.animationQueue));
+            
+            CombatTestHelper.CleanupTestDatabase();
+            Object.DestroyImmediate(battleSystemObj);
+            Object.DestroyImmediate(userObj);
+            Object.DestroyImmediate(healSkill);
+        }
+
+        private string GetQueuedStepNames(AnimationQueueProcessor queue)
+        {
+            var queueField = typeof(AnimationQueueProcessor).GetField("_queue", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var queueObj = (Queue<IAnimationStep>)queueField.GetValue(queue);
+            string names = "";
+            foreach (var step in queueObj)
+            {
+                names += "[" + step.Name + "]";
+                if (step is ParallelStep parallelStep)
+                {
+                    var stepsField = typeof(ParallelStep).GetField("_steps", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    var steps = (List<IAnimationStep>)stepsField.GetValue(parallelStep);
+                    foreach (var s in steps)
+                    {
+                        names += "(" + s.Name + ")";
+                    }
+                }
+            }
+            return names;
+        }
+
+        private void SetAnimator(CombatCharacter character, Animator animator)
+        {
+            typeof(CombatCharacter).GetProperty("animator").SetValue(character, animator);
         }
     }
 }

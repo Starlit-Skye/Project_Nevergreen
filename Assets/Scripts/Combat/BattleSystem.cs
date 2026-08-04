@@ -632,7 +632,10 @@ namespace Nevergreen.Combat
                     }
 
                     // Check if taking damage killed the target or if we need to do UI syncing post-hit
-                    if (ctx.didHit && !skill.modifier.IsHeal && skillAnimParallel != null)
+                    bool isStatusSkill = !skill.modifier.IsDamage && !skill.modifier.IsHeal;
+                    bool isSameTeamStatus = isStatusSkill && (user.team == finalTarget.team);
+
+                    if (ctx.didHit && !skill.modifier.IsHeal && !isSameTeamStatus && skillAnimParallel != null)
                     {
                         // The Guardian always flinches and takes the effects
                         if (finalTarget.animator != null)
