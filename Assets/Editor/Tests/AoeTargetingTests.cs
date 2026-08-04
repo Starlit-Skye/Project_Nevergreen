@@ -176,5 +176,60 @@ namespace Nevergreen.Tests
             Object.DestroyImmediate(e3.gameObject);
             ScriptableObject.DestroyImmediate(healSkill, true);
         }
+
+        [Test]
+        public void GetValidTargets_AOEHealingSkill_AllowsPileAnchorIfLivingUnitInAOERange()
+        {
+            var e1 = CombatTestHelper.CreateCombatCharacter("E1", Team.Enemy, 1, size: 1);
+            e1.state = LifeState.Pile; // make E1 a pile
+            var e2 = CombatTestHelper.CreateCombatCharacter("E2", Team.Enemy, 2, size: 1); // alive
+
+            InjectTeams(new List<CombatCharacter> { _attacker }, new List<CombatCharacter> { e1, e2 });
+
+            var healSkill = ScriptableObject.CreateInstance<SkillData>();
+            healSkill.targetScope = TargetScope.Enemies;
+            healSkill.maxTargets = 2;
+            healSkill.targetRanks = new List<int> { 1, 2, 3, 4 };
+            healSkill.effects = new List<ISkillEffect> { new HealEffect() };
+
+            var validTargets = _battleSystem.GetValidTargets(_attacker, healSkill);
+
+            // E1 is a pile but has a living unit (E2) behind it in the AOE range, so E1 should be valid as an anchor.
+            // E2 is also valid on its own.
+            Assert.Contains(e1, validTargets);
+            Assert.Contains(e2, validTargets);
+
+            Object.DestroyImmediate(e1.gameObject);
+            Object.DestroyImmediate(e2.gameObject);
+            ScriptableObject.DestroyImmediate(healSkill, true);
+        }
+
+        [Test]
+        public void GetValidTargets_AOEHealingSkill_RejectsPileAnchorIfNoLivingUnitInAOERange()
+        {
+            var e1 = CombatTestHelper.CreateCombatCharacter("E1", Team.Enemy, 1, size: 1);
+            e1.state = LifeState.Pile; // pile
+            var e2 = CombatTestHelper.CreateCombatCharacter("E2", Team.Enemy, 2, size: 1);
+            e2.state = LifeState.Pile; // pile
+
+            InjectTeams(new List<CombatCharacter> { _attacker }, new List<CombatCharacter> { e1, e2 });
+
+            var healSkill = ScriptableObject.CreateInstance<SkillData>();
+            healSkill.targetScope = TargetScope.Enemies;
+            healSkill.maxTargets = 2;
+            healSkill.targetRanks = new List<int> { 1, 2, 3, 4 };
+            healSkill.effects = new List<ISkillEffect> { new HealEffect() };
+
+            var validTargets = _battleSystem.GetValidTargets(_attacker, healSkill);
+
+            // Neither E1 nor E2 are alive, and for E1 the trailing targets contain only piles.
+            // So neither should be a valid primary anchor for a healing skill.
+            Assert.IsFalse(validTargets.Contains(e1));
+            Assert.IsFalse(validTargets.Contains(e2));
+
+            Object.DestroyImmediate(e1.gameObject);
+            Object.DestroyImmediate(e2.gameObject);
+            ScriptableObject.DestroyImmediate(healSkill, true);
+        }
     }
 }

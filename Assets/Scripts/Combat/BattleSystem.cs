@@ -710,6 +710,15 @@ namespace Nevergreen.Combat
 
 
         /// <summary>
+        /// Checks if a character is a valid receiver for a skill's primary effect.
+        /// </summary>
+        private bool IsValidReceiver(CombatCharacter target, SkillData skill)
+        {
+            bool isHealingSkill = skill.effects.Any(e => e is HealEffect);
+            return target.IsAlive || (target.IsPile && !isHealingSkill);
+        }
+
+        /// <summary>
         /// Get valid targets for a skill based on scope and rank constraints.
         /// </summary>
         public List<CombatCharacter> GetValidTargets(CombatCharacter user, SkillData skill)
@@ -731,17 +740,28 @@ namespace Nevergreen.Combat
                     break;
             }
 
-            bool isHealingSkill = skill.effects.Any(e => e is HealEffect);
-
             return pool
                 .Where(c => 
                 {
-                    if (!c.IsAlive && !(c.IsPile && !isHealingSkill))
-                        return false;
                     if (!c.OccupiedRanks.Intersect(skill.targetRanks).Any())
                         return false;
                     if (skill.targetScope == TargetScope.Enemies && c.IsStealthed && !skill.ignoresStealth)
                         return false;
+
+                    if (skill.maxTargets > 1)
+                    {
+                        // For AOE, anchor is valid if at least one unit in the resulting AOE range is a valid receiver
+                        var aoeTargets = GetAOETargets(skill, c);
+                        if (!aoeTargets.Any(t => IsValidReceiver(t, skill)))
+                            return false;
+                    }
+                    else
+                    {
+                        // For single target, the anchor must be a valid receiver directly
+                        if (!IsValidReceiver(c, skill))
+                            return false;
+                    }
+
                     return true;
                 })
                 .ToList();

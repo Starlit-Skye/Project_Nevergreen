@@ -64,6 +64,7 @@ No complex algebraic formulas. Target propagation is resolved by:
 - **Trailing Boundary (Limit)**: If the primary target is near the back of the team formation and there are fewer units behind them than `maxTargets`, the list is clamped to only return the available units.
 - **Multi-Rank Characters**: Large enemies (size 2/3) only count as a single target. The physical rank of the character determines what lies behind them, preventing double-hitting.
 - **Piles (Deceased Units)**: Piles are treated as valid targets and count towards the trailing target limit for both damaging and healing skills. However, healing skills do not apply any healing or positive effects to them (as piles refuse healing).
+- **AOE Healing/Status on Piles**: For AOE skills (`maxTargets > 1`), a Pile can be selected as the primary anchor target for a healing or status-only skill **if and only if** the resulting AOE range includes at least one active, living target. If no living targets exist behind the Pile in the AOE range, the Pile is rejected as an anchor.
 
 ## Failure Modes
 - **No Valid Targets**: If `GetValidTargets` returns zero eligible targets, targeting mode cannot be completed. The AI will fall back to passing the turn.
@@ -78,6 +79,8 @@ No complex algebraic formulas. Target propagation is resolved by:
   - `AoeTargetingTests.GetAOETargets_LargeSizeHandling_HitsSize2AndNext`
   - `AoeTargetingTests.GetAOETargets_DamagingSkill_IncludesPiles`
   - `AoeTargetingTests.GetAOETargets_HealingSkill_IncludesPilesButDoesNotHeal`
+  - `AoeTargetingTests.GetValidTargets_AOEHealingSkill_AllowsPileAnchorIfLivingUnitInAOERange`
+  - `AoeTargetingTests.GetValidTargets_AOEHealingSkill_RejectsPileAnchorIfNoLivingUnitInAOERange`
 - **Playtest**:
   - Enter combat, select an AOE skill with `maxTargets = 2`. Hovering over rank 1 enemy must highlight rank 1 (green) and rank 2 (green), while remaining valid targets (rank 3, 4) highlight yellow. Hovering over a pile with a healing skill must highlight it (since it is targeted) but applying the skill will not heal it.
 
