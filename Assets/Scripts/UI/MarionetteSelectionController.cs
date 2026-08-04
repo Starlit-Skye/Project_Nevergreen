@@ -234,7 +234,7 @@ namespace Nevergreen.UI
         {
             var data = info.character;
             if (infoNameText != null)
-                infoNameText.text = data.displayName;
+                infoNameText.text = data.displayName + " - LV " + info.currentLevel;
 
             var stats = data.GetStatsForLevel(info.currentLevel);
 
