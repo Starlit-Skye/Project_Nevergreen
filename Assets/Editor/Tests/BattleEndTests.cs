@@ -62,8 +62,7 @@ namespace Nevergreen.Tests
             Assert.IsTrue(ally.IsAlive);
 
             // Act
-            MethodInfo checkBattleEnd = typeof(BattleSystem).GetMethod("CheckBattleEnd", BindingFlags.NonPublic | BindingFlags.Instance);
-            bool isOver = (bool)checkBattleEnd.Invoke(_battleSystem, null);
+            bool isOver = _battleSystem.CheckBattleEnd();
 
             // Assert
             Assert.IsTrue(isOver);
@@ -81,8 +80,7 @@ namespace Nevergreen.Tests
             cecilia.state = LifeState.Pile;
 
             // Act
-            MethodInfo checkBattleEnd = typeof(BattleSystem).GetMethod("CheckBattleEnd", BindingFlags.NonPublic | BindingFlags.Instance);
-            bool isOver = (bool)checkBattleEnd.Invoke(_battleSystem, null);
+            bool isOver = _battleSystem.CheckBattleEnd();
 
             // Assert
             Assert.IsTrue(isOver, "Battle should end if Cecilia is a Pile.");
@@ -106,8 +104,7 @@ namespace Nevergreen.Tests
             ally2.TakeDamage(ally2.currentHP + 1);
 
             // Act
-            MethodInfo checkBattleEnd = typeof(BattleSystem).GetMethod("CheckBattleEnd", BindingFlags.NonPublic | BindingFlags.Instance);
-            bool isOver = (bool)checkBattleEnd.Invoke(_battleSystem, null);
+            bool isOver = _battleSystem.CheckBattleEnd();
 
             // Assert
             Assert.IsTrue(isOver);
@@ -128,8 +125,7 @@ namespace Nevergreen.Tests
             enemy.TakeDamage(enemy.currentHP + 1);
 
             // Act
-            MethodInfo checkBattleEnd = typeof(BattleSystem).GetMethod("CheckBattleEnd", BindingFlags.NonPublic | BindingFlags.Instance);
-            bool isOver = (bool)checkBattleEnd.Invoke(_battleSystem, null);
+            bool isOver = _battleSystem.CheckBattleEnd();
 
             // Assert
             Assert.IsTrue(isOver);
@@ -153,8 +149,7 @@ namespace Nevergreen.Tests
             ally.TakeDamage(ally.currentHP + 1);
 
             // Act
-            MethodInfo checkBattleEnd = typeof(BattleSystem).GetMethod("CheckBattleEnd", BindingFlags.NonPublic | BindingFlags.Instance);
-            bool isOver = (bool)checkBattleEnd.Invoke(_battleSystem, null);
+            bool isOver = _battleSystem.CheckBattleEnd();
 
             // Assert
             Assert.IsFalse(isOver);
@@ -170,8 +165,7 @@ namespace Nevergreen.Tests
             _playerTeam.Add(cecilia);
 
             // Act
-            MethodInfo handleDefeated = typeof(BattleSystem).GetMethod("HandleCharacterDefeated", BindingFlags.NonPublic | BindingFlags.Instance);
-            handleDefeated.Invoke(_battleSystem, new object[] { cecilia, false });
+            _battleSystem.CheckBattleEnd();
 
             // Assert
             Assert.AreEqual(BattleState.BattleEnd, _battleSystem.CurrentState);

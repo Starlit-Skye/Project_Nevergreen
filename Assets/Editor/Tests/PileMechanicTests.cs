@@ -98,13 +98,8 @@ namespace Nevergreen.Tests
             var battleSystem = battleSystemGo.AddComponent<BattleSystem>();
 
             var c = Track("hero", leavesPile: true);
-            c.TakeDamage(100); // Enters Dying
-
-            // Use Reflection to call private FinalizeCharacterDefeat
-            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            method.Invoke(battleSystem, new object[] { c, false });
+            battleSystem.StartBattle(new List<CombatCharacter> { c }, new List<CombatCharacter>());
+            c.TakeDamage(c.currentHP + 1); // Enters Dying, then Pile
 
             Assert.AreEqual(LifeState.Pile, c.state, "Character should become a Pile.");
             Assert.AreEqual(50, c.currentHP, "Pile should be instantiated with 50% max HP.");
@@ -118,12 +113,8 @@ namespace Nevergreen.Tests
             var battleSystem = battleSystemGo.AddComponent<BattleSystem>();
 
             var c = Track("hero", leavesPile: false);
-            c.TakeDamage(100);
-
-            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            method.Invoke(battleSystem, new object[] { c, false });
+            battleSystem.StartBattle(new List<CombatCharacter> { c }, new List<CombatCharacter>());
+            c.TakeDamage(c.currentHP + 1);
 
             Assert.AreEqual(LifeState.Destroyed, c.state, "Character should be Destroyed if they don't leave a pile.");
         }
@@ -136,13 +127,8 @@ namespace Nevergreen.Tests
             var battleSystem = battleSystemGo.AddComponent<BattleSystem>();
 
             var c = Track("hero", leavesPile: true);
-            c.TakeDamage(100);
-
-            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            // Critical Kill = true
-            method.Invoke(battleSystem, new object[] { c, true });
+            battleSystem.StartBattle(new List<CombatCharacter> { c }, new List<CombatCharacter>());
+            c.TakeDamage(c.currentHP + 1, true); // Critical Kill = true
 
             Assert.AreEqual(LifeState.Destroyed, c.state, "Critical kills should destroy the character instead of making a Pile.");
         }
@@ -156,12 +142,8 @@ namespace Nevergreen.Tests
 
             var c = Track("hero", leavesPile: true);
             c.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 50, 3));
-            c.TakeDamage(100);
-
-            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            method.Invoke(battleSystem, new object[] { c, false });
+            battleSystem.StartBattle(new List<CombatCharacter> { c }, new List<CombatCharacter>());
+            c.TakeDamage(c.currentHP + 1);
 
             // Piles should not retain previous buffs.
             Assert.AreEqual(0, c.statusEffects.Count, "Should have no status effects as it became a Pile.");
@@ -176,12 +158,8 @@ namespace Nevergreen.Tests
             var battleSystem = battleSystemGo.AddComponent<BattleSystem>();
 
             var c = Track("hero", leavesPile: true);
-            c.TakeDamage(100);
-
-            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            method.Invoke(battleSystem, new object[] { c, false });
+            battleSystem.StartBattle(new List<CombatCharacter> { c }, new List<CombatCharacter>());
+            c.TakeDamage(c.currentHP + 1);
 
             Assert.AreEqual(4, c.pileDuration, "Pile should have innate duration of 4.");
             Assert.AreEqual(300 + c.baseStats.moveResist, c.GetEffectiveStats().moveResist,
@@ -287,26 +265,7 @@ namespace Nevergreen.Tests
             var playerTeam = new List<CombatCharacter> { hero, pile1, pile2 };
             var enemyTeam = new List<CombatCharacter> { enemy };
 
-            // Inject teams via Reflection
-            var playerTeamField = typeof(BattleSystem).GetField("_playerTeam",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            playerTeamField.SetValue(battleSystem, playerTeam);
-
-            var enemyTeamField = typeof(BattleSystem).GetField("_enemyTeam",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            enemyTeamField.SetValue(battleSystem, enemyTeam);
-
-            // Set up state change event handlers
-            var handleStateChangedMethod = typeof(BattleSystem).GetMethod("HandleCharacterStateChanged",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            foreach (var c in playerTeam.Concat(enemyTeam))
-            {
-                c.OnStateChanged += (charRef, stateVal) =>
-                {
-                    handleStateChangedMethod.Invoke(battleSystem, new object[] { charRef, stateVal });
-                };
-            }
+            battleSystem.StartBattle(playerTeam, enemyTeam);
 
             // Create skill and skill context
             var skill = ScriptableObject.CreateInstance<SkillData>();
@@ -323,7 +282,7 @@ namespace Nevergreen.Tests
             Assert.AreEqual(LifeState.Destroyed, pile2.state, "pile2 should be Destroyed.");
 
             // Player team should only contain hero now
-            var currentPlayers = (List<CombatCharacter>)playerTeamField.GetValue(battleSystem);
+            var currentPlayers = battleSystem.PlayerTeam;
             Assert.AreEqual(1, currentPlayers.Count, "Player team should only have 1 character remaining.");
             Assert.AreEqual(hero, currentPlayers[0], "The remaining player should be hero.");
             Assert.AreEqual(1, hero.rank, "Hero should be at rank 1.");

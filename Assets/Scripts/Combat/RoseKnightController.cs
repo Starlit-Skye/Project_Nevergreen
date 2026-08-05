@@ -186,7 +186,7 @@ namespace Nevergreen.Combat
                 Debug.Log($"[RoseKnightController] Round {roundNumber}: No valid targets at marked ranks. Strike skipped.");
             }
 
-            if (_battleSystem.animationQueue != null)
+            if (_battleSystem.animationQueue != null && Application.isPlaying)
             {
                 _battleSystem.animationQueue.Enqueue(new ActionStep("Clear Telegraph VFX", () => 
                 {

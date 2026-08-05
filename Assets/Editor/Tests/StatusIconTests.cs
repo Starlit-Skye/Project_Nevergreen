@@ -457,7 +457,7 @@ namespace Nevergreen.Tests
             character.statusEffects.Clear();
             var riposte = new StatusEffectInstance(StatusType.Riposte, StatTarget.Speed, 50, 3);
             character.AddStatus(riposte);
-            TestFormat(riposte, "Counter when attacked");
+            TestFormat(riposte, "Counter when attacked for 3 rounds");
 
             Object.DestroyImmediate(tooltipDisplay);
             Object.DestroyImmediate(textGO);

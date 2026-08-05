@@ -55,13 +55,9 @@ namespace Nevergreen.Tests
                 .SetValue(_battleSystem, rng);
 
             // Act & Assert
-            MethodInfo buildTurnOrder = typeof(BattleSystem).GetMethod("BuildTurnOrder", BindingFlags.NonPublic | BindingFlags.Instance);
-            var turnOrderField = typeof(BattleSystem).GetField("_turnOrder", BindingFlags.NonPublic | BindingFlags.Instance);
-
             for (int i = 0; i < 50; i++)
             {
-                buildTurnOrder.Invoke(_battleSystem, null);
-                var turnOrder = (List<TurnEntry>)turnOrderField.GetValue(_battleSystem);
+                var turnOrder = TurnOrderBuilder.Build(_playerTeam, _enemyTeam, GameDatabase.Instance.CombatConfig, rng);
 
                 Assert.AreEqual(1, turnOrder.Count);
                 int speed = turnOrder[0].speed;
@@ -91,13 +87,9 @@ namespace Nevergreen.Tests
                 .SetValue(_battleSystem, rng);
 
             // Act & Assert
-            MethodInfo buildTurnOrder = typeof(BattleSystem).GetMethod("BuildTurnOrder", BindingFlags.NonPublic | BindingFlags.Instance);
-            var turnOrderField = typeof(BattleSystem).GetField("_turnOrder", BindingFlags.NonPublic | BindingFlags.Instance);
-
             for (int i = 0; i < 50; i++)
             {
-                buildTurnOrder.Invoke(_battleSystem, null);
-                var turnOrder = (List<TurnEntry>)turnOrderField.GetValue(_battleSystem);
+                var turnOrder = TurnOrderBuilder.Build(_playerTeam, _enemyTeam, config, rng);
 
                 Assert.AreEqual(1, turnOrder.Count);
                 int speed = turnOrder[0].speed;
@@ -124,11 +116,7 @@ namespace Nevergreen.Tests
                 .SetValue(_battleSystem, customRng);
 
             // Act
-            MethodInfo buildTurnOrder = typeof(BattleSystem).GetMethod("BuildTurnOrder", BindingFlags.NonPublic | BindingFlags.Instance);
-            buildTurnOrder.Invoke(_battleSystem, null);
-
-            var turnOrderField = typeof(BattleSystem).GetField("_turnOrder", BindingFlags.NonPublic | BindingFlags.Instance);
-            var turnOrder = (List<TurnEntry>)turnOrderField.GetValue(_battleSystem);
+            var turnOrder = TurnOrderBuilder.Build(_playerTeam, _enemyTeam, GameDatabase.Instance.CombatConfig, customRng);
 
             // Assert
             Assert.AreEqual(3, turnOrder.Count);
@@ -155,11 +143,7 @@ namespace Nevergreen.Tests
                 .SetValue(_battleSystem, customRng);
 
             // Act
-            MethodInfo buildTurnOrder = typeof(BattleSystem).GetMethod("BuildTurnOrder", BindingFlags.NonPublic | BindingFlags.Instance);
-            buildTurnOrder.Invoke(_battleSystem, null);
-
-            var turnOrderField = typeof(BattleSystem).GetField("_turnOrder", BindingFlags.NonPublic | BindingFlags.Instance);
-            var turnOrder = (List<TurnEntry>)turnOrderField.GetValue(_battleSystem);
+            var turnOrder = TurnOrderBuilder.Build(_playerTeam, _enemyTeam, GameDatabase.Instance.CombatConfig, customRng);
 
             // Assert
             Assert.AreEqual(2, turnOrder.Count);
