@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Specification Perfect
   description: +20% healing recieved
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: d419e6a953b363448972aa25f85e60cb, type: 2}
   effectStrategies:
   - rid: 4415245153204437071
   references:

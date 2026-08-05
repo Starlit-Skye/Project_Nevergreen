@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Lazy
   description: -4 Speed first round
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: c8d1347f868315f48bbb8439e769d3d0, type: 2}
   effectStrategies:
   - rid: 4415245238185230344
   references:

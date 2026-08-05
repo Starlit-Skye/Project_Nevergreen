@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Strong Fist
   description: +10% Stun Chance
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: 9f4d2a2233dbd034299aa3969048dcac, type: 2}
   effectStrategies:
   - rid: 4415245153204437073
   references:

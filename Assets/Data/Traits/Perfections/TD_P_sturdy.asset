@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Sturdy
   description: +20% Max HP
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: fb57237cd2f18744681d5ae189d96d9a, type: 2}
   effectStrategies:
   - rid: 4415245153204436992
   references:

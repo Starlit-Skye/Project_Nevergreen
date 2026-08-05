@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Crystal Eyes
   description: +10 Accuracy
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: 6c00c3561f5d388488b97b5f7f7ae362, type: 2}
   effectStrategies:
   - rid: 4415245153204436992
   references:

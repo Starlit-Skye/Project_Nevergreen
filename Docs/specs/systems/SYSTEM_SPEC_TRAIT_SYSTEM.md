@@ -23,13 +23,13 @@ Define the static definition and runtime lifecycle of the Trait System (Perfecti
 ## Responsibilities
 - Classify traits as either Perfections (positive passives) or Imperfections (negative passives).
 - Store trait metadata (identity, display details) and inline modular effect strategies.
-- Enforce slot capacity limits (configured dynamically per type) and uniqueness by ID per party member info.
+- Enforce slot capacity limits (configured dynamically per type), uniqueness by ID per party member info, and opposite trait co-existence exclusion.
 - Manage runtime instantiation and clean teardown of event-driven trait strategies during combat setup and termination.
 - Apply flat additions and percentage scales to character stats dynamically during combat resolution.
 
 ## Data Model
 - Entity/component/object:
-  - `TraitData` (ScriptableObject): Contains identity data (`traitId`, `displayName`, `description`), classification (`traitType`), and inline strategies (`effectStrategies` via `[SerializeReference]`).
+  - `TraitData` (ScriptableObject): Contains identity data (`traitId`, `displayName`, `description`), classification (`traitType`), opposite trait reference (`oppositeTrait`), and inline strategies (`effectStrategies` via `[SerializeReference]`).
   - `TraitInstance` (Runtime Wrapper): Holds references to `TraitData`, `owner` (`CombatCharacter`), `battleSystem`, and a generic `extra` dictionary for strategy event closures.
   - `TraitStatModifier` (Accumulator): Aggregates passive modifiers via `flatBonuses` (`Dictionary<StatTarget, int>`) and `percentBonuses` (`Dictionary<StatTarget, float>`).
 - Persistence keys: `perfections` and `imperfections` lists inside `PartyMemberInfo`, serialized as references to `TraitData` assets.
@@ -69,6 +69,7 @@ Define the static definition and runtime lifecycle of the Trait System (Perfecti
 
 ## Error Handling and Recovery
 - Duplicate Trait ID: `PartyMemberInfo.TryAddTrait` returns `false` and rejects the addition.
+- Opposite Trait Conflict: `PartyMemberInfo.TryAddTrait` returns `false` if `oppositeTrait` relationships conflict with equipped traits.
 - Capacity Exceeded: `PartyMemberInfo.TryAddTrait` returns `false` and rejects the addition.
 - Null Strategy Reference: Checked and skipped safely during activation, deactivation, and modification loops.
 - Recovery strategy: Log warning/error and fallback to baseline character stats on script errors.

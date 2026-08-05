@@ -205,14 +205,32 @@ namespace Nevergreen.Data
             {
                 if (traitDb.perfections != null && traitDb.perfections.Count > 0)
                 {
-                    var perf = traitDb.perfections[_rng.Next(traitDb.perfections.Count)];
-                    info.TryAddTrait(perf);
+                    var candidatePool = new List<TraitData>(traitDb.perfections);
+                    while (candidatePool.Count > 0)
+                    {
+                        int index = _rng.Next(candidatePool.Count);
+                        var perf = candidatePool[index];
+                        if (info.TryAddTrait(perf))
+                        {
+                            break;
+                        }
+                        candidatePool.RemoveAt(index);
+                    }
                 }
 
                 if (traitDb.imperfections != null && traitDb.imperfections.Count > 0)
                 {
-                    var imperf = traitDb.imperfections[_rng.Next(traitDb.imperfections.Count)];
-                    info.TryAddTrait(imperf);
+                    var candidatePool = new List<TraitData>(traitDb.imperfections);
+                    while (candidatePool.Count > 0)
+                    {
+                        int index = _rng.Next(candidatePool.Count);
+                        var imperf = candidatePool[index];
+                        if (info.TryAddTrait(imperf))
+                        {
+                            break;
+                        }
+                        candidatePool.RemoveAt(index);
+                    }
                 }
             }
             else

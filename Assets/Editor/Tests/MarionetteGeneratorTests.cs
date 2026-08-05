@@ -143,6 +143,43 @@ namespace Nevergreen.Tests
         }
 
         [Test]
+        public void GenerateRandomMarionette_OppositeTraitChosen_PicksAlternative()
+        {
+            // Arrange
+            _traitDb.perfections.Clear();
+            _traitDb.imperfections.Clear();
+
+            var perfA = ScriptableObject.CreateInstance<TraitData>();
+            perfA.traitId = "perf_A";
+            perfA.traitType = TraitType.Perfection;
+
+            var imperfB = ScriptableObject.CreateInstance<TraitData>();
+            imperfB.traitId = "imperf_B";
+            imperfB.traitType = TraitType.Imperfection;
+            imperfB.oppositeTrait = perfA;
+
+            var imperfC = ScriptableObject.CreateInstance<TraitData>();
+            imperfC.traitId = "imperf_C";
+            imperfC.traitType = TraitType.Imperfection;
+
+            _traitDb.perfections.Add(perfA);
+            _traitDb.imperfections.Add(imperfB);
+            _traitDb.imperfections.Add(imperfC);
+
+            // Act
+            // Since perfA is the only perfection, it will always be picked.
+            // imperfB is its opposite, so if picked, it should be rejected and imperfC should be picked instead.
+            var list = MarionetteGenerator.GenerateRandomMarionette(1);
+            var info = list[0];
+
+            // Assert
+            Assert.AreEqual(1, info.perfections.Count);
+            Assert.AreEqual("perf_A", info.perfections[0].traitId);
+            Assert.AreEqual(1, info.imperfections.Count);
+            Assert.AreEqual("imperf_C", info.imperfections[0].traitId, "Should have picked alternative imperf_C instead of opposite imperf_B.");
+        }
+
+        [Test]
         public void GenerateRandomMarionette_EnforcesUniqueClasses()
         {
             // Arrange

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Strong Pull
   description: +10% Move Chance
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: bb67392e608aebd49bb9f86e449a1d7f, type: 2}
   effectStrategies:
   - rid: 4415245153204437073
   references:

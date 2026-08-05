@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Cunning
   description: +5% Crit
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: 9b3af837780d2a848a5869b6534afaf3, type: 2}
   effectStrategies:
   - rid: 4415245153204436992
   references:

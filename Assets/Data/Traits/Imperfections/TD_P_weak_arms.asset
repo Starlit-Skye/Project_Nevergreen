@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Weak Arms
   description: -10% Move Chance
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: 72b51688e6fa03b45a5d03e1722d66d9, type: 2}
   effectStrategies:
   - rid: 4415245238185230350
   references:

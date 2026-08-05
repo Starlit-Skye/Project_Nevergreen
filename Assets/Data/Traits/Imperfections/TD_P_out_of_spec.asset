@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Out of Spec
   description: -20% received healing
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: fbee1b152cf3eb445b9a8c48cceafa04, type: 2}
   effectStrategies:
   - rid: 4415245238185230338
   references:

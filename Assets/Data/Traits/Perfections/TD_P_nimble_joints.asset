@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Nimble Joints
   description: +3% Dodge
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: a31efcae2f13f574b9feae3b495a817d, type: 2}
   effectStrategies:
   - rid: 4415245153204436992
   references:

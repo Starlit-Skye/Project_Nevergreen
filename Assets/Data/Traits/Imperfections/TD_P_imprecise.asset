@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Imprecise
   description: -5% Crit Chance
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: 7c3f29f485543974ca453295e93be603, type: 2}
   effectStrategies:
   - rid: 4415245238185230336
   references:

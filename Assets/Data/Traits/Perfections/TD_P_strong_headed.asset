@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Strong Headed
   description: +10% Stun Res
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: 044496e0f6f3ab94c9be27c9fc600f78, type: 2}
   effectStrategies:
   - rid: 4415245153204436992
   references:

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Firm Stance
   description: +20% Move Res
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: f32ce1b65da578145ac4d8bcad8b77fd, type: 2}
   effectStrategies:
   - rid: 4415245153204436992
   references:

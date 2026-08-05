@@ -18,6 +18,7 @@ MonoBehaviour:
 
     +10% Bleed Res'
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: 282b0b4363c4a4548b80683129a4aa10, type: 2}
   effectStrategies:
   - rid: 4415245153204436992
   - rid: 4415245153204436993

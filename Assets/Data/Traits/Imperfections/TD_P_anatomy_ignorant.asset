@@ -18,6 +18,7 @@ MonoBehaviour:
 
     -20% Blight Chance'
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: 5e1def4a511a8184bb5b0fe1d6700d23, type: 2}
   effectStrategies:
   - rid: 4415245238185230342
   - rid: 4415245238185230343

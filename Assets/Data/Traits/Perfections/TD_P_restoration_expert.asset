@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Restoration Expert
   description: +20% Healing
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: 581b5194e22f5a24b9816b5259ecef18, type: 2}
   effectStrategies:
   - rid: 4415245172071727179
   references:

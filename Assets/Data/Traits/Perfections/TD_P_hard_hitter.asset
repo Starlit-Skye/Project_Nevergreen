@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Hard Hitter
   description: +10% attack
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: abd37e76cb9f2b14a9bd7834ff2311b2, type: 2}
   effectStrategies:
   - rid: 4415245153204436992
   references:

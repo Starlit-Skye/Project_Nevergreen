@@ -25,7 +25,7 @@ Handle the complete, encapsulated generation of randomized Marionette units (`Pa
 - Extract the skill pool from either the template's `totalSkillPool` or fallback to its `availableSkills`.
 - Pick exactly 4 unique random skills from this pool using a copy-and-remove random strategy.
 - Fallback to equipping fewer than 4 skills if the character's skill pool size is less than 4.
-- Randomly assign exactly 1 Perfection trait and 1 Imperfection trait from the provided `TraitDatabase` asset.
+- Randomly assign exactly 1 Perfection trait and 1 Imperfection trait from the provided `TraitDatabase` asset using a candidate pool retry strategy (selecting a new random trait if the chosen one is rejected due to opposite trait conflicts or duplicates).
 - Construct a new `PartyMemberInfo` object representing the fully populated, ready-to-use marionette runtime data.
 
 ## Data Model
@@ -60,7 +60,7 @@ Handle the complete, encapsulated generation of randomized Marionette units (`Pa
 - Null GameDatabase.Instance: Returns `null` and logs an error block using `Debug.LogError`.
 - Null/Empty MarionetteDatabase: Returns `null` and logs an error block using `Debug.LogError`.
 - Null TraitDatabase: Safely logs a warning `Debug.LogWarning` and skips assigning traits to the generated marionette.
-- Capacity limit / Duplicate Trait: `PartyMemberInfo.TryAddTrait` returns `false` and skips addition if the limit is exceeded or if the trait is already present on the character.
+- Capacity limit / Duplicate Trait / Opposite Trait: `PartyMemberInfo.TryAddTrait` returns `false` and generator removes the rejected trait from the candidate pool and picks another random candidate.
 
 ## Observability
 - Metrics: Choice generation count.

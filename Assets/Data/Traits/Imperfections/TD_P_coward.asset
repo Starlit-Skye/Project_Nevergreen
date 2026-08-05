@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Coward
   description: '-20% Attack below 50% HP '
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: 2871615c39677ec47a8646075d3f65a7, type: 2}
   effectStrategies:
   - rid: 4415245238185230346
   references:
