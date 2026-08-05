@@ -32,6 +32,9 @@ namespace Nevergreen.Data
         [Tooltip("Whether this trait is a Perfection (positive) or Imperfection (negative).")]
         public TraitType traitType = TraitType.Perfection;
 
+        [Tooltip("Reference to the opposite trait asset that cannot coexist on the same Marionette.")]
+        public TraitData oppositeTrait;
+
         [Header("Effect Strategies")]
         [Tooltip("The modular effects executed by this trait.")]
         [SerializeReference]

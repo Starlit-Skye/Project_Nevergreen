@@ -138,6 +138,34 @@ namespace Nevergreen.Tests
         }
 
         [Test]
+        public void TryAddTrait_OppositeTraitDirect_Rejected()
+        {
+            var info = new PartyMemberInfo();
+            var traitA = CreateTrait("perf_A", TraitType.Perfection);
+            var traitB = CreateTrait("imperf_B", TraitType.Imperfection);
+            traitB.oppositeTrait = traitA;
+            
+            Assert.IsTrue(info.TryAddTrait(traitA));
+            Assert.IsFalse(info.TryAddTrait(traitB), "Trait should be rejected if its configured oppositeTrait is already equipped.");
+            Assert.AreEqual(1, info.perfections.Count);
+            Assert.AreEqual(0, info.imperfections.Count);
+        }
+
+        [Test]
+        public void TryAddTrait_OppositeTraitReverse_Rejected()
+        {
+            var info = new PartyMemberInfo();
+            var traitA = CreateTrait("perf_A", TraitType.Perfection);
+            var traitB = CreateTrait("imperf_B", TraitType.Imperfection);
+            traitA.oppositeTrait = traitB; // Reverse configuration
+
+            Assert.IsTrue(info.TryAddTrait(traitA));
+            Assert.IsFalse(info.TryAddTrait(traitB), "Trait should be rejected if an already equipped trait links to it as oppositeTrait.");
+            Assert.AreEqual(1, info.perfections.Count);
+            Assert.AreEqual(0, info.imperfections.Count);
+        }
+
+        [Test]
         public void RemoveTrait_Perfection_Success()
         {
             var info = new PartyMemberInfo();

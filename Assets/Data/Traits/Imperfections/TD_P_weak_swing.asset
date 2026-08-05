@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Weak Swing
   description: -10% Attack
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: 4c5501a02646d2742af2ec2f0cb12353, type: 2}
   effectStrategies:
   - rid: 4415245238185230339
   references:

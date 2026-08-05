@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Stiff Joints
   description: -3 Dodge
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: 3d107f1a0c7e930428d67eff52961342, type: 2}
   effectStrategies:
   - rid: 4415245238185230345
   references:

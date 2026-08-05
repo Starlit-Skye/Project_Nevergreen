@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Clumsy Hands
   description: -20% Healing
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: 1592576cdad8ccc4fbcb0210856e8308, type: 2}
   effectStrategies:
   - rid: 4415245238185230341
   references:

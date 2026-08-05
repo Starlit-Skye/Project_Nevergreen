@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Rattled
   description: -10% Stun Res
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: 7b21b298c76e6e74f926f9f3159aecce, type: 2}
   effectStrategies:
   - rid: 4415245238185230339
   references:

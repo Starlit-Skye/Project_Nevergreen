@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Soft Skin
   description: -10% Defense
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: b7c2e09c98ad7094ea164df684e85455, type: 2}
   effectStrategies:
   - rid: 4415245238185230336
   references:

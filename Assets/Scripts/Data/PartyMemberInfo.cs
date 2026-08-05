@@ -111,6 +111,17 @@ namespace Nevergreen.Data
             // Uniqueness check (by traitId)
             if (list.Any(t => t.traitId == trait.traitId)) return false;
 
+            // Opposite trait check (direct)
+            if (trait.oppositeTrait != null)
+            {
+                if (perfections.Any(t => t != null && (t == trait.oppositeTrait || t.traitId == trait.oppositeTrait.traitId))) return false;
+                if (imperfections.Any(t => t != null && (t == trait.oppositeTrait || t.traitId == trait.oppositeTrait.traitId))) return false;
+            }
+
+            // Opposite trait check (reverse)
+            if (perfections.Any(t => t != null && t.oppositeTrait != null && (t.oppositeTrait == trait || t.oppositeTrait.traitId == trait.traitId))) return false;
+            if (imperfections.Any(t => t != null && t.oppositeTrait != null && (t.oppositeTrait == trait || t.oppositeTrait.traitId == trait.traitId))) return false;
+
             list.Add(trait);
             return true;
         }

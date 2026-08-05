@@ -20,6 +20,7 @@ MonoBehaviour:
 
 '
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: a168f16c49f0f5b499502d9534a6a48f, type: 2}
   effectStrategies:
   - rid: 4415245172071727188
   - rid: 4415245172071727189

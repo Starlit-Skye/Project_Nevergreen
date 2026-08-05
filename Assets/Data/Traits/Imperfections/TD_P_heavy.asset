@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Heavy
   description: -2 Speed
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: 6e28df3af48e339439201cedb74c315a, type: 2}
   effectStrategies:
   - rid: 4415245238185230336
   references:

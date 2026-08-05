@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Slippery Soles
   description: -20% Move Res
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: a7d4045431e70074a8120e8c070768b5, type: 2}
   effectStrategies:
   - rid: 4415245238185230336
   references:

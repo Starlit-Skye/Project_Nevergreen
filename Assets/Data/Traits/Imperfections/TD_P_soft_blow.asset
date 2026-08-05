@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Soft Blow
   description: -10% Stun Chance
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: 7d3d44d3be75f3d42b0352955070619b, type: 2}
   effectStrategies:
   - rid: 4415245238185230340
   references:

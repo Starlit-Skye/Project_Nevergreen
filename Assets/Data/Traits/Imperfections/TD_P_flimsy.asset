@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Flimsy
   description: -20% max HP
   traitType: 1
+  oppositeTrait: {fileID: 11400000, guid: 91f7acbd2bb451a44b13920a1d25c702, type: 2}
   effectStrategies:
   - rid: 4415245238185230336
   references:

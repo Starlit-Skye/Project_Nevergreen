@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Light Weight
   description: +2 Spd
   traitType: 0
+  oppositeTrait: {fileID: 11400000, guid: ba4bb6bd6915a7240a4a9e381332d9e3, type: 2}
   effectStrategies:
   - rid: 4415245153204436992
   references:
