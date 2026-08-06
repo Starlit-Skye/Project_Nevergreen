@@ -24,6 +24,8 @@ namespace Nevergreen.Combat
 
         public void ExecuteMoveAndShift(CombatCharacter mover, int targetRank, List<CombatCharacter> team)
         {
+            if (mover == null || !team.Contains(mover)) return; // Guard against dead/removed characters shifting formation
+
             // Calculate max usable rank accounting for all character sizes
             int totalSlotsUsed = 0;
             foreach (var c in team)

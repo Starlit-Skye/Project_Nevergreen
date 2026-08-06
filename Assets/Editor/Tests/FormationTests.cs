@@ -429,5 +429,25 @@ namespace Nevergreen.Tests
             if (m2 != null) Object.DestroyImmediate(m2.gameObject);
             if (bs != null) Object.DestroyImmediate(bs.gameObject);
         }
+        [Test]
+        public void ExecuteMoveAndShift_IgnoresDeadCharacters_PreventsGhostPush()
+        {
+            var ceci = CombatTestHelper.CreateCombatCharacter("Ceci", Team.Player, 1);
+            var deadMaid = CombatTestHelper.CreateCombatCharacter("MaidPile", Team.Player, 2);
+            deadMaid.state = LifeState.Destroyed;
+
+            var playerTeam = new List<CombatCharacter> { ceci }; // Maid is NOT in the team
+            var bs = CreateBattleSystem(playerTeam, new List<CombatCharacter>());
+            
+            // Simulate a Pull forward (rank 1) being executed on the dead Maid Pile
+            bs.ExecuteMoveAndShift(deadMaid, 1);
+
+            // Ceci should NOT be pushed to Rank 2
+            Assert.AreEqual(1, ceci.rank, "Ceci should remain at Rank 1 because the shifting character is dead/removed from the team.");
+
+            if (ceci != null) Object.DestroyImmediate(ceci.gameObject);
+            if (deadMaid != null) Object.DestroyImmediate(deadMaid.gameObject);
+            if (bs != null) Object.DestroyImmediate(bs.gameObject);
+        }
     }
 }
