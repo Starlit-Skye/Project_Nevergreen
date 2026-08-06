@@ -16,7 +16,7 @@ stats, and run-scoped economy.
 - Out of scope: networking architecture, save-file architecture, editor tooling architecture
 
 ## Source of Truth
-- Code: `Assets/Scripts/Combat/BattleSystem.cs`, `Assets/Scripts/Combat/CombatCharacter.cs`, `Assets/Scripts/Combat/StatusProcessor.cs`, `Assets/Scripts/Combat/Effects/`
+- Code: `Assets/Scripts/Combat/BattleSystem.cs` (Facade), `Assets/Scripts/Combat/FormationManager.cs`, `Assets/Scripts/Combat/SkillExecutor.cs`, `Assets/Scripts/Combat/CharacterLifecycleManager.cs`, `Assets/Scripts/Combat/TurnOrderBuilder.cs`, `Assets/Scripts/Combat/BattleOutcomeEvaluator.cs`, `Assets/Scripts/Combat/BattleRewardHandler.cs`, `Assets/Scripts/Combat/TargetResolver.cs`, `Assets/Scripts/Combat/CombatCharacter.cs`, `Assets/Scripts/Combat/StatusProcessor.cs`, `Assets/Scripts/Combat/Effects/`
 - Tests: `Assets/Editor/Tests/` (Guard, Move, Stun, BuffDebuff)
 - Design: https://docs.google.com/document/d/1DN-fIr9PG38hDRrMWJ5NrbWfTY-V7gf5Dz2cwSw3qUo/edit?tab=t.0
   (sections: Combat, Technical, Economy, Gameloop Flow)
@@ -25,7 +25,14 @@ stats, and run-scoped economy.
 
 ## Module Boundaries
 - `Combat Core Mechanic` owns round/turn sequencing, rank semantics, tie resolution, and action
-  resolution flow.
+  resolution flow. It acts as a Facade (`BattleSystem`) delegating to specialized domain managers:
+  - `FormationManager`: Owns formation positioning, movement, compaction, and target rank clamping.
+  - `SkillExecutor`: Owns skill action execution, effect loops, and animation step generation.
+  - `CharacterLifecycleManager`: Owns character spawn/defeat events, pile transitions, and cleanup.
+  - `TurnOrderBuilder`: Owns round turn queue construction and Speed sorting.
+  - `BattleOutcomeEvaluator`: Owns defeat/victory state checks.
+  - `BattleRewardHandler`: Owns part/scrap economy calculation upon battle end.
+  - `TargetResolver`: Owns targeting scope validation and valid target resolution.
 - `Skills Database` owns static skill definitions and modifier metadata.
 - `SkillContext Runtime` owns per-execution mutable action context.
 - `Character Database` owns per-level stat definitions and level-indexed stat lookup.
