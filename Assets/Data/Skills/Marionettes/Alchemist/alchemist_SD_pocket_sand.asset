@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: pocket_sand
   displayName: Pocket Sand
-  description: 'Useable at front 2 ranks only. Reduce 1 target''s accuracy. Move
-    self back 2.
+  description: 'Reduce 1 target''s accuracy. Move self back 2.
 
-    Usable Rank: 1-2'
+    Usable Rank:
+    1-2'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -38,6 +38,7 @@ MonoBehaviour:
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
+  animationClip: {fileID: 0}
   references:
     version: 2
     RefIds:

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: sharpshooter_SD_perfect_alignment
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: perfect_alignment
-  displayName: Perfect Alignment
+  displayName: Dead Ringer
   description: 'Once per battle. Last rank only. Reduced accuracy, high damage, hits
     all enemies.
 
