@@ -187,6 +187,8 @@ namespace Nevergreen.Combat
                     yield return null;
             }
 
+            if (CheckBattleEnd()) yield break;
+
             CurrentState = BattleState.CharacterTurn;
             yield return null;
         }
@@ -286,9 +288,8 @@ namespace Nevergreen.Combat
                 }
             }
 
-            // The battle end is now handled by the OnDefeated event, but we check here 
-            // to ensure the coroutine stops if defeat occurred during the action.
-            if (CurrentState == BattleState.BattleEnd)
+            // Check if battle ended during the action
+            if (CheckBattleEnd())
             {
                 yield break;
             }
@@ -468,6 +469,8 @@ namespace Nevergreen.Combat
                 while (animationQueue.IsBusy)
                     yield return null;
             }
+
+            if (CheckBattleEnd()) yield break;
 
             CurrentState = BattleState.RoundStart;
             yield return null;

@@ -40,6 +40,7 @@ combat UI update animations.
   and unlock inputs.
 - Reset expected animation length and lock-time tracker whenever inputs unlock.
 - Ensure lock-time tracker does not run while queue size is `0`.
+- Signal `IsBusy == false` cleanly so that battle systems wait for complete visual resolution before checking battle outcome and emitting battle-end events.
 
 ## Data Model
 - Entity/component/object: `AnimationQueueEntry` with `animationId`, `animationName`, `durationSeconds`

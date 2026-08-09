@@ -12,7 +12,7 @@ namespace Nevergreen.Tests
             var test = new BattleEndTests();
             try {
                 test.SetUp();
-                test.BattleSystem_SubscribesToDeath_AndEndsBattle();
+                test.BattleEnd_IsEvaluated_ByCheckBattleEnd_AfterDeath();
             } catch (System.Exception ex) {
                 Debug.LogError("CAUGHT EXCEPTION BATTLE_END: " + ex.ToString());
             } finally {

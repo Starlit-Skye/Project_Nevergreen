@@ -191,7 +191,7 @@ namespace Nevergreen.Tests
         }
 
         [Test]
-        public void BattleSystem_SubscribesToDeath_AndEndsBattle()
+        public void BattleEnd_IsEvaluated_ByCheckBattleEnd_AfterDeath()
         {
             // Arrange
             var config = CombatTestHelper.CreateDefaultConfig();
@@ -203,11 +203,13 @@ namespace Nevergreen.Tests
             var enemies = new List<CombatCharacter> { golem };
 
             // Act
-            // StartBattle handles the event subscription to OnDefeated
             _battleSystem.StartBattle(players, enemies);
             
             // Kill cecilia
             cecilia.TakeDamage(cecilia.currentHP + 1);
+
+            // CheckBattleEnd is now called in ProcessTurn after animations finish. We simulate it here.
+            _battleSystem.CheckBattleEnd();
 
             // Assert
             Assert.AreEqual(BattleState.BattleEnd, _battleSystem.CurrentState);

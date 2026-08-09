@@ -43,14 +43,14 @@ Transitions:
 2. `CharacterTurn` -> `CharacterTurn` when current turn resolves and next turn exists
 3. `CharacterTurn` -> `RoundEnd` when all turns in round are resolved
 4. `RoundEnd` -> `RoundStart` when battle continues
-5. `CharacterTurn` -> `BattleEnd` when victory/defeat condition is reached
+5. `CharacterTurn` -> `BattleEnd` when victory/defeat condition is reached and all combat animations finish
 
 ## Win/Loss Conditions
 - **Victory**: All characters on the enemy team are defeated (`IsAlive == false`) or the enemy team
   list is empty (`_enemyTeam.Count == 0`).
 - **Defeat**: Triggered if either:
   1. **Cecilia** (identified by `CharacterId == "ceci"`) is defeated (`state != LifeState.Alive`).
-     This check occurs immediately upon defeat, before she is removed from the battle.
+     This evaluation occurs in the turn loop once the animation queue fully drains after the lethal blow.
   2. **All players** on the player team are defeated or the player team list is empty.
 
 ## Timing Model

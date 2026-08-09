@@ -91,7 +91,6 @@ namespace Nevergreen.Combat
             }
 
             OnCharacterDefeated?.Invoke(character);
-            _battleSystem.CheckBattleEnd();
         }
 
         private void FinalizeCharacterDefeat(CombatCharacter character, bool wasCritical)
