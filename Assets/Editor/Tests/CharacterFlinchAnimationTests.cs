@@ -55,7 +55,6 @@ namespace Nevergreen.Tests
             CombatTestHelper.InitializeTestDatabase();
             var battleSystemObj = new GameObject("BattleSystem");
             var battleSystem = battleSystemObj.AddComponent<BattleSystem>();
-            battleSystem.animationQueue = battleSystemObj.AddComponent<AnimationQueueProcessor>();
 
             var userObj = new GameObject("UserChar");
             var user = userObj.AddComponent<CombatCharacter>();
@@ -103,7 +102,6 @@ namespace Nevergreen.Tests
             CombatTestHelper.InitializeTestDatabase();
             var battleSystemObj = new GameObject("BattleSystem");
             var battleSystem = battleSystemObj.AddComponent<BattleSystem>();
-            battleSystem.animationQueue = battleSystemObj.AddComponent<AnimationQueueProcessor>();
 
             var userObj = new GameObject("UserChar");
             var user = userObj.AddComponent<CombatCharacter>();
@@ -142,7 +140,7 @@ namespace Nevergreen.Tests
             CombatTestHelper.InitializeTestDatabase();
             var battleSystemObj = new GameObject("BattleSystem");
             var battleSystem = battleSystemObj.AddComponent<BattleSystem>();
-            battleSystem.animationQueue = battleSystemObj.AddComponent<AnimationQueueProcessor>();
+
 
             var userObj = new GameObject("UserChar");
             var user = userObj.AddComponent<CombatCharacter>();
@@ -182,7 +180,7 @@ namespace Nevergreen.Tests
             CombatTestHelper.InitializeTestDatabase();
             var battleSystemObj = new GameObject("BattleSystem");
             var battleSystem = battleSystemObj.AddComponent<BattleSystem>();
-            battleSystem.animationQueue = battleSystemObj.AddComponent<AnimationQueueProcessor>();
+
 
             var userObj = new GameObject("UserChar");
             var user = userObj.AddComponent<CombatCharacter>();

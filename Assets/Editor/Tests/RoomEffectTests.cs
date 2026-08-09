@@ -415,9 +415,8 @@ namespace Nevergreen.Tests
             typeof(BattleSystem).GetField("_playerTeam", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(battleSystem, playerTeam);
             typeof(BattleSystem).GetField("_enemyTeam", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(battleSystem, new List<CombatCharacter>());
 
-            // Act - invoke CheckBattleEnd via reflection
-            var checkBattleEnd = typeof(BattleSystem).GetMethod("CheckBattleEnd", BindingFlags.NonPublic | BindingFlags.Instance);
-            var isEnd = (bool)checkBattleEnd.Invoke(battleSystem, null);
+            // Act - invoke CheckBattleEnd
+            var isEnd = battleSystem.CheckBattleEnd();
 
             // Assert
             Assert.IsTrue(isEnd, "Battle should end in victory since enemy team is empty.");
@@ -474,8 +473,7 @@ namespace Nevergreen.Tests
             typeof(BattleSystem).GetField("_enemyTeam", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(battleSystem, new List<CombatCharacter>());
 
             // Act
-            var checkBattleEnd = typeof(BattleSystem).GetMethod("CheckBattleEnd", BindingFlags.NonPublic | BindingFlags.Instance);
-            var isEnd = (bool)checkBattleEnd.Invoke(battleSystem, null);
+            var isEnd = battleSystem.CheckBattleEnd();
 
             // Assert
             Assert.IsTrue(isEnd);

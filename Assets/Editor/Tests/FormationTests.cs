@@ -55,9 +55,9 @@ namespace Nevergreen.Tests
 
             var bs = CreateBattleSystem(playerTeam, enemyTeam);
             
-            // Trigger destruction via reflection to simulate the event
-            var method = typeof(BattleSystem).GetMethod("HandleCharacterDestroyed", BindingFlags.NonPublic | BindingFlags.Instance);
-            method.Invoke(bs, new object[] { c2 });
+            bs.StartBattle(playerTeam, enemyTeam);
+            c2.characterData.leavesPileOnDeath = false;
+            c2.TakeDamage(c2.currentHP + 1);
 
             // Validate
             Assert.AreEqual(2, playerTeam.Count, "Team should now only have 2 members.");
@@ -80,8 +80,9 @@ namespace Nevergreen.Tests
 
             var bs = CreateBattleSystem(playerTeam, enemyTeam);
             
-            var method = typeof(BattleSystem).GetMethod("HandleCharacterDestroyed", BindingFlags.NonPublic | BindingFlags.Instance);
-            method.Invoke(bs, new object[] { c1 });
+            bs.StartBattle(playerTeam, enemyTeam);
+            c1.characterData.leavesPileOnDeath = false;
+            c1.TakeDamage(c1.currentHP + 1);
 
             Assert.AreEqual(0, playerTeam.Count, "Team should be empty.");
             
@@ -98,8 +99,9 @@ namespace Nevergreen.Tests
             var playerTeam = new List<CombatCharacter> { c1, c2, c3 };
             var bs = CreateBattleSystem(playerTeam, new List<CombatCharacter>());
             
-            var method = typeof(BattleSystem).GetMethod("HandleCharacterDestroyed", BindingFlags.NonPublic | BindingFlags.Instance);
-            method.Invoke(bs, new object[] { c1 });
+            bs.StartBattle(playerTeam, new List<CombatCharacter>());
+            c1.characterData.leavesPileOnDeath = false;
+            c1.TakeDamage(c1.currentHP + 1);
 
             Assert.AreEqual(1, c2.rank, "P2 should have shifted from 2 to 1.");
             Assert.AreEqual(2, c3.rank, "P3 should have shifted from 3 to 2.");
@@ -120,9 +122,9 @@ namespace Nevergreen.Tests
             
             var bs = CreateBattleSystem(playerTeam, enemyTeam);
             
-            // Trigger destruction
-            var method = typeof(BattleSystem).GetMethod("HandleCharacterDestroyed", BindingFlags.NonPublic | BindingFlags.Instance);
-            method.Invoke(bs, new object[] { e1 });
+            bs.StartBattle(playerTeam, enemyTeam);
+            e1.characterData.leavesPileOnDeath = false;
+            e1.TakeDamage(e1.currentHP + 1);
 
             Assert.AreEqual(0, enemyTeam.Count, "Enemy team should be empty.");
             // Assuming CheckBattleEnd was called internally and it handles the end of battle appropriately.
@@ -259,9 +261,9 @@ namespace Nevergreen.Tests
             var enemyTeam = new List<CombatCharacter> { boss, m1, m2 };
             var bs = CreateBattleSystem(new List<CombatCharacter>(), enemyTeam);
 
-            // Destroy the boss (leaves a 2-slot gap)
-            var method = typeof(BattleSystem).GetMethod("HandleCharacterDestroyed", BindingFlags.NonPublic | BindingFlags.Instance);
-            method.Invoke(bs, new object[] { boss });
+            bs.StartBattle(new List<CombatCharacter>(), enemyTeam);
+            boss.characterData.leavesPileOnDeath = false;
+            boss.TakeDamage(boss.currentHP + 1);
 
             // m1 should compact from 3 -> 1, m2 from 4 -> 2
             Assert.AreEqual(2, enemyTeam.Count);
@@ -284,9 +286,9 @@ namespace Nevergreen.Tests
             var enemyTeam = new List<CombatCharacter> { m1, boss, m2 };
             var bs = CreateBattleSystem(new List<CombatCharacter>(), enemyTeam);
 
-            // Destroy M1 (rank 1, size 1 gap)
-            var method = typeof(BattleSystem).GetMethod("HandleCharacterDestroyed", BindingFlags.NonPublic | BindingFlags.Instance);
-            method.Invoke(bs, new object[] { m1 });
+            bs.StartBattle(new List<CombatCharacter>(), enemyTeam);
+            m1.characterData.leavesPileOnDeath = false;
+            m1.TakeDamage(m1.currentHP + 1);
 
             // Boss should compact from 2 -> 1 (occupying 1-2), M2 from 4 -> 3
             Assert.AreEqual(2, enemyTeam.Count);
@@ -332,9 +334,8 @@ namespace Nevergreen.Tests
             var enemyTeam = new List<CombatCharacter> { boss };
             var bs = CreateBattleSystem(new List<CombatCharacter>(), enemyTeam);
 
-            // Simulate transition to Pile (non-critical death)
-            var method = typeof(BattleSystem).GetMethod("FinalizeCharacterDefeat", BindingFlags.NonPublic | BindingFlags.Instance);
-            method.Invoke(bs, new object[] { boss, false });
+            bs.StartBattle(new List<CombatCharacter>(), enemyTeam);
+            boss.TakeDamage(boss.currentHP + 1);
 
             Assert.AreEqual(LifeState.Pile, boss.state);
             Assert.AreEqual(2, boss.characterData.size, "Pile should retain size 2.");
@@ -410,9 +411,7 @@ namespace Nevergreen.Tests
             var enemyTeam = new List<CombatCharacter> { boss, m1, m2 };
             var bs = CreateBattleSystem(new List<CombatCharacter>(), enemyTeam);
 
-            // Wire up event to simulate BattleSystem observation
-            var method = typeof(BattleSystem).GetMethod("HandleCharacterStateChanged", BindingFlags.NonPublic | BindingFlags.Instance);
-            boss.OnStateChanged += (c, state) => method.Invoke(bs, new object[] { c, state });
+            bs.StartBattle(new List<CombatCharacter>(), enemyTeam);
 
             // Simulate turn-based decay
             boss.pileDuration--;
@@ -428,6 +427,26 @@ namespace Nevergreen.Tests
             if (boss != null) Object.DestroyImmediate(boss.gameObject);
             if (m1 != null) Object.DestroyImmediate(m1.gameObject);
             if (m2 != null) Object.DestroyImmediate(m2.gameObject);
+            if (bs != null) Object.DestroyImmediate(bs.gameObject);
+        }
+        [Test]
+        public void ExecuteMoveAndShift_IgnoresDeadCharacters_PreventsGhostPush()
+        {
+            var ceci = CombatTestHelper.CreateCombatCharacter("Ceci", Team.Player, 1);
+            var deadMaid = CombatTestHelper.CreateCombatCharacter("MaidPile", Team.Player, 2);
+            deadMaid.state = LifeState.Destroyed;
+
+            var playerTeam = new List<CombatCharacter> { ceci }; // Maid is NOT in the team
+            var bs = CreateBattleSystem(playerTeam, new List<CombatCharacter>());
+            
+            // Simulate a Pull forward (rank 1) being executed on the dead Maid Pile
+            bs.ExecuteMoveAndShift(deadMaid, 1);
+
+            // Ceci should NOT be pushed to Rank 2
+            Assert.AreEqual(1, ceci.rank, "Ceci should remain at Rank 1 because the shifting character is dead/removed from the team.");
+
+            if (ceci != null) Object.DestroyImmediate(ceci.gameObject);
+            if (deadMaid != null) Object.DestroyImmediate(deadMaid.gameObject);
             if (bs != null) Object.DestroyImmediate(bs.gameObject);
         }
     }

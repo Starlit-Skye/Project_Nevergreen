@@ -58,18 +58,8 @@ namespace Nevergreen.Tests
             
             var bs = CreateBattleSystem(playerTeam, enemyTeam);
 
-            // Mock the StartBattle subscription
-            p1.OnDefeated += (c, crit) => 
-            {
-                var method = typeof(BattleSystem).GetMethod("HandleCharacterDefeated", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                method.Invoke(bs, new object[] { c, crit });
-            };
-            
-            p1.OnStateChanged += (c, state) =>
-            {
-                var method = typeof(BattleSystem).GetMethod("HandleCharacterStateChanged", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                method.Invoke(bs, new object[] { c, state });
-            };
+            // Act: Start battle to hook up events
+            bs.StartBattle(playerTeam, enemyTeam);
 
             // Act: Deal fatal damage
             p1.TakeDamage(20, false);

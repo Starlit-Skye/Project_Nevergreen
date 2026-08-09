@@ -23,7 +23,6 @@ namespace Nevergreen.Tests
 
             _battleSystemObj = new GameObject("BattleSystem");
             _battleSystem = _battleSystemObj.AddComponent<BattleSystem>();
-            _battleSystem.animationQueue = _battleSystemObj.AddComponent<AnimationQueueProcessor>();
 
             _userObj = new GameObject("UserChar");
             _animator = _userObj.AddComponent<Animator>();
@@ -90,7 +89,7 @@ namespace Nevergreen.Tests
             attackSkill.targetScope = TargetScope.Enemies;
             attackSkill.animationClip = null;
 
-            UnityEngine.TestTools.LogAssert.Expect(LogType.Error, "[BattleSystem] Skill 'Basic Attack' (attack_skill) has no AnimationClip assigned on UserChar! Falling back to generic animation.");
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Error, "[SkillExecutor] Skill 'Basic Attack' (attack_skill) has no AnimationClip assigned on UserChar! Falling back to generic animation.");
 
             _battleSystem.ExecuteSkill(_user, attackSkill, new List<CombatCharacter> { _target });
 

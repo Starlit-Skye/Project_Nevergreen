@@ -82,6 +82,9 @@ namespace Nevergreen.Tests
             // In Edit Mode, Awake() doesn't run automatically for dynamically added components, so we inject _self manually
             typeof(GodEyeController).GetField("_self", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 .SetValue(_controller, _boss);
+                
+            typeof(GodEyeController).GetField("_battleSystem", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .SetValue(_controller, _battleSystem);
         }
 
         [TearDown]
