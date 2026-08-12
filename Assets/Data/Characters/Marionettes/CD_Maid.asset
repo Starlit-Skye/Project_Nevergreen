@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Maid
   characterPrefab: {fileID: 3493555024726022384, guid: 14922d44535635a4dba051a1e90e2e9c, type: 3}
   teamType: 0
+  takeDamageClip: {fileID: 7400000, guid: 2df35186c1e49704fa79103be6a8a24d, type: 2}
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 56691a76e0b208d49ad49cf588dd0b7d, type: 2}
