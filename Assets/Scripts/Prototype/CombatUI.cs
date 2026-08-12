@@ -389,9 +389,10 @@ namespace Nevergreen.Prototype
             
             bool hasAvailableRooms = availableRooms != null && availableRooms.Count > 0;
             bool hasBossRoom = roomDb != null && roomDb.bossRoom != null;
+            bool hasHealRoom = roomDb != null && roomDb.healRoom != null;
 
             bool canSpawnDynamic = globalConfig != null
-                && (hasAvailableRooms || hasBossRoom)
+                && (hasAvailableRooms || hasBossRoom || hasHealRoom)
                 && roomChoiceButtonPrefab != null
                 && roomChoiceButtonsContainer != null;
 
@@ -406,16 +407,44 @@ namespace Nevergreen.Prototype
                 if (choices == null || choices.Count == 0)
                 {
                     bool isBossNext = false;
+                    bool isTierTransition = false;
+
                     if (combatConfig != null)
                     {
+                        var currentTier = combatConfig.GetEncounterTierForRoom(RunSessionManager.RoomProgression);
                         var nextTier = combatConfig.GetEncounterTierForRoom(RunSessionManager.RoomProgression + 1);
+
+                        isTierTransition = (currentTier != nextTier) && (currentTier != EnemyEncounterTier.Trivial);
+
                         if (nextTier == EnemyEncounterTier.Boss && hasBossRoom)
                         {
                             isBossNext = true;
                         }
                     }
 
-                    if (isBossNext)
+                    if (isTierTransition)
+                    {
+                        RoomData targetHealRoom = null;
+                        if (hasHealRoom)
+                        {
+                            targetHealRoom = roomDb.healRoom;
+                        }
+                        else if (hasAvailableRooms)
+                        {
+                            targetHealRoom = availableRooms.Find(r => r != null && r.roomId == "RD_HealRoom");
+                        }
+                        
+                        if (targetHealRoom != null)
+                        {
+                            choices = new List<RoomData> { targetHealRoom };
+                        }
+                        else
+                        {
+                            Debug.LogWarning("[CombatUI] Expected to force Heal Room on tier transition, but healRoom is not assigned in RoomDatabase and not found in availableRooms. Falling back to random rooms.");
+                            choices = PickRandomRooms(availableRooms, globalConfig.roomChoiceCount);
+                        }
+                    }
+                    else if (isBossNext)
                     {
                         choices = new List<RoomData> { roomDb.bossRoom };
                     }

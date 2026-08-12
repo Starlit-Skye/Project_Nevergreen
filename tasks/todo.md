@@ -1,20 +1,8 @@
-# Battle Audio Fix Tasks
+# Task List: Heal Room Tier Selection
 
-- [x] Setup Resources Assets
-  - [x] Move/copy `AudioManager.prefab` to `Assets/Resources/AudioManager.prefab`
-  - [x] Move/copy `GlobalAudioConfig.asset` to `Assets/Resources/GlobalAudioConfig.asset`
-- [x] Refactor `AudioManager.cs`
-  - [x] Implement lazy auto-instantiation in `AudioManager.Instance`
-- [x] Refactor `BattleSystem.cs` & `CombatSceneBootstrap.cs`
-  - [x] Ensure `BattleMusicController` is attached to `BattleSystem` on `Awake()`
-  - [x] Ensure `deathSFX` plays even if character lacks an `Animator`
-- [x] Unit Tests & Verification
-  - [x] Update `AudioManagerTests.cs` and `BattleMusicControllerTests.cs`
-  - [x] Run EditMode tests and verify all 424 tests pass
-
-## Review & Results
-
-- **Resources Auto-Loading**: `AudioManager.prefab` and `GlobalAudioConfig.asset` were added to `Assets/Resources/` so `AudioManager.Instance` can lazily instantiate itself at runtime if no `AudioManager` GameObject exists in the active scene.
-- **Auto-Attachment of BattleMusicController**: `BattleSystem.cs` now auto-attaches `BattleMusicController` during `Awake()`, ensuring battle music transitions (`OnBattleStarted`) and victory jingles (`OnBattleEnded`) are always handled.
-- **Animator-Independent Death SFX**: Character death sound effects (`deathSFX`) are now queued in `BattleSystem.cs` even if the character has no `Animator` component.
-- **Unit Test Suite**: Added tests for lazy auto-instantiation and auto-attachment; verified that all 424 EditMode unit tests pass cleanly.
+- [x] Add `healRoom` field to `RoomDatabase.cs` <!-- id: 0 -->
+- [x] Assign `RD_HealRoom.asset` to `healRoom` in `RoomDatabase.asset` <!-- id: 1 -->
+- [x] Update `SpawnRoomChoiceButtons` in `CombatUI.cs` to check for non-trivial tier transitions and force Heal Room choice <!-- id: 2 -->
+- [x] Update `SYSTEM_SPEC_ROOM_SELECTION.md` documentation <!-- id: 3 -->
+- [ ] Add unit tests in `RoomEffectTests.cs` for Heal Room selection on tier boundaries <!-- id: 4 -->
+- [ ] Execute EditMode unit tests and verify correctness <!-- id: 5 -->

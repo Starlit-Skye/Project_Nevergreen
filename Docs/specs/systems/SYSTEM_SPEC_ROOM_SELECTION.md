@@ -71,7 +71,7 @@ Decouple room definition and metadata from execution behavior using ScriptableOb
   7. Battle outcome determined: `BattleSystem` fires `OnBattleEnded`.
   8. `RunSessionManager` intercepts event, unsubscribes immediately, and checks if outcome is `Victory`.
   9. If `Victory` and `NextRoomData.activationType == OnCombatVictory`, execute strategy and clear `NextRoomData`.
-  10. `CombatUI.HandleBattleEnded` triggers: if `Victory`, clears previous buttons, picks random rooms from `availableRooms`, instantiates dynamic UI buttons, and hooks click events.
+  10. `CombatUI.HandleBattleEnded` triggers: if `Victory`, clears previous buttons. It checks if the next room crosses a non-Trivial difficulty tier boundary; if so, it forces only the `Heal Room` as a choice. Otherwise, it picks random rooms from `availableRooms` (or the Boss Room if entering the Boss tier), instantiates dynamic UI buttons, and hooks click events.
 
 ## Determinism
 - Required: Yes, for room selection UI randomized generation.
