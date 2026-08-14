@@ -354,6 +354,22 @@ namespace Nevergreen.Tests
             Assert.IsFalse(RunSessionManager.IsResumingRun, "IsResumingRun should be reset to false after scene load.");
         }
 
+        [Test]
+        public void RoomProgression_OnSceneLoaded_DoesNotIncrementWhenNextRoomIsHealRoom()
+        {
+            RunSessionManager.CurrentParty.Add(new PartyMemberInfo());
+            RunSessionManager.RoomProgression = 3;
+            
+            var healRoom = ScriptableObject.CreateInstance<RoomData>();
+            healRoom.roomId = "RD_HealRoom";
+            RunSessionManager.NextRoomData = healRoom;
+
+            RunSessionManager.OnSceneLoaded("CombatPrototype");
+
+            Assert.AreEqual(3, RunSessionManager.RoomProgression, "RoomProgression should not increment when entering a Heal Room.");
+            UnityEngine.Object.DestroyImmediate(healRoom);
+        }
+
         // ============================================================
         // CombatConfig Room Selection Tests
         // ============================================================

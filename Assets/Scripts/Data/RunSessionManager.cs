@@ -23,6 +23,15 @@ namespace Nevergreen
         /// <summary>The RoomData selected by the player for the next room. Persists across scene loads.</summary>
         public static RoomData NextRoomData { get; set; }
 
+        /// <summary>The RoomData for the current active room. Tracks the room the player is currently in.</summary>
+        public static RoomData CurrentRoomData { get; set; }
+
+        /// <summary>Checks if a given room is considered a Healing Room based on its ID.</summary>
+        public static bool IsHealRoom(RoomData room)
+        {
+            return room != null && room.roomId == "RD_HealRoom";
+        }
+
         /// <summary>Whether the current room has been completed (victory screen active).</summary>
         public static bool RoomCompleted { get; set; }
 
@@ -102,6 +111,8 @@ namespace Nevergreen
         {
             if (sceneName == "CombatPrototype" && CurrentParty != null && CurrentParty.Count > 0)
             {
+                CurrentRoomData = NextRoomData;
+
                 if (IsResumingRun)
                 {
                     // Skip increment — progression was already restored from save
@@ -109,7 +120,10 @@ namespace Nevergreen
                 }
                 else
                 {
-                    RoomProgression++;
+                    if (!IsHealRoom(CurrentRoomData))
+                    {
+                        RoomProgression++;
+                    }
                     RoomCompleted = false;
                     NextRoomChoices.Clear();
                 }
@@ -135,6 +149,7 @@ namespace Nevergreen
             Parts = 0;
             RoomProgression = 0;
             RoomCompleted = false;
+            CurrentRoomData = null;
             NextRoomChoices.Clear();
 
             if (GameDatabase.Instance != null && GameDatabase.Instance.RoomDatabase != null && GameDatabase.Instance.RoomDatabase.availableRooms != null)
@@ -346,11 +361,12 @@ namespace Nevergreen
         {
             CurrentParty.Clear();
             LastSelectedFormation = null;
-            Parts = 0;
             NextRoomData = null;
+            CurrentRoomData = null;
             RoomProgression = 0;
             IsResumingRun = false;
             ShouldUseSavedFormation = false;
+            Parts = 0;
             RoomCompleted = false;
             NextRoomChoices.Clear();
 

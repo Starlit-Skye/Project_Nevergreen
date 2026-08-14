@@ -414,7 +414,8 @@ namespace Nevergreen.Prototype
                         var currentTier = combatConfig.GetEncounterTierForRoom(RunSessionManager.RoomProgression);
                         var nextTier = combatConfig.GetEncounterTierForRoom(RunSessionManager.RoomProgression + 1);
 
-                        isTierTransition = (currentTier != nextTier) && (currentTier != EnemyEncounterTier.Trivial);
+                        bool isCurrentHealRoom = RunSessionManager.IsHealRoom(RunSessionManager.CurrentRoomData);
+                        isTierTransition = (currentTier != nextTier) && (currentTier != EnemyEncounterTier.Trivial) && !isCurrentHealRoom;
 
                         if (nextTier == EnemyEncounterTier.Boss && hasBossRoom)
                         {
