@@ -89,7 +89,9 @@ namespace Nevergreen.Data
                 hasActiveRun = true,
                 roomProgression = RunSessionManager.RoomProgression,
                 parts = RunSessionManager.Parts,
-                nextRoomId = RunSessionManager.NextRoomData != null ? RunSessionManager.NextRoomData.roomId : null,
+                nextRoomId = RunSessionManager.NextRoomData != null 
+                    ? RunSessionManager.NextRoomData.roomId 
+                    : (RunSessionManager.CurrentRoomData != null ? RunSessionManager.CurrentRoomData.roomId : null),
                 lastSelectedFormationId = RunSessionManager.LastSelectedFormation != null ? RunSessionManager.LastSelectedFormation.formationId : null,
                 party = new List<PartyMemberDTO>(),
                 roomCompleted = RunSessionManager.RoomCompleted,
@@ -158,7 +160,7 @@ namespace Nevergreen.Data
                 {
                     foreach (var roomId in dto.nextRoomChoices)
                     {
-                        var room = db.RoomDatabase.availableRooms.FirstOrDefault(r => r != null && r.roomId == roomId);
+                        var room = FindRoomById(db.RoomDatabase, roomId);
                         if (room != null)
                         {
                             RunSessionManager.NextRoomChoices.Add(room);
@@ -169,7 +171,7 @@ namespace Nevergreen.Data
                 // Lookup NextRoomData
                 if (!string.IsNullOrEmpty(dto.nextRoomId) && db.RoomDatabase != null)
                 {
-                    RunSessionManager.NextRoomData = db.RoomDatabase.availableRooms.FirstOrDefault(r => r != null && r.roomId == dto.nextRoomId);
+                    RunSessionManager.NextRoomData = FindRoomById(db.RoomDatabase, dto.nextRoomId);
                 }
 
                 // Lookup LastSelectedFormation
@@ -363,24 +365,39 @@ namespace Nevergreen.Data
             }
         }
 
-        private static string DecryptAES(byte[] cipherData)
+        private static string DecryptAES(byte[] cipherText)
         {
-            using (Aes aes = Aes.Create())
+            using (Aes aesAlg = Aes.Create())
             {
-                aes.Key = Key;
-                aes.IV = IV;
-                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-                using (var ms = new MemoryStream(cipherData))
+                aesAlg.Key = Key;
+                aesAlg.IV = IV;
+                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+                using (MemoryStream msDecrypt = new MemoryStream(cipherText))
                 {
-                    using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                     {
-                        using (var sr = new StreamReader(cs))
+                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
                         {
-                            return sr.ReadToEnd();
+                            return srDecrypt.ReadToEnd();
                         }
                     }
                 }
             }
+        }
+
+        private static RoomData FindRoomById(RoomDatabase roomDb, string roomId)
+        {
+            if (roomDb == null || string.IsNullOrEmpty(roomId)) return null;
+            
+            // Check availableRooms first
+            var room = roomDb.availableRooms.FirstOrDefault(r => r != null && r.roomId == roomId);
+            if (room != null) return room;
+            
+            // Check special rooms
+            if (roomDb.healRoom != null && roomDb.healRoom.roomId == roomId) return roomDb.healRoom;
+            if (roomDb.bossRoom != null && roomDb.bossRoom.roomId == roomId) return roomDb.bossRoom;
+            
+            return null;
         }
     }
 }

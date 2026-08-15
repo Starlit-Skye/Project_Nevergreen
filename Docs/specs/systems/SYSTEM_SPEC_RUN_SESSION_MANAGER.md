@@ -10,7 +10,7 @@ Target build: Unity 6000.3.9f1 Standalone Windows
 Maintain the active run state, party composition, encounter databases, and progression statistics across scenes and battles. Provide core session lifetime initialization, room progression, and battle-victory room effect execution hooks.
 
 ## Scope
-- In scope: Static preservation of current run status including `CurrentParty` (list of `PartyMemberInfo`), room effect data (`RoomData`), last selected enemy formation, and room progression count. Accessing global database configurations (`EnemyFormationDatabase`, `TraitDatabase`, `RoomDatabase`) through `GameDatabase.Instance`. Auto-incrementation of room progression count when loading `"CombatPrototype"` during an active run. Subscribing to battle systems to execute room victory effects. Querying and filtering enemy formations by progression-derived difficulty tiers (`Trivial`, `EarlyGame`, `MidGame`, `LateGame`).
+- In scope: Static preservation of current run status including `CurrentParty` (list of `PartyMemberInfo`), room effect data (`RoomData`), last selected enemy formation, and room progression count. Accessing global database configurations (`EnemyFormationDatabase`, `TraitDatabase`, `RoomDatabase`) through `GameDatabase.Instance`. Auto-incrementation of room progression count when loading `"CombatPrototype"` during an active run. Subscribing to battle systems to execute room victory effects. Querying and filtering enemy formations by progression-derived difficulty tiers (`Trivial`, `EarlyGame`, `MidGame`, `LateGame`), and supporting room generation logic (e.g. forced Heal Room on tier transitions) by tracking `RoomProgression`.
 - Out of scope: Scene loading triggers and scene transition logic (handled by room selection UI or controllers); saving/loading run data to disk; direct rendering of room progression stats in the UI.
 
 ## Source of Truth
@@ -23,7 +23,7 @@ Maintain the active run state, party composition, encounter databases, and progr
 ## Responsibilities
 - Store the player's active party members (`CurrentParty`) and persist them across scenes.
 - Access the active databases (`EnemyFormationDatabase`, `TraitDatabase`, `RoomDatabase`) via `GameDatabase.Instance`.
-- Increment the run's `RoomProgression` count by 1 automatically whenever the `"CombatPrototype"` scene is loaded with an active party.
+- Increment the run's `RoomProgression` count by 1 automatically whenever the `"CombatPrototype"` scene is loaded with an active party, unless the next room is a Healing Room (`roomId == "RD_HealRoom"`).
 - Subscribe to the current `BattleSystem`'s outcome event (`OnBattleEnded`) to detect victories.
 - Automatically activate the selected room's effect (`NextRoomData`) if the room activation timing is set to `OnCombatVictory`.
 - Prevent duplicate consecutive enemy formations within the requested tier via `GetNextRandomFormation(EnemyEncounterTier tier)` (with a fallback logic up to 100 random pick attempts).

@@ -15,5 +15,8 @@ namespace Nevergreen.Data
 
         [Tooltip("The room in which the player fights the run boss in.")]
         public RoomData bossRoom;
+
+        [Tooltip("The room in which the player heals/replaces marionettes between difficulty tiers.")]
+        public RoomData healRoom;
     }
 }

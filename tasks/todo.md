@@ -1,20 +1,8 @@
-# Battle Audio Fix Tasks
+# Task List: Healing Room Effect Strategy & UI
 
-- [x] Setup Resources Assets
-  - [x] Move/copy `AudioManager.prefab` to `Assets/Resources/AudioManager.prefab`
-  - [x] Move/copy `GlobalAudioConfig.asset` to `Assets/Resources/GlobalAudioConfig.asset`
-- [x] Refactor `AudioManager.cs`
-  - [x] Implement lazy auto-instantiation in `AudioManager.Instance`
-- [x] Refactor `BattleSystem.cs` & `CombatSceneBootstrap.cs`
-  - [x] Ensure `BattleMusicController` is attached to `BattleSystem` on `Awake()`
-  - [x] Ensure `deathSFX` plays even if character lacks an `Animator`
-- [x] Unit Tests & Verification
-  - [x] Update `AudioManagerTests.cs` and `BattleMusicControllerTests.cs`
-  - [x] Run EditMode tests and verify all 424 tests pass
-
-## Review & Results
-
-- **Resources Auto-Loading**: `AudioManager.prefab` and `GlobalAudioConfig.asset` were added to `Assets/Resources/` so `AudioManager.Instance` can lazily instantiate itself at runtime if no `AudioManager` GameObject exists in the active scene.
-- **Auto-Attachment of BattleMusicController**: `BattleSystem.cs` now auto-attaches `BattleMusicController` during `Awake()`, ensuring battle music transitions (`OnBattleStarted`) and victory jingles (`OnBattleEnded`) are always handled.
-- **Animator-Independent Death SFX**: Character death sound effects (`deathSFX`) are now queued in `BattleSystem.cs` even if the character has no `Animator` component.
-- **Unit Test Suite**: Added tests for lazy auto-instantiation and auto-attachment; verified that all 424 EditMode unit tests pass cleanly.
+- [ ] Create `HealRoomEffectStrategy.cs` to instantiate `MarionetteHealChoice.prefab` <!-- id: 0 -->
+- [ ] Create `MarionetteHealChoiceController.cs` to bind UI buttons (`MarionetteButton1-4` & `HealAllButton`) <!-- id: 1 -->
+- [ ] Implement single-target heal (999 HP, capped at Max HP) and group heal (exactly 25% of Max HP) math <!-- id: 2 -->
+- [ ] Implement room completion & save triggers (`ShowRoomSelectionImmediately` & `SaveRun`) <!-- id: 3 -->
+- [ ] Assign `HealRoomEffectStrategy` to `RD_HealRoom.asset` <!-- id: 4 -->
+- [ ] Add unit tests in `RoomEffectTests.cs` and run full EditMode test suite <!-- id: 5 -->
