@@ -234,7 +234,7 @@ namespace Nevergreen.Tests
             
             var healRoom = ScriptableObject.CreateInstance<RoomData>();
             healRoom.roomId = "RD_HealRoom";
-            roomDb.availableRooms = new List<RoomData> { healRoom };
+            roomDb.healRoom = healRoom;
             typeof(GameDatabase).GetField("roomDatabase", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(db, roomDb);
             GameDatabase.SetInstanceForTesting(db);
 
