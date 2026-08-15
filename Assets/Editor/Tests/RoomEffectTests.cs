@@ -370,6 +370,29 @@ namespace Nevergreen.Tests
             UnityEngine.Object.DestroyImmediate(healRoom);
         }
 
+        [Test]
+        public void RoomProgression_ResumeInHealRoom_PreservesProgressionCount()
+        {
+            RunSessionManager.CurrentParty.Add(new PartyMemberInfo());
+            RunSessionManager.RoomProgression = 7;
+            
+            var healRoom = ScriptableObject.CreateInstance<RoomData>();
+            healRoom.roomId = "RD_HealRoom";
+            RunSessionManager.NextRoomData = healRoom;
+
+            // 1. Initial entry into Heal Room
+            RunSessionManager.OnSceneLoaded("CombatPrototype");
+            Assert.AreEqual(7, RunSessionManager.RoomProgression, "RoomProgression should stay at 7 upon entering Heal Room.");
+
+            // 2. Simulate Quit and Resume
+            RunSessionManager.IsResumingRun = true;
+            RunSessionManager.NextRoomData = healRoom;
+            RunSessionManager.OnSceneLoaded("CombatPrototype");
+
+            Assert.AreEqual(7, RunSessionManager.RoomProgression, "RoomProgression should remain 7 upon resuming inside Heal Room.");
+            UnityEngine.Object.DestroyImmediate(healRoom);
+        }
+
         // ============================================================
         // CombatConfig Room Selection Tests
         // ============================================================
@@ -543,6 +566,119 @@ namespace Nevergreen.Tests
             // Cleanup
             UnityEngine.Object.DestroyImmediate(canvasGO);
             UnityEngine.Object.DestroyImmediate(endRunPrefab);
+        }
+        // ============================================================
+        // HealRoomEffectStrategy & MarionetteHealChoiceController Tests
+        // ============================================================
+
+        [Test]
+        public void HealRoomEffect_SingleHeal_Restores999HP_CappedAtMaxHP()
+        {
+            // Arrange
+            var member = new PartyMemberInfo { currentLevel = 1 };
+            var characterAsset = ScriptableObject.CreateInstance<CharacterData>();
+            characterAsset.statPerLevel = new List<StatBlockData> { new StatBlockData { maxHP = 100 } };
+            member.character = characterAsset;
+            member.currentHP = 10; // Needs healing
+
+            var party = new List<PartyMemberInfo> { member };
+
+            var go = new GameObject("HealChoice");
+            var controller = go.AddComponent<Nevergreen.UI.MarionetteHealChoiceController>();
+            var btn1Go = new GameObject("MarionetteButton1");
+            var btn1 = btn1Go.AddComponent<UnityEngine.UI.Button>();
+            var tmpro1 = btn1Go.AddComponent<TMPro.TextMeshProUGUI>();
+            
+            var buttonsField = typeof(Nevergreen.UI.MarionetteHealChoiceController).GetField("marionetteButtons", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            buttonsField.SetValue(controller, new UnityEngine.UI.Button[] { btn1, null, null, null });
+
+            // Act
+            controller.Initialize(party);
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Error, "[MarionetteHealChoiceController] CombatUI not found!");
+            btn1.onClick.Invoke();
+
+            // Assert
+            Assert.IsNull(member.currentHP, "HP should be null (max) because 10 + 999 > 100.");
+            
+            UnityEngine.Object.DestroyImmediate(characterAsset);
+            UnityEngine.Object.DestroyImmediate(go);
+        }
+
+        [Test]
+        public void HealRoomEffect_HealAll_RestoresExactly25PercentMaxHP()
+        {
+            // Arrange
+            var member1 = new PartyMemberInfo { currentLevel = 1 };
+            var member2 = new PartyMemberInfo { currentLevel = 1 };
+            
+            var characterAsset = ScriptableObject.CreateInstance<CharacterData>();
+            characterAsset.statPerLevel = new List<StatBlockData> { new StatBlockData { maxHP = 100 } };
+            
+            member1.character = characterAsset;
+            member1.currentHP = 50;
+            
+            member2.character = characterAsset;
+            member2.currentHP = null; // Already full
+            
+            var party = new List<PartyMemberInfo> { member1, member2 };
+
+            var go = new GameObject("HealChoice");
+            var controller = go.AddComponent<Nevergreen.UI.MarionetteHealChoiceController>();
+            
+            var healAllGo = new GameObject("HealAllButton");
+            var healAllBtn = healAllGo.AddComponent<UnityEngine.UI.Button>();
+            var tmpro = healAllGo.AddComponent<TMPro.TextMeshProUGUI>();
+            
+            var healBtnField = typeof(Nevergreen.UI.MarionetteHealChoiceController).GetField("healAllButton", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            healBtnField.SetValue(controller, healAllBtn);
+
+            // Act
+            controller.Initialize(party);
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Error, "[MarionetteHealChoiceController] CombatUI not found!");
+            healAllBtn.onClick.Invoke();
+
+            // Assert
+            Assert.AreEqual(75, member1.currentHP, "50 + 25% of 100 = 75");
+            Assert.IsNull(member2.currentHP, "Already full HP should remain null");
+
+            UnityEngine.Object.DestroyImmediate(characterAsset);
+            UnityEngine.Object.DestroyImmediate(go);
+        }
+
+        [Test]
+        public void HealRoomEffect_CompletesRoomAndSaves()
+        {
+            // Arrange
+            var combatUIGo = new GameObject("CombatUI");
+            var combatUI = combatUIGo.AddComponent<Nevergreen.Prototype.CombatUI>();
+
+            var member = new PartyMemberInfo { currentLevel = 1 };
+            var characterAsset = ScriptableObject.CreateInstance<CharacterData>();
+            characterAsset.statPerLevel = new List<StatBlockData> { new StatBlockData { maxHP = 100 } };
+            member.character = characterAsset;
+            member.currentHP = 10;
+
+            var party = new List<PartyMemberInfo> { member };
+
+            var go = new GameObject("HealChoice");
+            var controller = go.AddComponent<Nevergreen.UI.MarionetteHealChoiceController>();
+            var btn1Go = new GameObject("MarionetteButton1");
+            var btn1 = btn1Go.AddComponent<UnityEngine.UI.Button>();
+            var tmpro1 = btn1Go.AddComponent<TMPro.TextMeshProUGUI>();
+            
+            var buttonsField = typeof(Nevergreen.UI.MarionetteHealChoiceController).GetField("marionetteButtons", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            buttonsField.SetValue(controller, new UnityEngine.UI.Button[] { btn1, null, null, null });
+
+            // Act
+            controller.Initialize(party);
+            btn1.onClick.Invoke();
+
+            // Assert
+            Assert.IsFalse(go.activeSelf, "UI should be deactivated after choice");
+
+            UnityEngine.Object.DestroyImmediate(characterAsset);
+            UnityEngine.Object.DestroyImmediate(go);
+            UnityEngine.Object.DestroyImmediate(combatUIGo);
         }
     }
 }

@@ -89,7 +89,9 @@ namespace Nevergreen.Data
                 hasActiveRun = true,
                 roomProgression = RunSessionManager.RoomProgression,
                 parts = RunSessionManager.Parts,
-                nextRoomId = RunSessionManager.NextRoomData != null ? RunSessionManager.NextRoomData.roomId : null,
+                nextRoomId = RunSessionManager.NextRoomData != null 
+                    ? RunSessionManager.NextRoomData.roomId 
+                    : (RunSessionManager.CurrentRoomData != null ? RunSessionManager.CurrentRoomData.roomId : null),
                 lastSelectedFormationId = RunSessionManager.LastSelectedFormation != null ? RunSessionManager.LastSelectedFormation.formationId : null,
                 party = new List<PartyMemberDTO>(),
                 roomCompleted = RunSessionManager.RoomCompleted,

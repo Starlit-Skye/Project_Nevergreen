@@ -223,8 +223,40 @@ namespace Nevergreen.Tests
             GameDatabase.SetInstanceForTesting(null);
             Object.DestroyImmediate(db, true);
             Object.DestroyImmediate(roomDb, true);
-            Object.DestroyImmediate(roomA, true);
             Object.DestroyImmediate(roomB, true);
+        }
+
+        [Test]
+        public void SaveRun_UncompletedRoom_FallbackToCurrentRoomData()
+        {
+            var db = ScriptableObject.CreateInstance<GameDatabase>();
+            var roomDb = ScriptableObject.CreateInstance<RoomDatabase>();
+            
+            var healRoom = ScriptableObject.CreateInstance<RoomData>();
+            healRoom.roomId = "RD_HealRoom";
+            roomDb.availableRooms = new List<RoomData> { healRoom };
+            typeof(GameDatabase).GetField("roomDatabase", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(db, roomDb);
+            GameDatabase.SetInstanceForTesting(db);
+
+            // Simulate entering Heal Room (NextRoomData cleared on activation, but CurrentRoomData remains set)
+            RunSessionManager.CurrentRoomData = healRoom;
+            RunSessionManager.NextRoomData = null;
+            RunSessionManager.RoomCompleted = false;
+
+            SaveManager.SaveRun();
+
+            RunSessionManager.Clear();
+            Assert.IsNull(RunSessionManager.NextRoomData);
+
+            bool loaded = SaveManager.LoadRun();
+
+            Assert.IsTrue(loaded);
+            Assert.AreEqual(healRoom, RunSessionManager.NextRoomData, "Should restore Heal Room as NextRoomData when loading run.");
+
+            GameDatabase.SetInstanceForTesting(null);
+            Object.DestroyImmediate(db, true);
+            Object.DestroyImmediate(roomDb, true);
+            Object.DestroyImmediate(healRoom, true);
         }
 
         [Test]

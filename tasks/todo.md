@@ -1,8 +1,8 @@
-# Task List: Prevent Room Progression Increment on Healing Room Entry
+# Task List: Healing Room Effect Strategy & UI
 
-- [x] Add `IsHealRoom` helper (checking `roomId == "RD_HealRoom"`) and `CurrentRoomData` property to `RunSessionManager.cs` <!-- id: 0 -->
-- [x] Update `OnSceneLoaded` in `RunSessionManager.cs` to skip `RoomProgression++` for Heal Rooms <!-- id: 1 -->
-- [x] Update `SpawnRoomChoiceButtons` in `CombatUI.cs` to handle post-Heal Room choices correctly <!-- id: 2 -->
-- [x] Add unit tests in `RoomEffectTests.cs` for Heal Room progression exemption <!-- id: 3 -->
-- [x] Update `SYSTEM_SPEC_ROOM_SELECTION.md` and `SYSTEM_SPEC_RUN_SESSION_MANAGER.md` <!-- id: 4 -->
-- [x] Execute EditMode unit tests and verify correctness <!-- id: 5 -->
+- [ ] Create `HealRoomEffectStrategy.cs` to instantiate `MarionetteHealChoice.prefab` <!-- id: 0 -->
+- [ ] Create `MarionetteHealChoiceController.cs` to bind UI buttons (`MarionetteButton1-4` & `HealAllButton`) <!-- id: 1 -->
+- [ ] Implement single-target heal (999 HP, capped at Max HP) and group heal (exactly 25% of Max HP) math <!-- id: 2 -->
+- [ ] Implement room completion & save triggers (`ShowRoomSelectionImmediately` & `SaveRun`) <!-- id: 3 -->
+- [ ] Assign `HealRoomEffectStrategy` to `RD_HealRoom.asset` <!-- id: 4 -->
+- [ ] Add unit tests in `RoomEffectTests.cs` and run full EditMode test suite <!-- id: 5 -->
