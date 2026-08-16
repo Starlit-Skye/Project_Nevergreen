@@ -62,6 +62,7 @@ namespace Nevergreen.Prototype
             {
                 RunSessionManager.ActivateCurrentRoomEffect();
                 RunSessionManager.NextRoomData = null;
+                RunSessionManager.ShouldUseSavedFormation = false;
                 return; // Bypass combat entirely
             }
 
