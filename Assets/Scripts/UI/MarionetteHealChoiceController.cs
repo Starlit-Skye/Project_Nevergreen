@@ -9,6 +9,7 @@ namespace Nevergreen.UI
     public class MarionetteHealChoiceController : MonoBehaviour
     {
         [SerializeField] private Button[] marionetteButtons = new Button[4];
+        [SerializeField] private TMPro.TextMeshProUGUI[] hpTexts = new TMPro.TextMeshProUGUI[4];
         [SerializeField] private Button healAllButton;
 
         public void Initialize(List<PartyMemberInfo> party)
@@ -34,6 +35,13 @@ namespace Nevergreen.UI
                         tmpText.text = party[i].character.displayName;
                     }
 
+                    if (hpTexts != null && i < hpTexts.Length && hpTexts[i] != null)
+                    {
+                        int maxHP = party[i].character.GetStatsForLevel(party[i].currentLevel).maxHP;
+                        int currentHP = party[i].currentHP ?? maxHP;
+                        hpTexts[i].text = $"HP: {currentHP}/{maxHP}";
+                    }
+
                     int captureIndex = i; // capture loop variable
                     marionetteButtons[i].onClick.RemoveAllListeners();
                     marionetteButtons[i].onClick.AddListener(() => OnSingleHealClicked(party[captureIndex]));
@@ -41,6 +49,10 @@ namespace Nevergreen.UI
                 else
                 {
                     marionetteButtons[i].gameObject.SetActive(false);
+                    if (hpTexts != null && i < hpTexts.Length && hpTexts[i] != null)
+                    {
+                        hpTexts[i].text = "";
+                    }
                 }
             }
         }
