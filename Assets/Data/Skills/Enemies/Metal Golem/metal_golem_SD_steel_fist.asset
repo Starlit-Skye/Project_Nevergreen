@@ -30,9 +30,11 @@ MonoBehaviour:
   ignoresDodge: 0
   guaranteedHit: 0
   bypassGuard: 0
+  ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
-  sfx: {fileID: 0}
+  sfx: {fileID: 8300000, guid: 67da30576f328a94e99ef15a33fa8fc5, type: 3}
+  animationClip: {fileID: 0}
   references:
     version: 2
     RefIds:
