@@ -11,6 +11,9 @@ namespace Nevergreen
     /// </summary>
     public static class RunSessionManager
     {
+        public static event System.Action OnPartsChanged;
+        public static event System.Action OnScrapsChanged;
+
         /// <summary>The active roster for the current run.</summary>
         public static List<PartyMemberInfo> CurrentParty { get; set; } = new List<PartyMemberInfo>();
 
@@ -26,7 +29,11 @@ namespace Nevergreen
         /// <summary>Grants Parts to the player's run balance.</summary>
         public static void GrantParts(int amount)
         {
-            if (amount > 0) Parts += amount;
+            if (amount > 0)
+            {
+                Parts += amount;
+                OnPartsChanged?.Invoke();
+            }
         }
 
         /// <summary>Attempts to spend Parts, returning true if successful.</summary>
@@ -36,6 +43,7 @@ namespace Nevergreen
             if (Parts >= amount)
             {
                 Parts -= amount;
+                OnPartsChanged?.Invoke();
                 return true;
             }
             return false;
@@ -44,7 +52,11 @@ namespace Nevergreen
         /// <summary>Grants Scraps to the player's run balance.</summary>
         public static void GrantScraps(int amount)
         {
-            if (amount > 0) Scraps += amount;
+            if (amount > 0)
+            {
+                Scraps += amount;
+                OnScrapsChanged?.Invoke();
+            }
         }
 
         /// <summary>Attempts to spend Scraps, returning true if successful.</summary>
@@ -54,6 +66,7 @@ namespace Nevergreen
             if (Scraps >= amount)
             {
                 Scraps -= amount;
+                OnScrapsChanged?.Invoke();
                 return true;
             }
             return false;
@@ -427,6 +440,8 @@ namespace Nevergreen
             Clear();
             _bossFormationChances.Clear();
             _bossChancesLoaded = false;
+            OnPartsChanged = null;
+            OnScrapsChanged = null;
         }
     }
 }
