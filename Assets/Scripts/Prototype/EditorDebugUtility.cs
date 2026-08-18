@@ -72,8 +72,8 @@ namespace Nevergreen.Prototype
 
                 if (Keyboard.current.upArrowKey.wasPressedThisFrame)
                 {
-                    RunSessionManager.Parts += 100;
-                    Debug.Log($"[EditorDebugUtility] Up Arrow pressed. Added 100 Parts. Total Parts: {RunSessionManager.Parts}");
+                    RunSessionManager.GrantParts(100);
+                    Debug.Log($"[EditorDebugUtility] Up Arrow pressed. Granted 100 Parts. Total Parts: {RunSessionManager.Parts}");
                 }
 
                 if (Keyboard.current.rightArrowKey.wasPressedThisFrame)

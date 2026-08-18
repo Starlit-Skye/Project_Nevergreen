@@ -20,6 +20,45 @@ namespace Nevergreen
         /// <summary>The player's current number of Parts in this run.</summary>
         public static int Parts { get; set; }
 
+        /// <summary>The player's current number of Scraps in this run.</summary>
+        public static int Scraps { get; set; }
+
+        /// <summary>Grants Parts to the player's run balance.</summary>
+        public static void GrantParts(int amount)
+        {
+            if (amount > 0) Parts += amount;
+        }
+
+        /// <summary>Attempts to spend Parts, returning true if successful.</summary>
+        public static bool TrySpendParts(int amount)
+        {
+            if (amount < 0) return false;
+            if (Parts >= amount)
+            {
+                Parts -= amount;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>Grants Scraps to the player's run balance.</summary>
+        public static void GrantScraps(int amount)
+        {
+            if (amount > 0) Scraps += amount;
+        }
+
+        /// <summary>Attempts to spend Scraps, returning true if successful.</summary>
+        public static bool TrySpendScraps(int amount)
+        {
+            if (amount < 0) return false;
+            if (Scraps >= amount)
+            {
+                Scraps -= amount;
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>The RoomData selected by the player for the next room. Persists across scene loads.</summary>
         public static RoomData NextRoomData { get; set; }
 
@@ -147,6 +186,7 @@ namespace Nevergreen
         {
             LastSelectedFormation = null;
             Parts = 0;
+            Scraps = 0;
             RoomProgression = 0;
             RoomCompleted = false;
             CurrentRoomData = null;
@@ -367,6 +407,7 @@ namespace Nevergreen
             IsResumingRun = false;
             ShouldUseSavedFormation = false;
             Parts = 0;
+            Scraps = 0;
             RoomCompleted = false;
             NextRoomChoices.Clear();
 

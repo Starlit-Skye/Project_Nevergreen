@@ -1,8 +1,8 @@
-# Task List: Healing Room Effect Strategy & UI
+# Task List: Scrap Economy System Implementation
 
-- [ ] Create `HealRoomEffectStrategy.cs` to instantiate `MarionetteHealChoice.prefab` <!-- id: 0 -->
-- [ ] Create `MarionetteHealChoiceController.cs` to bind UI buttons (`MarionetteButton1-4` & `HealAllButton`) <!-- id: 1 -->
-- [ ] Implement single-target heal (999 HP, capped at Max HP) and group heal (exactly 25% of Max HP) math <!-- id: 2 -->
-- [ ] Implement room completion & save triggers (`ShowRoomSelectionImmediately` & `SaveRun`) <!-- id: 3 -->
-- [ ] Assign `HealRoomEffectStrategy` to `RD_HealRoom.asset` <!-- id: 4 -->
-- [ ] Add unit tests in `RoomEffectTests.cs` and run full EditMode test suite <!-- id: 5 -->
+- [x] Add `Scraps` property and lifecycle management to `RunSessionManager.cs` <!-- id: 0 -->
+- [x] Add `scraps` persistence to `SaveDataDTO` and `SaveManager.cs` <!-- id: 1 -->
+- [x] Update `CombatConfig.cs` with `TierRewardProfile` list and `GetRewardRanges()` per encounter tier <!-- id: 2 -->
+- [x] Update `BattleRewardHandler.cs` & `BattleSystem.cs` to award Parts & Scraps based on `EnemyEncounterTier` <!-- id: 3 -->
+- [x] Update `CombatRewardUI.cs` & `CombatUI.cs` to display Parts and Scraps in the victory reward screen <!-- id: 4 -->
+- [x] Create automated unit tests in `EconomySystemTests.cs` and verify full test suite <!-- id: 5 -->

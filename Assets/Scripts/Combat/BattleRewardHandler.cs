@@ -12,10 +12,13 @@ namespace Nevergreen.Combat
         public static void ApplyVictoryRewards(
             List<CombatCharacter> playerTeam, 
             CombatConfig config, 
+            EnemyEncounterTier tier,
             System.Random rng,
-            out int partsGranted)
+            out int partsGranted,
+            out int scrapsGranted)
         {
             partsGranted = 0;
+            scrapsGranted = 0;
 
             if (RunSessionManager.CurrentParty != null)
             {
@@ -37,11 +40,15 @@ namespace Nevergreen.Combat
                 RunSessionManager.CurrentParty.AddRange(updatedParty);
             }
 
-            // Calculate parts reward
+            // Calculate parts and scraps reward
             if (config != null)
             {
-                partsGranted = rng.Next(config.minPartsPerBattle, config.maxPartsPerBattle + 1);
-                RunSessionManager.Parts += partsGranted;
+                config.GetRewardRanges(tier, out int minP, out int maxP, out int minS, out int maxS);
+                partsGranted = rng.Next(minP, maxP + 1);
+                scrapsGranted = rng.Next(minS, maxS + 1);
+
+                RunSessionManager.GrantParts(partsGranted);
+                RunSessionManager.GrantScraps(scrapsGranted);
             }
         }
     }

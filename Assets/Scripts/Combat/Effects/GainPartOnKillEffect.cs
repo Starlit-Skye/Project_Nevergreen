@@ -26,7 +26,7 @@ namespace Nevergreen.Combat
                 return;
 
             // Grant 1 Part
-            RunSessionManager.Parts += 1;
+            RunSessionManager.GrantParts(1);
             Debug.Log($"[GainPartOnKillEffect] {context.user?.DisplayName} defeated {target.DisplayName}! Gained 1 Part. Total Parts: {RunSessionManager.Parts}");
 
             // Find the standalone in-battle reward popup

@@ -20,8 +20,9 @@ namespace Nevergreen.Prototype
         /// Shows the reward popup and waits for the player to close it.
         /// </summary>
         /// <param name="parts">Amount of Parts rewarded.</param>
+        /// <param name="scraps">Amount of Scraps rewarded.</param>
         /// <param name="onClosed">Callback invoked when the player closes the popup.</param>
-        public void ShowReward(int parts, System.Action onClosed)
+        public void ShowReward(int parts, int scraps, System.Action onClosed)
         {
             _onClosedCallback = onClosed;
             
@@ -32,7 +33,7 @@ namespace Nevergreen.Prototype
             
             if (rewardText != null)
             {
-                rewardText.text = $"You found {parts} Parts!";
+                rewardText.text = $"You found {parts} Parts and {scraps} Scraps!";
             }
 
             if (closeButton != null)
