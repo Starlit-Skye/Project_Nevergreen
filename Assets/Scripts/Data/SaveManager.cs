@@ -33,6 +33,7 @@ namespace Nevergreen.Data
         public bool hasActiveRun;
         public int roomProgression;
         public int parts;
+        public int scraps;
         public string nextRoomId;
         public string lastSelectedFormationId;
         public List<PartyMemberDTO> party = new List<PartyMemberDTO>();
@@ -89,6 +90,7 @@ namespace Nevergreen.Data
                 hasActiveRun = true,
                 roomProgression = RunSessionManager.RoomProgression,
                 parts = RunSessionManager.Parts,
+                scraps = RunSessionManager.Scraps,
                 nextRoomId = RunSessionManager.NextRoomData != null 
                     ? RunSessionManager.NextRoomData.roomId 
                     : (RunSessionManager.CurrentRoomData != null ? RunSessionManager.CurrentRoomData.roomId : null),
@@ -152,6 +154,7 @@ namespace Nevergreen.Data
                 RunSessionManager.Clear();
                 RunSessionManager.RoomProgression = dto.roomProgression;
                 RunSessionManager.Parts = dto.parts;
+                RunSessionManager.Scraps = dto.scraps;
                 RunSessionManager.RoomCompleted = dto.roomCompleted;
 
                 // Lookup NextRoomChoices

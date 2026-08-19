@@ -29,6 +29,9 @@ namespace Nevergreen.Combat
         /// <summary>Parts awarded upon victory in the current battle.</summary>
         public int PartsGrantedThisBattle { get; private set; }
 
+        /// <summary>Scraps awarded upon victory in the current battle.</summary>
+        public int ScrapsGrantedThisBattle { get; private set; }
+
         // Layout configuration (injected by Bootstrap or set in Inspector)
         [HideInInspector] public float playerBaseX = -3f;
         [HideInInspector] public float playerSpacingX = -2f;
@@ -444,11 +447,16 @@ namespace Nevergreen.Combat
                 CurrentState = BattleState.BattleEnd;
                 Debug.Log("[BattleSystem] === VICTORY ===");
 
-                BattleRewardHandler.ApplyVictoryRewards(_playerTeam, GameDatabase.Instance.CombatConfig, _rng, out int partsGranted);
+                var config = GameDatabase.Instance.CombatConfig;
+                var tier = config != null ? config.GetEncounterTierForRoom(Nevergreen.RunSessionManager.RoomProgression) : EnemyEncounterTier.Trivial;
+
+                BattleRewardHandler.ApplyVictoryRewards(_playerTeam, config, tier, _rng, out int partsGranted, out int scrapsGranted);
                 PartsGrantedThisBattle = partsGranted;
-                if (partsGranted > 0)
+                ScrapsGrantedThisBattle = scrapsGranted;
+                
+                if (partsGranted > 0 || scrapsGranted > 0)
                 {
-                    Debug.Log($"[BattleSystem] Awarded {PartsGrantedThisBattle} Parts. Total Parts: {Nevergreen.RunSessionManager.Parts}");
+                    Debug.Log($"[BattleSystem] Awarded {PartsGrantedThisBattle} Parts and {ScrapsGrantedThisBattle} Scraps. Total: {Nevergreen.RunSessionManager.Parts} Parts, {Nevergreen.RunSessionManager.Scraps} Scraps.");
                 }
 
                 OnBattleEnded?.Invoke(BattleOutcome.Victory);

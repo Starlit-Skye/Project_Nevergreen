@@ -96,9 +96,8 @@ namespace Nevergreen.UI
             {
                 int cost = GameDatabase.Instance.CombatConfig.GetLevelUpCost(_currentSelectedMember.currentLevel);
                 
-                if (cost >= 0 && RunSessionManager.Parts >= cost)
+                if (cost >= 0 && RunSessionManager.TrySpendParts(cost))
                 {
-                    RunSessionManager.Parts -= cost;
                     _currentSelectedMember.currentLevel++;
                     SaveManager.SaveRun();
                     DisplayCharacterData(_currentSelectedMember);

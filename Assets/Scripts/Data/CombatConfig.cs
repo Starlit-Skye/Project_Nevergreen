@@ -3,6 +3,20 @@ using UnityEngine;
 namespace Nevergreen.Data
 {
     [System.Serializable]
+    public class TierRewardProfile
+    {
+        public EnemyEncounterTier tier;
+        [Tooltip("Minimum Parts awarded upon victory.")]
+        public int minParts = 10;
+        [Tooltip("Maximum Parts awarded upon victory.")]
+        public int maxParts = 50;
+        [Tooltip("Minimum Scraps awarded upon victory.")]
+        public int minScraps = 5;
+        [Tooltip("Maximum Scraps awarded upon victory.")]
+        public int maxScraps = 25;
+    }
+
+    [System.Serializable]
     public struct RoomTierMapping
     {
         [Tooltip("The room progression count at which this tier begins (e.g., 1, 2, 4, 6).")]
@@ -97,11 +111,46 @@ namespace Nevergreen.Data
         }
 
         [Header("Rewards")]
-        [Tooltip("Minimum Parts awarded upon battle victory.")]
+        [Tooltip("Minimum Parts awarded upon battle victory (global default).")]
         public int minPartsPerBattle = 10;
 
-        [Tooltip("Maximum Parts awarded upon battle victory.")]
+        [Tooltip("Maximum Parts awarded upon battle victory (global default).")]
         public int maxPartsPerBattle = 50;
+
+        [Tooltip("Minimum Scraps awarded upon battle victory (global default).")]
+        public int minScrapsPerBattle = 5;
+
+        [Tooltip("Maximum Scraps awarded upon battle victory (global default).")]
+        public int maxScrapsPerBattle = 25;
+
+        [Tooltip("Reward profiles configured for each enemy encounter tier.")]
+        public System.Collections.Generic.List<TierRewardProfile> tierRewardProfiles = new System.Collections.Generic.List<TierRewardProfile>();
+
+        /// <summary>
+        /// Gets the configured min/max reward ranges for a specific encounter tier.
+        /// Falls back to global defaults if the tier does not have a specific profile configured.
+        /// </summary>
+        public void GetRewardRanges(EnemyEncounterTier tier, out int minParts, out int maxParts, out int minScraps, out int maxScraps)
+        {
+            if (tierRewardProfiles != null)
+            {
+                var profile = tierRewardProfiles.Find(p => p != null && p.tier == tier);
+                if (profile != null)
+                {
+                    minParts = profile.minParts;
+                    maxParts = profile.maxParts;
+                    minScraps = profile.minScraps;
+                    maxScraps = profile.maxScraps;
+                    return;
+                }
+            }
+
+            // Fallbacks
+            minParts = minPartsPerBattle;
+            maxParts = maxPartsPerBattle;
+            minScraps = minScrapsPerBattle;
+            maxScraps = maxScrapsPerBattle;
+        }
 
         [Header("Enemy Encounter Tiers")]
         [Tooltip("Mappings of room count progression to enemy encounter tiers. Sorted by roomCount ascending automatically.")]

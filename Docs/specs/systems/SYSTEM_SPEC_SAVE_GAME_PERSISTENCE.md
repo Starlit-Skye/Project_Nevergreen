@@ -2,17 +2,17 @@
 
 Owner: Gameplay Engineering Team
 Status: active
-Last verified: 2026-07-08
+Last verified: 2026-08-18
 Verified commit: df2835d860cbde7e4b5db8e5ea71934423f9dd4a
 Target build: Unity 6000.3.9f1 Standalone Windows
 
 ## Purpose
-Serialize and persist the active run session progress, parts count, party state (including levels, traits, and equipped skills), HP, room completion status, next room selection choices, and enemy encounter seed to disk with local cryptographic obfuscation. Additionally, manage meta-progression across runs (like boss encounter selection probabilities) independently of the active run lifecycle. Ensure the player can quit and resume runs cleanly, without state leakage, duplicate room progressions, or consecutive duplicate enemy formations, while preserving meta-progression adjustments across subsequent run sessions.
+Serialize and persist the active run session progress, parts count, scraps count, party state (including levels, traits, and equipped skills), HP, room completion status, next room selection choices, and enemy encounter seed to disk with local cryptographic obfuscation. Additionally, manage meta-progression across runs (like boss encounter selection probabilities) independently of the active run lifecycle. Ensure the player can quit and resume runs cleanly, without state leakage, duplicate room progressions, or consecutive duplicate enemy formations, while preserving meta-progression adjustments across subsequent run sessions.
 
 ## Scope
 - In scope:
   - Encryption and decryption of save file state using AES-256 with static pre-shared key (PSK) and initialization vector (IV).
-  - Disk persistence of active run state (party composition, individual party member levels, equipped skills, traits (perfections/imperfections), current/pre-combat HP, room progression number, parts count, current next room choices, room completed flag, and last selected enemy formation) to `run.dat`.
+  - Disk persistence of active run state (party composition, individual party member levels, equipped skills, traits (perfections/imperfections), current/pre-combat HP, room progression number, parts count, scraps count, current next room choices, room completed flag, and last selected enemy formation) to `run.dat`.
   - Disk persistence of permanent meta-progression (boss encounter probability decay / boss chances) to a separate `profile.dat`.
   - Auto-restoring the `RunSessionManager` state on load, including resolving GUID/string references to database assets using the `GameDatabase` singleton.
   - Lazy-loading profile meta-progression on demand from `profile.dat` and auto-saving whenever meta-progression properties are updated.

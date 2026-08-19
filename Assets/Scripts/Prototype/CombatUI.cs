@@ -318,7 +318,7 @@ namespace Nevergreen.Prototype
                 
                 if (rewardUI != null)
                 {
-                    rewardUI.ShowReward(_battleSystem.PartsGrantedThisBattle, () => {
+                    rewardUI.ShowReward(_battleSystem.PartsGrantedThisBattle, _battleSystem.ScrapsGrantedThisBattle, () => {
                         SpawnRoomChoiceButtons();
                     });
                 }
