@@ -26,5 +26,9 @@ namespace Nevergreen.Data
 
         [Tooltip("Number of rooms presented as choices at the end of each battle (GDD: 3).")]
         public int roomChoiceCount = 3;
+
+        [Header("Theatre Room")]
+        [Tooltip("Cost in Scraps to repair the Theatre Room projector.")]
+        public int theatreRoomProjectorRepairCost = 50;
     }
 }

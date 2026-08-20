@@ -1,21 +1,20 @@
 using System;
 using UnityEngine;
-using Nevergreen.UI;
 
 namespace Nevergreen.Data
 {
     [Serializable]
-    public class HealRoomEffectStrategy : RoomEffectStrategy
+    public class GenericEventRoomEffectStrategy : RoomEffectStrategy
     {
         [SerializeField]
-        [Tooltip("The Marionette Heal Choice UI prefab to instantiate.")]
-        public GameObject healChoicePrefab;
+        [Tooltip("The Generic Event UI prefab to instantiate.")]
+        public GameObject eventUiPrefab;
 
         public override void ExecuteRoomEffect()
         {
-            if (healChoicePrefab == null)
+            if (eventUiPrefab == null)
             {
-                Debug.LogError("[HealRoomEffectStrategy] healChoicePrefab is not assigned!");
+                Debug.LogError("[GenericEventRoomEffectStrategy] eventUiPrefab is not assigned!");
                 return;
             }
 
@@ -48,11 +47,11 @@ namespace Nevergreen.Data
 
             if (canvas == null)
             {
-                Debug.LogError("[HealRoomEffectStrategy] No Screen-Space Canvas found in the scene!");
+                Debug.LogError("[GenericEventRoomEffectStrategy] No Screen-Space Canvas found in the scene!");
                 return;
             }
 
-            GameObject instance = GameObject.Instantiate(healChoicePrefab, canvas.transform);
+            GameObject instance = GameObject.Instantiate(eventUiPrefab, canvas.transform);
             RectTransform rt = instance.GetComponent<RectTransform>();
             if (rt != null)
             {
@@ -60,15 +59,7 @@ namespace Nevergreen.Data
                 rt.localScale = Vector3.one;
             }
 
-            MarionetteHealChoiceController controller = instance.GetComponent<MarionetteHealChoiceController>();
-            if (controller == null)
-            {
-                controller = instance.AddComponent<MarionetteHealChoiceController>();
-            }
-            
-            controller.Initialize(RunSessionManager.CurrentParty);
-
-            Debug.Log("[HealRoomEffectStrategy] Marionette Heal Choice UI instantiated.");
+            Debug.Log("[GenericEventRoomEffectStrategy] Generic Event UI instantiated.");
         }
     }
 }
