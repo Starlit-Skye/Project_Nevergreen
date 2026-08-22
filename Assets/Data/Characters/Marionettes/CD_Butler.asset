@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Butler
   characterPrefab: {fileID: 5047933170817855005, guid: ae9b42860237dd2459bc97de34b49f84, type: 3}
   teamType: 0
+  takeDamageClip: {fileID: 7400000, guid: 46b8030177ba6cc468610d21bdc778c8, type: 2}
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 867df823994e3564882f315f639394df, type: 2}
