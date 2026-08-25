@@ -28,7 +28,7 @@ MonoBehaviour:
   - rid: 356131341898612744
   - rid: 356131341898612745
   - rid: 356131341898612748
-  useRanks: 020000000300000004000000
+  useRanks: 02000000030000000400000001000000
   targetRanks: 01000000020000000300000004000000
   targetScope: 2
   maxTargets: 1
@@ -40,6 +40,7 @@ MonoBehaviour:
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
+  animationClip: {fileID: 0}
   references:
     version: 2
     RefIds:
