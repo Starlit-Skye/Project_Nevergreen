@@ -72,6 +72,15 @@ namespace Nevergreen.Tests
 
             controller.skillsContainer = new GameObject("SkillsContainer").AddComponent<RectTransform>();
             
+            // Create dummy skill item prefab
+            controller.skillListItemPrefab = new GameObject("SkillItemPrefab");
+            controller.skillListItemPrefab.AddComponent<RectTransform>();
+            controller.skillListItemPrefab.AddComponent<Image>();
+            controller.skillListItemPrefab.AddComponent<Button>();
+            
+            var skillLabelGo = new GameObject("Label");
+            skillLabelGo.transform.SetParent(controller.skillListItemPrefab.transform);
+            skillLabelGo.AddComponent<TextMeshProUGUI>();
             // Create a dummy character using helper
             var stats = CombatTestHelper.CreateStatBlock();
             dummyCharacter = CombatTestHelper.CreateCharacterData("dummy_char", "Dummy", stats);
@@ -266,6 +275,103 @@ namespace Nevergreen.Tests
             
             var slot1Image = controller.partyMemberButtons[1].GetComponent<Image>();
             Assert.AreNotEqual(controller.highlightColor, slot1Image.color, "Highlight should be removed after cancel.");
+        }
+
+        [Test]
+        public void ClickingEquippedSkill_UnequipsSkillAndSaves()
+        {
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            dummyCharacter.totalSkillPool = new List<SkillData> { skill };
+            
+            var char1 = new PartyMemberInfo { character = dummyCharacter, currentLevel = 1 };
+            char1.unlockedSkills.Add(skill);
+            char1.equippedSkills.Add(skill);
+            RunSessionManager.CurrentParty.Add(char1);
+            
+            var startMethod = typeof(PartyManagementPanelController).GetMethod("Start", BindingFlags.NonPublic | BindingFlags.Instance);
+            startMethod.Invoke(controller, null);
+            var enableMethod = typeof(PartyManagementPanelController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance);
+            enableMethod.Invoke(controller, null); 
+
+            var skillButton = controller.skillsContainer.GetChild(0).GetComponent<Button>();
+            Assert.IsTrue(skillButton.interactable);
+            
+            skillButton.onClick.Invoke();
+
+            Assert.IsFalse(char1.equippedSkills.Contains(skill));
+        }
+
+        [Test]
+        public void ClickingUnlockedSkill_EquipsSkillWhenUnderCap()
+        {
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            dummyCharacter.totalSkillPool = new List<SkillData> { skill };
+            
+            var char1 = new PartyMemberInfo { character = dummyCharacter, currentLevel = 1 };
+            char1.unlockedSkills.Add(skill);
+            // Not in equippedSkills
+            RunSessionManager.CurrentParty.Add(char1);
+            
+            var startMethod = typeof(PartyManagementPanelController).GetMethod("Start", BindingFlags.NonPublic | BindingFlags.Instance);
+            startMethod.Invoke(controller, null);
+            var enableMethod = typeof(PartyManagementPanelController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance);
+            enableMethod.Invoke(controller, null); 
+
+            var skillButton = controller.skillsContainer.GetChild(0).GetComponent<Button>();
+            Assert.IsTrue(skillButton.interactable);
+            
+            skillButton.onClick.Invoke();
+
+            Assert.IsTrue(char1.equippedSkills.Contains(skill));
+        }
+
+        [Test]
+        public void ClickingUnlockedSkill_DoesNotEquipWhenAtCap()
+        {
+            var skill1 = ScriptableObject.CreateInstance<SkillData>();
+            var skill2 = ScriptableObject.CreateInstance<SkillData>();
+            var skill3 = ScriptableObject.CreateInstance<SkillData>();
+            var skill4 = ScriptableObject.CreateInstance<SkillData>();
+            var skill5 = ScriptableObject.CreateInstance<SkillData>();
+            
+            dummyCharacter.totalSkillPool = new List<SkillData> { skill1, skill2, skill3, skill4, skill5 };
+            
+            var char1 = new PartyMemberInfo { character = dummyCharacter, currentLevel = 1 };
+            char1.unlockedSkills.AddRange(new[] { skill1, skill2, skill3, skill4, skill5 });
+            char1.equippedSkills.AddRange(new[] { skill1, skill2, skill3, skill4 }); // Cap is 4
+            RunSessionManager.CurrentParty.Add(char1);
+            
+            var startMethod = typeof(PartyManagementPanelController).GetMethod("Start", BindingFlags.NonPublic | BindingFlags.Instance);
+            startMethod.Invoke(controller, null);
+            var enableMethod = typeof(PartyManagementPanelController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance);
+            enableMethod.Invoke(controller, null); 
+
+            var skill5Button = controller.skillsContainer.GetChild(4).GetComponent<Button>(); // Index 4 is skill5
+            Assert.IsTrue(skill5Button.interactable);
+            
+            skill5Button.onClick.Invoke();
+
+            Assert.IsFalse(char1.equippedSkills.Contains(skill5));
+            Assert.AreEqual(4, char1.equippedSkills.Count);
+        }
+
+        [Test]
+        public void LockedSkill_IsUninteractable()
+        {
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            dummyCharacter.totalSkillPool = new List<SkillData> { skill };
+            
+            var char1 = new PartyMemberInfo { character = dummyCharacter, currentLevel = 1 };
+            // Not in unlockedSkills
+            RunSessionManager.CurrentParty.Add(char1);
+            
+            var startMethod = typeof(PartyManagementPanelController).GetMethod("Start", BindingFlags.NonPublic | BindingFlags.Instance);
+            startMethod.Invoke(controller, null);
+            var enableMethod = typeof(PartyManagementPanelController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance);
+            enableMethod.Invoke(controller, null); 
+
+            var skillButton = controller.skillsContainer.GetChild(0).GetComponent<Button>();
+            Assert.IsFalse(skillButton.interactable);
         }
     }
 }
