@@ -19,6 +19,9 @@ namespace Nevergreen.Data
         /// <summary>The skills the player selected for this character.</summary>
         public List<SkillData> equippedSkills = new List<SkillData>();
 
+        /// <summary>All skills unlocked by the player for this character during the run, including equipped ones.</summary>
+        public List<SkillData> unlockedSkills = new List<SkillData>();
+
         /// <summary>The persistent HP of the character during a run. Null if starting the run at max HP.</summary>
         public int? currentHP;
 
