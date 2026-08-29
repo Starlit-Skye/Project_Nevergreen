@@ -146,13 +146,17 @@ namespace Nevergreen.UI
             var partyMember = new PartyMemberInfo
             {
                 character = ceciliaData,
-                equippedSkills = new List<SkillData>()
+                equippedSkills = new List<SkillData>(),
+                unlockedSkills = new List<SkillData>()
             };
 
             for (int i = 0; i < 4; i++)
             {
                 if (_equippedSkills[i] != null)
+                {
                     partyMember.equippedSkills.Add(_equippedSkills[i]);
+                    partyMember.unlockedSkills.Add(_equippedSkills[i]);
+                }
             }
 
             // Set into RunSessionManager

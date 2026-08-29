@@ -496,5 +496,20 @@ namespace Nevergreen.Tests
             Assert.AreEqual(1, list.Count);
             Assert.AreEqual(4, list[0].currentLevel, "Generated marionette should have its level set to the lowest team level.");
         }
+
+        [Test]
+        public void GenerateMarionetteFromTemplate_PopulatesUnlockedSkills()
+        {
+            var result = MarionetteGenerator.GenerateMarionetteFromTemplate(_template, _traitDb);
+            
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.unlockedSkills);
+            Assert.AreEqual(result.equippedSkills.Count, result.unlockedSkills.Count);
+            
+            for (int i = 0; i < result.equippedSkills.Count; i++)
+            {
+                Assert.AreEqual(result.equippedSkills[i], result.unlockedSkills[i]);
+            }
+        }
     }
 }

@@ -1766,6 +1766,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.UI.TheatreUIController
   fixProjectorButton: {fileID: 7150488376427839475}
+  marionetteButtons:
+  - {fileID: 734883130255704676}
+  - {fileID: 4760634355678289389}
+  - {fileID: 632179404076346111}
+  - {fileID: 1691476956770452172}
+  marionetteButtonTexts:
+  - {fileID: 2830286087528463475}
+  - {fileID: 687884453429469673}
+  - {fileID: 5900948092862499424}
+  - {fileID: 4574141495826856725}
+  skillsContainer: {fileID: 2618719512671831530}
+  skillListItemPrefab: {fileID: 3288421710076600966, guid: def5b8faac1627b42b7ef9468f036db0, type: 3}
+  confirmButton: {fileID: 8545482678960426820}
+  skillSelectionPanel: {fileID: 3266801654269668199}
 --- !u!1 &7252901536467965920
 GameObject:
   m_ObjectHideFlags: 0

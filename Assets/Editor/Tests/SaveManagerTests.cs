@@ -415,5 +415,42 @@ namespace Nevergreen.Tests
             Assert.AreEqual(0.4f, chance);
             Assert.AreEqual(0.6f, RunSessionManager.BossFormationChances["test_boss_02"]);
         }
+
+        [Test]
+        public void SaveAndLoadRun_PersistsUnlockedSkills()
+        {
+            RunSessionManager.ClearAll();
+            
+            var testCharacter = ScriptableObject.CreateInstance<CharacterData>();
+            testCharacter.characterId = "test_char";
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.skillId = "test_unlocked_skill";
+            testCharacter.availableSkills = new List<SkillData> { skill };
+
+            var member = new PartyMemberInfo
+            {
+                character = testCharacter
+            };
+            member.unlockedSkills.Add(skill);
+
+            RunSessionManager.CurrentParty.Add(member);
+
+            SaveManager.SaveRun();
+            
+            // Clear memory
+            RunSessionManager.ClearAll();
+            // Need the character in the database so LoadRun can resolve it
+            GameDatabase.Instance.MarionetteDatabase.marionettes.Add(testCharacter);
+            
+            SaveManager.LoadRun();
+
+            Assert.AreEqual(1, RunSessionManager.CurrentParty.Count);
+            var loadedMember = RunSessionManager.CurrentParty[0];
+            Assert.AreEqual(1, loadedMember.unlockedSkills.Count);
+            Assert.AreEqual("test_unlocked_skill", loadedMember.unlockedSkills[0].skillId);
+            
+            // Cleanup database
+            GameDatabase.Instance.MarionetteDatabase.marionettes.Remove(testCharacter);
+        }
     }
 }

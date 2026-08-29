@@ -198,6 +198,9 @@ namespace Nevergreen.Data
                     info.equippedSkills.Add(availablePool[index]);
                     availablePool.RemoveAt(index);
                 }
+
+                // Initialize unlocked skills with the same skills generated for the loadout
+                info.unlockedSkills = new List<SkillData>(info.equippedSkills);
             }
 
             // Assign 1 random Perfection and 1 random Imperfection

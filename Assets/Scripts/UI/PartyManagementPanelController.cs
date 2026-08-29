@@ -355,12 +355,18 @@ namespace Nevergreen.UI
             PopulateStats(member);
         }
 
+        private void SafeDestroy(GameObject obj)
+        {
+            if (Application.isPlaying) Destroy(obj);
+            else DestroyImmediate(obj);
+        }
+
         private void PopulateSkills(PartyMemberInfo member)
         {
             // Clear existing
             foreach (var item in _spawnedSkillItems)
             {
-                if (item != null) Destroy(item);
+                if (item != null) SafeDestroy(item);
             }
             _spawnedSkillItems.Clear();
 
@@ -368,6 +374,9 @@ namespace Nevergreen.UI
 
             var pool = member.character.totalSkillPool;
             if (pool == null) return;
+            
+            if (member.equippedSkills == null) member.equippedSkills = new List<SkillData>();
+            if (member.unlockedSkills == null) member.unlockedSkills = new List<SkillData>();
 
             foreach (var skill in pool)
             {
@@ -385,16 +394,58 @@ namespace Nevergreen.UI
                 var label = item.GetComponentInChildren<TextMeshProUGUI>();
                 if (label != null) label.text = skill.displayName;
 
-                // Gray out if not equipped
-                bool isEquipped = member.equippedSkills != null && member.equippedSkills.Contains(skill);
-                if (!isEquipped)
+                bool isUnlocked = member.unlockedSkills.Contains(skill);
+                bool isEquipped = member.equippedSkills.Contains(skill);
+
+                var btn = item.GetComponent<Button>();
+                if (btn == null) btn = item.GetComponentInChildren<Button>();
+                
+                var img = item.GetComponent<Image>();
+                if (img == null) img = item.GetComponentInChildren<Image>();
+
+                if (isEquipped)
                 {
-                    var img = item.GetComponent<Image>();
-                    if (img != null) img.color = Color.gray;
-                    else
+                    if (btn != null)
                     {
-                        var btnImg = item.GetComponentInChildren<Image>();
-                        if (btnImg != null) btnImg.color = Color.gray;
+                        // Set the button to "clicked" state by modifying its ColorBlock
+                        var cb = btn.colors;
+                        cb.normalColor = cb.pressedColor;
+                        cb.highlightedColor = cb.pressedColor;
+                        cb.selectedColor = cb.pressedColor;
+                        btn.colors = cb;
+
+                        btn.interactable = true;
+                        btn.onClick.AddListener(() =>
+                        {
+                            member.equippedSkills.Remove(skill);
+                            SaveManager.SaveRun();
+                            PopulateSkills(member);
+                        });
+                    }
+                }
+                else if (isUnlocked)
+                {
+                    if (btn != null)
+                    {
+                        // Default state
+                        btn.interactable = true;
+                        btn.onClick.AddListener(() =>
+                        {
+                            if (member.equippedSkills.Count < 4)
+                            {
+                                member.equippedSkills.Add(skill);
+                                SaveManager.SaveRun();
+                                PopulateSkills(member);
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    if (btn != null)
+                    {
+                        // Locked
+                        btn.interactable = false;
                     }
                 }
             }
@@ -404,7 +455,7 @@ namespace Nevergreen.UI
         {
             foreach (var item in _spawnedTraitItems)
             {
-                if (item != null) Destroy(item);
+                if (item != null) SafeDestroy(item);
             }
             _spawnedTraitItems.Clear();
 
@@ -452,7 +503,7 @@ namespace Nevergreen.UI
                     if (container == null) continue;
                     foreach (Transform child in container)
                     {
-                        Destroy(child.gameObject);
+                        SafeDestroy(child.gameObject);
                     }
                 }
             }
@@ -527,13 +578,13 @@ namespace Nevergreen.UI
 
             foreach (var item in _spawnedSkillItems)
             {
-                if (item != null) Destroy(item);
+                if (item != null) SafeDestroy(item);
             }
             _spawnedSkillItems.Clear();
 
             foreach (var item in _spawnedTraitItems)
             {
-                if (item != null) Destroy(item);
+                if (item != null) SafeDestroy(item);
             }
             _spawnedTraitItems.Clear();
 
@@ -544,7 +595,7 @@ namespace Nevergreen.UI
                     if (container == null) continue;
                     foreach (Transform child in container)
                     {
-                        Destroy(child.gameObject);
+                        SafeDestroy(child.gameObject);
                     }
                 }
             }

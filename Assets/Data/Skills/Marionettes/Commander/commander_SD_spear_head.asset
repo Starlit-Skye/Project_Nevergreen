@@ -17,7 +17,7 @@ MonoBehaviour:
   description: 'Deal low damage to 1 enemy. Move self to front. Gain Defense and
     Move resist.
 
-    Usable Rank: 2-4'
+    Usable Rank: 1-4'
   modifier:
     damagePercent: 0.6
     healPercent: 0
