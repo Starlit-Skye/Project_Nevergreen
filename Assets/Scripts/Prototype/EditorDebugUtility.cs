@@ -73,7 +73,10 @@ namespace Nevergreen.Prototype
                 if (Keyboard.current.upArrowKey.wasPressedThisFrame)
                 {
                     RunSessionManager.GrantParts(100);
+                    RunSessionManager.GrantScraps(100);
                     Debug.Log($"[EditorDebugUtility] Up Arrow pressed. Granted 100 Parts. Total Parts: {RunSessionManager.Parts}");
+                    Debug.Log($"[EditorDebugUtility] Up Arrow pressed. Granted 100 Scraps. Total Scraps: {RunSessionManager.Scraps}");
+
                 }
 
                 if (Keyboard.current.rightArrowKey.wasPressedThisFrame)

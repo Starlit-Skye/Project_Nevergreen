@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.RoomDatabase
   availableRooms:
   - {fileID: 11400000, guid: d5735d1ecb32e284faef058a1be299c3, type: 2}
+  - {fileID: 11400000, guid: ed85582afa7d8e4499cdd29df803e51b, type: 2}
   bossRoom: {fileID: 11400000, guid: ed05f619c1c385341bc261bf71eb7c87, type: 2}
   healRoom: {fileID: 11400000, guid: 96025301a36952640be2e9d8b62aa117, type: 2}

@@ -15,7 +15,7 @@ MonoBehaviour:
   roomId: RD_TheatreRoom
   roomName: Theatre
   description: Unlock skills for Marionettes.
-  activationType: 0
+  activationType: 2
   strategy:
     rid: 9162808082453495887
   references:
@@ -24,4 +24,4 @@ MonoBehaviour:
     - rid: 9162808082453495887
       type: {class: GenericEventRoomEffectStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        eventUiPrefab: {fileID: 0}
+        eventUiPrefab: {fileID: 7150488376427839475, guid: 2f86b453e3d6e604682ca6d5c116316a, type: 3}
