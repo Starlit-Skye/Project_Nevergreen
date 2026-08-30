@@ -318,13 +318,20 @@ namespace Nevergreen.Prototype
                     if (txt != null) txt.text = "Next Room";
                 }
                 
+                // Check if a post-combat room effect is pending
+                bool hasOnVictoryRoomEffect = RunSessionManager.NextRoomData != null 
+                    && RunSessionManager.NextRoomData.activationType == RoomActivationType.OnCombatVictory;
+
                 if (rewardUI != null)
                 {
                     rewardUI.ShowReward(_battleSystem.PartsGrantedThisBattle, _battleSystem.ScrapsGrantedThisBattle, () => {
-                        SpawnRoomChoiceButtons();
+                        if (!hasOnVictoryRoomEffect)
+                        {
+                            SpawnRoomChoiceButtons();
+                        }
                     });
                 }
-                else
+                else if (!hasOnVictoryRoomEffect)
                 {
                     SpawnRoomChoiceButtons();
                 }

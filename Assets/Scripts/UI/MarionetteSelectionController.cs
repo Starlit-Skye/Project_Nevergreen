@@ -42,6 +42,7 @@ namespace Nevergreen.UI
 
         [Header("UI - Controls")]
         public Button confirmButton;
+        public Button skipButton;
 
         [Header("Styling")]
         public Color normalColor = Color.white;
@@ -63,6 +64,11 @@ namespace Nevergreen.UI
             {
                 confirmButton.onClick.AddListener(OnConfirmClicked);
                 confirmButton.interactable = false;
+            }
+
+            if (skipButton != null)
+            {
+                skipButton.onClick.AddListener(OnSkipClicked);
             }
 
             InitializeChoices();
@@ -392,13 +398,31 @@ namespace Nevergreen.UI
                 party.Add(newPartyMember);
             }
 
+            CompleteRoom();
+        }
+
+        private void OnSkipClicked()
+        {
+            CompleteRoom();
+        }
+
+        private void CompleteRoom()
+        {
             gameObject.SetActive(false);
 
-            /*// Load the next scene
-            if (!string.IsNullOrEmpty(combatSceneName))
+            // Transition to room selection
+            Nevergreen.Prototype.CombatUI combatUI = Object.FindFirstObjectByType<Nevergreen.Prototype.CombatUI>();
+            if (combatUI != null)
             {
-                SceneManager.LoadScene(combatSceneName);
-            }*/
+                combatUI.ShowRoomSelectionImmediately();
+            }
+            else
+            {
+                if (!RunSessionManager.RoomCompleted)
+                {
+                    RunSessionManager.CompleteRoom(new List<RoomData>());
+                }
+            }
         }
     }
 }

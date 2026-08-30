@@ -259,6 +259,7 @@ MonoBehaviour:
   skillsPanelContainer: {fileID: 5840027223883541170}
   skillListItemPrefab: {fileID: 3288421710076600966, guid: def5b8faac1627b42b7ef9468f036db0, type: 3}
   confirmButton: {fileID: 6206781722758714905}
+  skipButton: {fileID: 7650029068035865581}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!114 &2075638378039799782
@@ -1191,7 +1192,6 @@ GameObject:
   - component: {fileID: 8980020758764342052}
   - component: {fileID: 8778226883515407620}
   - component: {fileID: 7650029068035865581}
-  - component: {fileID: 8186370205184856921}
   m_Layer: 0
   m_Name: Skip
   m_TagString: Untagged
@@ -1300,32 +1300,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8778226883515407620}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8186370205184856921}
-        m_TargetAssemblyTypeName: CloseMenu, Assembly-CSharp
-        m_MethodName: Close
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &8186370205184856921
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1793192967417053101}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f107e6c0bcc3f8e47af4bb1e86a5ff38, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CloseMenu
-  parent: {fileID: 304171158140332193}
+      m_Calls: []
 --- !u!1 &2180745693695138046
 GameObject:
   m_ObjectHideFlags: 0
