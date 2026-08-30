@@ -1780,6 +1780,7 @@ MonoBehaviour:
   skillListItemPrefab: {fileID: 3288421710076600966, guid: def5b8faac1627b42b7ef9468f036db0, type: 3}
   confirmButton: {fileID: 8545482678960426820}
   skillSelectionPanel: {fileID: 3266801654269668199}
+  leaveButton: {fileID: 4726753654303410498}
 --- !u!1 &7252901536467965920
 GameObject:
   m_ObjectHideFlags: 0

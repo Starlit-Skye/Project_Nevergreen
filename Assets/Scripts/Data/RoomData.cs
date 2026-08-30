@@ -23,6 +23,13 @@ namespace Nevergreen.Data
         [Tooltip("When this room's effect should be activated.")]
         public RoomActivationType activationType = RoomActivationType.OnRoomLoaded;
 
+        [Header("Selection")]
+        [Tooltip("Rule that determines how likely this room is to appear as a choice. If null, the room uses a default weight of 1.")]
+        [SerializeReference]
+        [SubclassSelector]
+        public RoomSelectionRule selectionRule;
+
+        [Header("Strategy")]
         [Tooltip("The strategy that defines how this room's effect is executed.")]
         [SerializeReference]
         [SubclassSelector]

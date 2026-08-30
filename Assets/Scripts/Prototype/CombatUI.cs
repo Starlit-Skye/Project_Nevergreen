@@ -45,6 +45,8 @@ namespace Nevergreen.Prototype
         [Tooltip("Container where room choice buttons are instantiated.")]
         public Transform roomChoiceButtonsContainer;
 
+        private System.Random _rng = new System.Random();
+
         [Header("Skill Buttons")]
         public Button[] skillButtons = new Button[4];
         public TextMeshProUGUI[] skillButtonLabels = new TextMeshProUGUI[4];
@@ -316,13 +318,20 @@ namespace Nevergreen.Prototype
                     if (txt != null) txt.text = "Next Room";
                 }
                 
+                // Check if a post-combat room effect is pending
+                bool hasOnVictoryRoomEffect = RunSessionManager.NextRoomData != null 
+                    && RunSessionManager.NextRoomData.activationType == RoomActivationType.OnCombatVictory;
+
                 if (rewardUI != null)
                 {
                     rewardUI.ShowReward(_battleSystem.PartsGrantedThisBattle, _battleSystem.ScrapsGrantedThisBattle, () => {
-                        SpawnRoomChoiceButtons();
+                        if (!hasOnVictoryRoomEffect)
+                        {
+                            SpawnRoomChoiceButtons();
+                        }
                     });
                 }
-                else
+                else if (!hasOnVictoryRoomEffect)
                 {
                     SpawnRoomChoiceButtons();
                 }
@@ -425,24 +434,14 @@ namespace Nevergreen.Prototype
 
                     if (isTierTransition)
                     {
-                        RoomData targetHealRoom = null;
                         if (hasHealRoom)
                         {
-                            targetHealRoom = roomDb.healRoom;
-                        }
-                        else if (hasAvailableRooms)
-                        {
-                            targetHealRoom = availableRooms.Find(r => r != null && r.roomId == "RD_HealRoom");
-                        }
-                        
-                        if (targetHealRoom != null)
-                        {
-                            choices = new List<RoomData> { targetHealRoom };
+                            choices = new List<RoomData> { roomDb.healRoom };
                         }
                         else
                         {
-                            Debug.LogWarning("[CombatUI] Expected to force Heal Room on tier transition, but healRoom is not assigned in RoomDatabase and not found in availableRooms. Falling back to random rooms.");
-                            choices = PickRandomRooms(availableRooms, globalConfig.roomChoiceCount);
+                            Debug.LogWarning("[CombatUI] Expected to force Heal Room on tier transition, but healRoom is not assigned in RoomDatabase. Falling back to random rooms.");
+                            choices = WeightedRoomSelector.SelectRooms(availableRooms, globalConfig.roomChoiceCount, _rng);
                         }
                     }
                     else if (isBossNext)
@@ -452,7 +451,7 @@ namespace Nevergreen.Prototype
                     else if (hasAvailableRooms)
                     {
                         // Pick random rooms (up to roomChoiceCount)
-                        choices = PickRandomRooms(availableRooms, globalConfig.roomChoiceCount);
+                        choices = WeightedRoomSelector.SelectRooms(availableRooms, globalConfig.roomChoiceCount, _rng);
                     }
                     else
                     {
@@ -495,20 +494,6 @@ namespace Nevergreen.Prototype
             {
                 partyManagementButton.gameObject.SetActive(true);
             }
-        }
-
-        private List<RoomData> PickRandomRooms(System.Collections.Generic.List<RoomData> pool, int count)
-        {
-            var shuffled = new List<RoomData>(pool);
-            // Fisher-Yates shuffle
-            for (int i = shuffled.Count - 1; i > 0; i--)
-            {
-                int j = UnityEngine.Random.Range(0, i + 1);
-                var temp = shuffled[i];
-                shuffled[i] = shuffled[j];
-                shuffled[j] = temp;
-            }
-            return shuffled.GetRange(0, Mathf.Min(count, shuffled.Count));
         }
 
         private void OnRoomChoiceClicked(RoomData selectedRoom)
