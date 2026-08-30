@@ -23,6 +23,9 @@ namespace Nevergreen.UI
         public GameObject skillListItemPrefab;
         public Button confirmButton;
         public GameObject skillSelectionPanel;
+        
+        [Header("Leave")]
+        public Button leaveButton;
 
         private PartyMemberInfo _selectedMarionette;
         private SkillData _selectedSkill;
@@ -47,6 +50,10 @@ namespace Nevergreen.UI
             {
                 confirmButton.onClick.AddListener(OnConfirmClicked);
             }
+            if (leaveButton != null)
+            {
+                leaveButton.onClick.AddListener(OnLeaveClicked);
+            }
             UpdateDisplay();
         }
 
@@ -63,6 +70,10 @@ namespace Nevergreen.UI
             if (confirmButton != null)
             {
                 confirmButton.onClick.RemoveListener(OnConfirmClicked);
+            }
+            if (leaveButton != null)
+            {
+                leaveButton.onClick.RemoveListener(OnLeaveClicked);
             }
         }
 
@@ -270,6 +281,16 @@ namespace Nevergreen.UI
                 _selectedMarionette.unlockedSkills.Add(_selectedSkill);
             }
 
+            CompleteTheatreRoom();
+        }
+
+        private void OnLeaveClicked()
+        {
+            CompleteTheatreRoom();
+        }
+
+        private void CompleteTheatreRoom()
+        {
             if (skillSelectionPanel != null)
             {
                 skillSelectionPanel.SetActive(false);
