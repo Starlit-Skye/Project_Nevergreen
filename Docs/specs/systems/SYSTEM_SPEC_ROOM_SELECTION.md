@@ -84,14 +84,15 @@ Decouple room definition and metadata from execution behavior using ScriptableOb
 4. Battle proceeds to resolution (`BattleSystem` fires `OnBattleEnded`).
 
 ### 2. Post-Combat & Deferred Room Choice Generation
-1. `RunSessionManager.OnBattleEnded` handles victory outcome and invokes `NextRoomData.ActivateEffect()`.
-2. `CombatUI.HandleBattleEnded` checks if `NextRoomData.activationType == OnCombatVictory`.
-   - **If `OnCombatVictory` is true**: `CombatUI` displays reward UI but **skips** `SpawnRoomChoiceButtons()`.
-   - The room's effect strategy executes (e.g. opening Marionette selection panel or Theatre panel).
-   - The player interacts with the room UI panel.
-   - Upon completion (or skip), the room's UI controller calls `combatUI.ShowRoomSelectionImmediately()`.
+1. `RunSessionManager.OnBattleEnded` handles victory outcome and saves run state, but defers room effect execution.
+2. `CombatUI.HandleBattleEnded` displays the `CombatRewardUI` popup showing earned Parts and Scraps.
+3. When the player clicks **Close** on the `CombatRewardUI` popup, `CombatUI.OnRewardPopupClosed()` checks if `NextRoomData.activationType == RoomActivationType.OnCombatVictory`.
+   - **If `OnCombatVictory` is true**: `CombatUI` calls `RunSessionManager.TriggerPendingVictoryRoomEffect()`.
+     - The room's effect strategy executes (e.g. opening Marionette selection panel or Theatre panel) and `NextRoomData` is set to `null`.
+     - The player interacts with the room UI panel.
+     - Upon completion (or skip), the room's UI controller calls `combatUI.ShowRoomSelectionImmediately()`.
    - **If `OnCombatVictory` is false**: `CombatUI` calls `SpawnRoomChoiceButtons()` directly.
-3. `SpawnRoomChoiceButtons()` calls `WeightedRoomSelector.SelectRooms(availableRooms, roomChoiceCount, _rng)`.
+4. `SpawnRoomChoiceButtons()` calls `WeightedRoomSelector.SelectRooms(availableRooms, roomChoiceCount, _rng)`.
    - Selection rules evaluate against current up-to-date session state (e.g., party size *after* marionette acquisition).
    - `WeightedRoomSelector` performs **independent weighted random sampling with replacement**.
    - Choice buttons are rendered in `CombatUI`.
