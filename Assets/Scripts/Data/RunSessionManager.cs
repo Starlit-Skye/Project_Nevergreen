@@ -269,7 +269,7 @@ namespace Nevergreen
 
             if (outcome == BattleOutcome.Victory)
             {
-                HandleBattleVictory();
+                // Defer room effect activation to CombatUI's reward popup close callback
                 SaveManager.SaveRun();
             }
             else if (outcome == BattleOutcome.Defeat)
@@ -281,9 +281,9 @@ namespace Nevergreen
 
         /// <summary>
         /// Handles battle victory by activating the current room effect if it is
-        /// configured for OnCombatVictory timing.
+        /// configured for OnCombatVictory timing. Typically invoked after CombatRewardUI closes.
         /// </summary>
-        public static void HandleBattleVictory()
+        public static void TriggerPendingVictoryRoomEffect()
         {
             if (NextRoomData != null && NextRoomData.activationType == RoomActivationType.OnCombatVictory)
             {

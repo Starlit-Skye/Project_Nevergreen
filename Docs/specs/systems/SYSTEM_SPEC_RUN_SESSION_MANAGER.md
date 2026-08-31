@@ -1,6 +1,6 @@
 # Run Session Manager System
 
-> **Owner:** Gameplay Engineering Team | **Last Updated:** 2026-08-18 | **Status:** Active
+> **Owner:** Gameplay Engineering Team | **Last Updated:** 2026-08-31 | **Status:** Active
 
 ## Purpose
 Maintain the active run state, party composition, encounter databases, economy balances (`Parts` & `Scraps`), and progression statistics across scenes and battles. Provide core session lifetime initialization, room progression, currency management, and battle-victory room effect execution hooks.
@@ -21,8 +21,8 @@ Maintain the active run state, party composition, encounter databases, economy b
 - Manage economy balances (`Parts`, `Scraps`) via `Grant` and `TrySpend` methods.
 - Access the active databases (`EnemyFormationDatabase`, `TraitDatabase`, `RoomDatabase`) via `GameDatabase.Instance`.
 - Increment the run's `RoomProgression` count by 1 automatically whenever the `"CombatPrototype"` scene is loaded with an active party, unless the next room is a Healing Room (`roomId == "RD_HealRoom"`).
-- Subscribe to the current `BattleSystem`'s outcome event (`OnBattleEnded`) to detect victories.
-- Automatically activate the selected room's effect (`NextRoomData`) if the room activation timing is set to `OnCombatVictory`.
+- Subscribe to the current `BattleSystem`'s outcome event (`OnBattleEnded`) to handle victory outcome persistence.
+- Provide `TriggerPendingVictoryRoomEffect()` to activate the selected room's effect (`NextRoomData`) when the post-combat reward UI is closed if room activation timing is set to `OnCombatVictory`.
 - Prevent duplicate consecutive enemy formations within the requested tier via `GetNextRandomFormation(EnemyEncounterTier tier)` (with a fallback logic up to 100 random pick attempts).
 - Provide a `Clear()` method to clean up all party data, room progression stats, and unsubscribe from event loops.
 

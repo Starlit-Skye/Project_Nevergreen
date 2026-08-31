@@ -157,9 +157,18 @@ namespace Nevergreen.Tests
             var del = onBattleEnded.GetValue(battleSystem) as Action<BattleOutcome>;
             del?.Invoke(BattleOutcome.Victory);
 
-            // Assert
+            // Assert - Should NOT trigger immediately (deferred)
+            Assert.AreEqual(0, TestRoomEffectStrategy.ExecutionCount,
+                "Strategy should NOT be executed immediately on Victory (deferred to UI).");
+            Assert.IsNotNull(RunSessionManager.NextRoomData,
+                "NextRoomData should not be cleared yet.");
+
+            // Act - Trigger manually
+            RunSessionManager.TriggerPendingVictoryRoomEffect();
+
+            // Assert - Should trigger now
             Assert.AreEqual(1, TestRoomEffectStrategy.ExecutionCount,
-                "Strategy should have been executed on Victory.");
+                "Strategy should have been executed after trigger.");
             Assert.IsNull(RunSessionManager.NextRoomData,
                 "NextRoomData should be cleared after victory activation.");
 
