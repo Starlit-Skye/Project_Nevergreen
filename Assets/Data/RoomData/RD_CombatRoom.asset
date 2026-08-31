@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 197e26672ff30064192ba41ce76df4b3, type: 3}
+  m_Name: RD_CombatRoom
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.RoomData
+  roomId: RD_CombatRoom
+  roomName: Combat
+  description: Battle enemies.
+  activationType: 2
+  selectionRule:
+    rid: 9162808309200191575
+  strategy:
+    rid: 9162808348448653387
+  references:
+    version: 2
+    RefIds:
+    - rid: 9162808309200191575
+      type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        weight: 1
+    - rid: 9162808348448653387
+      type: {class: CombatRoomEffectStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data: 

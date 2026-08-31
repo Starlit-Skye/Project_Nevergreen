@@ -207,7 +207,8 @@ namespace Nevergreen
 
             if (GameDatabase.Instance != null && GameDatabase.Instance.RoomDatabase != null && GameDatabase.Instance.RoomDatabase.availableRooms != null)
             {
-                var marionetteRoom = GameDatabase.Instance.RoomDatabase.availableRooms.Find(r => r != null && r.roomId == "RD_MarionetteRoom");
+                var marionetteRoom = GameDatabase.Instance.RoomDatabase.availableRooms
+                    .Find(e => e != null && e.room != null && e.room.roomId == "RD_MarionetteRoom")?.room;
                 if (marionetteRoom != null)
                 {
                     NextRoomData = marionetteRoom;

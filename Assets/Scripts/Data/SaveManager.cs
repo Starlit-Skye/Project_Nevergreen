@@ -401,7 +401,8 @@ namespace Nevergreen.Data
             if (roomDb == null || string.IsNullOrEmpty(roomId)) return null;
             
             // Check availableRooms first
-            var room = roomDb.availableRooms.FirstOrDefault(r => r != null && r.roomId == roomId);
+            var room = roomDb.availableRooms
+                .Find(e => e != null && e.room != null && e.room.roomId == roomId)?.room;
             if (room != null) return room;
             
             // Check special rooms

@@ -11,7 +11,7 @@ namespace Nevergreen.Data
     public class RoomDatabase : ScriptableObject
     {
         [Tooltip("Pool of available room types the player can choose from.")]
-        public List<RoomData> availableRooms = new List<RoomData>();
+        public List<RoomPoolEntry> availableRooms = new List<RoomPoolEntry>();
 
         [Tooltip("The room in which the player fights the run boss in.")]
         public RoomData bossRoom;

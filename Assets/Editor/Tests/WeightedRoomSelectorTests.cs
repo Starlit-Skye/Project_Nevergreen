@@ -19,7 +19,7 @@ namespace Nevergreen.Tests
         [Test]
         public void SelectRooms_UniformWeights_ReturnsRequestedCount()
         {
-            var pool = new List<RoomData>
+            var pool = new List<RoomPoolEntry>
             {
                 CreateRoomWithFixedWeight("R1", 1f),
                 CreateRoomWithFixedWeight("R2", 1f),
@@ -30,7 +30,6 @@ namespace Nevergreen.Tests
             var results = WeightedRoomSelector.SelectRooms(pool, 2, _rng);
 
             Assert.AreEqual(2, results.Count);
-            Assert.AreNotEqual(results[0].roomId, results[1].roomId);
             
             CleanupRooms(pool);
         }
@@ -38,7 +37,7 @@ namespace Nevergreen.Tests
         [Test]
         public void SelectRooms_ZeroWeight_ExcludesRoom()
         {
-            var pool = new List<RoomData>
+            var pool = new List<RoomPoolEntry>
             {
                 CreateRoomWithFixedWeight("R1", 1f),
                 CreateRoomWithFixedWeight("R2", 0f), // Should never be picked
@@ -59,11 +58,11 @@ namespace Nevergreen.Tests
         {
             var roomWithNoRule = ScriptableObject.CreateInstance<RoomData>();
             roomWithNoRule.roomId = "R_Null";
-            roomWithNoRule.selectionRule = null;
             
-            var roomWithWeight1 = CreateRoomWithFixedWeight("R_Weight1", 1f);
+            var entryNoRule = new RoomPoolEntry { room = roomWithNoRule, selectionRule = null };
+            var entryWithWeight1 = CreateRoomWithFixedWeight("R_Weight1", 1f);
 
-            var pool = new List<RoomData> { roomWithNoRule, roomWithWeight1 };
+            var pool = new List<RoomPoolEntry> { entryNoRule, entryWithWeight1 };
 
             int nullPicked = 0;
             int weight1Picked = 0;
@@ -71,7 +70,7 @@ namespace Nevergreen.Tests
             // Over many iterations, they should be picked roughly equally
             for (int i = 0; i < 1000; i++)
             {
-                var results = WeightedRoomSelector.SelectRooms(new List<RoomData>(pool), 1, _rng);
+                var results = WeightedRoomSelector.SelectRooms(new List<RoomPoolEntry>(pool), 1, _rng);
                 if (results[0].roomId == "R_Null") nullPicked++;
                 else weight1Picked++;
             }
@@ -85,7 +84,7 @@ namespace Nevergreen.Tests
         [Test]
         public void SelectRooms_HigherWeight_IsSelectedMoreOften()
         {
-            var pool = new List<RoomData>
+            var pool = new List<RoomPoolEntry>
             {
                 CreateRoomWithFixedWeight("R_Heavy", 10f),
                 CreateRoomWithFixedWeight("R_Light", 1f)
@@ -96,7 +95,7 @@ namespace Nevergreen.Tests
 
             for (int i = 0; i < 1000; i++)
             {
-                var results = WeightedRoomSelector.SelectRooms(new List<RoomData>(pool), 1, _rng);
+                var results = WeightedRoomSelector.SelectRooms(new List<RoomPoolEntry>(pool), 1, _rng);
                 if (results[0].roomId == "R_Heavy") heavyPicked++;
                 else lightPicked++;
             }
@@ -109,39 +108,37 @@ namespace Nevergreen.Tests
         }
 
         [Test]
-        public void SelectRooms_NoDuplicates()
+        public void SelectRooms_CanReturnDuplicates()
         {
-            var pool = new List<RoomData>
+            var pool = new List<RoomPoolEntry>
             {
-                CreateRoomWithFixedWeight("R1", 1f),
-                CreateRoomWithFixedWeight("R2", 1f),
-                CreateRoomWithFixedWeight("R3", 1f)
+                CreateRoomWithFixedWeight("R1", 1f) // Only one room in pool
             };
 
+            // Request 3 rooms from a pool of 1
             var results = WeightedRoomSelector.SelectRooms(pool, 3, _rng);
 
             Assert.AreEqual(3, results.Count);
-            var hashSet = new HashSet<string>();
-            foreach (var r in results)
-            {
-                Assert.IsTrue(hashSet.Add(r.roomId), "Duplicate room selected.");
-            }
+            Assert.AreEqual("R1", results[0].roomId);
+            Assert.AreEqual("R1", results[1].roomId);
+            Assert.AreEqual("R1", results[2].roomId);
             
             CleanupRooms(pool);
         }
 
         [Test]
-        public void SelectRooms_PoolSmallerThanCount_ReturnsAll()
+        public void SelectRooms_PoolSmallerThanCount_ReturnsRequestedCount()
         {
-            var pool = new List<RoomData>
+            var pool = new List<RoomPoolEntry>
             {
                 CreateRoomWithFixedWeight("R1", 1f),
                 CreateRoomWithFixedWeight("R2", 1f)
             };
 
+            // We can now request 5 choices from a pool of 2
             var results = WeightedRoomSelector.SelectRooms(pool, 5, _rng);
 
-            Assert.AreEqual(2, results.Count);
+            Assert.AreEqual(5, results.Count);
             
             CleanupRooms(pool);
         }
@@ -149,7 +146,7 @@ namespace Nevergreen.Tests
         [Test]
         public void SelectRooms_EmptyPool_ReturnsEmpty()
         {
-            var results = WeightedRoomSelector.SelectRooms(new List<RoomData>(), 3, _rng);
+            var results = WeightedRoomSelector.SelectRooms(new List<RoomPoolEntry>(), 3, _rng);
             Assert.AreEqual(0, results.Count);
         }
 
@@ -218,19 +215,18 @@ namespace Nevergreen.Tests
 
         // --- Helpers ---
 
-        private RoomData CreateRoomWithFixedWeight(string id, float weight)
+        private RoomPoolEntry CreateRoomWithFixedWeight(string id, float weight)
         {
             var room = ScriptableObject.CreateInstance<RoomData>();
             room.roomId = id;
-            room.selectionRule = new FixedWeightRule { weight = weight };
-            return room;
+            return new RoomPoolEntry { room = room, selectionRule = new FixedWeightRule { weight = weight } };
         }
 
-        private void CleanupRooms(List<RoomData> rooms)
+        private void CleanupRooms(List<RoomPoolEntry> pool)
         {
-            foreach (var r in rooms)
+            foreach (var e in pool)
             {
-                Object.DestroyImmediate(r);
+                if (e.room != null) Object.DestroyImmediate(e.room);
             }
         }
     }

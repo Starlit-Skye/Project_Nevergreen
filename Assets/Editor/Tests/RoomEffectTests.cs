@@ -296,7 +296,7 @@ namespace Nevergreen.Tests
             var marionetteRoom = ScriptableObject.CreateInstance<RoomData>();
             marionetteRoom.roomId = "RD_MarionetteRoom";
             marionetteRoom.roomName = "Marionette Room";
-            roomDb.availableRooms.Add(marionetteRoom);
+            roomDb.availableRooms.Add(new RoomPoolEntry { room = marionetteRoom });
 
             var mockGameDb = GameDatabase.CreateForTesting(rooms: roomDb);
             GameDatabase.SetInstanceForTesting(mockGameDb);

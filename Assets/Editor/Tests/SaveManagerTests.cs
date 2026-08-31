@@ -200,7 +200,7 @@ namespace Nevergreen.Tests
             var roomB = ScriptableObject.CreateInstance<RoomData>();
             roomB.roomId = "room_b";
 
-            roomDb.availableRooms = new List<RoomData> { roomA, roomB };
+            roomDb.availableRooms = new List<RoomPoolEntry> { new RoomPoolEntry { room = roomA }, new RoomPoolEntry { room = roomB } };
             typeof(GameDatabase).GetField("roomDatabase", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(db, roomDb);
             GameDatabase.SetInstanceForTesting(db);
 
@@ -268,7 +268,7 @@ namespace Nevergreen.Tests
             
             var roomA = ScriptableObject.CreateInstance<RoomData>();
             roomA.roomId = "room_a";
-            roomDb.availableRooms = new List<RoomData> { roomA };
+            roomDb.availableRooms = new List<RoomPoolEntry> { new RoomPoolEntry { room = roomA } };
 
             var formation = ScriptableObject.CreateInstance<EnemyFormationData>();
             formation.formationId = "test_formation";

@@ -14,7 +14,7 @@ namespace Nevergreen.Data
         /// Rooms with weight <= 0 are excluded. If the pool has fewer valid rooms than 'count',
         /// it returns all valid rooms.
         /// </summary>
-        public static List<RoomData> SelectRooms(List<RoomData> pool, int count, System.Random rng)
+        public static List<RoomData> SelectRooms(List<RoomPoolEntry> pool, int count, System.Random rng)
         {
             var results = new List<RoomData>();
             if (pool == null || pool.Count == 0 || count <= 0)
@@ -24,28 +24,29 @@ namespace Nevergreen.Data
             var candidates = new List<(RoomData room, float weight)>();
             float totalWeight = 0f;
 
-            foreach (var room in pool)
+            foreach (var entry in pool)
             {
-                if (room == null) continue;
+                if (entry == null || entry.room == null) continue;
 
                 // If rule is null, default to weight 1.0f
                 float weight = 1f;
-                if (room.selectionRule != null)
+                if (entry.selectionRule != null)
                 {
-                    weight = room.selectionRule.EvaluateWeight();
+                    weight = entry.selectionRule.EvaluateWeight();
                 }
 
                 if (weight > 0f)
                 {
-                    candidates.Add((room, weight));
+                    candidates.Add((entry.room, weight));
                     totalWeight += weight;
                 }
             }
 
-            // 2. Sample without replacement
-            int targetCount = Mathf.Min(count, candidates.Count);
-            
-            for (int i = 0; i < targetCount; i++)
+            if (candidates.Count == 0)
+                return results;
+
+            // 2. Sample with replacement (independent rolls)
+            for (int i = 0; i < count; i++)
             {
                 float roll = (float)(rng.NextDouble() * totalWeight);
                 float accumulated = 0f;
@@ -58,10 +59,6 @@ namespace Nevergreen.Data
                     {
                         // Selected this room
                         results.Add(candidates[j].room);
-                        
-                        // Remove from pool and update total weight
-                        totalWeight -= candidates[j].weight;
-                        candidates.RemoveAt(j);
                         break;
                     }
                 }
