@@ -30,13 +30,13 @@ MonoBehaviour:
     - rid: 9162808348448653389
       type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        weight: 1
+        weight: 7
     - rid: 9162808348448653390
       type: {class: PartyCountRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
         baseWeight: 1
-        bonusPerMissingSlot: 0.5
+        bonusPerMissingSlot: 3
     - rid: 9162808348448653391
       type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        weight: 1
+        weight: 2
