@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.RoomData
   roomId: RD_HealRoom
   roomName: Heal Room
-  description: Choose to heal 1 Marionette 100% or heal all Marionettes 25%.
+  description: Rest and heal.
   activationType: 0
   strategy:
     rid: 9162807961631064143

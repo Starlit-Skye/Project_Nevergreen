@@ -1,8 +1,8 @@
-# Task List: Scrap Economy System Implementation
+# Task List: Assign SFX Audio Clips to Marionette Skill ScriptableObjects
 
-- [x] Add `Scraps` property and lifecycle management to `RunSessionManager.cs` <!-- id: 0 -->
-- [x] Add `scraps` persistence to `SaveDataDTO` and `SaveManager.cs` <!-- id: 1 -->
-- [x] Update `CombatConfig.cs` with `TierRewardProfile` list and `GetRewardRanges()` per encounter tier <!-- id: 2 -->
-- [x] Update `BattleRewardHandler.cs` & `BattleSystem.cs` to award Parts & Scraps based on `EnemyEncounterTier` <!-- id: 3 -->
-- [x] Update `CombatRewardUI.cs` & `CombatUI.cs` to display Parts and Scraps in the victory reward screen <!-- id: 4 -->
-- [x] Create automated unit tests in `EconomySystemTests.cs` and verify full test suite <!-- id: 5 -->
+- [x] Write C# Editor script to map and assign audio clips to SkillData scriptable objects
+- [x] Execute script in Unity Editor via `script-execute`
+- [x] Verify that `sfx` fields are populated on target `.asset` files
+- [x] Save Unity assets and refresh AssetDatabase
+- [x] Document results and verify correctness
+

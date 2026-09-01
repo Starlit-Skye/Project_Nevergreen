@@ -89,3 +89,8 @@
 - **Pattern**: Choosing string-based state names over direct asset references (`AnimationClip`) for ScriptableObjects when authoring animation data.
 - **Rule**: When adding animation fields to ScriptableObjects (like `SkillData`), prefer direct `AnimationClip` object references in the Inspector over raw string state names for stronger type safety and drag-and-drop authoring. Ensure missing asset references log clear diagnostic errors (`Debug.LogError`) while retaining graceful fallback behavior to generic animations.
 
+### 16. Avoid Adding Unnecessary UI Elements Beyond Specific Requirements
+- **Pattern**: Adding optional header/title fields (e.g. room name) to a UI tooltip when the requirement specifically requested displaying a single field (e.g. `description`).
+- **Rule**: Stick strictly to requested data fields for UI components. Do not add optional extra text fields or header components unless explicitly requested or clearly specified in the design spec.
+
+

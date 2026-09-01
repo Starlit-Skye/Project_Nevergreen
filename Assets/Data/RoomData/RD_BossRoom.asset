@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.RoomData
   roomId: RD_BossRoom
   roomName: Boss Room
-  description: Fight the run's boss.
+  description: Fight the boss.
   activationType: 2
   strategy:
     rid: 3450807445630746624

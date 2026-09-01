@@ -14,11 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.RoomData
   roomId: RD_MarionetteRoom
   roomName: Marionette Room
-  description: Allows adding a Marionette to your team or replacing a Marionette
-    in your team with a new one.
+  description: Add or replace a Marionette.
   activationType: 2
-  selectionRule:
-    rid: 9162808309200191579
   strategy:
     rid: 4415245311136759899
   references:
@@ -28,8 +25,3 @@ MonoBehaviour:
       type: {class: MarionetteRoomEffectStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
         marionetteSelectionPrefab: {fileID: 304171158140332193, guid: 2e2bc9268329e7246bbd5190680c7179, type: 3}
-    - rid: 9162808309200191579
-      type: {class: PartyCountRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
-      data:
-        baseWeight: 1
-        bonusPerMissingSlot: 0.5
