@@ -191,6 +191,9 @@ namespace Nevergreen.UI
                 GameObject item = Instantiate(skillListItemPrefab, skillsContainer);
                 _spawnedSkillItems.Add(item);
 
+                var tooltipTrigger = item.GetComponent<SkillTooltipTrigger>();
+                tooltipTrigger.SetSkill(skill);
+
                 var label = item.GetComponentInChildren<TextMeshProUGUI>();
                 if (label != null) label.text = skill.displayName;
 

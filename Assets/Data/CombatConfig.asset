@@ -27,19 +27,19 @@ MonoBehaviour:
   levelUpCostCurve: 02000000020000000300000003000000
   minPartsPerBattle: 1
   maxPartsPerBattle: 2
-  minScrapsPerBattle: 10
+  minScrapsPerBattle: 15
   maxScrapsPerBattle: 25
   tierRewardProfiles: []
   roomTierMappings:
   - roomCount: 1
     tier: 0
-  - roomCount: 4
+  - roomCount: 6
     tier: 1
-  - roomCount: 8
+  - roomCount: 10
     tier: 2
-  - roomCount: 12
+  - roomCount: 14
     tier: 3
-  - roomCount: 17
+  - roomCount: 19
     tier: 4
   statusIcons:
   - statusType: 1
