@@ -484,6 +484,10 @@ namespace Nevergreen.Prototype
                         RoomData capturedRoom = room;
                         btn.onClick.AddListener(() => OnRoomChoiceClicked(capturedRoom));
                     }
+
+                    var tooltipTrigger = btnGo.GetComponent<RoomTooltipTrigger>();
+                    tooltipTrigger.enabled = true;
+                    tooltipTrigger.SetRoom(room);
                 }
             }
             else

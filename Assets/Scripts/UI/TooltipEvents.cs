@@ -62,5 +62,19 @@ namespace Nevergreen.UI
         {
             OnHideTrinketTooltip?.Invoke();
         }
+
+        // Room tooltip events
+        public static event Action<Nevergreen.Data.RoomData> OnShowRoomTooltip;
+        public static event Action OnHideRoomTooltip;
+
+        public static void ShowRoomTooltip(Nevergreen.Data.RoomData room)
+        {
+            OnShowRoomTooltip?.Invoke(room);
+        }
+
+        public static void HideRoomTooltip()
+        {
+            OnHideRoomTooltip?.Invoke();
+        }
     }
 }
