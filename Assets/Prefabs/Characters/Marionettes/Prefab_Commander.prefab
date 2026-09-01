@@ -83,7 +83,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -3630656008888569670, guid: ec9888df5f93f344cb38bade05f49cf2, type: 3}
-  m_Color: {r: 0.5, g: 0.7, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -232,6 +232,7 @@ MonoBehaviour:
     character: {fileID: 0}
     currentLevel: 1
     equippedSkills: []
+    unlockedSkills: []
     perfections: []
     imperfections: []
     equippedTrinkets: []

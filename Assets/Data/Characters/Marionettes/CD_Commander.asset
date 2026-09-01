@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Commander
   characterPrefab: {fileID: 5047933170817855005, guid: 5b88ff8e0bd14034a8c91acf134ed19a, type: 3}
   teamType: 0
+  takeDamageClip: {fileID: 7400000, guid: 073d4eb7aa564034e852f9935be1df49, type: 2}
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 411ff264a595c0a478b3baa8809f955b, type: 2}
