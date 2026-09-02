@@ -93,7 +93,7 @@ namespace Nevergreen.Tests
         }
 
         [Test]
-        public void GetAOETargets_LargeSizeHandling_HitsSize2AndNext()
+        public void GetAOETargets_Size2Target_Budget2_HitsOnlySize2()
         {
             // E1 is size 2, occupies ranks 1 and 2
             var e1 = CombatTestHelper.CreateCombatCharacter("E1", Team.Enemy, 1, size: 2);
@@ -102,12 +102,62 @@ namespace Nevergreen.Tests
 
             InjectTeams(new List<CombatCharacter> { _attacker }, new List<CombatCharacter> { e1, e2 });
 
-            // Click E1, should hit E1 and E2. E1 is size 2 but only counts as 1 element in the list.
+            // Click E1, should hit ONLY E1. E1 is size 2, so it consumes the entire maxTargets = 2 budget.
+            var targets = _battleSystem.GetAOETargets(_skill, e1);
+
+            Assert.AreEqual(1, targets.Count);
+            Assert.AreEqual(e1, targets[0]);
+
+            Object.DestroyImmediate(e1.gameObject);
+            Object.DestroyImmediate(e2.gameObject);
+        }
+
+        [Test]
+        public void GetAOETargets_Size2Target_Budget3_HitsSize2AndNext()
+        {
+            // E1 is size 2, occupies ranks 1 and 2
+            var e1 = CombatTestHelper.CreateCombatCharacter("E1", Team.Enemy, 1, size: 2);
+            // E2 is size 1, occupies rank 3
+            var e2 = CombatTestHelper.CreateCombatCharacter("E2", Team.Enemy, 3, size: 1);
+            // E3 is size 1, occupies rank 4
+            var e3 = CombatTestHelper.CreateCombatCharacter("E3", Team.Enemy, 4, size: 1);
+
+            InjectTeams(new List<CombatCharacter> { _attacker }, new List<CombatCharacter> { e1, e2, e3 });
+
+            // Set skill budget to 3
+            _skill.maxTargets = 3;
+
+            // Click E1. Budget=3. E1 consumes 2. Remaining=1. E2 consumes 1. E3 is ignored.
             var targets = _battleSystem.GetAOETargets(_skill, e1);
 
             Assert.AreEqual(2, targets.Count);
             Assert.AreEqual(e1, targets[0]);
             Assert.AreEqual(e2, targets[1]);
+
+            Object.DestroyImmediate(e1.gameObject);
+            Object.DestroyImmediate(e2.gameObject);
+            Object.DestroyImmediate(e3.gameObject);
+        }
+
+        [Test]
+        public void GetAOETargets_Size3Target_Budget2_HitsOnlySize3()
+        {
+            // E1 is size 3, occupies ranks 1, 2, 3
+            var e1 = CombatTestHelper.CreateCombatCharacter("E1", Team.Enemy, 1, size: 3);
+            // E2 is size 1, occupies rank 4
+            var e2 = CombatTestHelper.CreateCombatCharacter("E2", Team.Enemy, 4, size: 1);
+
+            InjectTeams(new List<CombatCharacter> { _attacker }, new List<CombatCharacter> { e1, e2 });
+
+            // Skill budget is 2
+            _skill.maxTargets = 2;
+
+            // Click E1. E1 consumes 3, exceeding budget of 2. But primary target is always included.
+            // E2 is ignored because budget is exhausted.
+            var targets = _battleSystem.GetAOETargets(_skill, e1);
+
+            Assert.AreEqual(1, targets.Count);
+            Assert.AreEqual(e1, targets[0]);
 
             Object.DestroyImmediate(e1.gameObject);
             Object.DestroyImmediate(e2.gameObject);

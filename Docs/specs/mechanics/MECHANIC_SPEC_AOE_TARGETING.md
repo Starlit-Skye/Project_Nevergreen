@@ -62,7 +62,7 @@ No complex algebraic formulas. Target propagation is resolved by:
 
 ## Edge Cases
 - **Trailing Boundary (Limit)**: If the primary target is near the back of the team formation and there are fewer units behind them than `maxTargets`, the list is clamped to only return the available units.
-- **Multi-Rank Characters**: Large enemies (size 2/3) only count as a single target. The physical rank of the character determines what lies behind them, preventing double-hitting.
+- **Multi-Rank Characters**: Large enemies (size 2/3) only count as a single target in the result list (preventing double-hitting), but they consume multiple rank-slots of the AOE budget proportional to their size. A size-2 character consumes 2 of the `maxTargets` rank budget. This means an AOE skill with `maxTargets = 2` targeting a size-2 enemy will only hit that single enemy. The primary target is always included, even if its size exceeds the total `maxTargets` budget.
 - **Piles (Deceased Units)**: Piles are treated as valid targets and count towards the trailing target limit for both damaging and healing skills. However, healing skills do not apply any healing or positive effects to them (as piles refuse healing).
 - **AOE Healing/Status on Piles**: For AOE skills (`maxTargets > 1`), a Pile can be selected as the primary anchor target for a healing or status-only skill **if and only if** the resulting AOE range includes at least one active, living target. If no living targets exist behind the Pile in the AOE range, the Pile is rejected as an anchor.
 
