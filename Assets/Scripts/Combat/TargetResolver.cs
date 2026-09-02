@@ -101,8 +101,21 @@ namespace Nevergreen.Combat
             if (primaryIndex == -1)
                 return new List<CombatCharacter> { primaryTarget };
 
-            // Take the primary target and up to maxTargets - 1 targets behind them in the formation
-            return sortedTeam.Skip(primaryIndex).Take(skill.maxTargets).ToList();
+            // Take characters starting from primary target until the rank budget (maxTargets) is exhausted.
+            // A multi-rank character (size > 1) consumes multiple slots in the budget.
+            // The primary target is always included, even if its size exceeds the budget.
+            var result = new List<CombatCharacter>();
+            int ranksUsed = 0;
+
+            for (int i = primaryIndex; i < sortedTeam.Count && ranksUsed < skill.maxTargets; i++)
+            {
+                var character = sortedTeam[i];
+                int charSize = character.characterData != null ? character.characterData.size : 1;
+                result.Add(character);
+                ranksUsed += charSize;
+            }
+
+            return result;
         }
     }
 }
