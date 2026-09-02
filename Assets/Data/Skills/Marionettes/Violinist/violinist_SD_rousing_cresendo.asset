@@ -37,7 +37,7 @@ MonoBehaviour:
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 8300000, guid: fe91c87a7107a254290a0bc98a0d94a7, type: 3}
-  animationClip: {fileID: 0}
+  animationClip: {fileID: 7400000, guid: c31ef3448cd501340afc752cd09b7494, type: 2}
   references:
     version: 2
     RefIds:

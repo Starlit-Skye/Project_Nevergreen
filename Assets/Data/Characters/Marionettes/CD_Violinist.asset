@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Violinist
   characterPrefab: {fileID: 5047933170817855005, guid: 966f820d31514a143910be3e96322f4c, type: 3}
   teamType: 0
+  takeDamageClip: {fileID: 7400000, guid: b03125d0e664c884aabd6b9194219dfd, type: 2}
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: b4a16037c65a6304c868482217e9f39c, type: 2}
