@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Cut Down
   description: 'Deal high damage to 1 enemy. Reduced accuracy
 
-    Usable Rank: 1-2'
+    Usable Rank: 1-2
+
+    Target
+    Rank: 1/2'
   modifier:
     damagePercent: 1.3
     healPercent: 0

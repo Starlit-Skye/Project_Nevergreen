@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Deal low damage to 1 enemy. Stun and knockback 1
 
     Usable Rank:
-    1-2'
+    1-2
+
+    Target Rank: 1/2'
   modifier:
     damagePercent: 0.6
     healPercent: 0

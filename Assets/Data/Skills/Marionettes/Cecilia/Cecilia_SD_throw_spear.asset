@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Throw Spear
   description: 'Deal damage to 1 backline enemy
 
-    Usable Rank: 2-4'
+    Usable Rank: 2-4
+
+    Target
+    Rank: 3/4'
   modifier:
     damagePercent: 0.8
     healPercent: 0

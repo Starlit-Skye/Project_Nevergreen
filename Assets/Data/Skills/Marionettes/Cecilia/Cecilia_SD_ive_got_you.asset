@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: I've Got You
   description: 'Move forward 1, apply buff to ally in back.
 
-    Usable Rank: 2-4'
+    Usable Rank: 2-4
+
+    Target
+    Rank: Any'
   modifier:
     damagePercent: 0
     healPercent: 0

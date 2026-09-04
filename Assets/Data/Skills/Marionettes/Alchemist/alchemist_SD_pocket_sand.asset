@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Reduce 1 target''s accuracy. Move self back 2.
 
     Usable Rank:
-    1-2'
+    1-2
+
+    Target Rank: 1'
   modifier:
     damagePercent: 0
     healPercent: 0

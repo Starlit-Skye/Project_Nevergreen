@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Deal low damage to an enemy, move the target and self to front. High
     stun chance.
 
-    Usable Rank: 2-4'
+    Usable Rank: 2-4
+
+    Target Rank: 3/4'
   modifier:
     damagePercent: 0.1
     healPercent: 0
@@ -40,6 +42,7 @@ MonoBehaviour:
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
+  animationClip: {fileID: 0}
   references:
     version: 2
     RefIds:

@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Get Behind Me!
   description: 'Guard an ally, gain Def buff.
 
-    Usable Rank: 1-3'
+    Usable Rank: 1-3
+
+    Target Rank:
+    Any'
   modifier:
     damagePercent: 0
     healPercent: 0

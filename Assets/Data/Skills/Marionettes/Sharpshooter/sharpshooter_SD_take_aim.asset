@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Buff crit rate and accuracy to self. Move back 1
 
     Usable Rank:
-    3-4'
+    3-4
+
+    Target Rank: Self'
   modifier:
     damagePercent: 0
     healPercent: 0

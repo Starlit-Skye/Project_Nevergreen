@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Side Arm
   description: 'Low damage and low accuracy. Move self back 1
 
-    Usable Rank: 1-2'
+    Usable Rank: 1-2
+
+    Target
+    Rank: 1'
   modifier:
     damagePercent: 0.6
     healPercent: 0

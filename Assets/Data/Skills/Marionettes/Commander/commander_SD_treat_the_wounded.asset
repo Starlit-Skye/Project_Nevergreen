@@ -16,7 +16,9 @@ MonoBehaviour:
   displayName: Treat The Wounded
   description: 'Heal 1 ally.
 
-    Usable Rank: 1-2'
+    Usable Rank: 1-2
+
+    Target Rank: Any'
   modifier:
     damagePercent: 0
     healPercent: 0.6

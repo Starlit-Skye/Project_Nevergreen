@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Skewer
   description: 'Deal damage to 1 target. Move forward 1
 
-    Usable Rank: 2-4'
+    Usable Rank: 2-4
+
+    Target
+    Rank: 1/2/3'
   modifier:
     damagePercent: 0.9
     healPercent: 0

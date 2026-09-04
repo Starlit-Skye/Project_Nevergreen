@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Time To Go To Bed
   description: 'Deal reduced damage to an enemy. Apply stun.
 
-    Usable Rank: 1-3'
+    Usable Rank: 1-3
+
+    Target
+    Rank: 1/2'
   modifier:
     damagePercent: 0.8
     healPercent: 0

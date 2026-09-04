@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Preserve Memories
   description: 'Guard 1 ally, gain Def buff
 
-    Usable Rank: 1-3'
+    Usable Rank: 1-3
+
+    Target Rank:
+    Any'
   modifier:
     damagePercent: 0
     healPercent: 0

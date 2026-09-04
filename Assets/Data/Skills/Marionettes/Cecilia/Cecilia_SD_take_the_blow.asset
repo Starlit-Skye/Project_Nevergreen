@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Take The Blow
   description: 'Move back 1, apply buff to ally in front.
 
-    Usable Rank: 1-3'
+    Usable Rank: 1-3
+
+    Target
+    Rank: Self'
   modifier:
     damagePercent: 0
     healPercent: 0

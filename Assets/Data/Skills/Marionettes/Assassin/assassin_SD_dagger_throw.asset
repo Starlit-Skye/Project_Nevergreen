@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Deal reduced damage to an enemy. Move self back 1. Apply bleed.
 
     Usable
-    Rank: 1-3'
+    Rank: 1-3
+
+    Target Rank: 2/3/4'
   modifier:
     damagePercent: 0.8
     healPercent: 0

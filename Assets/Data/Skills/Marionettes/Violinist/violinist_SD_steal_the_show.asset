@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Back most rank only. Deal damage to 1 enemy, once per battle, move
     self to front.
 
-    Usable Rank: 4'
+    Usable Rank: 4
+
+    Target Rank: Any'
   modifier:
     damagePercent: 1.5
     healPercent: 0

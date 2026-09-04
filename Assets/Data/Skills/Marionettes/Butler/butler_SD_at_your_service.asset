@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Deal damage to an enemy, move self to front, gain Def Buff
 
     Usable
-    Rank: 2-4'
+    Rank: 2-4
+
+    Target Rank: 1/2'
   modifier:
     damagePercent: 0.7
     healPercent: 0

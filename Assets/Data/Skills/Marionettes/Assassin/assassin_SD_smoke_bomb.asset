@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Smoke Bomb
   description: 'Shuffle an enemy and give Acc Debuff.
 
-    Usable Rank: 1-3'
+    Usable Rank: 1-3
+
+    Target
+    Rank: Any'
   modifier:
     damagePercent: 0
     healPercent: 0

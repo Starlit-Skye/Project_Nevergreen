@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Boot Knife
   description: 'Deal damage to 1 enemy, high crit
 
-    Usable Rank: 2-4'
+    Usable Rank: 1-2
+
+    Target
+    Rank: 1/2'
   modifier:
     damagePercent: 1
     healPercent: 0

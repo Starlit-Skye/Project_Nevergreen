@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Rousing Cresendo
   description: 'Give an ally Attack and Acc Buff
 
-    Usable Rank: 2-3'
+    Usable Rank: 2-3
+
+    Target
+    Rank: Any'
   modifier:
     damagePercent: 0
     healPercent: 0

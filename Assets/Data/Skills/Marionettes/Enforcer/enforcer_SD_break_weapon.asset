@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Deal low damage to an enemiy. Apply Attack Debuff
 
     Usable Rank:
-    1-3'
+    1-3
+
+    Target Rank: 1/2'
   modifier:
     damagePercent: 0.8
     healPercent: 0

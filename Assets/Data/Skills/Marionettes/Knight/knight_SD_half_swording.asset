@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Half Swording
   description: 'Low damage, ignore defense.
 
-    Usable Rank: 1-2'
+    Usable Rank: 1-2
+
+    Target Rank:
+    1/2'
   modifier:
     damagePercent: 0.8
     healPercent: 0

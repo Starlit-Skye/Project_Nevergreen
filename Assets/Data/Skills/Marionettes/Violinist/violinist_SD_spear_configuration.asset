@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Spear Configuration
   description: 'Damage 1 target, move forward 1
 
-    Usable Rank: 3-4'
+    Usable Rank: 3-4
+
+    Target
+    Rank: 1/2/3'
   modifier:
     damagePercent: 1
     healPercent: 0

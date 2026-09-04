@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Deal low damage to 1 target. Always hit, debuff speed and dodge.
 
     Usable
-    Rank: 2-4'
+    Rank: 2-4
+
+    Target Rank: Any'
   modifier:
     damagePercent: 0.2
     healPercent: 0

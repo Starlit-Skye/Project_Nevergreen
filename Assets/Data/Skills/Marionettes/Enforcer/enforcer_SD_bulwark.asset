@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Bulwark
   description: 'Give self Damage and Defense buff
 
-    Usable Rank: 1-3'
+    Usable Rank: 1-3
+
+    Target
+    Rank: Self'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -37,6 +40,7 @@ MonoBehaviour:
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
+  animationClip: {fileID: 0}
   references:
     version: 2
     RefIds:

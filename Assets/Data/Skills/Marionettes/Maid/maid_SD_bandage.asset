@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Bandage
   description: 'Heal 1 ally, remove bleed
 
-    Usable Rank: 2-4'
+    Usable Rank: 2-4
+
+    Target Rank:
+    Any'
   modifier:
     damagePercent: 0
     healPercent: 0.9

@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Deal damage to 1 enemy. +30% damage against Marked enemies.
 
     Usable
-    Rank: 3-4'
+    Rank: 3-4
+
+    Target Rank: 2/3/4'
   modifier:
     damagePercent: 1
     healPercent: 0

@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Makes an ally guard this character and grant that ally Defense buff
     and Acc buff.
 
-    Usable Rank: 3-4'
+    Usable Rank: 3-4
+
+    Target Rank: Any'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -39,6 +41,7 @@ MonoBehaviour:
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
+  animationClip: {fileID: 0}
   references:
     version: 2
     RefIds:

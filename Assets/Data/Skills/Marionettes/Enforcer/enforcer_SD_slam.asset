@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Slam
   description: 'Deal reduced damage to a target. Stun target
 
-    Usable Rank: 1-3'
+    Usable Rank: 1-3
+
+    Target
+    Rank: 1/2'
   modifier:
     damagePercent: 0.8
     healPercent: 0

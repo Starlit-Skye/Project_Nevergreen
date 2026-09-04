@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.RoomData
   roomId: RD_MarionetteRoom
   roomName: Marionette Room
-  description: Add or replace a Marionette.
+  description: Fight a battle, then add or replace a Marionette.
   activationType: 2
   strategy:
     rid: 4415245311136759899

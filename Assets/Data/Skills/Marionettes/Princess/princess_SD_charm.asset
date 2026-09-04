@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Charm
   description: 'High chance to make a target move forward 3
 
-    Usable Rank: 3-4'
+    Usable Rank: 3-4
+
+    Target
+    Rank: 2/3/4'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -25,7 +28,7 @@ MonoBehaviour:
   effects:
   - rid: 356131266422636622
   useRanks: 0300000004000000
-  targetRanks: 01000000020000000300000004000000
+  targetRanks: 020000000300000004000000
   targetScope: 2
   maxTargets: 1
   ignoresDefense: 0
@@ -36,6 +39,7 @@ MonoBehaviour:
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
+  animationClip: {fileID: 0}
   references:
     version: 2
     RefIds:

@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Hold The Line
   description: 'Gain attack and move res buff
 
-    Usable Rank: 1-2'
+    Usable Rank: 1-2
+
+    Target Rank:
+    Self'
   modifier:
     damagePercent: 0
     healPercent: 0

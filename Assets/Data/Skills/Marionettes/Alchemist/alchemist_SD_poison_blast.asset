@@ -19,6 +19,8 @@ MonoBehaviour:
     Usable
     Rank: 3-4
 
+    Target Rank: 1/2
+
 '
   modifier:
     damagePercent: 0.3

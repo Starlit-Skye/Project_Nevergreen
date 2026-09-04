@@ -16,7 +16,9 @@ MonoBehaviour:
   displayName: Hasty Repair
   description: 'Heal 1 ally
 
-    Usable Rank: 2-4'
+    Usable Rank: 2-4
+
+    Target Rank: Any'
   modifier:
     damagePercent: 0
     healPercent: 0.4

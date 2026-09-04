@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 'Deal low damage to an enemy. Armor piercing. +40% damage against
     Marked.
 
-    Usable Rank: 1-2'
+    Usable Rank: 1-2
+
+    Target Rank: 1/2'
   modifier:
     damagePercent: 0.6
     healPercent: 0

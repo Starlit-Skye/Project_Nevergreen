@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: spin_to_win
   displayName: Spin To Win
-  description: 'Deal damage to 2 enemies
+  description: 'Deal damage to 2 enemies at the front
 
     Usable Rank: 1-3'
   modifier:

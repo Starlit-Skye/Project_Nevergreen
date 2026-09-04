@@ -16,7 +16,9 @@ MonoBehaviour:
   displayName: Ivory Spear
   description: 'Deal damage to 1 target
 
-    Usable Rank: 1-3'
+    Usable Rank: 1-3
+
+    Target Rank: 1/2'
   modifier:
     damagePercent: 1
     healPercent: 0

@@ -16,7 +16,10 @@ MonoBehaviour:
   displayName: Healing Potion
   description: 'Small heal and apply Restore to an ally.
 
-    Usable Rank: 3-4'
+    Usable Rank: 3-4
+
+    Target
+    Rank: Any'
   modifier:
     damagePercent: 0
     healPercent: 0.1
