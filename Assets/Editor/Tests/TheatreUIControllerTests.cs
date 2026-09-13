@@ -59,6 +59,7 @@ namespace Nevergreen.Tests
             var skillItemPrefabGo = new GameObject("SkillItemPrefab");
             skillItemPrefabGo.AddComponent<Button>();
             skillItemPrefabGo.AddComponent<Image>();
+            skillItemPrefabGo.AddComponent<SkillTooltipTrigger>();
             var labelGo = new GameObject("Label");
             labelGo.transform.SetParent(skillItemPrefabGo.transform);
             labelGo.AddComponent<TextMeshProUGUI>();
