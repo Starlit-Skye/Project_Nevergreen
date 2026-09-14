@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Increased Critical Rate + Increased Critical Damage + Decreases Dodge
     Chance + Decreased Defense
   cannotBeRemoved: 0
-  illustration: {fileID: 0}
+  illustration: {fileID: 21300000, guid: b30a75dd0794ad845a27a4207d9ff260, type: 3}
   effectStrategies:
   - rid: 3450807880175059051
   - rid: 3450807880175059052
