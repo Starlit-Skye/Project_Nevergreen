@@ -22,10 +22,7 @@ MonoBehaviour:
   - room: {fileID: 11400000, guid: ed85582afa7d8e4499cdd29df803e51b, type: 2}
     selectionRule:
       rid: 9162808348448653391
-  - room: {fileID: 11400000, guid: ef835334adaf96445840d7e5fbf38f9f, type: 2}
-    selectionRule:
-      rid: 7076121741356957772
-  - room: {fileID: 11400000, guid: ef835334adaf96445840d7e5fbf38f9f, type: 2}
+  - room: {fileID: 11400000, guid: 5107b89f4ad87e944942699a5cd70e47, type: 2}
     selectionRule:
       rid: 7076121741356957772
   bossRoom: {fileID: 11400000, guid: ed05f619c1c385341bc261bf71eb7c87, type: 2}
@@ -36,7 +33,7 @@ MonoBehaviour:
     - rid: 7076121741356957772
       type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        weight: 1
+        weight: 0.5
     - rid: 9162808348448653389
       type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
