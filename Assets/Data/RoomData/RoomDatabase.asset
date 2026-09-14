@@ -33,7 +33,7 @@ MonoBehaviour:
     - rid: 7076121741356957772
       type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        weight: 0.5
+        weight: 100
     - rid: 9162808348448653389
       type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:

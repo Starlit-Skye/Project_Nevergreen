@@ -18,3 +18,4 @@ MonoBehaviour:
   marionetteDatabase: {fileID: 11400000, guid: 8ad4c1dd2e4000b46baaa5692ebfffec, type: 2}
   traitDatabase: {fileID: 11400000, guid: 80b49560ee402eb48b59bd9d84ea6c6f, type: 2}
   roomDatabase: {fileID: 11400000, guid: d4c1284dd086a8d448cd91612e0b61aa, type: 2}
+  trinketDatabase: {fileID: 11400000, guid: bf190227a9f23664b8b1b1f9a11975ea, type: 2}

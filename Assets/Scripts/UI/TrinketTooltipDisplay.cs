@@ -48,11 +48,6 @@ namespace Nevergreen.UI
                 
                 // Add name header
                 lines.Add($"<b>{trinket.displayName}</b>");
-                
-                if (!string.IsNullOrEmpty(trinket.description))
-                {
-                    lines.Add($"<i>{trinket.description}</i>");
-                }
 
                 if (trinket.cannotBeRemoved)
                 {

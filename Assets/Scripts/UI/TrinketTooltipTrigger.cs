@@ -11,6 +11,16 @@ namespace Nevergreen.UI
     public class TrinketTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         private TrinketData _trinket;
+        private TrinketUIItem _trinketUIItem;
+
+        private void Start()
+        {
+            _trinketUIItem = GetComponent<TrinketUIItem>();
+            if (_trinketUIItem != null && _trinketUIItem.TrinketData != null)
+            {
+                _trinket = _trinketUIItem.TrinketData;
+            }
+        }
 
         public void SetTrinket(TrinketData trinket)
         {
@@ -19,9 +29,15 @@ namespace Nevergreen.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (_trinket != null)
+            TrinketData trinketToShow = _trinket;
+            if (trinketToShow == null && _trinketUIItem != null)
             {
-                TooltipEvents.ShowTrinketTooltip(_trinket);
+                trinketToShow = _trinketUIItem.TrinketData;
+            }
+
+            if (trinketToShow != null)
+            {
+                TooltipEvents.ShowTrinketTooltip(trinketToShow);
             }
         }
 
