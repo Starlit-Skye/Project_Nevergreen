@@ -17,23 +17,30 @@ namespace Nevergreen.UI
         [SerializeField] private TextMeshProUGUI rewardText;
         [SerializeField] private Button closeButton;
 
+        [Header("Trinket UI")]
+        [SerializeField] private GameObject trinketUIItemPrefab;
+        [SerializeField] private Transform testTrinketDroppedContainer;
+
         private int _minScraps;
         private int _maxScraps;
         private int _minParts;
         private int _maxParts;
 
+        private TrinketData _rolledTrinket;
+
         private int _rolledScraps;
         private int _rolledParts;
 
         /// <summary>
-        /// Initializes the UI with the reward ranges.
+        /// Initializes the UI with the reward ranges and an optional trinket reward.
         /// </summary>
-        public void Initialize(int minScraps, int maxScraps, int minParts, int maxParts)
+        public void Initialize(int minScraps, int maxScraps, int minParts, int maxParts, TrinketData rolledTrinket = null)
         {
             _minScraps = minScraps;
             _maxScraps = maxScraps;
             _minParts = minParts;
             _maxParts = maxParts;
+            _rolledTrinket = rolledTrinket;
 
             if (rewardPanel != null)
             {
@@ -80,7 +87,24 @@ namespace Nevergreen.UI
 
             if (rewardText != null)
             {
-                rewardText.text = $"You found {_rolledScraps} Scraps and {_rolledParts} Parts!";
+                if (_rolledTrinket != null)
+                {
+                    rewardText.text = $"You found {_rolledScraps} Scraps, {_rolledParts} Parts, and {_rolledTrinket.displayName}!";
+                    
+                    if (trinketUIItemPrefab != null && testTrinketDroppedContainer != null)
+                    {
+                        var item = Instantiate(trinketUIItemPrefab, testTrinketDroppedContainer);
+                        var uiItem = item.GetComponent<TrinketUIItem>();
+                        if (uiItem != null)
+                        {
+                            uiItem.Initialize(_rolledTrinket);
+                        }
+                    }
+                }
+                else
+                {
+                    rewardText.text = $"You found {_rolledScraps} Scraps and {_rolledParts} Parts!";
+                }
             }
 
             if (openTreasureButton != null)

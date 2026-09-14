@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6907603013777629569}
   - component: {fileID: 856587019805113365}
   - component: {fileID: 7638569640227091541}
+  - component: {fileID: 2381024462161445913}
   m_Layer: 0
   m_Name: TrinketUIItemTest
   m_TagString: Untagged
@@ -88,3 +89,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be3325619364a30438c490a947bc3537, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.UI.TrinketUIItem
+--- !u!114 &2381024462161445913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7265451969422357526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8bfe7235e3497247a02793ab00ecfc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.UI.TrinketTooltipTrigger

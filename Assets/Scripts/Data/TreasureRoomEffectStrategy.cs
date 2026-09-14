@@ -23,6 +23,12 @@ namespace Nevergreen.Data
         [Tooltip("Maximum amount of Parts awarded.")]
         [SerializeField] private int maxParts = 15;
 
+        [Tooltip("Weight for dropping a Common tier trinket. Set to 0 to disable Common trinkets.")]
+        [SerializeField] private float commonTrinketWeight = 70f;
+
+        [Tooltip("Weight for dropping an Uncommon tier trinket. Set to 0 to disable Uncommon trinkets.")]
+        [SerializeField] private float uncommonTrinketWeight = 30f;
+
         [Tooltip("Prefab for the dedicated Treasure UI. Must contain TreasureUIController.")]
         [SerializeField] private GameObject treasureUiPrefab;
 
@@ -81,7 +87,8 @@ namespace Nevergreen.Data
             var controller = uiInstance.GetComponent<TreasureUIController>();
             if (controller != null)
             {
-                controller.Initialize(minScraps, maxScraps, minParts, maxParts);
+                var rolledTrinket = RollTrinketReward();
+                controller.Initialize(minScraps, maxScraps, minParts, maxParts, rolledTrinket);
             }
             else
             {
@@ -114,6 +121,34 @@ namespace Nevergreen.Data
                     RunSessionManager.CompleteRoom(new System.Collections.Generic.List<RoomData>());
                 }
             }
+        }
+
+        /// <summary>
+        /// Rolls a random trinket based on the configured tier weights.
+        /// Returns null if the rolled tier list is empty, or if TrinketDatabase is unavailable.
+        /// </summary>
+        public TrinketData RollTrinketReward(System.Random rng = null)
+        {
+            var db = GameDatabase.Instance;
+            if (db == null || db.TrinketDatabase == null) return null;
+
+            if (rng == null) rng = new System.Random();
+
+            float totalWeight = commonTrinketWeight + uncommonTrinketWeight;
+            if (totalWeight <= 0f) return null;
+
+            double roll = rng.NextDouble() * totalWeight;
+            bool isCommon = roll < commonTrinketWeight;
+
+            var targetList = isCommon ? db.TrinketDatabase.CommonTrinkets : db.TrinketDatabase.UncommonTrinkets;
+
+            if (targetList == null || targetList.Count == 0)
+            {
+                return null;
+            }
+
+            int index = rng.Next(targetList.Count);
+            return targetList[index];
         }
     }
 }
