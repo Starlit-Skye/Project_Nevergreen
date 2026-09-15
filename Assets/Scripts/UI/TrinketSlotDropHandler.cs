@@ -62,6 +62,11 @@ namespace Nevergreen.UI
                     {
                         controller.ForceRefresh();
                     }
+                    var treasureController = GetComponentInParent<TreasureUIController>();
+                    if (treasureController != null)
+                    {
+                        treasureController.RefreshPanels();
+                    }
                     Destroy(draggedItem.gameObject);
                 }
                 else
@@ -94,6 +99,11 @@ namespace Nevergreen.UI
                     if (controller != null)
                     {
                         controller.ForceRefresh();
+                    }
+                    var treasureController = GetComponentInParent<TreasureUIController>();
+                    if (treasureController != null)
+                    {
+                        treasureController.RefreshPanels();
                     }
                     Destroy(draggedItem.gameObject);
                 }

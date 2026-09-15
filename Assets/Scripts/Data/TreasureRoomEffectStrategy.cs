@@ -88,7 +88,7 @@ namespace Nevergreen.Data
             if (controller != null)
             {
                 var rolledTrinket = RollTrinketReward();
-                controller.Initialize(minScraps, maxScraps, minParts, maxParts, rolledTrinket);
+                controller.Initialize(minScraps, maxScraps, minParts, maxParts, rolledTrinket, RunSessionManager.CurrentParty);
             }
             else
             {
