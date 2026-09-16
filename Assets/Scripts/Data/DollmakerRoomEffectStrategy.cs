@@ -10,8 +10,8 @@ namespace Nevergreen.Data
     [Serializable]
     public class DollmakerRoomEffectStrategy : RoomEffectStrategy
     {
-        [Tooltip("Cost in Scraps for perfection replacement operations.")]
-        [SerializeField] private int scrapCost = 15;
+        [Tooltip("Cost in Parts for perfection replacement operations.")]
+        [SerializeField] private int partCost = 15;
 
         [Tooltip("Number of perfection replacement options offered.")]
         [SerializeField] private int perfectionReplacementOptionsCount = 3;
@@ -73,7 +73,7 @@ namespace Nevergreen.Data
             var controller = uiInstance.GetComponent<DollmakerUIController>();
             if (controller != null)
             {
-                controller.Initialize(scrapCost, perfectionReplacementOptionsCount, RunSessionManager.CurrentParty);
+                controller.Initialize(partCost, perfectionReplacementOptionsCount, RunSessionManager.CurrentParty);
             }
             else
             {

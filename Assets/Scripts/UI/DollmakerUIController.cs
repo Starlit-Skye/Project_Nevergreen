@@ -26,14 +26,14 @@ namespace Nevergreen.UI
         [Tooltip("Close button to finish interaction and proceed.")]
         [SerializeField] private Button closeButton;
 
-        private int _scrapCost;
+        private int _partCost;
         private int _perfectionReplacementOptions;
         private List<PartyMemberInfo> _party;
         private int _selectedMemberIndex = -1;
 
-        public void Initialize(int scrapCost, int perfectionReplacementOptions, List<PartyMemberInfo> party = null)
+        public void Initialize(int partCost, int perfectionReplacementOptions, List<PartyMemberInfo> party = null)
         {
-            _scrapCost = scrapCost;
+            _partCost = partCost;
             _perfectionReplacementOptions = perfectionReplacementOptions;
             _party = party ?? RunSessionManager.CurrentParty;
 

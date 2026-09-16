@@ -24,6 +24,6 @@ MonoBehaviour:
     - rid: 7076121857010958411
       type: {class: DollmakerRoomEffectStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        scrapCost: 15
+        partCost: 1
         perfectionReplacementOptionsCount: 3
         dollmakerUiPrefab: {fileID: 1859730792772094819, guid: 3367e0ce6fca4c84c8b3f33a25dce463, type: 3}

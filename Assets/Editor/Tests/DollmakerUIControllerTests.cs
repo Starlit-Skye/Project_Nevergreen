@@ -197,7 +197,7 @@ namespace Nevergreen.Tests
             var strategy = new DollmakerRoomEffectStrategy();
             
             // Inject strategy fields
-            typeof(DollmakerRoomEffectStrategy).GetField("scrapCost", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(strategy, 20);
+            typeof(DollmakerRoomEffectStrategy).GetField("partCost", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(strategy, 20);
             typeof(DollmakerRoomEffectStrategy).GetField("perfectionReplacementOptionsCount", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(strategy, 2);
             typeof(DollmakerRoomEffectStrategy).GetField("dollmakerUiPrefab", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(strategy, _uiRoot);
 
@@ -214,10 +214,10 @@ namespace Nevergreen.Tests
             Assert.IsNotNull(controllerInstance, "Controller should exist on instance.");
 
             // Verify initialization values (via reflection)
-            int scrapCost = (int)typeof(DollmakerUIController).GetField("_scrapCost", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(controllerInstance);
+            int partCost = (int)typeof(DollmakerUIController).GetField("_partCost", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(controllerInstance);
             int optionsCount = (int)typeof(DollmakerUIController).GetField("_perfectionReplacementOptions", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(controllerInstance);
 
-            Assert.AreEqual(20, scrapCost);
+            Assert.AreEqual(20, partCost);
             Assert.AreEqual(2, optionsCount);
 
             Object.DestroyImmediate(canvasGo);
