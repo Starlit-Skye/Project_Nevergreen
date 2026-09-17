@@ -222,5 +222,178 @@ namespace Nevergreen.Tests
 
             Object.DestroyImmediate(canvasGo);
         }
+
+        [Test]
+        public void TraitSelection_AppliesStrikethrough_AndTogglesConfirmButton()
+        {
+            var party = new List<PartyMemberInfo>
+            {
+                new PartyMemberInfo 
+                { 
+                    character = _mockCharacter1,
+                    perfections = new List<TraitData> { _mockPerfection },
+                    imperfections = new List<TraitData> { _mockImperfection }
+                }
+            };
+            
+            var confirmBtn = _uiRoot.AddComponent<Button>();
+            typeof(DollmakerUIController).GetField("confirmButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmBtn);
+
+            _controller.Initialize(10, 3, party);
+            _controller.SelectMarionette(0);
+
+            Assert.IsFalse(confirmBtn.interactable, "Confirm should be disabled initially.");
+
+            var perfItem = _perfectionsContainer.GetChild(0).gameObject;
+            var perfBtn = perfItem.GetComponent<Button>();
+            var perfLabel = perfItem.GetComponentInChildren<TextMeshProUGUI>();
+
+            // Click perfection
+            perfBtn.onClick.Invoke();
+            
+            Assert.IsTrue(confirmBtn.interactable, "Confirm should be enabled after selection.");
+            Assert.AreEqual(FontStyles.Strikethrough, perfLabel.fontStyle, "Perfection label should have strikethrough.");
+
+            // Click same perfection again (deselect)
+            perfBtn.onClick.Invoke();
+            
+            Assert.IsFalse(confirmBtn.interactable, "Confirm should be disabled after deselection.");
+            Assert.AreEqual(FontStyles.Normal, perfLabel.fontStyle, "Perfection label should be normal.");
+
+            // Click perfection, then imperfection
+            perfBtn.onClick.Invoke();
+            var imperfItem = _imperfectionsContainer.GetChild(0).gameObject;
+            var imperfBtn = imperfItem.GetComponent<Button>();
+            var imperfLabel = imperfItem.GetComponentInChildren<TextMeshProUGUI>();
+            
+            imperfBtn.onClick.Invoke();
+
+            Assert.IsTrue(confirmBtn.interactable, "Confirm should be enabled.");
+            Assert.AreEqual(FontStyles.Normal, perfLabel.fontStyle, "Perfection label should be normal (deselected).");
+            Assert.AreEqual(FontStyles.Strikethrough, imperfLabel.fontStyle, "Imperfection label should have strikethrough.");
+        }
+
+        [Test]
+        public void ConfirmImperfection_RemovesTrait_AndCallsCompleteRoom()
+        {
+            var partyMember = new PartyMemberInfo 
+            { 
+                character = _mockCharacter1,
+                imperfections = new List<TraitData> { _mockImperfection }
+            };
+            var party = new List<PartyMemberInfo> { partyMember };
+            
+            var confirmBtn = _uiRoot.AddComponent<Button>();
+            typeof(DollmakerUIController).GetField("confirmButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmBtn);
+            
+            // Use reflection to call OnEnable so listeners are registered
+            typeof(DollmakerUIController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(_controller, null);
+
+            _controller.Initialize(10, 3, party);
+            _controller.SelectMarionette(0);
+
+            var imperfBtn = _imperfectionsContainer.GetChild(0).gameObject.GetComponent<Button>();
+            imperfBtn.onClick.Invoke(); // Select imperfection
+
+            confirmBtn.onClick.Invoke(); // Confirm removal
+
+            Assert.IsFalse(partyMember.imperfections.Contains(_mockImperfection), "Imperfection should be removed.");
+            Assert.IsFalse(_uiRoot.activeSelf, "UI should be deactivated (room complete flow).");
+        }
+        [Test]
+        public void ConfirmPerfection_ShowsReplacePanel_AndPopulatesOptions()
+        {
+            var globalCfg = ScriptableObject.CreateInstance<GlobalConfig>();
+            globalCfg.maxPerfections = 10;
+            globalCfg.maxImperfections = 10;
+            
+            var traitDb = ScriptableObject.CreateInstance<TraitDatabase>();
+            var newPerfection = ScriptableObject.CreateInstance<TraitData>();
+            newPerfection.displayName = "New Perfection Option";
+            newPerfection.traitType = TraitType.Perfection;
+            newPerfection.traitId = "new_perf_1";
+            traitDb.perfections = new List<TraitData> { newPerfection };
+
+            var gameDb = GameDatabase.CreateForTesting(globalCfg: globalCfg, traits: traitDb);
+            GameDatabase.SetInstanceForTesting(gameDb);
+
+            var partyMember = new PartyMemberInfo 
+            { 
+                character = _mockCharacter1,
+                perfections = new List<TraitData> { _mockPerfection }
+            };
+            var party = new List<PartyMemberInfo> { partyMember };
+            
+            var confirmBtn = _uiRoot.AddComponent<Button>();
+            var replacePanel = new GameObject("ReplacePanel");
+            var replacementContainer = new GameObject("ReplacementContainer").transform;
+            
+            typeof(DollmakerUIController).GetField("confirmButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmBtn);
+            typeof(DollmakerUIController).GetField("replacePanel", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, replacePanel);
+            typeof(DollmakerUIController).GetField("replacementContainer", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, replacementContainer);
+            
+            typeof(DollmakerUIController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(_controller, null);
+
+            _controller.Initialize(10, 3, party);
+            _controller.SelectMarionette(0);
+
+            var perfBtn = _perfectionsContainer.GetChild(0).gameObject.GetComponent<Button>();
+            perfBtn.onClick.Invoke(); // Select perfection
+
+            confirmBtn.onClick.Invoke(); // Confirm triggers replace panel
+
+            Assert.IsTrue(replacePanel.activeSelf, "Replace Panel should be enabled.");
+            Assert.AreEqual(1, replacementContainer.childCount, "Replacement container should have 1 option populated.");
+            
+            var repLabel = replacementContainer.GetChild(0).GetComponentInChildren<TextMeshProUGUI>();
+            Assert.AreEqual("- New Perfection Option", repLabel.text, "Replacement option label should match.");
+            
+            GameDatabase.SetInstanceForTesting(null);
+        }
+
+        [Test]
+        public void ConfirmReplacement_RemovesOldPerfection_AndAddsNewPerfection()
+        {
+            var globalCfg = ScriptableObject.CreateInstance<GlobalConfig>();
+            globalCfg.maxPerfections = 10;
+            globalCfg.maxImperfections = 10;
+            
+            var gameDb = GameDatabase.CreateForTesting(globalCfg: globalCfg);
+            GameDatabase.SetInstanceForTesting(gameDb);
+
+            var partyMember = new PartyMemberInfo 
+            { 
+                character = _mockCharacter1,
+                perfections = new List<TraitData> { _mockPerfection }
+            };
+            var party = new List<PartyMemberInfo> { partyMember };
+            
+            var confirmRepBtn = _uiRoot.AddComponent<Button>();
+            typeof(DollmakerUIController).GetField("confirmReplacementButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmRepBtn);
+            
+            typeof(DollmakerUIController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(_controller, null);
+
+            _controller.Initialize(10, 3, party);
+            _controller.SelectMarionette(0);
+
+            // Mock selecting the old perfection
+            typeof(DollmakerUIController).GetField("_selectedTrait", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, _mockPerfection);
+            
+            var newPerfection = ScriptableObject.CreateInstance<TraitData>();
+            newPerfection.displayName = "New Perfection Option";
+            newPerfection.traitType = TraitType.Perfection;
+            newPerfection.traitId = "new_perf_1";
+            
+            // Mock selecting the replacement
+            typeof(DollmakerUIController).GetField("_selectedReplacement", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, newPerfection);
+
+            confirmRepBtn.onClick.Invoke();
+
+            Assert.IsFalse(partyMember.perfections.Contains(_mockPerfection), "Old perfection should be removed.");
+            Assert.IsTrue(partyMember.perfections.Contains(newPerfection), "New perfection should be added.");
+            Assert.IsFalse(_uiRoot.activeSelf, "UI should be deactivated (room complete flow).");
+            
+            GameDatabase.SetInstanceForTesting(null);
+        }
     }
 }
