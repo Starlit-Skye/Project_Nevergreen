@@ -361,7 +361,7 @@ namespace Nevergreen.UI
             
             if (_selectedReplacementLabel != null)
             {
-                _selectedReplacementLabel.fontStyle = FontStyles.Strikethrough;
+                _selectedReplacementLabel.fontStyle = FontStyles.Underline;
             }
 
             if (confirmReplacementButton != null) confirmReplacementButton.interactable = true;

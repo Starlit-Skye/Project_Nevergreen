@@ -395,5 +395,59 @@ namespace Nevergreen.Tests
             
             GameDatabase.SetInstanceForTesting(null);
         }
+
+        [Test]
+        public void ReplacementSelection_AppliesUnderlineHighlight()
+        {
+            var globalCfg = ScriptableObject.CreateInstance<GlobalConfig>();
+            globalCfg.maxPerfections = 10;
+            globalCfg.maxImperfections = 10;
+            
+            var traitDb = ScriptableObject.CreateInstance<TraitDatabase>();
+            var newPerfection = ScriptableObject.CreateInstance<TraitData>();
+            newPerfection.displayName = "New Perfection Option";
+            newPerfection.traitType = TraitType.Perfection;
+            newPerfection.traitId = "new_perf_1";
+            traitDb.perfections = new List<TraitData> { newPerfection };
+
+            var gameDb = GameDatabase.CreateForTesting(globalCfg: globalCfg, traits: traitDb);
+            GameDatabase.SetInstanceForTesting(gameDb);
+
+            var partyMember = new PartyMemberInfo 
+            { 
+                character = _mockCharacter1,
+                perfections = new List<TraitData> { _mockPerfection }
+            };
+            var party = new List<PartyMemberInfo> { partyMember };
+            
+            var confirmBtn = _uiRoot.AddComponent<Button>();
+            var replacePanel = new GameObject("ReplacePanel");
+            var replacementContainer = new GameObject("ReplacementContainer").transform;
+            
+            typeof(DollmakerUIController).GetField("confirmButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmBtn);
+            typeof(DollmakerUIController).GetField("replacePanel", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, replacePanel);
+            typeof(DollmakerUIController).GetField("replacementContainer", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, replacementContainer);
+            
+            typeof(DollmakerUIController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(_controller, null);
+
+            _controller.Initialize(10, 3, party);
+            _controller.SelectMarionette(0);
+
+            var perfBtn = _perfectionsContainer.GetChild(0).gameObject.GetComponent<Button>();
+            perfBtn.onClick.Invoke(); // Select perfection
+
+            confirmBtn.onClick.Invoke(); // Confirm triggers replace panel
+
+            var repItem = replacementContainer.GetChild(0).gameObject;
+            var repBtn = repItem.GetComponent<Button>();
+            var repLabel = repItem.GetComponentInChildren<TextMeshProUGUI>();
+
+            // Click replacement item
+            repBtn.onClick.Invoke();
+
+            Assert.AreEqual(FontStyles.Underline, repLabel.fontStyle, "Replacement option label should have underline font style.");
+
+            GameDatabase.SetInstanceForTesting(null);
+        }
     }
 }
