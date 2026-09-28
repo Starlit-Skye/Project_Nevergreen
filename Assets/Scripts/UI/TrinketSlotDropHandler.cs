@@ -8,6 +8,8 @@ namespace Nevergreen.UI
     {
         public PartyMemberInfo TargetMember { get; set; }
         public int TargetSlotIndex { get; set; } = -1;
+        public bool isShopContext { get; set; } = false;
+        public ShopUIController shopController { get; set; } = null;
 
         public void OnDrop(PointerEventData eventData)
         {
@@ -30,6 +32,13 @@ namespace Nevergreen.UI
             {
                 if (ownerA != null && x.cannotBeRemoved) return; // Cannot unequip if cursed
 
+                // Shop Affordability Check
+                ShopUIController currentShop = isShopContext ? shopController : null;
+                if (ownerA == null)
+                {
+                    if (currentShop != null && !currentShop.CanAfford(draggedItem.SlotIndex)) return;
+                }
+
                 if (ownerA != null)
                 {
                     if (!ownerA.TryUnequipTrinket(x)) return;
@@ -38,6 +47,11 @@ namespace Nevergreen.UI
                 // TryEquipTrinket will automatically put it in an empty slot or append
                 if (TargetMember.TryEquipTrinket(x))
                 {
+                    if (currentShop != null && ownerA == null)
+                    {
+                        currentShop.OnItemPurchased(draggedItem.SlotIndex);
+                    }
+
                     // If we have a specific target slot, we want to try to place it exactly there.
                     // TryEquipTrinket might have placed it in the first available slot.
                     // We can reorder it to the TargetSlotIndex.
@@ -56,7 +70,7 @@ namespace Nevergreen.UI
                         TargetMember.equippedTrinkets[currentIndex] = temp;
                     }
 
-                    SaveManager.SaveRun();
+                    if (!isShopContext) SaveManager.SaveRun();
                     var controller = GetComponentInParent<PartyManagementPanelController>();
                     if (controller != null)
                     {
@@ -66,6 +80,10 @@ namespace Nevergreen.UI
                     if (treasureController != null)
                     {
                         treasureController.RefreshPanels();
+                    }
+                    if (currentShop != null)
+                    {
+                        currentShop.RefreshEquipPanelsPublic();
                     }
                     Destroy(draggedItem.gameObject);
                 }
@@ -94,7 +112,7 @@ namespace Nevergreen.UI
                     ownerA.equippedTrinkets[currentIndex] = null;
                     ownerA.equippedTrinkets[TargetSlotIndex] = x;
                     
-                    SaveManager.SaveRun();
+                    if (!isShopContext) SaveManager.SaveRun();
                     var controller = GetComponentInParent<PartyManagementPanelController>();
                     if (controller != null)
                     {

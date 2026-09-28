@@ -11,6 +11,8 @@ namespace Nevergreen.UI
         public TrinketData TrinketData { get; private set; }
         public PartyMemberInfo Owner { get; private set; }
         public int SlotIndex { get; private set; }
+        public bool isShopContext { get; set; } = false;
+        public ShopUIController shopController { get; set; } = null;
 
         private Image _image;
         private Transform _originalParent;
@@ -94,15 +96,35 @@ namespace Nevergreen.UI
                         foreach(var t in ownerB.equippedTrinkets) { if (t != y && t.trinketId == x.trinketId) bHasX = true; }
                         if (bHasX) return;
 
+                        // Shop Affordability Check
+                        ShopUIController currentShop = this.isShopContext ? this.shopController : null;
+                        if (currentShop != null && !currentShop.CanAfford(draggedItem.SlotIndex)) return;
+
                         ownerB.TryUnequipTrinket(y);
                         if (ownerB.TryEquipTrinket(x))
                         {
-                            SaveManager.SaveRun();
+                            if (currentShop != null)
+                            {
+                                currentShop.OnItemPurchased(draggedItem.SlotIndex);
+                            }
+
+                            if (!isShopContext) SaveManager.SaveRun();
                             
                             var controller = GetComponentInParent<PartyManagementPanelController>();
                             if (controller != null)
                             {
                                 controller.ForceRefresh();
+                            }
+
+                            var treasureController = GetComponentInParent<TreasureUIController>();
+                            if (treasureController != null)
+                            {
+                                treasureController.RefreshPanels();
+                            }
+
+                            if (currentShop != null)
+                            {
+                                currentShop.RefreshEquipPanelsPublic();
                             }
                             
                             // Reinitialize the dragged item (which goes back to inventory) 
@@ -124,12 +146,18 @@ namespace Nevergreen.UI
                             ownerA.equippedTrinkets[indexA] = y;
                             ownerB.equippedTrinkets[indexB] = x;
                             
-                            SaveManager.SaveRun();
+                            if (!isShopContext) SaveManager.SaveRun();
                             
                             var controller = GetComponentInParent<PartyManagementPanelController>();
                             if (controller != null)
                             {
                                 controller.ForceRefresh();
+                            }
+
+                            var treasureController = GetComponentInParent<TreasureUIController>();
+                            if (treasureController != null)
+                            {
+                                treasureController.RefreshPanels();
                             }
                             
                             Destroy(draggedItem.gameObject);
@@ -154,12 +182,18 @@ namespace Nevergreen.UI
                         ownerA.TryEquipTrinket(y);
                         ownerB.TryEquipTrinket(x);
                         
-                        SaveManager.SaveRun();
+                        if (!isShopContext) SaveManager.SaveRun();
                         
                         var controller = GetComponentInParent<PartyManagementPanelController>();
                         if (controller != null)
                         {
                             controller.ForceRefresh();
+                        }
+
+                        var treasureController2 = GetComponentInParent<TreasureUIController>();
+                        if (treasureController2 != null)
+                        {
+                            treasureController2.RefreshPanels();
                         }
                         
                         Destroy(draggedItem.gameObject);

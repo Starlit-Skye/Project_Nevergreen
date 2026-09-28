@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 197e26672ff30064192ba41ce76df4b3, type: 3}
-  m_Name: RD_TreasureRoom
+  m_Name: RD_Shop
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.RoomData
-  roomId: RD_TreasureRoom
-  roomName: Treasure Room
-  description: Open a treasure chest for reward.
+  roomId: RD_Shop
+  roomName: Workshop
+  description: Buy trinkets.
   activationType: 2
   strategy:
-    rid: 7076121794380562510
+    rid: 7076122044190425165
   references:
     version: 2
     RefIds:
-    - rid: 7076121794380562510
-      type: {class: TreasureRoomEffectStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+    - rid: 7076122044190425165
+      type: {class: ShopRoomEffectStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        minScraps: 30
-        maxScraps: 40
-        minParts: 3
-        maxParts: 5
         commonTrinketWeight: 70
         uncommonTrinketWeight: 30
-        treasureUiPrefab: {fileID: 3125939767771059409, guid: aa1f0dda99d79d140a8bed8fb61c7687, type: 3}
+        minCostCommon: 15
+        maxCostCommon: 30
+        minCostUncommon: 40
+        maxCostUncommon: 70
+        shopUiPrefab: {fileID: 5935542236474885749, guid: 25040bfbd677b504b9bf0cc7b2fb52c0, type: 3}
