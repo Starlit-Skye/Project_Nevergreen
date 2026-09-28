@@ -10,12 +10,13 @@ Target build: Unity 2022.3 (Windows)
 Provides equippable items (Trinkets) that grant passive stat modifications and dynamic event-driven combat effect strategies to Marionette party members.
 
 ## Scope
-- In scope: Trinket data definitions, capacity rules, equipment constraints (cursed trinkets, uniqueness cap), runtime effect lifecycle (`OnActivate`, `OnDeactivate`), stat modifier aggregation, combat event subscriptions (`OnBeforeDamageCalculation`, `OnBeforeDamageCalculationPerTarget`), and persistence serialization (`PartyMemberDTO`).
+- In scope: Trinket data definitions, capacity rules, equipment constraints (cursed trinkets, uniqueness cap), runtime effect lifecycle (`OnActivate`, `OnDeactivate`), stat modifier aggregation, combat event subscriptions (`OnBeforeDamageCalculation`, `OnBeforeDamageCalculationPerTarget`), persistence serialization (`PartyMemberDTO`), and Elite Encounter drop rules (rarity-weighted uniform random selection).
 - Out of scope: UI rendering details for inventory management (handled by `PartyManagementPanelController`).
 
 ## Source of Truth
 - Code: `Assets/Scripts/Data/PartyMemberInfo.cs` (Equipment constraints)
 - Code: `Assets/Scripts/Combat/CombatCharacter.cs` (Lifecycle, Stat aggregation)
+- Code: `Assets/Scripts/Combat/BattleRewardHandler.cs` (Elite Trinket Drop implementation)
 - Code: `Assets/Scripts/Data/Trinkets/TrinketData.cs` (`TrinketData` definition)
 - Code: `Assets/Scripts/Data/Trinkets/TrinketEffectStrategy.cs` (Strategy base class)
 - Code: `Assets/Scripts/Combat/TrinketInstance.cs` (Runtime instance wrapper)

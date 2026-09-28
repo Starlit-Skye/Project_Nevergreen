@@ -436,7 +436,11 @@ namespace Nevergreen.Combat
                 Debug.Log("[BattleSystem] === VICTORY ===");
 
                 var config = GameDatabase.Instance.CombatConfig;
-                var tier = config != null ? config.GetEncounterTierForRoom(Nevergreen.RunSessionManager.RoomProgression) : EnemyEncounterTier.Trivial;
+                
+                var activeStrategy = Nevergreen.RunSessionManager.CurrentRoomData?.strategy;
+                var tier = (activeStrategy != null && activeStrategy.OverrideEncounterTier.HasValue)
+                    ? activeStrategy.OverrideEncounterTier.Value
+                    : (config != null ? config.GetEncounterTierForRoom(Nevergreen.RunSessionManager.RoomProgression) : EnemyEncounterTier.Trivial);
 
                 BattleRewardHandler.ApplyVictoryRewards(_playerTeam, config, tier, _rng, out int partsGranted, out int scrapsGranted);
                 PartsGrantedThisBattle = partsGranted;

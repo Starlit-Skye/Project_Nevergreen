@@ -53,7 +53,12 @@ Allows designers to configure specific enemy team formations as asset configurat
 - `EnemyFormationData`:
   - `enemyPrefabs`: `List<GameObject>` (where index maps to rank slot)
 - `EnemyFormationDatabase`:
-  - `formations`: `List<EnemyFormationData>`
+  - `trivialFormations`: `List<EnemyFormationData>`
+  - `earlyGameFormations`: `List<EnemyFormationData>`
+  - `midGameFormations`: `List<EnemyFormationData>`
+  - `lateGameFormations`: `List<EnemyFormationData>`
+  - `eliteFormations`: `List<EnemyFormationData>`
+  - `bossFormations`: `List<EnemyFormationData>`
 - `GameDatabase.Instance.EnemyFormationDatabase`: `EnemyFormationDatabase`
 - `RunSessionManager.LastSelectedFormation`: `EnemyFormationData`
 - **Persistence keys**: None (in-memory state only).

@@ -50,6 +50,7 @@ namespace Nevergreen.Combat
                 RunSessionManager.GrantParts(partsGranted);
                 RunSessionManager.GrantScraps(scrapsGranted);
             }
+
         }
     }
 }

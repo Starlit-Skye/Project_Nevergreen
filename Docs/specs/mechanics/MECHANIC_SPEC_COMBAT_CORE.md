@@ -169,7 +169,7 @@ is subtracted from the source's application chance when resolving status effects
 - Event: `character_removed`, Trigger: character state becomes `Destroyed`, Payload: character
 - Event: `character_action_resolved`, Trigger: action completion, Payload: actor, skill, target(s),
   hit/miss, crit, status results
-- Event: `battle_ended`, Trigger: combat end, Payload: battle type, outcome, rounds elapsed, casualties, parts granted, scraps granted
+- Event: `battle_ended`, Trigger: combat end, Payload: battle type, outcome, rounds elapsed, casualties, parts granted, scraps granted, trinket granted
 
 ## Acceptance Tests
 - Automated: `Assets/Editor/Tests/` (`GuardTests`, `StunTests`, `BuffDebuffTests`, `HitCritTests`, `MoveTests`)
