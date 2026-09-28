@@ -18,15 +18,15 @@
   - [x] Implement `Initialize(...)` with two-stage tier rolling (common vs uncommon weight roll -> trinket selection & cost within bounds)
   - [x] Populate `trinketInventoryDropHandlers` slots with `TrinketUIItem` prefabs and set `priceTexts` labels
 
-- [ ] Step 3: Add ONLY functionality to UI controller that manages `trinketEquipPanels`
-  - [ ] Implement `RefreshEquipPanels()` and `SetupTrinketSlot()` to render marionette equipment slots and equipped trinkets for current party
+- [x] Step 3: Add ONLY functionality to UI controller that manages `trinketEquipPanels`
+  - [x] Implement `RefreshEquipPanels()` and `SetupTrinketSlot()` to render marionette equipment slots and equipped trinkets for current party
 
-- [ ] Step 4: Add purchasing flow and confirmation, including keeping track if a slot is purchased or not and applying strikethrough to price tag
-  - [ ] Implement drag-and-drop purchase validation: check Scraps balance, execute equip/swap, deduct Scraps **if and only if** equip succeeds, set per-slot `isPurchased = true`, apply `FontStyles.Strikethrough` to `priceTexts`, and save run via `SaveManager.SaveRun()`
-  - [ ] Ensure previously purchased slots allow moving/swapping trinkets without further Scraps deduction
+- [x] Step 4: Add purchasing flow and confirmation, including keeping track if a slot is purchased or not and applying strikethrough to price tag
+  - [x] Implement drag-and-drop purchase validation: check Scraps balance, execute equip/swap, deduct Scraps **if and only if** equip succeeds, set per-slot `isPurchased = true`, apply `FontStyles.Strikethrough` to `priceTexts`, and save run via `SaveManager.SaveRun()`
+  - [x] Ensure previously purchased slots allow moving/swapping trinkets without further Scraps deduction
 
-- [ ] Step 5: Implement `OnLeaveShopClicked`
-  - [ ] Implement `OnLeaveShopClicked()` button listener to save run, deactivate shop UI panel (`gameObject.SetActive(false)`), and trigger room completion via `CombatUI.ShowRoomSelectionImmediately()` / `RunSessionManager.CompleteRoom()`
+- [x] Step 5: Implement `OnLeaveShopClicked`
+  - [x] Implement `OnLeaveShopClicked()` button listener to save run, deactivate shop UI panel (`gameObject.SetActive(false)`), and trigger room completion via `CombatUI.ShowRoomSelectionImmediately()` / `RunSessionManager.CompleteRoom()`
 
 - [ ] Verification & Automated Tests (`ShopRoomEffectTests.cs`)
   - [ ] Test strategy parameter passing and `UICanvas` prioritization
