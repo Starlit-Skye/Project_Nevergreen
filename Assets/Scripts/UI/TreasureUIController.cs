@@ -10,8 +10,12 @@ namespace Nevergreen.UI
     /// Controller for the Treasure Room UI.
     /// Handles rolling for Scraps and Parts, and the room completion flow.
     /// </summary>
-    public class TreasureUIController : MonoBehaviour
+    public class TreasureUIController : MonoBehaviour, ITrinketEquipContainerUI
     {
+        public void RefreshTrinketUI()
+        {
+            RefreshPanels();
+        }
         [Header("UI Elements")]
         [SerializeField] private Button openTreasureButton;
         [SerializeField] private GameObject rewardPanel;

@@ -71,19 +71,10 @@ namespace Nevergreen.UI
                     }
 
                     if (!isShopContext) SaveManager.SaveRun();
-                    var controller = GetComponentInParent<PartyManagementPanelController>();
-                    if (controller != null)
+                    var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                    if (containerUI != null)
                     {
-                        controller.ForceRefresh();
-                    }
-                    var treasureController = GetComponentInParent<TreasureUIController>();
-                    if (treasureController != null)
-                    {
-                        treasureController.RefreshPanels();
-                    }
-                    if (currentShop != null)
-                    {
-                        currentShop.RefreshEquipPanelsPublic();
+                        containerUI.RefreshTrinketUI();
                     }
                     Destroy(draggedItem.gameObject);
                 }
@@ -113,15 +104,10 @@ namespace Nevergreen.UI
                     ownerA.equippedTrinkets[TargetSlotIndex] = x;
                     
                     if (!isShopContext) SaveManager.SaveRun();
-                    var controller = GetComponentInParent<PartyManagementPanelController>();
-                    if (controller != null)
+                    var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                    if (containerUI != null)
                     {
-                        controller.ForceRefresh();
-                    }
-                    var treasureController = GetComponentInParent<TreasureUIController>();
-                    if (treasureController != null)
-                    {
-                        treasureController.RefreshPanels();
+                        containerUI.RefreshTrinketUI();
                     }
                     Destroy(draggedItem.gameObject);
                 }

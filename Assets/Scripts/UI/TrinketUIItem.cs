@@ -110,21 +110,10 @@ namespace Nevergreen.UI
 
                             if (!isShopContext) SaveManager.SaveRun();
                             
-                            var controller = GetComponentInParent<PartyManagementPanelController>();
-                            if (controller != null)
+                            var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                            if (containerUI != null)
                             {
-                                controller.ForceRefresh();
-                            }
-
-                            var treasureController = GetComponentInParent<TreasureUIController>();
-                            if (treasureController != null)
-                            {
-                                treasureController.RefreshPanels();
-                            }
-
-                            if (currentShop != null)
-                            {
-                                currentShop.RefreshEquipPanelsPublic();
+                                containerUI.RefreshTrinketUI();
                             }
                             
                             // Reinitialize the dragged item (which goes back to inventory) 
@@ -148,16 +137,10 @@ namespace Nevergreen.UI
                             
                             if (!isShopContext) SaveManager.SaveRun();
                             
-                            var controller = GetComponentInParent<PartyManagementPanelController>();
-                            if (controller != null)
+                            var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                            if (containerUI != null)
                             {
-                                controller.ForceRefresh();
-                            }
-
-                            var treasureController = GetComponentInParent<TreasureUIController>();
-                            if (treasureController != null)
-                            {
-                                treasureController.RefreshPanels();
+                                containerUI.RefreshTrinketUI();
                             }
                             
                             Destroy(draggedItem.gameObject);
@@ -184,16 +167,10 @@ namespace Nevergreen.UI
                         
                         if (!isShopContext) SaveManager.SaveRun();
                         
-                        var controller = GetComponentInParent<PartyManagementPanelController>();
-                        if (controller != null)
+                        var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                        if (containerUI != null)
                         {
-                            controller.ForceRefresh();
-                        }
-
-                        var treasureController2 = GetComponentInParent<TreasureUIController>();
-                        if (treasureController2 != null)
-                        {
-                            treasureController2.RefreshPanels();
+                            containerUI.RefreshTrinketUI();
                         }
                         
                         Destroy(draggedItem.gameObject);

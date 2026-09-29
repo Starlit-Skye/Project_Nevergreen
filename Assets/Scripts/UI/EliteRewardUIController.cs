@@ -6,8 +6,12 @@ using Nevergreen.Data;
 
 namespace Nevergreen.UI
 {
-    public class EliteRewardUIController : MonoBehaviour
+    public class EliteRewardUIController : MonoBehaviour, ITrinketEquipContainerUI
     {
+        public void RefreshTrinketUI()
+        {
+            RefreshPanels();
+        }
         [Header("UI Elements")]
         [SerializeField] private Button closeButton;
 

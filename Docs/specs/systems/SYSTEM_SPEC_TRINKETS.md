@@ -11,7 +11,7 @@ Provides equippable items (Trinkets) that grant passive stat modifications and d
 
 ## Scope
 - In scope: Trinket data definitions, capacity rules, equipment constraints (cursed trinkets, uniqueness cap), runtime effect lifecycle (`OnActivate`, `OnDeactivate`), stat modifier aggregation, combat event subscriptions (`OnBeforeDamageCalculation`, `OnBeforeDamageCalculationPerTarget`), persistence serialization (`PartyMemberDTO`), and Elite Encounter drop rules (rarity-weighted uniform random selection).
-- Out of scope: UI rendering details for inventory management (handled by `PartyManagementPanelController`).
+- Out of scope: UI rendering details for inventory management (handled by `ITrinketEquipContainerUI` implementations like `PartyManagementPanelController`).
 
 ## Source of Truth
 - Code: `Assets/Scripts/Data/PartyMemberInfo.cs` (Equipment constraints)

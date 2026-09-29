@@ -2793,6 +2793,12 @@ MonoBehaviour:
   - {fileID: 977494134631622206}
   - {fileID: 2297862764799803203}
   trinketUIPrefab: {fileID: 7638569640227091541, guid: 2682eb8993658be4fb3c44ca44d5d4f1, type: 3}
+  leaveShopButton: {fileID: 7756124865398420844}
+  trinketEquipPanels:
+  - {fileID: 5718316593159516340}
+  - {fileID: 8070072841155670759}
+  - {fileID: 9218248271621828307}
+  - {fileID: 4344242153052626322}
 --- !u!114 &6862391173478842131
 MonoBehaviour:
   m_ObjectHideFlags: 0

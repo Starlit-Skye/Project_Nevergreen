@@ -20,12 +20,16 @@ namespace Nevergreen.UI
                     draggedItem.transform.SetParent(this.transform);
                     draggedItem.Initialize(data, null, -1);
                     
-                    var controller = GetComponentInParent<PartyManagementPanelController>();
-                    if (controller == null) controller = Object.FindAnyObjectByType<PartyManagementPanelController>();
-                    
-                    if (controller != null)
+                    var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                    if (containerUI == null) 
                     {
-                        controller.ForceRefresh();
+                        var partyPanel = Object.FindAnyObjectByType<PartyManagementPanelController>();
+                        if (partyPanel != null) containerUI = partyPanel;
+                    }
+                    
+                    if (containerUI != null)
+                    {
+                        containerUI.RefreshTrinketUI();
                     }
                 }
             }

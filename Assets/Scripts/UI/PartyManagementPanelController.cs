@@ -6,8 +6,12 @@ using Nevergreen.Data;
 
 namespace Nevergreen.UI
 {
-    public class PartyManagementPanelController : MonoBehaviour
+    public class PartyManagementPanelController : MonoBehaviour, ITrinketEquipContainerUI
     {
+        public void RefreshTrinketUI()
+        {
+            ForceRefresh();
+        }
         [Header("Party Members")]
         [Tooltip("The 4 buttons corresponding to the party slots.")]
         public Button[] partyMemberButtons = new Button[4];
