@@ -31,6 +31,9 @@ MonoBehaviour:
   - room: {fileID: 11400000, guid: 0b3b1b540058b2341a9c460f15620d21, type: 2}
     selectionRule:
       rid: 7076122044190425169
+  - room: {fileID: 11400000, guid: aadbcb82de1112f40a40945017b54743, type: 2}
+    selectionRule:
+      rid: 7076122157284327502
   bossRoom: {fileID: 11400000, guid: ed05f619c1c385341bc261bf71eb7c87, type: 2}
   healRoom: {fileID: 11400000, guid: 96025301a36952640be2e9d8b62aa117, type: 2}
   references:
@@ -48,6 +51,10 @@ MonoBehaviour:
       type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
         weight: 3
+    - rid: 7076122157284327502
+      type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        weight: 100
     - rid: 9162808348448653389
       type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
