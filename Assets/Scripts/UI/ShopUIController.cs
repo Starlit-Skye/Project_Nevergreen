@@ -15,6 +15,11 @@ namespace Nevergreen.UI
         {
             RefreshEquipPanelsPublic();
         }
+
+        public void OnUnassignedTrinketChanged(TrinketData oldTrinket, TrinketData newTrinket)
+        {
+            // No unassigned reward pool to update
+        }
         [Header("Shop Slots")]
         [SerializeField] private List<TrinketInventoryDropHandler> shopSlots;
         [SerializeField] private List<TextMeshProUGUI> priceTexts;

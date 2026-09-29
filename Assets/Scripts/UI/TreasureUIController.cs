@@ -16,6 +16,11 @@ namespace Nevergreen.UI
         {
             RefreshPanels();
         }
+
+        public void OnUnassignedTrinketChanged(TrinketData oldTrinket, TrinketData newTrinket)
+        {
+            _rolledTrinket = newTrinket;
+        }
         [Header("UI Elements")]
         [SerializeField] private Button openTreasureButton;
         [SerializeField] private GameObject rewardPanel;

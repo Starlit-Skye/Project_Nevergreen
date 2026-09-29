@@ -1,4 +1,5 @@
 using UnityEngine;
+using Nevergreen.Data;
 
 namespace Nevergreen.UI
 {
@@ -12,5 +13,10 @@ namespace Nevergreen.UI
         /// Triggers a full visual refresh of the trinket containers and equip slots.
         /// </summary>
         void RefreshTrinketUI();
+
+        /// <summary>
+        /// Called when an unassigned trinket in the drop pool is swapped with an equipped trinket.
+        /// </summary>
+        void OnUnassignedTrinketChanged(TrinketData oldTrinket, TrinketData newTrinket);
     }
 }

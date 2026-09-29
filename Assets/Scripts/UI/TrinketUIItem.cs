@@ -34,9 +34,22 @@ namespace Nevergreen.UI
             Owner = owner;
             SlotIndex = slotIndex;
             
-            if (_image != null && data != null && data.illustration != null)
+            if (_image != null)
             {
-                _image.sprite = data.illustration;
+                _image.sprite = data != null ? data.illustration : null;
+                _image.enabled = (_image.sprite != null);
+            }
+
+            var tooltipTrigger = GetComponent<TrinketTooltipTrigger>();
+            if (tooltipTrigger != null)
+            {
+                tooltipTrigger.SetTrinket(data);
+            }
+
+            var label = GetComponentInChildren<TMPro.TextMeshProUGUI>();
+            if (label != null)
+            {
+                label.text = data != null ? $"- {data.displayName}" : "";
             }
         }
 
@@ -100,9 +113,22 @@ namespace Nevergreen.UI
                         ShopUIController currentShop = this.isShopContext ? this.shopController : null;
                         if (currentShop != null && !currentShop.CanAfford(draggedItem.SlotIndex)) return;
 
+                        int targetSlotIndex = this.SlotIndex; // The slot of the item being replaced
+
                         ownerB.TryUnequipTrinket(y);
                         if (ownerB.TryEquipTrinket(x))
                         {
+                            // Ensure x is placed exactly at targetSlotIndex
+                            int currentIndex = ownerB.equippedTrinkets.IndexOf(x);
+                            if (currentIndex != -1 && targetSlotIndex != -1 && currentIndex != targetSlotIndex)
+                            {
+                                while (ownerB.equippedTrinkets.Count <= targetSlotIndex)
+                                    ownerB.equippedTrinkets.Add(null);
+                                var temp = ownerB.equippedTrinkets[targetSlotIndex];
+                                ownerB.equippedTrinkets[targetSlotIndex] = x;
+                                ownerB.equippedTrinkets[currentIndex] = temp;
+                            }
+
                             if (currentShop != null)
                             {
                                 currentShop.OnItemPurchased(draggedItem.SlotIndex);
@@ -113,6 +139,7 @@ namespace Nevergreen.UI
                             var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
                             if (containerUI != null)
                             {
+                                containerUI.OnUnassignedTrinketChanged(x, y);
                                 containerUI.RefreshTrinketUI();
                             }
                             
