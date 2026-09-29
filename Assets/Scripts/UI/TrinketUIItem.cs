@@ -106,7 +106,7 @@ namespace Nevergreen.UI
                         
                         // Check duplicates
                         bool bHasX = false; 
-                        foreach(var t in ownerB.equippedTrinkets) { if (t != y && t.trinketId == x.trinketId) bHasX = true; }
+                        foreach(var t in ownerB.equippedTrinkets) { if (t != null && t != y && t.trinketId == x.trinketId) bHasX = true; }
                         if (bHasX) return;
 
                         // Shop Affordability Check
@@ -180,10 +180,10 @@ namespace Nevergreen.UI
                         
                         // Check duplicates
                         bool bHasX = false; 
-                        foreach(var t in ownerB.equippedTrinkets) { if (t != y && t.trinketId == x.trinketId) bHasX = true; }
+                        foreach(var t in ownerB.equippedTrinkets) { if (t != null && t != y && t.trinketId == x.trinketId) bHasX = true; }
                         
                         bool aHasY = false;
-                        foreach(var t in ownerA.equippedTrinkets) { if (t != x && t.trinketId == y.trinketId) aHasY = true; }
+                        foreach(var t in ownerA.equippedTrinkets) { if (t != null && t != x && t.trinketId == y.trinketId) aHasY = true; }
                         
                         if (bHasX || aHasY) return; // Rollback due to duplicate
                         

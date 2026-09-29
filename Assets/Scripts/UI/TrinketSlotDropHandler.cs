@@ -55,7 +55,7 @@ namespace Nevergreen.UI
                         
                         // Check duplicates
                         bool bHasX = false; 
-                        foreach(var t in TargetMember.equippedTrinkets) { if (t != y && t.trinketId == x.trinketId) bHasX = true; }
+                        foreach(var t in TargetMember.equippedTrinkets) { if (t != null && t != y && t.trinketId == x.trinketId) bHasX = true; }
                         if (bHasX) return;
 
                         TargetMember.TryUnequipTrinket(y);
