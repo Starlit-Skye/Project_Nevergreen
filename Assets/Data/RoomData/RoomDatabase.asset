@@ -21,19 +21,19 @@ MonoBehaviour:
       rid: 9162808348448653390
   - room: {fileID: 11400000, guid: ed85582afa7d8e4499cdd29df803e51b, type: 2}
     selectionRule:
-      rid: 9162808348448653391
+      rid: 7076122180511334479
   - room: {fileID: 11400000, guid: 5107b89f4ad87e944942699a5cd70e47, type: 2}
     selectionRule:
       rid: 7076121741356957772
   - room: {fileID: 11400000, guid: 355f9914a5ea18742a2f97e7853ab0ea, type: 2}
     selectionRule:
-      rid: 7076121857010958412
+      rid: 7076122180511334477
   - room: {fileID: 11400000, guid: 0b3b1b540058b2341a9c460f15620d21, type: 2}
     selectionRule:
-      rid: 7076122044190425169
+      rid: 7076122180511334476
   - room: {fileID: 11400000, guid: aadbcb82de1112f40a40945017b54743, type: 2}
     selectionRule:
-      rid: 7076122157284327502
+      rid: 7076122180511334475
   bossRoom: {fileID: 11400000, guid: ed05f619c1c385341bc261bf71eb7c87, type: 2}
   healRoom: {fileID: 11400000, guid: 96025301a36952640be2e9d8b62aa117, type: 2}
   references:
@@ -43,18 +43,30 @@ MonoBehaviour:
       type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
         weight: 0.5
-    - rid: 7076121857010958412
-      type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
+    - rid: 7076122180511334475
+      type: {class: ProgressionScaledRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        weight: 2
-    - rid: 7076122044190425169
-      type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
+        baseWeight: 0.1
+        weightPerRoom: 0.075
+        maxWeight: 1
+    - rid: 7076122180511334476
+      type: {class: ProgressionScaledRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        weight: 2
-    - rid: 7076122157284327502
-      type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
+        baseWeight: 0
+        weightPerRoom: 0.33
+        maxWeight: 2
+    - rid: 7076122180511334477
+      type: {class: ProgressionScaledRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        weight: 0.1
+        baseWeight: 0
+        weightPerRoom: 0.4
+        maxWeight: 2
+    - rid: 7076122180511334479
+      type: {class: ProgressionScaledRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        baseWeight: 0
+        weightPerRoom: 0.4
+        maxWeight: 2
     - rid: 9162808348448653389
       type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
@@ -64,7 +76,3 @@ MonoBehaviour:
       data:
         baseWeight: 1
         bonusPerMissingSlot: 3
-    - rid: 9162808348448653391
-      type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
-      data:
-        weight: 2

@@ -33,8 +33,7 @@ namespace Nevergreen.Prototype
             
             if (rewardText != null)
             {
-                string rewardMessage = $"You found {parts} Parts!";
-                rewardText.text = rewardMessage;
+                rewardText.text = $"You found {parts} Parts!";
             }
 
             if (closeButton != null)
