@@ -21,6 +21,7 @@ Define the baseline turn-based combat mechanic used for player team versus enemy
 - Data: `Assets/Scripts/Data/CombatConfig.cs`, `Assets/Scripts/Data/SkillData.cs`, `Assets/Scripts/Data/CharacterData.cs`
 - Guard: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_GUARD.md`
 - Buff/Debuff: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_BUFF_DEBUFF.md`
+- Flight: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_FLIGHT.md`
 - Pile: `Docs/specs/mechanics/MECHANIC_SPEC_PILE.md`
 - AI Rules: `Docs/specs/mechanics/MECHANIC_SPEC_AI_RULES.md`
 

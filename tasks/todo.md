@@ -1,26 +1,26 @@
-# Elite Formations, EliteEncounter Strategy & Trinket Rewards
+# Implementation Plan: Flight Status Effect
 
-## Enums and Data Structures
-- [x] Add `Elite` to `EnemyEncounterTier.cs`
-- [x] Add `eliteFormations` and update `GetFormations()` in `EnemyFormationDatabase.cs`
-- [x] Add trinket rarity drop chance fields (`eliteTrinketCommonWeight`, etc.) to `CombatConfig.cs`
+## Specs & Design
+- [x] Create `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_FLIGHT.md` detailing Flight status mechanics, formulas, triggers, and edge cases
+- [x] Update `Docs/specs/mechanics/MECHANIC_SPEC_COMBAT_CORE.md` status list references
 
-## Room Strategies
-- [x] Add virtual property `OverrideEncounterTier` to `RoomEffectStrategy.cs`
-- [x] Create new file `EliteEncounterRoomEffectStrategy.cs`
+## Data & Enums
+- [x] Add `Flight` entry to `StatusType` enum in `Assets/Scripts/Data/SkillData.cs`
 
-## Rewards and Combat Logic
-- [x] Update `BattleRewardHandler.cs` to add `RollEliteTrinketReward` (two-step roll) and update `ApplyVictoryRewards`
-- [x] Update `BattleSystem.cs` to read `OverrideEncounterTier`, call updated `ApplyVictoryRewards`, and store `TrinketGrantedThisBattle`
-- [x] Update `CombatSceneBootstrap.cs` in `SpawnTeams()` to read `OverrideEncounterTier`
+## Combat System & Status Effects
+- [x] Create `FlightStatusInstance.cs` in `Assets/Scripts/Combat/Effects/` inheriting from `StatusEffectInstance`
+  - [x] Implement `OnAdded` / `OnRemoved` event subscriptions to `BattleSystem.OnActionResolved`
+  - [x] Implement `HandleActionResolved` logic: check `target == Host`, `ctx.didHit`, `skill.modifier.IsDamage`, and `ctx.calculatedValue > 0`
+  - [x] Trigger `Host.RemoveStatus(this)` when valid damaging attack hit occurs
+- [x] Update `CombatCharacter.cs` `GetEffectiveStats()` to aggregate `StatusType.Flight` amplitude into flat `Dodge` bonus (`netFlat[StatTarget.Dodge]`)
+- [x] Update `StatusEffect.cs` `Execute()` strategy to instantiate `FlightStatusInstance` when `statusType == StatusType.Flight`
 
-## UI Updates
-- [x] Update `CombatRewardUI.cs` to support displaying a granted Trinket
-- [x] Update `CombatUI.cs` to pass the trinket from `BattleSystem` to `CombatRewardUI`
+## Unit Tests
+- [x] Create `Assets/Editor/Tests/FlightTests.cs` verifying:
+  - [x] `Flight_GrantsFlatDodgeIncrease`: Dodge increases by amplitude when status is active
+  - [x] `Flight_RemovedWhenHitByDamageSkill`: Damaging attack hit removes Flight status
+  - [x] `Flight_NotRemovedWhenAttackMisses`: Missed attack does not remove Flight
+  - [x] `Flight_NotRemovedWhenHitByNonDamageSkill`: Non-damaging skill hit (e.g. debuff/stun) does not remove Flight
+  - [x] `Flight_NotRemovedByDamageOverTime`: Periodic DoT damage does not remove Flight
+  - [x] `Flight_RemovedByRiposteDamageHit`: Riposte counter-attack hit that deals damage removes Flight
 
-## Specs and Tests
-- [x] Update `SYSTEM_SPEC_ENEMY_FORMATION_RANDOMIZATION.md`
-- [x] Update `SYSTEM_SPEC_ROOM_SELECTION.md`
-- [x] Update `SYSTEM_SPEC_TRINKETS.md`
-- [x] Update `MECHANIC_SPEC_COMBAT_CORE.md`
-- [x] Add/Update tests in `EnemyFormationSelectionTests.cs`, `RoomEffectTests.cs`, `CombatSceneBootstrapFormationTests.cs`, `TrinketTests.cs`

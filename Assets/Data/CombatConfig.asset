@@ -23,13 +23,22 @@ MonoBehaviour:
   speedRollMax: 6
   maxPartySize: 4
   rankCount: 4
+  pileDuration: 4
   globalMaxLevel: 5
   levelUpCostCurve: 02000000020000000300000003000000
   minPartsPerBattle: 1
   maxPartsPerBattle: 2
   minScrapsPerBattle: 0
   maxScrapsPerBattle: 0
-  tierRewardProfiles: []
+  tierRewardProfiles:
+  - tier: 4
+    minParts: 3
+    maxParts: 5
+    minScraps: 0
+    maxScraps: 0
+  eliteTrinketCommonWeight: 45
+  eliteTrinketUncommonWeight: 35
+  eliteTrinketRareWeight: 20
   roomTierMappings:
   - roomCount: 1
     tier: 0
@@ -40,7 +49,7 @@ MonoBehaviour:
   - roomCount: 14
     tier: 3
   - roomCount: 19
-    tier: 4
+    tier: 5
   statusIcons:
   - statusType: 1
     specifyStatTarget: 0
@@ -94,3 +103,7 @@ MonoBehaviour:
     specifyStatTarget: 0
     targetStat: 0
     icon: {fileID: 2548217174224036199, guid: 37ec90bb7ff23744fbd8ec98138bb85b, type: 3}
+  - statusType: 15
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: 5690442457020787730, guid: 95c5fcbf2564e394e9f0ac7fe6084b83, type: 3}

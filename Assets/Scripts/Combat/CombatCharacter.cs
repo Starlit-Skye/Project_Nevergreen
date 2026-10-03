@@ -291,6 +291,13 @@ namespace Nevergreen.Combat
             {
                 if (status.IsExpired) continue;
 
+                if (status.type == StatusType.Flight)
+                {
+                    if (!netFlat.ContainsKey(StatTarget.Dodge)) netFlat[StatTarget.Dodge] = 0;
+                    netFlat[StatTarget.Dodge] += status.amplitude;
+                    continue;
+                }
+
                 float sign = (status.type == StatusType.Buff) ? 1f : (status.type == StatusType.Debuff) ? -1f : 0f;
                 if (sign == 0f) continue;
 

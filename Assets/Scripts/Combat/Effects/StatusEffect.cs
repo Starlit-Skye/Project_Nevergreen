@@ -96,6 +96,11 @@ namespace Nevergreen.Combat
                     instance = new HealReceivedDebuffStatusInstance(context.battleSystem, finalAmplitude, finalDuration);
                     instance.Source = context.user;
                 }
+                else if (statusType == StatusType.Flight)
+                {
+                    instance = new FlightStatusInstance(context.battleSystem, finalAmplitude, finalDuration);
+                    instance.Source = context.user;
+                }
                 else
                 {
                     instance = new StatusEffectInstance(statusType, targetStat, finalAmplitude, finalDuration, amplitudeType);
