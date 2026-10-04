@@ -23,8 +23,27 @@ MonoBehaviour:
       type: {class: SequenceBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
       data:
         sequenceId: default
-        skillSequence:
-        - {fileID: 0}
+        steps:
+        - skill: {fileID: 11400000, guid: 68a2b5092d280c9479a8c5e30d1e88ca, type: 2}
+          condition:
+            rid: -2
+          elseSkill: {fileID: 0}
+        - skill: {fileID: 11400000, guid: 8e7db5ffd6218ed448549e0099ca124e, type: 2}
+          condition:
+            rid: 3336827678218780749
+          elseSkill: {fileID: 11400000, guid: b8413080f58a72444b7978c688be8d1d, type: 2}
         targeting:
-          rid: -2
-        skipOnFailure: 1
+          rid: 3336827678218780750
+        skipOnFailure: 0
+    - rid: 3336827678218780749
+      type: {class: HasStatusCondition, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        target: 0
+        statusType: 15
+        stat: 5
+        amplitudeComparison: 4
+        targetAmplitude: 1
+    - rid: 3336827678218780750
+      type: {class: SimpleTargeting, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        strategy: 0

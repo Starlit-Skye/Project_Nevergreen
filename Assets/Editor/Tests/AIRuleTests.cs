@@ -194,7 +194,12 @@ namespace Nevergreen.Tests
             var sequence = new SequenceBehavior
             {
                 sequenceId = "test_combo",
-                skillSequence = new List<SkillData> { skillA, skillB, skillC },
+                steps = new List<SequenceStep> 
+                { 
+                    new SequenceStep { skill = skillA }, 
+                    new SequenceStep { skill = skillB }, 
+                    new SequenceStep { skill = skillC } 
+                },
                 targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random }
             };
 
@@ -243,7 +248,12 @@ namespace Nevergreen.Tests
             var sequence = new SequenceBehavior
             {
                 sequenceId = "test_skip",
-                skillSequence = new List<SkillData> { skillA, skillB, skillC },
+                steps = new List<SequenceStep> 
+                { 
+                    new SequenceStep { skill = skillA }, 
+                    new SequenceStep { skill = skillB }, 
+                    new SequenceStep { skill = skillC } 
+                },
                 targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random },
                 skipOnFailure = true
             };
@@ -285,7 +295,11 @@ namespace Nevergreen.Tests
             var sequence = new SequenceBehavior
             {
                 sequenceId = "test_noskip",
-                skillSequence = new List<SkillData> { skillA, skillB },
+                steps = new List<SequenceStep> 
+                { 
+                    new SequenceStep { skill = skillA }, 
+                    new SequenceStep { skill = skillB }
+                },
                 targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random },
                 skipOnFailure = false
             };
@@ -321,7 +335,11 @@ namespace Nevergreen.Tests
             var sequence = new SequenceBehavior
             {
                 sequenceId = "shared_combo",
-                skillSequence = new List<SkillData> { skillA, skillB },
+                steps = new List<SequenceStep> 
+                { 
+                    new SequenceStep { skill = skillA }, 
+                    new SequenceStep { skill = skillB }
+                },
                 targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random }
             };
 
@@ -349,11 +367,256 @@ namespace Nevergreen.Tests
             var sequence = new SequenceBehavior
             {
                 sequenceId = "empty",
-                skillSequence = new List<SkillData>(),
+                steps = new List<SequenceStep>(),
                 targeting = new SimpleTargeting()
             };
 
             Assert.IsFalse(sequence.TryGetDecision(_brain, _battleSystem, out _));
+        }
+
+        private SequenceStep Step(SkillData skill, AIConditionNode condition = null, SkillData elseSkill = null)
+        {
+            return new SequenceStep { skill = skill, condition = condition, elseSkill = elseSkill };
+        }
+
+        [Test]
+        public void SequenceBehavior_UsesSkill_WhenConditionMet()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var skillA = CombatTestHelper.CreateDamageSkill(); skillA.skillId = "A";
+            var skillB = CombatTestHelper.CreateDamageSkill(); skillB.skillId = "B";
+            _brainChar.equippedSkills.Add(skillA);
+            _brainChar.equippedSkills.Add(skillB);
+
+            // Add buff
+            _brainChar.statusEffects.Add(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 5, 3));
+
+            var cond = new HasStatusCondition { target = HasStatusCondition.ComparisonTarget.Self, statusType = StatusType.Buff, stat = StatTarget.Attack };
+            var sequence = new SequenceBehavior
+            {
+                sequenceId = "cond_met",
+                steps = new List<SequenceStep> { Step(skillA, cond, skillB) },
+                targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random }
+            };
+
+            Assert.IsTrue(sequence.TryGetDecision(_brain, _battleSystem, out AIDecision decision));
+            Assert.AreEqual(skillA, decision.skill);
+            
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void SequenceBehavior_UsesElseSkill_WhenConditionNotMet()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var skillA = CombatTestHelper.CreateDamageSkill(); skillA.skillId = "A";
+            var skillB = CombatTestHelper.CreateDamageSkill(); skillB.skillId = "B";
+            _brainChar.equippedSkills.Add(skillA);
+            _brainChar.equippedSkills.Add(skillB);
+
+            // No buff added
+            var cond = new HasStatusCondition { target = HasStatusCondition.ComparisonTarget.Self, statusType = StatusType.Buff, stat = StatTarget.Attack };
+            var sequence = new SequenceBehavior
+            {
+                sequenceId = "cond_not_met",
+                steps = new List<SequenceStep> { Step(skillA, cond, skillB) },
+                targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random }
+            };
+
+            Assert.IsTrue(sequence.TryGetDecision(_brain, _battleSystem, out AIDecision decision));
+            Assert.AreEqual(skillB, decision.skill);
+            
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void SequenceBehavior_ConditionFalseNoElse_SkipsStep_EvenWhenSkipOnFailureDisabled()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var skillA = CombatTestHelper.CreateDamageSkill(); skillA.skillId = "A";
+            var skillB = CombatTestHelper.CreateDamageSkill(); skillB.skillId = "B";
+            _brainChar.equippedSkills.Add(skillA);
+            _brainChar.equippedSkills.Add(skillB);
+
+            // Condition is FALSE. No elseSkill. Should skip to B.
+            var cond = new HasStatusCondition { target = HasStatusCondition.ComparisonTarget.Self, statusType = StatusType.Buff, stat = StatTarget.Attack };
+            var sequence = new SequenceBehavior
+            {
+                sequenceId = "skip_no_else",
+                steps = new List<SequenceStep> { Step(skillA, cond, null), Step(skillB) },
+                targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random },
+                skipOnFailure = false // even with this false, an intentional condition skip works!
+            };
+
+            Assert.IsTrue(sequence.TryGetDecision(_brain, _battleSystem, out AIDecision decision));
+            Assert.AreEqual(skillB, decision.skill);
+            
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void SequenceBehavior_SelectedBranchUnusable_DoesNotTryOtherBranch()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var skillA = CombatTestHelper.CreateDamageSkill(); skillA.skillId = "A"; 
+            skillA.useRanks = new List<int> { 4 }; // unusable
+            var skillB = CombatTestHelper.CreateDamageSkill(); skillB.skillId = "B";
+            _brainChar.equippedSkills.Add(skillA);
+            _brainChar.equippedSkills.Add(skillB);
+
+            // Condition is TRUE. It picks A, but A is unusable. It should NOT fall back to B.
+            _brainChar.statusEffects.Add(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 5, 3));
+            var cond = new HasStatusCondition { target = HasStatusCondition.ComparisonTarget.Self, statusType = StatusType.Buff, stat = StatTarget.Attack };
+            
+            var sequence = new SequenceBehavior
+            {
+                sequenceId = "branch_unusable",
+                steps = new List<SequenceStep> { Step(skillA, cond, skillB) },
+                targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random },
+                skipOnFailure = false
+            };
+
+            Assert.IsFalse(sequence.TryGetDecision(_brain, _battleSystem, out _));
+            
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void SequenceBehavior_ConditionReevaluatedEachCycle()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var skillA = CombatTestHelper.CreateDamageSkill(); skillA.skillId = "A";
+            var skillB = CombatTestHelper.CreateDamageSkill(); skillB.skillId = "B";
+            _brainChar.equippedSkills.Add(skillA);
+            _brainChar.equippedSkills.Add(skillB);
+
+            var cond = new HasStatusCondition { target = HasStatusCondition.ComparisonTarget.Self, statusType = StatusType.Buff, stat = StatTarget.Attack };
+            var sequence = new SequenceBehavior
+            {
+                sequenceId = "reeval",
+                steps = new List<SequenceStep> { Step(skillA, cond, skillB) },
+                targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random }
+            };
+
+            // Cycle 1: No buff -> B
+            Assert.IsTrue(sequence.TryGetDecision(_brain, _battleSystem, out AIDecision d1));
+            Assert.AreEqual(skillB, d1.skill);
+            _brain.RecordDecision(d1);
+
+            // Cycle 2: Buff added -> A
+            _brainChar.statusEffects.Add(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 5, 3));
+            Assert.IsTrue(sequence.TryGetDecision(_brain, _battleSystem, out AIDecision d2));
+            Assert.AreEqual(skillA, d2.skill);
+            
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void SequenceBehavior_IndexWrapsCorrectly_WhenLastStepSkipped()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var skillA = CombatTestHelper.CreateDamageSkill(); skillA.skillId = "A";
+            var skillB = CombatTestHelper.CreateDamageSkill(); skillB.skillId = "B";
+            _brainChar.equippedSkills.Add(skillA);
+            _brainChar.equippedSkills.Add(skillB);
+
+            var cond = new HasStatusCondition { target = HasStatusCondition.ComparisonTarget.Self, statusType = StatusType.Buff, stat = StatTarget.Attack };
+            var sequence = new SequenceBehavior
+            {
+                sequenceId = "wrap",
+                steps = new List<SequenceStep> { Step(skillA), Step(skillB, cond, null) },
+                targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random },
+                skipOnFailure = true
+            };
+
+            // Turn 1: Uses A. Index goes from 0 -> 1.
+            Assert.IsTrue(sequence.TryGetDecision(_brain, _battleSystem, out AIDecision d1));
+            Assert.AreEqual(skillA, d1.skill);
+            _brain.RecordDecision(d1);
+
+            // Turn 2: Starts at 1. Condition is FALSE. No elseSkill. Skips index 1 -> wraps to 0. Uses A.
+            Assert.IsTrue(sequence.TryGetDecision(_brain, _battleSystem, out AIDecision d2));
+            Assert.AreEqual(skillA, d2.skill);
+            
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void SequenceBehavior_ExpiredStatus_TreatedAsAbsent()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var skillA = CombatTestHelper.CreateDamageSkill(); skillA.skillId = "A";
+            var skillB = CombatTestHelper.CreateDamageSkill(); skillB.skillId = "B";
+            _brainChar.equippedSkills.Add(skillA);
+            _brainChar.equippedSkills.Add(skillB);
+
+            // Add expired buff
+            _brainChar.statusEffects.Add(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 5, 0));
+
+            var cond = new HasStatusCondition { target = HasStatusCondition.ComparisonTarget.Self, statusType = StatusType.Buff, stat = StatTarget.Attack };
+            var sequence = new SequenceBehavior
+            {
+                sequenceId = "expired",
+                steps = new List<SequenceStep> { Step(skillA, cond, skillB) },
+                targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random }
+            };
+
+            // Should use B since buff is expired
+            Assert.IsTrue(sequence.TryGetDecision(_brain, _battleSystem, out AIDecision decision));
+            Assert.AreEqual(skillB, decision.skill);
+            
+            Object.DestroyImmediate(p1.gameObject);
+        }
+
+        [Test]
+        public void SequenceBehavior_BuffOnDifferentStat_DoesNotMatch()
+        {
+            var p1 = CombatTestHelper.CreateCombatCharacter("p1", Team.Player, 1, maxHP: 100);
+            SetPlayerTeam(new List<CombatCharacter> { p1 });
+            SetEnemyTeam(new List<CombatCharacter> { _brainChar });
+
+            var skillA = CombatTestHelper.CreateDamageSkill(); skillA.skillId = "A";
+            var skillB = CombatTestHelper.CreateDamageSkill(); skillB.skillId = "B";
+            _brainChar.equippedSkills.Add(skillA);
+            _brainChar.equippedSkills.Add(skillB);
+
+            // Add defense buff, but we check for attack buff
+            _brainChar.statusEffects.Add(new StatusEffectInstance(StatusType.Buff, StatTarget.Defense, 5, 3));
+
+            var cond = new HasStatusCondition { target = HasStatusCondition.ComparisonTarget.Self, statusType = StatusType.Buff, stat = StatTarget.Attack };
+            var sequence = new SequenceBehavior
+            {
+                sequenceId = "diff_stat",
+                steps = new List<SequenceStep> { Step(skillA, cond, skillB) },
+                targeting = new SimpleTargeting { strategy = SimpleTargeting.Strategy.Random }
+            };
+
+            // Should use B since Attack buff is missing
+            Assert.IsTrue(sequence.TryGetDecision(_brain, _battleSystem, out AIDecision decision));
+            Assert.AreEqual(skillB, decision.skill);
+            
+            Object.DestroyImmediate(p1.gameObject);
         }
 
         [Test]
