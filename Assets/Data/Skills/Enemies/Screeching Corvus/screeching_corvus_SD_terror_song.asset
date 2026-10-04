@@ -18,7 +18,7 @@ MonoBehaviour:
   modifier:
     damagePercent: 0.8
     healPercent: 0
-    accuracyMod: 0
+    accuracyMod: -5
     criticalMod: 0
   effects:
   - rid: 3336827634317787138
