@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
   characterId: CD_screeching_corvus
   displayName: Screeching Corvus
-  characterPrefab: {fileID: 0}
+  characterPrefab: {fileID: 7664516674936550575, guid: 8ab9df7487b62704ca2aef626da3c544, type: 3}
   teamType: 1
   takeDamageClip: {fileID: 0}
   actionsPerRound: 2
