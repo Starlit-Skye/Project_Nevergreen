@@ -171,41 +171,43 @@ namespace Nevergreen.UI
             {
                 case StatusType.Bleed:
                 case StatusType.Blight:
-                    return $"{aggregateAmplitude} dmg for {maxDuration} rounds";
+                    return $"{aggregateAmplitude} dmg for {maxDuration} turns";
                 case StatusType.Stun:
                     return "Skips the next turn";
                 case StatusType.Debuff:
                     string dMark = IsPercentageModifier(status) ? "%" : "";
-                    return $"-{aggregateAmplitude}{dMark} {status.targetStat} for {maxDuration} rounds";
+                    return $"-{aggregateAmplitude}{dMark} {status.targetStat} for {maxDuration} turns";
                 case StatusType.Buff:
                     if (status is SkillBoostStatusInstance skillBoost)
                     {
                         string skillName = skillBoost.targetSkillDisplayName ?? "null";
-                        return $"{skillName} + {aggregateAmplitude}% dmg for {maxDuration} rounds";
+                        return $"{skillName} + {aggregateAmplitude}% dmg for {maxDuration} turns";
                     }
                     string bMark = IsPercentageModifier(status) ? "%" : "";
-                    return $"+{aggregateAmplitude}{bMark} {status.targetStat} for {maxDuration} rounds";
+                    return $"+{aggregateAmplitude}{bMark} {status.targetStat} for {maxDuration} turns";
                 case StatusType.Mark:
-                    return $"Marked as target for {maxDuration} rounds";
+                    return $"Marked as target for {maxDuration} turns";
                 case StatusType.Guard:
                     string guardianName = (status.Source != null) ? status.Source.DisplayName : "unknown";
-                    return $"Guarded by {guardianName} for {maxDuration} rounds";
+                    return $"Guarded by {guardianName} for {maxDuration} turns";
                 case StatusType.Restore:
-                    return $"Heal {aggregateAmplitude} for {maxDuration} rounds";
+                    return $"Heal {aggregateAmplitude} for {maxDuration} turns";
                 case StatusType.Stealth:
-                    return $"Cannot be directly targeted by enemies for {maxDuration} rounds";
+                    return $"Cannot be directly targeted by enemies for {maxDuration} turns";
                 case StatusType.Burn:
-                    return $"{aggregateAmplitude}dmg, dmg + 1 each turn, for {maxDuration} rounds";
+                    return $"{aggregateAmplitude}dmg, dmg + 1 each turn, for {maxDuration} turns";
                 case StatusType.HealReceivedReduction:
-                    return $"Heal received -{aggregateAmplitude}% for {maxDuration} rounds";
+                    return $"Heal received -{aggregateAmplitude}% for {maxDuration} turns";
                 case StatusType.BleedOnAttack:
                     if (status is BleedOnAttackStatusInstance bleedOnAttack)
                     {
-                        return $"Attacks apply Bleed({bleedOnAttack.BleedChance}% chance) for {maxDuration} rounds";
+                        return $"Attacks apply Bleed({bleedOnAttack.BleedChance}% chance) for {maxDuration} turns";
                     }
-                    return $"Attacks apply Bleed for {maxDuration} rounds";
+                    return $"Attacks apply Bleed for {maxDuration} turns";
                 case StatusType.Riposte:
-                    return $"Counter when attacked for {maxDuration} rounds";
+                    return $"Counter when attacked for {maxDuration} turns";
+                case StatusType.Flight:
+                    return $"+{aggregateAmplitude} Dodge for {maxDuration} turns";
                 default:
                     return status.type.ToString();
             }
