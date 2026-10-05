@@ -207,7 +207,7 @@ namespace Nevergreen.UI
                 case StatusType.Riposte:
                     return $"Counter when attacked for {maxDuration} turns";
                 case StatusType.Flight:
-                    return $"+{aggregateAmplitude} Dodge for {maxDuration} turns";
+                    return $"+{aggregateAmplitude} Dodge for {maxDuration} turns. Removed if hit.";
                 default:
                     return status.type.ToString();
             }

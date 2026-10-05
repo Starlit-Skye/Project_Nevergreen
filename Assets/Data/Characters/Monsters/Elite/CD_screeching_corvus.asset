@@ -17,7 +17,7 @@ MonoBehaviour:
   characterPrefab: {fileID: 7664516674936550575, guid: 8ab9df7487b62704ca2aef626da3c544, type: 3}
   teamType: 1
   takeDamageClip: {fileID: 0}
-  actionsPerRound: 2
+  actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 4076db6014fd5be479b8c77aaef841ee, type: 2}
   availableSkills:

@@ -71,41 +71,14 @@ namespace Nevergreen.Combat
                     finalDuration = 1;
                 }
 
-                StatusEffectInstance instance;
-                if (statusType == StatusType.Guard)
-                {
-                    instance = new GuardStatusInstance(context.user, finalDuration);
-                }
-                else if (statusType == StatusType.Move)
-                {
-                    instance = new MoveStatusInstance(context.battleSystem, finalAmplitude);
-                    instance.Source = context.user;
-                }
-                else if (statusType == StatusType.Stealth)
-                {
-                    instance = new StealthStatusInstance(finalDuration);
-                    instance.Source = context.user;
-                }
-                else if (statusType == StatusType.Shuffle)
-                {
-                    instance = new ShuffleStatusInstance(context.battleSystem, context.rng);
-                    instance.Source = context.user;
-                }
-                else if (statusType == StatusType.HealReceivedReduction)
-                {
-                    instance = new HealReceivedDebuffStatusInstance(context.battleSystem, finalAmplitude, finalDuration);
-                    instance.Source = context.user;
-                }
-                else if (statusType == StatusType.Flight)
-                {
-                    instance = new FlightStatusInstance(context.battleSystem, finalAmplitude, finalDuration);
-                    instance.Source = context.user;
-                }
-                else
-                {
-                    instance = new StatusEffectInstance(statusType, targetStat, finalAmplitude, finalDuration, amplitudeType);
-                    instance.Source = context.user;
-                }
+                StatusEffectInstance instance = StatusInstanceFactory.Create(
+                    context, 
+                    statusType, 
+                    targetStat, 
+                    finalAmplitude, 
+                    finalDuration, 
+                    amplitudeType
+                );
 
                 target.AddStatus(instance);
                 Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (amp:{finalAmplitude}, dur:{finalDuration})");

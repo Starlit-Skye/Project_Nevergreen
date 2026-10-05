@@ -1,37 +1,30 @@
-# Implementation Plan: Conditional Skill Branching in SequenceBehavior
+# Implementation Plan: Flight Status Bug Fix
 
-Full design: see `sequence_behavior_extension_plan.md` artifact (v2).
+Full design: see `flight_removal_fix_plan.md` artifact.
 
 ## Decisions
-- Replace `skillSequence` with `steps` (migrate 2 assets + tests)
-- Condition false + no `elseSkill` → always skip step (ignores `skipOnFailure`)
-- Buff/Debuff conditions stay tied to one stat (no change to Has/NotHasStatusCondition)
+- Create `StatusInstanceFactory` to centralize status creation.
+- Include `Shuffle` in the factory since it takes `battleSystem` and `rng`.
+- Keep the current behaviour for `AdjacentAllyStatusEffect` applying `Guard` (where targetAlly is the guardian).
 
 ## Code
-- [x] Add `SequenceStep { skill, condition, elseSkill }` in `SequenceBehavior.cs`
-- [x] Replace `skillSequence` with `List<SequenceStep> steps`
-- [x] Rewrite `TryGetDecision` per the v2 algorithm (context-skill `IsMet`, no switching branches, intentional skip)
+- [x] Create `StatusInstanceFactory.cs`.
+- [x] Refactor `StatusEffect.cs` to use factory.
+- [x] Refactor `SelfStatusEffect.cs` to use factory.
+- [x] Refactor `ApplyStatusToGuardianEffect.cs` to use factory.
+- [x] Refactor `AdjacentAllyStatusEffect.cs` to use factory.
 
-## Assets
-- [x] Re-author `AI_overheating_golem.asset` (2 unconditional steps, skipOnFailure = 0)
-- [x] Clear `AI_screeching_corvus.asset` steps (was unconfigured)
-- [x] Verify both load with no serialization warnings
+## Tests
+- [x] Implement `StatusInstanceFactoryTests.cs` to verify correct instances and dependencies.
+- [x] Rewrite `FlightTests.cs` to use actual skill execution path (via `BattleSystem`).
+- [x] Fix `StatusIconTests.cs` to expect "turns" instead of "rounds".
+- [x] Run EditMode tests and verify everything passes.
 
-## Docs
-- [x] `MECHANIC_SPEC_AI_RULES.md`: scope, data model, pseudocode, timing rule (duration >= 2), Event Hooks fix, tests list
-- [x] `DESIGNER_GUIDE_ENEMY_AI.md`: Sequence section + branching example + gotchas
-
-## Tests (`AIRuleTests.cs`)
-- [x] `Steps(...)` helper; migrate the 5 existing sequence tests
-- [x] UsesSkill_WhenConditionMet
-- [x] UsesElseSkill_WhenConditionNotMet
-- [x] ConditionFalseNoElse_SkipsStep_EvenWhenSkipOnFailureDisabled
-- [x] SelectedBranchUnusable_DoesNotTryOtherBranch
-- [x] ConditionReevaluatedEachCycle
-- [x] IndexWrapsCorrectly_WhenLastStepSkipped
-- [x] ExpiredStatus_TreatedAsAbsent
-- [x] BuffOnDifferentStat_DoesNotMatch
-- [x] Run AIRuleTests + AITests (EditMode); check console
+## Tooltip Update
+- [x] Update `StatusTooltipDisplay.cs` Flight tooltip format to `"+{aggregateAmplitude} Dodge for {maxDuration} turns. Removed if hit."`.
 
 ## Review
-_(fill in after implementation)_
+- Status instantiation is now DRY.
+- Flight bug is resolved as `SelfStatusEffect` now correctly creates `FlightStatusInstance` which subscribes to `BattleSystem.OnActionResolved`.
+- Required passing actual `SkillData` instances with valid `skillId` fields to test harnesses to prevent `ArgumentNullException`s in status tracking.
+- Flight tooltip string successfully updated and verified against test suite.

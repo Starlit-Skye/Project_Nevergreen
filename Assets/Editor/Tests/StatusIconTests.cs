@@ -293,29 +293,29 @@ namespace Nevergreen.Tests
             }
 
             // Bleed
-            TestFormat(new StatusEffectInstance(StatusType.Bleed, StatTarget.Attack, 10, 3), "10 dmg for 3 rounds");
+            TestFormat(new StatusEffectInstance(StatusType.Bleed, StatTarget.Attack, 10, 3), "10 dmg for 3 turns");
             
             // Buff/Debuff
-            TestFormat(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 15, 2, AmplitudeType.Default), "+15% Attack for 2 rounds");
-            TestFormat(new StatusEffectInstance(StatusType.Buff, StatTarget.CritChance, 15, 2, AmplitudeType.Default), "+15 CritChance for 2 rounds");
-            TestFormat(new StatusEffectInstance(StatusType.Debuff, StatTarget.Speed, 15, 2, AmplitudeType.Percentage), "-15% Speed for 2 rounds");
-            TestFormat(new StatusEffectInstance(StatusType.Debuff, StatTarget.Speed, 15, 2, AmplitudeType.Flat), "-15 Speed for 2 rounds");
+            TestFormat(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 15, 2, AmplitudeType.Default), "+15% Attack for 2 turns");
+            TestFormat(new StatusEffectInstance(StatusType.Buff, StatTarget.CritChance, 15, 2, AmplitudeType.Default), "+15 CritChance for 2 turns");
+            TestFormat(new StatusEffectInstance(StatusType.Debuff, StatTarget.Speed, 15, 2, AmplitudeType.Percentage), "-15% Speed for 2 turns");
+            TestFormat(new StatusEffectInstance(StatusType.Debuff, StatTarget.Speed, 15, 2, AmplitudeType.Flat), "-15 Speed for 2 turns");
 
             // Guard
             var guardStatus = new Nevergreen.Combat.GuardStatusInstance(character, 2);
-            TestFormat(guardStatus, $"Guarded by {character.DisplayName} for 2 rounds");
+            TestFormat(guardStatus, $"Guarded by {character.DisplayName} for 2 turns");
 
             // HealReceivedReduction
-            TestFormat(new StatusEffectInstance(StatusType.HealReceivedReduction, StatTarget.Speed, 50, 2), "Heal received -50% for 2 rounds");
+            TestFormat(new StatusEffectInstance(StatusType.HealReceivedReduction, StatTarget.Speed, 50, 2), "Heal received -50% for 2 turns");
 
             // BleedOnAttack
-            TestFormat(new Nevergreen.Combat.BleedOnAttackStatusInstance(null, 2, 5, 3, 25f), "Attacks apply Bleed(25% chance) for 2 rounds");
+            TestFormat(new Nevergreen.Combat.BleedOnAttackStatusInstance(null, 2, 5, 3, 25f), "Attacks apply Bleed(25% chance) for 2 turns");
             
             // Burn
-            TestFormat(new StatusEffectInstance(StatusType.Burn, StatTarget.Speed, 5, 2), "5dmg, dmg + 1 each turn, for 2 rounds");
+            TestFormat(new StatusEffectInstance(StatusType.Burn, StatTarget.Speed, 5, 2), "5dmg, dmg + 1 each turn, for 2 turns");
 
             // SkillBoost
-            TestFormat(new Nevergreen.Combat.SkillBoostStatusInstance("slash", 50, 2, "Slash"), "Slash + 50% dmg for 2 rounds");
+            TestFormat(new Nevergreen.Combat.SkillBoostStatusInstance("slash", 50, 2, "Slash"), "Slash + 50% dmg for 2 turns");
 
             Object.DestroyImmediate(tooltipDisplay);
             Object.DestroyImmediate(textGO);
@@ -360,7 +360,7 @@ namespace Nevergreen.Tests
             character.AddStatus(skillBoost2);
 
             // Triggering with buff1 should display all buffs formatted and grouped
-            string expectedBuffsActual = "+25% Attack for 3 rounds\n+5% Speed for 1 rounds\nSlash + 70% dmg for 3 rounds".Replace("\n", System.Environment.NewLine);
+            string expectedBuffsActual = "+25% Attack for 3 turns\n+5% Speed for 1 turns\nSlash + 70% dmg for 3 turns".Replace("\n", System.Environment.NewLine);
             TestFormat(buff1, expectedBuffsActual);
 
             character.statusEffects.Clear();
@@ -371,7 +371,7 @@ namespace Nevergreen.Tests
             character.AddStatus(hrr1);
             character.AddStatus(hrr2);
 
-            TestFormat(hrr1, "Heal received -50% for 4 rounds");
+            TestFormat(hrr1, "Heal received -50% for 4 turns");
 
             character.statusEffects.Clear();
 
@@ -381,7 +381,7 @@ namespace Nevergreen.Tests
             character.AddStatus(boa1);
             character.AddStatus(boa2);
 
-            string expectedBoa = "Attacks apply Bleed(25% chance) for 2 rounds\nAttacks apply Bleed(50% chance) for 3 rounds".Replace("\n", System.Environment.NewLine);
+            string expectedBoa = "Attacks apply Bleed(25% chance) for 2 turns\nAttacks apply Bleed(50% chance) for 3 turns".Replace("\n", System.Environment.NewLine);
             TestFormat(boa1, expectedBoa);
 
             Object.DestroyImmediate(tooltipDisplay);
@@ -421,7 +421,7 @@ namespace Nevergreen.Tests
             var bleed2 = new StatusEffectInstance(StatusType.Bleed, StatTarget.Speed, 5, 2);
             character.AddStatus(bleed1);
             character.AddStatus(bleed2);
-            TestFormat(bleed1, "15 dmg for 3 rounds");
+            TestFormat(bleed1, "15 dmg for 3 turns");
 
             // Test 2: Buff (Aggregation by StatusType and TargetStat)
             character.statusEffects.Clear();
@@ -431,7 +431,7 @@ namespace Nevergreen.Tests
             character.AddStatus(buffSpeed1);
             character.AddStatus(buffSpeed2);
             character.AddStatus(buffAttack);
-            string expectedAggregatedBuffsActual = "+25 Speed for 3 rounds\n+20% Attack for 2 rounds".Replace("\n", System.Environment.NewLine);
+            string expectedAggregatedBuffsActual = "+25 Speed for 3 turns\n+20% Attack for 2 turns".Replace("\n", System.Environment.NewLine);
             TestFormat(buffSpeed1, expectedAggregatedBuffsActual);
 
             // Test 3: SkillBoostStatusInstance (Aggregation by targetSkillId)
@@ -442,7 +442,7 @@ namespace Nevergreen.Tests
             character.AddStatus(skillBoost1);
             character.AddStatus(skillBoost2);
             character.AddStatus(skillBoost3);
-            string expectedAggregatedSkillBoosts = "Slash + 30% dmg for 3 rounds\nStab + 50% dmg for 2 rounds".Replace("\n", System.Environment.NewLine);
+            string expectedAggregatedSkillBoosts = "Slash + 30% dmg for 3 turns\nStab + 50% dmg for 2 turns".Replace("\n", System.Environment.NewLine);
             TestFormat(skillBoost1, expectedAggregatedSkillBoosts);
 
             // Test 4: HealReceivedReduction (Aggregation by StatusType)
@@ -451,13 +451,13 @@ namespace Nevergreen.Tests
             var healDebuff2 = new Nevergreen.Combat.HealReceivedDebuffStatusInstance(null, 30, 2);
             character.AddStatus(healDebuff1);
             character.AddStatus(healDebuff2);
-            TestFormat(healDebuff1, "Heal received -50% for 3 rounds");
+            TestFormat(healDebuff1, "Heal received -50% for 3 turns");
 
             // Test 5: Riposte (No aggregation, static string)
             character.statusEffects.Clear();
             var riposte = new StatusEffectInstance(StatusType.Riposte, StatTarget.Speed, 50, 3);
             character.AddStatus(riposte);
-            TestFormat(riposte, "Counter when attacked for 3 rounds");
+            TestFormat(riposte, "Counter when attacked for 3 turns");
 
             Object.DestroyImmediate(tooltipDisplay);
             Object.DestroyImmediate(textGO);

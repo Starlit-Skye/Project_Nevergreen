@@ -46,7 +46,7 @@ MonoBehaviour:
     - rid: 7076122180511334475
       type: {class: ProgressionScaledRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        baseWeight: 0.1
+        baseWeight: 100
         weightPerRoom: 0.075
         maxWeight: 1
     - rid: 7076122180511334476

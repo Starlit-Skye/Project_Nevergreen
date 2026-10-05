@@ -28,10 +28,10 @@ MonoBehaviour:
           condition:
             rid: -2
           elseSkill: {fileID: 0}
-        - skill: {fileID: 11400000, guid: 8e7db5ffd6218ed448549e0099ca124e, type: 2}
+        - skill: {fileID: 11400000, guid: b8413080f58a72444b7978c688be8d1d, type: 2}
           condition:
             rid: 3336827678218780749
-          elseSkill: {fileID: 11400000, guid: b8413080f58a72444b7978c688be8d1d, type: 2}
+          elseSkill: {fileID: 11400000, guid: 8e7db5ffd6218ed448549e0099ca124e, type: 2}
         targeting:
           rid: 3336827678218780750
         skipOnFailure: 0
