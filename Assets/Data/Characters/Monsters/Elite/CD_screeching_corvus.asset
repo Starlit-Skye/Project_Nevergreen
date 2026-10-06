@@ -17,13 +17,14 @@ MonoBehaviour:
   characterPrefab: {fileID: 7664516674936550575, guid: 8ab9df7487b62704ca2aef626da3c544, type: 3}
   teamType: 1
   takeDamageClip: {fileID: 0}
-  actionsPerRound: 1
+  actionsPerRound: 2
   statPerLevel:
   - {fileID: 11400000, guid: 4076db6014fd5be479b8c77aaef841ee, type: 2}
   availableSkills:
   - {fileID: 11400000, guid: 8e7db5ffd6218ed448549e0099ca124e, type: 2}
   - {fileID: 11400000, guid: 68a2b5092d280c9479a8c5e30d1e88ca, type: 2}
   - {fileID: 11400000, guid: b8413080f58a72444b7978c688be8d1d, type: 2}
+  - {fileID: 11400000, guid: edc98ac58e13ee94eb2be3fceb218726, type: 2}
   totalSkillPool: []
   size: 3
   leavesPileOnDeath: 0

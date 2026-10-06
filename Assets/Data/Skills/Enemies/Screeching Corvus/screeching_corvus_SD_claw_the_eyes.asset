@@ -10,22 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: screeching_corvus_SD_take_flight
+  m_Name: screeching_corvus_SD_claw_the_eyes
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: screeching_corvus_SD_take_flight
-  displayName: Take Flight
-  description: 'Grant self Flight Status Effect: Gain Dodge, removed if hit.'
+  skillId: screeching_corvus_SD_claw_the_eyes
+  displayName: Claw The Eyes
+  description: Deal damage, apply Acc Debuff
   modifier:
-    damagePercent: 0
+    damagePercent: 0.6
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 3336827634317787137
+  - rid: 3336827702047408128
+  - rid: 3336827702047408129
   useRanks: 01000000020000000300000004000000
-  targetRanks: 01000000020000000300000004000000
-  targetScope: 0
-  maxTargets: 1
+  targetRanks: 010000000200000003000000
+  targetScope: 2
+  maxTargets: 2
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -38,13 +39,16 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 3336827634317787137
-      type: {class: SelfStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+    - rid: 3336827702047408128
+      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data: 
+    - rid: 3336827702047408129
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 15
-        targetStat: 3
+        statusType: 3
+        targetStat: 2
         applicationChance: 100
-        amplitude: 40
+        amplitude: 10
         amplitudeType: 2
         duration: 3
-        ignoreMiss: 1
+        ignoreMiss: 0

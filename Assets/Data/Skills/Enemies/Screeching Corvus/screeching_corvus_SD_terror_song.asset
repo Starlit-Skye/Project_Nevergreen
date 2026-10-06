@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Terror Song
   description: Deal damage to all enemies, high chance to Stun.
   modifier:
-    damagePercent: 3
+    damagePercent: 1.5
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0

@@ -48,7 +48,7 @@ MonoBehaviour:
       data:
         baseWeight: 100
         weightPerRoom: 0.075
-        maxWeight: 1
+        maxWeight: 100
     - rid: 7076122180511334476
       type: {class: ProgressionScaledRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
