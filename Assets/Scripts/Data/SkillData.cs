@@ -119,7 +119,8 @@ namespace Nevergreen.Data
         HealReceivedReduction,
         BleedOnAttack,
         Burn,
-        Flight
+        Flight,
+        Unraveled
     }
 
     /// <summary>

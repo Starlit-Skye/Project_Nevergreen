@@ -208,6 +208,8 @@ namespace Nevergreen.UI
                     return $"Counter when attacked for {maxDuration} turns";
                 case StatusType.Flight:
                     return $"+{aggregateAmplitude} Dodge for {maxDuration} turns. Removed if hit.";
+                case StatusType.Unraveled:
+                    return $"+{aggregateAmplitude}% damage taken for {maxDuration} turns";
                 default:
                     return status.type.ToString();
             }

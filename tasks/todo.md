@@ -1,30 +1,25 @@
-# Implementation Plan: Flight Status Bug Fix
+# Implementation Plan: Unraveled Status Effect
 
-Full design: see `flight_removal_fix_plan.md` artifact.
+Full design: see `unraveled_status_effect_plan.md` artifact.
 
 ## Decisions
-- Create `StatusInstanceFactory` to centralize status creation.
-- Include `Shuffle` in the factory since it takes `battleSystem` and `rng`.
-- Keep the current behaviour for `AdjacentAllyStatusEffect` applying `Guard` (where targetAlly is the guardian).
+- Add `StatusType.Unraveled` to `SkillData.cs`.
+- Create `UnraveledStatusInstance` to handle `BattleSystem.OnBeforeDamageCalculationPerTarget`.
+- Wire `StatusInstanceFactory.cs` to create `UnraveledStatusInstance`.
+- Add UI tooltip in `StatusTooltipDisplay.cs` (`"+{aggregateAmplitude}% damage taken for {maxDuration} turns"`).
 
 ## Code
-- [x] Create `StatusInstanceFactory.cs`.
-- [x] Refactor `StatusEffect.cs` to use factory.
-- [x] Refactor `SelfStatusEffect.cs` to use factory.
-- [x] Refactor `ApplyStatusToGuardianEffect.cs` to use factory.
-- [x] Refactor `AdjacentAllyStatusEffect.cs` to use factory.
+- [x] Add `StatusType.Unraveled` to `SkillData.cs`.
+- [x] Create `UnraveledStatusInstance.cs`.
+- [x] Update `StatusInstanceFactory.cs` to instantiate `UnraveledStatusInstance`.
+- [x] Update `StatusTooltipDisplay.cs` for `Unraveled` tooltips.
 
 ## Tests
-- [x] Implement `StatusInstanceFactoryTests.cs` to verify correct instances and dependencies.
-- [x] Rewrite `FlightTests.cs` to use actual skill execution path (via `BattleSystem`).
-- [x] Fix `StatusIconTests.cs` to expect "turns" instead of "rounds".
-- [x] Run EditMode tests and verify everything passes.
-
-## Tooltip Update
-- [x] Update `StatusTooltipDisplay.cs` Flight tooltip format to `"+{aggregateAmplitude} Dodge for {maxDuration} turns. Removed if hit."`.
+- [x] Create `UnraveledTests.cs` covering normal attacks, Riposte attacks, non-damaging skills, stacking, and duration expiration.
+- [x] Run EditMode tests and verify clean pass.
 
 ## Review
-- Status instantiation is now DRY.
-- Flight bug is resolved as `SelfStatusEffect` now correctly creates `FlightStatusInstance` which subscribes to `BattleSystem.OnActionResolved`.
-- Required passing actual `SkillData` instances with valid `skillId` fields to test harnesses to prevent `ArgumentNullException`s in status tracking.
-- Flight tooltip string successfully updated and verified against test suite.
+- Successfully implemented `Unraveled` as an additive percentage damage multiplier.
+- `UnraveledStatusInstance` leverages `BattleSystem.OnBeforeDamageCalculationPerTarget` efficiently.
+- Test harness `CombatTestHelper` relies on `GameDatabase.Instance.CombatConfig` rather than independent `config` fields for deterministic combat rolls.
+- EditMode tests fully cover Riposte interactions, stacking, and duration expiration.

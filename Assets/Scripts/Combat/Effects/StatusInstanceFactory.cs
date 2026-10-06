@@ -46,6 +46,9 @@ namespace Nevergreen.Combat
                 case StatusType.Flight:
                     instance = new FlightStatusInstance(context.battleSystem, amplitude, duration);
                     break;
+                case StatusType.Unraveled:
+                    instance = new UnraveledStatusInstance(context.battleSystem, amplitude, duration);
+                    break;
                 default:
                     instance = new StatusEffectInstance(type, targetStat, amplitude, duration, amplitudeType);
                     break;
