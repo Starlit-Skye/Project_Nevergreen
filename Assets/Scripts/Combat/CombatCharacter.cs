@@ -522,6 +522,7 @@ namespace Nevergreen.Combat
                 StatusType.Debuff => eff.debuffResist,
                 StatusType.HealReceivedReduction => eff.debuffResist,
                 StatusType.Move => eff.moveResist,
+                StatusType.Shuffle => eff.moveResist,
                 _ => 0
             };
         }
