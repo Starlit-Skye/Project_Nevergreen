@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_gazer
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: CD_gazer
+  displayName: Gazer
+  characterPrefab: {fileID: 7664516674936550575, guid: 72fa05e401a1dff4dbfc34444d6f3be6, type: 3}
+  teamType: 1
+  takeDamageClip: {fileID: 0}
+  actionsPerRound: 2
+  statPerLevel:
+  - {fileID: 11400000, guid: 12545afb1ca565740a6f3d94269fd686, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: eb2b511657ca9a74ba34140994560f78, type: 2}
+  - {fileID: 11400000, guid: 4b67f0bf79691d94181a86117fde08df, type: 2}
+  - {fileID: 11400000, guid: b944ca0ead889d24b81a911f19187762, type: 2}
+  totalSkillPool: []
+  size: 3
+  leavesPileOnDeath: 0
+  defaultAIProfile: {fileID: 11400000, guid: 3f059c2606c6cde4db5e1b829adade2a, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

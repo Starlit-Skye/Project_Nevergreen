@@ -1,25 +1,20 @@
-# Implementation Plan: Unraveled Status Effect
+# Implementation Plan: Map Shuffle to Move Resistance
 
-Full design: see `unraveled_status_effect_plan.md` artifact.
+Full design: see `shuffle_resistance_mapping_plan.md` artifact.
 
 ## Decisions
-- Add `StatusType.Unraveled` to `SkillData.cs`.
-- Create `UnraveledStatusInstance` to handle `BattleSystem.OnBeforeDamageCalculationPerTarget`.
-- Wire `StatusInstanceFactory.cs` to create `UnraveledStatusInstance`.
-- Add UI tooltip in `StatusTooltipDisplay.cs` (`"+{aggregateAmplitude}% damage taken for {maxDuration} turns"`).
+- Map `StatusType.Shuffle` to `eff.moveResist` in `CombatCharacter.GetResistance()`.
 
 ## Code
-- [x] Add `StatusType.Unraveled` to `SkillData.cs`.
-- [x] Create `UnraveledStatusInstance.cs`.
-- [x] Update `StatusInstanceFactory.cs` to instantiate `UnraveledStatusInstance`.
-- [x] Update `StatusTooltipDisplay.cs` for `Unraveled` tooltips.
+- [x] Update `GetResistance` in `CombatCharacter.cs` to map `StatusType.Shuffle` to `eff.moveResist`.
 
 ## Tests
-- [x] Create `UnraveledTests.cs` covering normal attacks, Riposte attacks, non-damaging skills, stacking, and duration expiration.
-- [x] Run EditMode tests and verify clean pass.
+- [x] Add unit test in `BuffDebuffTests.cs` to verify `GetResistance(StatusType.Shuffle)` returns `eff.moveResist`.
+- [x] Update existing `ShuffleTests.cs` to verify `StatusType.Shuffle` respects target `moveResist`.
+- [x] Run EditMode tests and verify clean pass (548/548 passed).
 
 ## Review
-- Successfully implemented `Unraveled` as an additive percentage damage multiplier.
-- `UnraveledStatusInstance` leverages `BattleSystem.OnBeforeDamageCalculationPerTarget` efficiently.
-- Test harness `CombatTestHelper` relies on `GameDatabase.Instance.CombatConfig` rather than independent `config` fields for deterministic combat rolls.
-- EditMode tests fully cover Riposte interactions, stacking, and duration expiration.
+- `GetResistance` in `CombatCharacter.cs` now maps `StatusType.Shuffle` to `eff.moveResist`.
+- Updated test suite so `Shuffle_AppliedViaStatusEffect_RespectsMoveResistance` and `GetResistance_Shuffle_ReturnsMoveResist` both pass cleanly.
+
+
