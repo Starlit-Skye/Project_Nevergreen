@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using Nevergreen.Data;
 
 namespace Nevergreen.Combat
@@ -48,6 +49,12 @@ namespace Nevergreen.Combat
                     break;
                 case StatusType.Unraveled:
                     instance = new UnraveledStatusInstance(context.battleSystem, amplitude, duration);
+                    break;
+                case StatusType.LivingFragments:
+                    // Living Fragments requires enemyPrefabs list, which is not available in the factory arguments.
+                    // It should be instantiated directly by LivingFragmentsStatusEffect instead.
+                    Debug.LogWarning("[StatusInstanceFactory] LivingFragments cannot be created via generic factory. Defaulting to empty instance.");
+                    instance = new LivingFragmentsStatusInstance(context.battleSystem, null, duration);
                     break;
                 default:
                     instance = new StatusEffectInstance(type, targetStat, amplitude, duration, amplitudeType);

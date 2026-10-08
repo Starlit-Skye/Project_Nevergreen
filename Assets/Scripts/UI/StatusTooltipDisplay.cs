@@ -210,6 +210,8 @@ namespace Nevergreen.UI
                     return $"+{aggregateAmplitude} Dodge for {maxDuration} turns. Removed if hit.";
                 case StatusType.Unraveled:
                     return $"+{aggregateAmplitude}% damage taken for {maxDuration} turns";
+                case StatusType.LivingFragments:
+                    return "Summons fragments upon destruction";
                 default:
                     return status.type.ToString();
             }

@@ -120,7 +120,8 @@ namespace Nevergreen.Data
         BleedOnAttack,
         Burn,
         Flight,
-        Unraveled
+        Unraveled,
+        LivingFragments
     }
 
     /// <summary>

@@ -1,16 +1,22 @@
-# Plan: Generalize Mid-Combat Summoning Mechanic Documentation
+# Implementation Plan: Living Fragments Status Effect
 
-Refactor `Docs/specs/mechanics/MECHANIC_SPEC_MID_COMBAT_SUMMONING.md` to be a generalized specification reusable by any skill, modular `ISkillEffect`, boss controller, or status effect trigger.
+Full design: see `living_fragments_status_effect_plan.md` artifact.
 
-## Task Items
-- [x] Analyze invocation patterns for mid-combat summoning across modular skill effects, boss controllers, and reactive triggers.
-- [x] Generalize `MECHANIC_SPEC_MID_COMBAT_SUMMONING.md` following `Docs/templates/MECHANIC_SPEC.md` and `Docs/STYLE.md`.
-- [x] Include code templates and references for:
-  - Modular `ISkillEffect` implementation (`SummonAllyEffect`).
-  - Interception Controller pattern (`GodEyeController` / `RoseKnightController`).
-  - Reactive/Status Effect triggers.
-- [x] Document the universal 5-step lifecycle pipeline (Check Capacity -> Instantiate & Orient -> Initialize CombatCharacter -> Register with BattleSystem -> Formation Rank Shift).
-- [x] Validate document formatting and ensure all checklist criteria pass.
+## Decisions
+- Add `StatusType.LivingFragments` to `SkillData.cs`.
+- Implement `LivingFragmentsStatusEffect` (`ISkillEffect`) for skill asset authoring with prefab list.
+- Implement `LivingFragmentsStatusInstance` (`StatusEffectInstance`) listening to `host.OnStateChanged` / `host.OnDefeated` for `LifeState.Destroyed`.
+- Execute 5-step Mid-Combat Summoning Pipeline placing summoned units into frontmost positions (`ExecuteMoveAndShift` to rank 1).
+- Wire `StatusInstanceFactory.cs` and `StatusTooltipDisplay.cs`.
 
-## Review
-- Successfully updated `Docs/specs/mechanics/MECHANIC_SPEC_MID_COMBAT_SUMMONING.md` to serve as a reusable, generalized specification for any skill, effect, controller, or trait trigger.
+## Code
+- [x] Add `StatusType.LivingFragments` to `SkillData.cs`.
+- [x] Create `LivingFragmentsStatusEffect.cs`.
+- [x] Create `LivingFragmentsStatusInstance.cs`.
+- [x] Update `StatusInstanceFactory.cs` for `LivingFragments`.
+- [x] Update `StatusTooltipDisplay.cs` for `LivingFragments` tooltip string.
+
+## Tests
+- [x] Create `LivingFragmentsTests.cs` covering host destruction summoning, frontmost rank positioning, max team capacity limit, and status expiration behavior.
+- [x] Run EditMode tests and verify clean pass.
+
