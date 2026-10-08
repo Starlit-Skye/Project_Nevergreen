@@ -1,20 +1,16 @@
-# Implementation Plan: Map Shuffle to Move Resistance
+# Plan: Generalize Mid-Combat Summoning Mechanic Documentation
 
-Full design: see `shuffle_resistance_mapping_plan.md` artifact.
+Refactor `Docs/specs/mechanics/MECHANIC_SPEC_MID_COMBAT_SUMMONING.md` to be a generalized specification reusable by any skill, modular `ISkillEffect`, boss controller, or status effect trigger.
 
-## Decisions
-- Map `StatusType.Shuffle` to `eff.moveResist` in `CombatCharacter.GetResistance()`.
-
-## Code
-- [x] Update `GetResistance` in `CombatCharacter.cs` to map `StatusType.Shuffle` to `eff.moveResist`.
-
-## Tests
-- [x] Add unit test in `BuffDebuffTests.cs` to verify `GetResistance(StatusType.Shuffle)` returns `eff.moveResist`.
-- [x] Update existing `ShuffleTests.cs` to verify `StatusType.Shuffle` respects target `moveResist`.
-- [x] Run EditMode tests and verify clean pass (548/548 passed).
+## Task Items
+- [x] Analyze invocation patterns for mid-combat summoning across modular skill effects, boss controllers, and reactive triggers.
+- [x] Generalize `MECHANIC_SPEC_MID_COMBAT_SUMMONING.md` following `Docs/templates/MECHANIC_SPEC.md` and `Docs/STYLE.md`.
+- [x] Include code templates and references for:
+  - Modular `ISkillEffect` implementation (`SummonAllyEffect`).
+  - Interception Controller pattern (`GodEyeController` / `RoseKnightController`).
+  - Reactive/Status Effect triggers.
+- [x] Document the universal 5-step lifecycle pipeline (Check Capacity -> Instantiate & Orient -> Initialize CombatCharacter -> Register with BattleSystem -> Formation Rank Shift).
+- [x] Validate document formatting and ensure all checklist criteria pass.
 
 ## Review
-- `GetResistance` in `CombatCharacter.cs` now maps `StatusType.Shuffle` to `eff.moveResist`.
-- Updated test suite so `Shuffle_AppliedViaStatusEffect_RespectsMoveResistance` and `GetResistance_Shuffle_ReturnsMoveResist` both pass cleanly.
-
-
+- Successfully updated `Docs/specs/mechanics/MECHANIC_SPEC_MID_COMBAT_SUMMONING.md` to serve as a reusable, generalized specification for any skill, effect, controller, or trait trigger.
