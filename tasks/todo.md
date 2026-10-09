@@ -1,22 +1,40 @@
-# Implementation Plan: Living Fragments Status Effect
+# Implementation Plan - Option A: Living Fragments on StatusEffectOnSpawn + Custom Inspector
 
-Full design: see `living_fragments_status_effect_plan.md` artifact.
+**Status:** ✅ **COMPLETED**
+- Changes applied to `StatusEffectOnSpawn.cs` and `LivingFragmentsStatusInstance.cs`.
+- `StatusEffectOnSpawnEditor.cs` created.
+- Tests updated in `StatusEffectOnSpawnTests.cs` and successfully passed (552/552).
 
-## Decisions
-- Add `StatusType.LivingFragments` to `SkillData.cs`.
-- Implement `LivingFragmentsStatusEffect` (`ISkillEffect`) for skill asset authoring with prefab list.
-- Implement `LivingFragmentsStatusInstance` (`StatusEffectInstance`) listening to `host.OnStateChanged` / `host.OnDefeated` for `LifeState.Destroyed`.
-- Execute 5-step Mid-Combat Summoning Pipeline placing summoned units into frontmost positions (`ExecuteMoveAndShift` to rank 1).
-- Wire `StatusInstanceFactory.cs` and `StatusTooltipDisplay.cs`.
+Allow level designers and developers to specify which prefabs to summon when configuring a `LivingFragments` status effect on `StatusEffectOnSpawn`, while keeping the Unity Inspector clean and context-sensitive.
 
-## Code
-- [x] Add `StatusType.LivingFragments` to `SkillData.cs`.
-- [x] Create `LivingFragmentsStatusEffect.cs`.
-- [x] Create `LivingFragmentsStatusInstance.cs`.
-- [x] Update `StatusInstanceFactory.cs` for `LivingFragments`.
-- [x] Update `StatusTooltipDisplay.cs` for `LivingFragments` tooltip string.
+## Proposed Changes
 
-## Tests
-- [x] Create `LivingFragmentsTests.cs` covering host destruction summoning, frontmost rank positioning, max team capacity limit, and status expiration behavior.
-- [x] Run EditMode tests and verify clean pass.
+### 1. `Assets/Scripts/Combat/StatusEffectOnSpawn.cs`
+- Add `public List<GameObject> livingFragmentPrefabs = new List<GameObject>();`
+- In `ApplyTo(CombatCharacter character)`:
+  - Add branch for `statusType == StatusType.LivingFragments` creating `new LivingFragmentsStatusInstance(null, livingFragmentPrefabs, duration)`.
 
+### 2. `Assets/Scripts/Combat/Effects/LivingFragmentsStatusInstance.cs`
+- In `ExecuteSummons()`:
+  - Add fallback lazy lookup: `if (_battleSystem == null) _battleSystem = UnityEngine.Object.FindFirstObjectByType<BattleSystem>();`
+  - Ensures on-spawn applied status instances can successfully find the `BattleSystem` when the host dies during combat.
+
+### 3. `Assets/Scripts/Editor/StatusEffectOnSpawnEditor.cs` (New Custom Inspector)
+- Create Custom Inspector for `StatusEffectOnSpawn`.
+- Dynamically show/hide fields based on `statusType`:
+  - When `LivingFragments`: display `statusType`, `duration`, and `livingFragmentPrefabs`. Hide `amplitude`, `amplitudeType`, `targetStat`.
+  - When `Stealth`: display `statusType`, `duration`. Hide `amplitude`, `amplitudeType`, `targetStat`, `livingFragmentPrefabs`.
+  - Otherwise: display standard `statusType`, `duration`, `amplitude`, `amplitudeType`, `targetStat`. Hide `livingFragmentPrefabs`.
+
+### 4. `Assets/Editor/Tests/StatusEffectOnSpawnTests.cs`
+- Add test verifying `StatusEffectOnSpawn` with `StatusType.LivingFragments` creates a `LivingFragmentsStatusInstance` on the target character.
+- Add test verifying lazy `BattleSystem` lookup works on host destruction when initialized via `StatusEffectOnSpawn`.
+
+## Verification Plan
+
+### Automated Tests
+- Run `StatusEffectOnSpawnTests` and all combat tests via Unity Test Framework.
+- Ensure all 551+ existing tests plus new tests pass.
+
+### Manual Verification
+- Inspect a GameObject with `StatusEffectOnSpawn` in Unity Editor to verify the custom inspector properly toggles field visibility when changing `statusType`.
