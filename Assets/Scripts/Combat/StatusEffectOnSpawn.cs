@@ -10,6 +10,9 @@ namespace Nevergreen.Combat
         public float amplitude = 0f;
         public AmplitudeType amplitudeType = AmplitudeType.Default;
         public StatTarget targetStat = StatTarget.MaxHP;
+        
+        [Tooltip("Prefabs to summon upon destruction when statusType is LivingFragments.")]
+        public System.Collections.Generic.List<GameObject> livingFragmentPrefabs = new System.Collections.Generic.List<GameObject>();
 
         public void ApplyTo(CombatCharacter character)
         {
@@ -19,6 +22,10 @@ namespace Nevergreen.Combat
             if (statusType == StatusType.Stealth)
             {
                 instance = new StealthStatusInstance(duration);
+            }
+            else if (statusType == StatusType.LivingFragments)
+            {
+                instance = new LivingFragmentsStatusInstance(null, livingFragmentPrefabs, duration);
             }
             else
             {

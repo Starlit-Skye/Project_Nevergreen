@@ -56,7 +56,7 @@ namespace Nevergreen.Tests
         }
 
         [Test]
-        public void StatusApplied_HostDestroyed_SummonsPrefabsAtFrontmostRank()
+        public void StatusApplied_HostDestroyed_SummonsPrefabsSequentiallyFromHostRank()
         {
             var target = CombatTestHelper.CreateCombatCharacter("Target", Team.Enemy, 1);
             var enemyTeam = new List<CombatCharacter> { target };
@@ -85,8 +85,8 @@ namespace Nevergreen.Tests
             Assert.IsNotNull(firstSummoned);
             Assert.IsNotNull(secondSummoned);
 
-            Assert.AreEqual(2, firstSummoned.rank);
-            Assert.AreEqual(1, secondSummoned.rank);
+            Assert.AreEqual(1, firstSummoned.rank);
+            Assert.AreEqual(2, secondSummoned.rank);
 
             Object.DestroyImmediate(prefab1.gameObject);
             Object.DestroyImmediate(prefab2.gameObject);

@@ -98,5 +98,22 @@ namespace Nevergreen.Tests
             Assert.IsNotNull(appliedEffect, "Stealth status should be applied.");
             Assert.IsInstanceOf<StealthStatusInstance>(appliedEffect, "Applied Stealth status should be an instance of StealthStatusInstance subclass.");
         }
+
+        [Test]
+        public void InitializeForCombat_AppliesLivingFragmentsStatusInstanceSubclass()
+        {
+            // Arrange
+            _spawnEffect.statusType = StatusType.LivingFragments;
+            _spawnEffect.duration = 2;
+            _spawnEffect.livingFragmentPrefabs.Add(new GameObject("MockEnemyPrefab"));
+
+            // Act
+            _combatCharacter.InitializeForCombat(Team.Enemy, 1);
+
+            // Assert
+            var appliedEffect = _combatCharacter.statusEffects.FirstOrDefault(e => e.type == StatusType.LivingFragments);
+            Assert.IsNotNull(appliedEffect, "LivingFragments status should be applied.");
+            Assert.IsInstanceOf<LivingFragmentsStatusInstance>(appliedEffect, "Applied LivingFragments status should be an instance of LivingFragmentsStatusInstance subclass.");
+        }
     }
 }

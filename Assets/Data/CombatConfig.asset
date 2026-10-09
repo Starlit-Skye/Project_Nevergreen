@@ -111,3 +111,7 @@ MonoBehaviour:
     specifyStatTarget: 0
     targetStat: 0
     icon: {fileID: 2974616451038653252, guid: 567b6efd1eee7e4478f47a0473df7be6, type: 3}
+  - statusType: 17
+    specifyStatTarget: 0
+    targetStat: 0
+    icon: {fileID: -7692747662659761168, guid: 72aa514c6ccd8fa42b30070dfc64446a, type: 3}

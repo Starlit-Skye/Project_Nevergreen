@@ -56,12 +56,20 @@ namespace Nevergreen.Combat
         private void ExecuteSummons()
         {
             Debug.Log($"[LivingFragments] ExecuteSummons called. triggered={_triggered}, battleSystem={_battleSystem}");
-            if (_triggered || _battleSystem == null) return;
+            if (_triggered) return;
+            
+            if (_battleSystem == null)
+            {
+                _battleSystem = UnityEngine.Object.FindFirstObjectByType<BattleSystem>();
+            }
+            if (_battleSystem == null) return;
             
             _triggered = true;
 
             var team = _hostTeam == Team.Player ? _battleSystem.PlayerTeam : _battleSystem.EnemyTeam;
             Debug.Log($"[LivingFragments] Team identified: {_hostTeam}, current count: {team.Count}");
+
+            int targetSpawnRank = Host != null ? Host.rank : 1;
 
             foreach (var prefab in _enemyPrefabs)
             {
@@ -74,7 +82,7 @@ namespace Nevergreen.Combat
                     break;
                 }
 
-                // 2. Calculate Rank & Instantiate
+                // 2. Calculate Rank & Instantiate (initially spawn at the back)
                 int maxOccupied = team.Count > 0 
                     ? team.Max(c => c.OccupiedRanks.Count > 0 ? c.OccupiedRanks.Max() : c.rank) 
                     : 0;
@@ -104,12 +112,14 @@ namespace Nevergreen.Combat
                 // 4. Register with BattleSystem
                 _battleSystem.RegisterSpawnedCharacter(allyCombat);
 
-                // 5. Frontmost Positioning Shift
-                // Move the newly summoned fragment to rank 1 (frontmost empty space). 
+                // 5. Positioning Shift
+                // Move the newly summoned fragment to targetSpawnRank. 
                 // Any existing units will cleanly shift backward.
-                _battleSystem.ExecuteMoveAndShift(allyCombat, 1);
+                _battleSystem.ExecuteMoveAndShift(allyCombat, targetSpawnRank);
 
-                Debug.Log($"[LivingFragmentsStatusInstance] Summoned '{allyCombat.DisplayName}' for {_hostTeam} at frontmost rank.");
+                Debug.Log($"[LivingFragmentsStatusInstance] Summoned '{allyCombat.DisplayName}' for {_hostTeam} at rank {targetSpawnRank}.");
+                
+                targetSpawnRank++;
             }
         }
     }
