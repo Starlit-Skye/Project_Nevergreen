@@ -121,7 +121,8 @@ namespace Nevergreen.Data
         Burn,
         Flight,
         Unraveled,
-        LivingFragments
+        LivingFragments,
+        LifeLink
     }
 
     /// <summary>

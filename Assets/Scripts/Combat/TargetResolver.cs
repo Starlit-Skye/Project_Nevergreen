@@ -16,7 +16,7 @@ namespace Nevergreen.Combat
         public static bool IsValidReceiver(CombatCharacter target, SkillData skill)
         {
             bool isHealingSkill = skill.effects.Any(e => e is HealEffect);
-            return target.IsAlive || (target.IsPile && !isHealingSkill);
+            return target.IsAlive || target.IsDowned || (target.IsPile && !isHealingSkill);
         }
 
         /// <summary>
@@ -48,6 +48,8 @@ namespace Nevergreen.Combat
             return pool
                 .Where(c => 
                 {
+                    if (c.IsDowned) return false;
+
                     if (!c.OccupiedRanks.Intersect(skill.targetRanks).Any())
                         return false;
                     if (skill.targetScope == TargetScope.Enemies && c.IsStealthed && !skill.ignoresStealth)
@@ -91,9 +93,9 @@ namespace Nevergreen.Combat
             // Get the team pool (allies or enemies) of the target
             List<CombatCharacter> pool = primaryTarget.IsPlayerTeam ? playerTeam : enemyTeam;
 
-            // Filter to targets that are alive or piles
+            // Filter to targets that are alive, piles, or downed
             var sortedTeam = pool
-                .Where(c => c.IsAlive || c.IsPile)
+                .Where(c => c.IsAlive || c.IsPile || c.IsDowned)
                 .OrderBy(c => c.rank) // Sorted from frontmost to backmost
                 .ToList();
 

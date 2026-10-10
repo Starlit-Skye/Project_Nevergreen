@@ -56,7 +56,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 33df508019b7d3248b779ff32b4338ae, type: 2}
   - {fileID: 11400000, guid: d7cc6d9e069b27a4da3c79119f6d0ba1, type: 2}
   eliteFormations:
-  - {fileID: 11400000, guid: cecb5bd1f8da0144fbbf11b41e042815, type: 2}
+  - {fileID: 11400000, guid: 0250dce79c411ff48ac0e6fabbd3d971, type: 2}
   bossFormations:
   - {fileID: 11400000, guid: aa028bd0428c1b84fada9d3a2bfc8739, type: 2}
   - {fileID: 11400000, guid: 200e94b47d7f4e54fbe0b8d80ba3d117, type: 2}

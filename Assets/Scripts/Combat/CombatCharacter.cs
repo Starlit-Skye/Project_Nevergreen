@@ -14,7 +14,8 @@ namespace Nevergreen.Combat
         Alive,      // Active participant, takes turns.
         Dying,      // Intermediate state during death animation.
         Pile,       // Spatial anchor, 50% HP, no turns, decay-based.
-        Destroyed   // Removed from formation/logic.
+        Destroyed,  // Removed from formation/logic.
+        Downed      // 0 HP, still targetable for AOE, revives at round end if others live.
     }
 
     /// <summary>
@@ -114,6 +115,7 @@ namespace Nevergreen.Combat
         public string CharacterId => characterData != null ? characterData.characterId : "";
         public bool IsAlive => state == LifeState.Alive;
         public bool IsPile => state == LifeState.Pile;
+        public bool IsDowned => state == LifeState.Downed;
         public bool IsPlayerTeam => team == Team.Player;
         public bool IsStealthed => statusEffects.Any(s => s.type == StatusType.Stealth && !s.IsExpired);
 
@@ -394,7 +396,9 @@ namespace Nevergreen.Combat
         /// </summary>
         public void TakeDamage(int amount, bool isCritical = false)
         {
-            if (!IsAlive && !IsPile) return;
+            if (!IsAlive && !IsPile && !IsDowned) return;
+
+            if (IsDowned) return;
 
             int actual = Mathf.Max(0, amount);
             currentHP = Mathf.Max(0, currentHP - actual);
@@ -409,8 +413,21 @@ namespace Nevergreen.Combat
                 }
                 else
                 {
-                    state = LifeState.Dying;
-                    OnDefeated?.Invoke(this, isCritical);
+                    bool intercepted = false;
+                    foreach (var status in statusEffects.ToList())
+                    {
+                        if (status.TryInterceptDefeat(isCritical))
+                        {
+                            intercepted = true;
+                            break;
+                        }
+                    }
+
+                    if (!intercepted)
+                    {
+                        state = LifeState.Dying;
+                        OnDefeated?.Invoke(this, isCritical);
+                    }
                 }
             }
         }
@@ -420,12 +437,40 @@ namespace Nevergreen.Combat
         /// </summary>
         public void Heal(int amount)
         {
-            if (!IsAlive) return;
+            if (!IsAlive && !IsDowned) return;
 
             int actual = Mathf.Min(amount, baseStats.maxHP - currentHP);
             currentHP += actual;
 
             OnHealed?.Invoke(this, actual);
+        }
+
+        public void EnterDownedState()
+        {
+            if (state == LifeState.Downed || state == LifeState.Dying || state == LifeState.Destroyed) return;
+            state = LifeState.Downed;
+            
+            // Clear all other statuses
+            var toRemove = statusEffects.Where(s => s.type != StatusType.LifeLink).ToList();
+            foreach (var status in toRemove)
+            {
+                RemoveStatus(status);
+            }
+        }
+
+        public void ReviveFromDowned(int hpToRestore)
+        {
+            if (state != LifeState.Downed) return;
+            state = LifeState.Alive;
+            Heal(hpToRestore);
+        }
+
+        public void ProcessDefeatFromDowned()
+        {
+            if (state != LifeState.Downed) return;
+            
+            state = LifeState.Dying;
+            OnDefeated?.Invoke(this, false);
         }
 
         /// <summary>

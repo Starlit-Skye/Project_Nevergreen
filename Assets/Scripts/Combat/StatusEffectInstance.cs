@@ -60,5 +60,14 @@ namespace Nevergreen.Combat
         public virtual void OnSkillExecute(SkillContext ctx)
         {
         }
+
+        /// <summary>
+        /// Allows a status effect to intercept defeat (HP reaches 0).
+        /// Return true to prevent the normal Dying flow.
+        /// </summary>
+        public virtual bool TryInterceptDefeat(bool isCritical)
+        {
+            return false;
+        }
     }
 }

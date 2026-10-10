@@ -56,6 +56,9 @@ namespace Nevergreen.Combat
                     Debug.LogWarning("[StatusInstanceFactory] LivingFragments cannot be created via generic factory. Defaulting to empty instance.");
                     instance = new LivingFragmentsStatusInstance(context.battleSystem, null, duration);
                     break;
+                case StatusType.LifeLink:
+                    instance = new LifeLinkStatusInstance(context.battleSystem, amplitude, duration);
+                    break;
                 default:
                     instance = new StatusEffectInstance(type, targetStat, amplitude, duration, amplitudeType);
                     break;

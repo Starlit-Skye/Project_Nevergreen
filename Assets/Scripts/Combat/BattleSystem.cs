@@ -462,6 +462,18 @@ namespace Nevergreen.Combat
         {
             Debug.Log($"[BattleSystem] === Round {CurrentRound} End ===");
 
+            // Revive downed characters with Life Link at the end of each round
+            foreach (var c in _playerTeam.Concat(_enemyTeam).Where(c => c.IsDowned).ToList())
+            {
+                var lifeLink = c.statusEffects.FirstOrDefault(s => s.type == StatusType.LifeLink && !s.IsExpired);
+                if (lifeLink != null)
+                {
+                    int healAmount = Mathf.RoundToInt(c.baseStats.maxHP * (lifeLink.amplitude / 100f));
+                    c.ReviveFromDowned(Mathf.Max(1, healAmount));
+                    Debug.Log($"[BattleSystem] {c.DisplayName} revived from Downed state due to Life Link!");
+                }
+            }
+
             // Tick durations for all Piles at the end of each round
             foreach (var c in _playerTeam.Concat(_enemyTeam).Where(c => c.IsPile).ToList())
             {

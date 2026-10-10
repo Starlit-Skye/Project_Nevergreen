@@ -10,8 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f5835373b4b08d14ea5a9a0c496e4764, type: 3}
-  m_Name: EF_EL_3
+  m_Name: EF_EL_4
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.EnemyFormationData
-  formationId: EF_EL_3
+  formationId: EF_EL_4
   enemyPrefabs:
-  - {fileID: 8677282494213934289, guid: a53dede02dc771348817f145db4b3dc2, type: 3}
+  - {fileID: 8677282494213934289, guid: 6692b10084177484a930fbabfb84b8a9, type: 3}
+  - {fileID: 8677282494213934289, guid: 6692b10084177484a930fbabfb84b8a9, type: 3}

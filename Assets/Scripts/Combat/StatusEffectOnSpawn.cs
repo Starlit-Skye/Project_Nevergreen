@@ -27,6 +27,10 @@ namespace Nevergreen.Combat
             {
                 instance = new LivingFragmentsStatusInstance(null, livingFragmentPrefabs, duration);
             }
+            else if (statusType == StatusType.LifeLink)
+            {
+                instance = new LifeLinkStatusInstance(null, Mathf.RoundToInt(amplitude), duration);
+            }
             else
             {
                 instance = new StatusEffectInstance(
