@@ -212,6 +212,8 @@ namespace Nevergreen.UI
                     return $"+{aggregateAmplitude}% damage taken for {maxDuration} turns";
                 case StatusType.LivingFragments:
                     return "Summons fragments upon destruction";
+                case StatusType.LifeLink:
+                    return $"Revive with {aggregateAmplitude}% HP at the end of the round if linked allies still alive";
                 default:
                     return status.type.ToString();
             }
