@@ -210,8 +210,8 @@ namespace Nevergreen.Prototype
             RefreshStatusIcons();
 
             // Hide if destroyed or dying (if we want dying to hide immediately)
-            // But keep it for Alive and Pile.
-            gameObject.SetActive(_target.IsAlive || _target.IsPile);
+            // But keep it for Alive, Pile, and Downed.
+            gameObject.SetActive(_target.IsAlive || _target.IsPile || _target.IsDowned);
         }
 
         private void RefreshStatusIcons()
@@ -232,7 +232,7 @@ namespace Nevergreen.Prototype
                 }
             }
 
-            if (!_target.IsAlive) return;
+            if (!_target.IsAlive && !_target.IsDowned) return;
 
             var config = Data.GameDatabase.Instance != null ? Data.GameDatabase.Instance.CombatConfig : null;
             if (config == null) return;

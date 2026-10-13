@@ -34,9 +34,22 @@ namespace Nevergreen.UI
             Owner = owner;
             SlotIndex = slotIndex;
             
-            if (_image != null && data != null && data.illustration != null)
+            if (_image != null)
             {
-                _image.sprite = data.illustration;
+                _image.sprite = data != null ? data.illustration : null;
+                _image.enabled = (_image.sprite != null);
+            }
+
+            var tooltipTrigger = GetComponent<TrinketTooltipTrigger>();
+            if (tooltipTrigger != null)
+            {
+                tooltipTrigger.SetTrinket(data);
+            }
+
+            var label = GetComponentInChildren<TMPro.TextMeshProUGUI>();
+            if (label != null)
+            {
+                label.text = data != null ? $"- {data.displayName}" : "";
             }
         }
 
@@ -93,16 +106,29 @@ namespace Nevergreen.UI
                         
                         // Check duplicates
                         bool bHasX = false; 
-                        foreach(var t in ownerB.equippedTrinkets) { if (t != y && t.trinketId == x.trinketId) bHasX = true; }
+                        foreach(var t in ownerB.equippedTrinkets) { if (t != null && t != y && t.trinketId == x.trinketId) bHasX = true; }
                         if (bHasX) return;
 
                         // Shop Affordability Check
                         ShopUIController currentShop = this.isShopContext ? this.shopController : null;
                         if (currentShop != null && !currentShop.CanAfford(draggedItem.SlotIndex)) return;
 
+                        int targetSlotIndex = this.SlotIndex; // The slot of the item being replaced
+
                         ownerB.TryUnequipTrinket(y);
                         if (ownerB.TryEquipTrinket(x))
                         {
+                            // Ensure x is placed exactly at targetSlotIndex
+                            int currentIndex = ownerB.equippedTrinkets.IndexOf(x);
+                            if (currentIndex != -1 && targetSlotIndex != -1 && currentIndex != targetSlotIndex)
+                            {
+                                while (ownerB.equippedTrinkets.Count <= targetSlotIndex)
+                                    ownerB.equippedTrinkets.Add(null);
+                                var temp = ownerB.equippedTrinkets[targetSlotIndex];
+                                ownerB.equippedTrinkets[targetSlotIndex] = x;
+                                ownerB.equippedTrinkets[currentIndex] = temp;
+                            }
+
                             if (currentShop != null)
                             {
                                 currentShop.OnItemPurchased(draggedItem.SlotIndex);
@@ -110,21 +136,11 @@ namespace Nevergreen.UI
 
                             if (!isShopContext) SaveManager.SaveRun();
                             
-                            var controller = GetComponentInParent<PartyManagementPanelController>();
-                            if (controller != null)
+                            var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                            if (containerUI != null)
                             {
-                                controller.ForceRefresh();
-                            }
-
-                            var treasureController = GetComponentInParent<TreasureUIController>();
-                            if (treasureController != null)
-                            {
-                                treasureController.RefreshPanels();
-                            }
-
-                            if (currentShop != null)
-                            {
-                                currentShop.RefreshEquipPanelsPublic();
+                                containerUI.OnUnassignedTrinketChanged(x, y);
+                                containerUI.RefreshTrinketUI();
                             }
                             
                             // Reinitialize the dragged item (which goes back to inventory) 
@@ -148,16 +164,10 @@ namespace Nevergreen.UI
                             
                             if (!isShopContext) SaveManager.SaveRun();
                             
-                            var controller = GetComponentInParent<PartyManagementPanelController>();
-                            if (controller != null)
+                            var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                            if (containerUI != null)
                             {
-                                controller.ForceRefresh();
-                            }
-
-                            var treasureController = GetComponentInParent<TreasureUIController>();
-                            if (treasureController != null)
-                            {
-                                treasureController.RefreshPanels();
+                                containerUI.RefreshTrinketUI();
                             }
                             
                             Destroy(draggedItem.gameObject);
@@ -170,10 +180,10 @@ namespace Nevergreen.UI
                         
                         // Check duplicates
                         bool bHasX = false; 
-                        foreach(var t in ownerB.equippedTrinkets) { if (t != y && t.trinketId == x.trinketId) bHasX = true; }
+                        foreach(var t in ownerB.equippedTrinkets) { if (t != null && t != y && t.trinketId == x.trinketId) bHasX = true; }
                         
                         bool aHasY = false;
-                        foreach(var t in ownerA.equippedTrinkets) { if (t != x && t.trinketId == y.trinketId) aHasY = true; }
+                        foreach(var t in ownerA.equippedTrinkets) { if (t != null && t != x && t.trinketId == y.trinketId) aHasY = true; }
                         
                         if (bHasX || aHasY) return; // Rollback due to duplicate
                         
@@ -184,16 +194,10 @@ namespace Nevergreen.UI
                         
                         if (!isShopContext) SaveManager.SaveRun();
                         
-                        var controller = GetComponentInParent<PartyManagementPanelController>();
-                        if (controller != null)
+                        var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                        if (containerUI != null)
                         {
-                            controller.ForceRefresh();
-                        }
-
-                        var treasureController2 = GetComponentInParent<TreasureUIController>();
-                        if (treasureController2 != null)
-                        {
-                            treasureController2.RefreshPanels();
+                            containerUI.RefreshTrinketUI();
                         }
                         
                         Destroy(draggedItem.gameObject);

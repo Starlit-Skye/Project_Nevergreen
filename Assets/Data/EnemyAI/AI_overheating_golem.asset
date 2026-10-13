@@ -21,9 +21,11 @@ MonoBehaviour:
       type: {class: SequenceBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
       data:
         sequenceId: default
-        skillSequence:
-        - {fileID: 11400000, guid: 01f2cd8a28cb3d54aaf46f1f73f56a2a, type: 2}
-        - {fileID: 11400000, guid: b0c89da32213d0e4e9072a21611836b1, type: 2}
+        steps:
+        - skill: {fileID: 11400000, guid: 01f2cd8a28cb3d54aaf46f1f73f56a2a, type: 2}
+          elseSkill: {fileID: 0}
+        - skill: {fileID: 11400000, guid: b0c89da32213d0e4e9072a21611836b1, type: 2}
+          elseSkill: {fileID: 0}
         targeting:
           rid: 4415245694282498130
         skipOnFailure: 0

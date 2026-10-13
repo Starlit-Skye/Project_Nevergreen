@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbacf546f511b25458a18339fa5b8624, type: 3}
+  m_Name: AI_guardian_hound_pink
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Combat.AI.EnemyAIProfile
+  behaviors:
+  - rid: 3336827883048402947
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3336827883048402947
+      type: {class: SequenceBehavior, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        sequenceId: default
+        steps:
+        - skill: {fileID: 11400000, guid: 9cff724e13ac127408c4872f03f8f79e, type: 2}
+          condition:
+            rid: -2
+          elseSkill: {fileID: 0}
+        - skill: {fileID: 11400000, guid: 342d99460df00a3429f20eb39025a3c7, type: 2}
+          condition:
+            rid: -2
+          elseSkill: {fileID: 0}
+        targeting:
+          rid: 3336827883048403027
+        skipOnFailure: 0
+    - rid: 3336827883048403027
+      type: {class: SimpleTargeting, ns: Nevergreen.Combat.AI.Nodes, asm: Assembly-CSharp}
+      data:
+        strategy: 0

@@ -436,7 +436,11 @@ namespace Nevergreen.Combat
                 Debug.Log("[BattleSystem] === VICTORY ===");
 
                 var config = GameDatabase.Instance.CombatConfig;
-                var tier = config != null ? config.GetEncounterTierForRoom(Nevergreen.RunSessionManager.RoomProgression) : EnemyEncounterTier.Trivial;
+                
+                var activeStrategy = Nevergreen.RunSessionManager.CurrentRoomData?.strategy;
+                var tier = (activeStrategy != null && activeStrategy.OverrideEncounterTier.HasValue)
+                    ? activeStrategy.OverrideEncounterTier.Value
+                    : (config != null ? config.GetEncounterTierForRoom(Nevergreen.RunSessionManager.RoomProgression) : EnemyEncounterTier.Trivial);
 
                 BattleRewardHandler.ApplyVictoryRewards(_playerTeam, config, tier, _rng, out int partsGranted, out int scrapsGranted);
                 PartsGrantedThisBattle = partsGranted;
@@ -457,6 +461,18 @@ namespace Nevergreen.Combat
         private IEnumerator EndRound()
         {
             Debug.Log($"[BattleSystem] === Round {CurrentRound} End ===");
+
+            // Revive downed characters with Life Link at the end of each round
+            foreach (var c in _playerTeam.Concat(_enemyTeam).Where(c => c.IsDowned).ToList())
+            {
+                var lifeLink = c.statusEffects.FirstOrDefault(s => s.type == StatusType.LifeLink && !s.IsExpired);
+                if (lifeLink != null)
+                {
+                    int healAmount = Mathf.RoundToInt(c.baseStats.maxHP * (lifeLink.amplitude / 100f));
+                    c.ReviveFromDowned(Mathf.Max(1, healAmount));
+                    Debug.Log($"[BattleSystem] {c.DisplayName} revived from Downed state due to Life Link!");
+                }
+            }
 
             // Tick durations for all Piles at the end of each round
             foreach (var c in _playerTeam.Concat(_enemyTeam).Where(c => c.IsPile).ToList())

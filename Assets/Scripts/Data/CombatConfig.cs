@@ -156,6 +156,16 @@ namespace Nevergreen.Data
             maxScraps = maxScrapsPerBattle;
         }
 
+        [Header("Elite Trinket Drop Config")]
+        [Tooltip("Drop weight for Common tier trinkets in Elite battle rewards.")]
+        public float eliteTrinketCommonWeight = 50f;
+
+        [Tooltip("Drop weight for Uncommon tier trinkets in Elite battle rewards.")]
+        public float eliteTrinketUncommonWeight = 35f;
+
+        [Tooltip("Drop weight for Rare tier trinkets in Elite battle rewards.")]
+        public float eliteTrinketRareWeight = 15f;
+
         [Header("Enemy Encounter Tiers")]
         [Tooltip("Mappings of room count progression to enemy encounter tiers. Sorted by roomCount ascending automatically.")]
         public System.Collections.Generic.List<RoomTierMapping> roomTierMappings = new System.Collections.Generic.List<RoomTierMapping>();

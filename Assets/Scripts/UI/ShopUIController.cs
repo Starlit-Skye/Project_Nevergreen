@@ -9,8 +9,17 @@ namespace Nevergreen.UI
     /// UI Controller for managing the Shop room interface.
     /// Handles trinket displays, price tags, equipment panel integration, and purchase transactions.
     /// </summary>
-    public class ShopUIController : MonoBehaviour
+    public class ShopUIController : MonoBehaviour, ITrinketEquipContainerUI
     {
+        public void RefreshTrinketUI()
+        {
+            RefreshEquipPanelsPublic();
+        }
+
+        public void OnUnassignedTrinketChanged(TrinketData oldTrinket, TrinketData newTrinket)
+        {
+            // No unassigned reward pool to update
+        }
         [Header("Shop Slots")]
         [SerializeField] private List<TrinketInventoryDropHandler> shopSlots;
         [SerializeField] private List<TextMeshProUGUI> priceTexts;

@@ -55,31 +55,14 @@ namespace Nevergreen.Combat
 
             if (applied)
             {
-                StatusEffectInstance instance;
-                if (statusType == StatusType.Guard)
-                {
-                    instance = new GuardStatusInstance(context.user, duration);
-                }
-                else if (statusType == StatusType.Move)
-                {
-                    instance = new MoveStatusInstance(context.battleSystem, amplitude);
-                    instance.Source = context.user;
-                }
-                else if (statusType == StatusType.Stealth)
-                {
-                    instance = new StealthStatusInstance(duration);
-                    instance.Source = context.user;
-                }
-                else if (statusType == StatusType.HealReceivedReduction)
-                {
-                    instance = new HealReceivedDebuffStatusInstance(context.battleSystem, amplitude, duration);
-                    instance.Source = context.user;
-                }
-                else
-                {
-                    instance = new StatusEffectInstance(statusType, targetStat, amplitude, duration, amplitudeType);
-                    instance.Source = context.user;
-                }
+                StatusEffectInstance instance = StatusInstanceFactory.Create(
+                    context, 
+                    statusType, 
+                    targetStat, 
+                    amplitude, 
+                    duration, 
+                    amplitudeType
+                );
 
                 context.user.AddStatus(instance);
                 Debug.Log($"  -> {context.user.DisplayName} applied self-status {statusType} (amp:{amplitude}, dur:{duration})");

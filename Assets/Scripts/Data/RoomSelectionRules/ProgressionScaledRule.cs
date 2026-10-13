@@ -18,9 +18,19 @@ namespace Nevergreen.Data
         [SerializeField]
         public float weightPerRoom = 0.1f;
 
+        [Tooltip("If greater than 0, caps the maximum possible weight this rule can reach.")]
+        [SerializeField]
+        public float maxWeight = 0f;
+
         public override float EvaluateWeight()
         {
             float weight = baseWeight + (RunSessionManager.RoomProgression * weightPerRoom);
+            
+            if (maxWeight > 0f)
+            {
+                weight = Mathf.Min(weight, maxWeight);
+            }
+            
             return Mathf.Max(0f, weight);
         }
     }

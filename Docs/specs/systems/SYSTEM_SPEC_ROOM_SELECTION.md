@@ -57,6 +57,7 @@ Decouple room definition and metadata from execution behavior using ScriptableOb
 - `RoomActivationType`: enum containing `OnRoomLoaded`, `ContinuousCombat`, `OnCombatVictory`.
 - `RoomEffectStrategy`: Abstract base class decorated with `[Serializable]`, defining `ExecuteRoomEffect()`.
 - `CombatRoomEffectStrategy`: Concrete "no-op" strategy for plain combat rooms that immediately signals room completion via `combatUI.ShowRoomSelectionImmediately()`.
+- `EliteEncounterRoomEffectStrategy`: Concrete strategy for Elite combat rooms, overrides the encounter tier to Elite and resolves as a regular combat room.
 - `MarionetteRoomEffectStrategy`: Concrete implementation for marionette acquisition, opening `Marionette_Selection_Screen`.
 - `ScrapsRewardRoomEffectStrategy`: Concrete implementation for Scraps/Salvage rooms, executes `OnCombatVictory` to display a dedicated Scraps popup and grant currency before signaling completion.
 - `RoomData`: ScriptableObject asset containing `roomId` (string), `roomName` (string), `description` (TextArea string), `activationType` (RoomActivationType), and `strategy` (RoomEffectStrategy).

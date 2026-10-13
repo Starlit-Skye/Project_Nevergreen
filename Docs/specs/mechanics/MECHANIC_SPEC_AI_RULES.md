@@ -10,8 +10,8 @@ Target build: Unity 6 + PC
 Extend the modular AI framework with deterministic skill rotations and repetition constraints. This allows for complex combat "patterns" (combos) and prevents unintended skill spamming in randomized profiles, enhancing tactical depth and predictability.
 
 ## Scope
-- In scope: Stateful skill sequencing, per-brain sequence tracking, consecutive usage limits for random selection, turn passing on constraint failure.
-- Out of scope: Global cooldowns across different AI profiles, dynamic sequence modification at runtime (e.g., branching sequences).
+- In scope: Stateful skill sequencing, conditional branching within sequence steps, per-brain sequence tracking, consecutive usage limits for random selection, turn passing on constraint failure.
+- Out of scope: Global cooldowns across different AI profiles.
 
 ## Source of Truth
 - Code: `Assets/Scripts/Combat/AI/Nodes/SequenceBehavior.cs` (Sequencing logic)
@@ -43,6 +43,7 @@ Transitions:
 - Update domain: Turn-based synchronous tick.
 - Tick rate: Once per enemy character turn in `BattleSystem.ProcessTurn`.
 - Order dependencies: Executes after status effects and stun checks, but before `BattleSystem.ExecuteSkill`.
+  - **Important**: Because `StatusProcessor.TickDurations` happens *before* AI evaluation, any status condition checking for a Buff/Debuff requires that effect to have a duration of at least 2 turns (so it survives the initial decrement before the AI reads it).
 
 ## Determinism
 - Deterministic across clients: Yes. `SequenceBehavior` uses integer indexing stored in `AIHistory`. `RandomSkillBehavior` uses standard `UnityEngine.Random` but filters the available pool deterministically based on usage history.
@@ -59,9 +60,20 @@ valid_skills = equipped_skills.filter(s =>
 
 # Sequence Progression
 current_index = history.GetSequenceIndex(sequence_id)
-next_skill = skill_sequence[current_index % sequence_length]
-if (skill_executed) {
-    history.SetSequenceIndex(sequence_id, current_index + 1)
+for (attempt = 0; attempt < sequence_length; attempt++) {
+    step = steps[(current_index + attempt) % sequence_length]
+    if (step.condition_met) chosen_skill = step.skill
+    else chosen_skill = step.else_skill
+
+    if (chosen_skill == null) continue // Intentional skip!
+
+    if (chosen_skill.is_usable) {
+        history.AdvanceSequenceIndex(sequence_id, attempt + 1)
+        execute(chosen_skill)
+        break
+    } else if (!skipOnFailure) {
+        fail_behavior()
+    }
 }
 ```
 
@@ -76,9 +88,10 @@ if (skill_executed) {
 
 ## Edge Cases
 - **1-Skill Repetition**: If a character has only one skill and hits the `maxConsecutiveUses` limit, it will return an `AIDecision.Pass()`. The pass action resets the `consecutiveSkillUses` counter, allowing the skill to be used again on the next turn.
-- **Sequence Rank Failure**: If a skill in a sequence is unusable from the current rank:
-  - If `skipOnFailure` is `true`: The AI advances the sequence index and attempts to use the *next* skill in the same turn.
+- **Sequence Rank Failure**: If a chosen skill in a sequence is unusable from the current rank:
+  - If `skipOnFailure` is `true`: The AI attempts to use the *next* step in the sequence in the same turn.
   - If `skipOnFailure` is `false`: The entire behavior fails, and the brain moves to the next behavior in the profile list.
+- **Intentional Skip**: If a sequence step has a condition that evaluates to `false` and there is no `Else Skill`, the sequence will *always* skip this step and advance to the next step immediately, even if `skipOnFailure` is `false`.
 - **Persistence**: Multiple enemies using the same AI Profile track their `sequenceIndex` independently via their unique `AIHistory` instance.
 
 ## Failure Modes
@@ -91,9 +104,10 @@ if (skill_executed) {
 ## Acceptance Tests
 - Automated: `Assets/Editor/Tests/AIRuleTests.cs`
   - `RandomSkillBehavior_BlocksAtLimitAndPassesIfNoOtherSkills`
-  - `SequenceBehavior_CyclesThroughSkillsInOrder`
-  - `SequenceBehavior_SkipsUnavailableSkill_WhenSkipOnFailureEnabled`
-- Playtest: Verify a "Combo" enemy uses skills in A->B->C order. Verify a "Spam" enemy stops using a specific move after X uses.
+  - `SequenceBehavior_UsesSkill_WhenConditionMet`
+  - `SequenceBehavior_ConditionFalseNoElse_SkipsStep_EvenWhenSkipOnFailureDisabled`
+  - `SequenceBehavior_SelectedBranchUnusable_DoesNotTryOtherBranch`
+- Playtest: Verify a "Combo Dancer" enemy uses `Buff` -> `Heavy Attack` -> `Rest`.
 
 ## Validation
 - [x] Facts match current code/content

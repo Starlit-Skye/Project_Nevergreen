@@ -118,7 +118,11 @@ namespace Nevergreen.Data
         Shuffle,
         HealReceivedReduction,
         BleedOnAttack,
-        Burn
+        Burn,
+        Flight,
+        Unraveled,
+        LivingFragments,
+        LifeLink
     }
 
     /// <summary>

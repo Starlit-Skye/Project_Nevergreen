@@ -39,9 +39,14 @@ This is the most common node. It allows you to define a specific "If-Then" rule.
 ### 🔄 Sequence Behavior (The Combo Chain)
 Cycles through a fixed list of skills in order: A → B → C → A → ...
 *   **Sequence ID**: A unique name for this sequence (e.g., `shaman_combo`). Different enemies using the same AI Profile will track their position independently.
-*   **Skill Sequence**: The ordered list of skills to cycle through.
+*   **Steps**: The ordered list of steps to cycle through. Each step has:
+    *   **Skill**: The skill used unconditionally, or when the Condition is true.
+    *   **Condition**: (Optional) An AI condition that must be met to use the Skill. 
+    *   **Else Skill**: (Optional) The skill used if the Condition is false. If left empty when a Condition is false, the AI will simply skip this step and immediately try the next step in the sequence.
 *   **Targeting**: How to pick who to hit (shared across all skills in the sequence).
-*   **Skip On Failure**: If checked (default), the AI will skip to the next skill in the sequence if the current one can't be used (e.g., wrong rank). If unchecked, the entire behavior fails and the AI falls through to the next behavior.
+*   **Skip On Failure**: If checked (default), the AI will skip to the next skill in the sequence if the chosen skill can't be used (e.g., wrong rank, no targets). If unchecked, the entire behavior fails and the AI falls through to the next behavior.
+
+**Gotcha**: An Intentional Skip (Condition is false, no Else Skill) will ALWAYS advance to the next step, regardless of whether `Skip On Failure` is checked. `Skip On Failure` only applies when a skill is chosen but cannot be executed!
 
 ### 🎲 Random Skill Behavior (The Safety Net)
 Usually placed at the very bottom of your list. It will look at all valid skills for the current rank and pick one at random. If no skills are usable, the enemy will pass their turn.
@@ -87,10 +92,13 @@ A boss who just uses random attacks, but you want to ensure it never uses its "N
     *   Max Consecutive Uses: `2`
 
 ### The "Combo Dancer"
-An enemy that follows a strict pattern: Buff Self → Heavy Attack → Rest.
+An enemy that follows a strict pattern: Buff Self → Heavy Attack (if Buffed, else Normal Attack) → Rest.
 1.  **Behavior 1**: `SequenceBehavior`
     *   Sequence ID: `dancer_combo`
-    *   Skill Sequence: [`Buff_Self`, `Heavy_Attack`, `Rest_Skill`]
+    *   Steps:
+        *   1: Skill = `Buff_Self`
+        *   2: Skill = `Heavy_Attack`, Condition = `HasStatusCondition (Buff, Attack)`, Else Skill = `Normal_Attack`
+        *   3: Skill = `Rest_Skill`
     *   Targeting: `SimpleTargeting` (Strategy: Random)
     *   Skip On Failure: ✓
 

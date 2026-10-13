@@ -194,9 +194,15 @@ namespace Nevergreen.Prototype
                 nextPlayerRank += charSize;
             }
 
-            // Resolve enemy formation tier based on room progression
+            // Resolve enemy formation tier based on room progression or strategy override
             Nevergreen.Data.EnemyEncounterTier tier = Nevergreen.Data.EnemyEncounterTier.Trivial;
-            if (GameDatabase.Instance != null && GameDatabase.Instance.CombatConfig != null)
+            
+            var activeStrategy = RunSessionManager.CurrentRoomData?.strategy;
+            if (activeStrategy != null && activeStrategy.OverrideEncounterTier.HasValue)
+            {
+                tier = activeStrategy.OverrideEncounterTier.Value;
+            }
+            else if (GameDatabase.Instance != null && GameDatabase.Instance.CombatConfig != null)
             {
                 tier = GameDatabase.Instance.CombatConfig.GetEncounterTierForRoom(RunSessionManager.RoomProgression);
             }

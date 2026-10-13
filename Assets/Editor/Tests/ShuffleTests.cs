@@ -122,9 +122,9 @@ namespace Nevergreen.Tests
         }
 
         [Test]
-        public void Shuffle_AppliedViaStatusEffect_IgnoresResistance()
+        public void Shuffle_AppliedViaStatusEffect_RespectsMoveResistance()
         {
-            // Give 300 move resistance to mimic high resistance (which usually blocks Move status)
+            // Give 300 move resistance to mimic high resistance (which should block Shuffle status)
             var target = CombatTestHelper.CreateCombatCharacter("Target", Team.Enemy, 1, moveResist: 300);
             var attacker = CombatTestHelper.CreateCombatCharacter("Attacker", Team.Player, 1);
             
@@ -150,11 +150,11 @@ namespace Nevergreen.Tests
             // Before shuffling, target is at rank 1
             Assert.AreEqual(1, target.rank);
 
-            // Execute the Shuffle effect (should succeed because it has no resistance mapping, defaulting to 0 resistance)
+            // Execute the Shuffle effect (should fail because 300 moveResist resists 100 chance)
             shuffleEffect.Execute(ctx, target);
 
-            // Target should now be at rank 2
-            Assert.AreEqual(2, target.rank, "Target should have shuffled to rank 2 despite having 300 moveResist.");
+            // Target should remain at rank 1
+            Assert.AreEqual(1, target.rank, "Target should NOT have shuffled because of 300 moveResist.");
 
             Object.DestroyImmediate(target.gameObject);
             Object.DestroyImmediate(target2.gameObject);

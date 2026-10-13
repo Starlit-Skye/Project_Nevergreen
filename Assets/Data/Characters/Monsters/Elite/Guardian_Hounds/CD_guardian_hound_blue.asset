@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6c54b3ac96a4847b9a46791f4394c8, type: 3}
+  m_Name: CD_guardian_hound_blue
+  m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.CharacterData
+  characterId: CD_guardian_hound_blue
+  displayName: Blue Guardian Hound
+  characterPrefab: {fileID: 7664516674936550575, guid: 6f89cc44b5e2de7489fb69630a589c23, type: 3}
+  teamType: 1
+  takeDamageClip: {fileID: 0}
+  actionsPerRound: 2
+  statPerLevel:
+  - {fileID: 11400000, guid: 988c605eaf56ceb40827019ed6c8d327, type: 2}
+  availableSkills:
+  - {fileID: 11400000, guid: 008d7d09e06eb6247b830fe4ed8277fe, type: 2}
+  - {fileID: 11400000, guid: 41401e8c1b899044d8eeec207adb7fa1, type: 2}
+  totalSkillPool: []
+  size: 2
+  leavesPileOnDeath: 1
+  defaultAIProfile: {fileID: 11400000, guid: 5a703357e25938a4cb2053c2d8333b1f, type: 2}
+  deathSFX: {fileID: 0}
+  bossMusicOverride: {fileID: 0}

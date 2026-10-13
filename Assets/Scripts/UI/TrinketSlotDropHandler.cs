@@ -27,7 +27,14 @@ namespace Nevergreen.UI
 
             if (TargetMember == null) return;
 
-            // Handle dropping into an empty slot / container
+            // Check if slot is occupied
+            TrinketData y = null;
+            if (TargetMember.equippedTrinkets != null && TargetSlotIndex >= 0 && TargetSlotIndex < TargetMember.equippedTrinkets.Count)
+            {
+                y = TargetMember.equippedTrinkets[TargetSlotIndex];
+            }
+
+            // Handle dropping into slot / container
             if (ownerA != TargetMember)
             {
                 if (ownerA != null && x.cannotBeRemoved) return; // Cannot unequip if cursed
@@ -39,60 +46,101 @@ namespace Nevergreen.UI
                     if (currentShop != null && !currentShop.CanAfford(draggedItem.SlotIndex)) return;
                 }
 
-                if (ownerA != null)
+                if (y != null)
                 {
-                    if (!ownerA.TryUnequipTrinket(x)) return;
-                }
-
-                // TryEquipTrinket will automatically put it in an empty slot or append
-                if (TargetMember.TryEquipTrinket(x))
-                {
-                    if (currentShop != null && ownerA == null)
+                    // Slot is occupied, swap logic
+                    if (ownerA == null)
                     {
-                        currentShop.OnItemPurchased(draggedItem.SlotIndex);
-                    }
-
-                    // If we have a specific target slot, we want to try to place it exactly there.
-                    // TryEquipTrinket might have placed it in the first available slot.
-                    // We can reorder it to the TargetSlotIndex.
-                    int currentIndex = TargetMember.equippedTrinkets.IndexOf(x);
-                    if (currentIndex != -1 && TargetSlotIndex != -1 && currentIndex != TargetSlotIndex)
-                    {
-                        // Pad with nulls if necessary
-                        while (TargetMember.equippedTrinkets.Count <= TargetSlotIndex)
-                        {
-                            TargetMember.equippedTrinkets.Add(null);
-                        }
+                        if (y.cannotBeRemoved) return; // Rollback
                         
-                        // Swap
-                        var temp = TargetMember.equippedTrinkets[TargetSlotIndex];
-                        TargetMember.equippedTrinkets[TargetSlotIndex] = x;
-                        TargetMember.equippedTrinkets[currentIndex] = temp;
-                    }
+                        // Check duplicates
+                        bool bHasX = false; 
+                        foreach(var t in TargetMember.equippedTrinkets) { if (t != null && t != y && t.trinketId == x.trinketId) bHasX = true; }
+                        if (bHasX) return;
 
-                    if (!isShopContext) SaveManager.SaveRun();
-                    var controller = GetComponentInParent<PartyManagementPanelController>();
-                    if (controller != null)
-                    {
-                        controller.ForceRefresh();
+                        TargetMember.TryUnequipTrinket(y);
+                        if (TargetMember.TryEquipTrinket(x))
+                        {
+                            int currentIndex = TargetMember.equippedTrinkets.IndexOf(x);
+                            if (currentIndex != -1 && TargetSlotIndex != -1 && currentIndex != TargetSlotIndex)
+                            {
+                                while (TargetMember.equippedTrinkets.Count <= TargetSlotIndex)
+                                    TargetMember.equippedTrinkets.Add(null);
+                                var temp = TargetMember.equippedTrinkets[TargetSlotIndex];
+                                TargetMember.equippedTrinkets[TargetSlotIndex] = x;
+                                TargetMember.equippedTrinkets[currentIndex] = temp;
+                            }
+
+                            if (currentShop != null)
+                            {
+                                currentShop.OnItemPurchased(draggedItem.SlotIndex);
+                            }
+
+                            if (!isShopContext) SaveManager.SaveRun();
+                            
+                            var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                            if (containerUI != null)
+                            {
+                                containerUI.OnUnassignedTrinketChanged(x, y);
+                                containerUI.RefreshTrinketUI();
+                            }
+                            
+                            draggedItem.Initialize(y, null, -1);
+                        }
+                        else
+                        {
+                            TargetMember.TryEquipTrinket(y); // Rollback
+                        }
                     }
-                    var treasureController = GetComponentInParent<TreasureUIController>();
-                    if (treasureController != null)
-                    {
-                        treasureController.RefreshPanels();
-                    }
-                    if (currentShop != null)
-                    {
-                        currentShop.RefreshEquipPanelsPublic();
-                    }
-                    Destroy(draggedItem.gameObject);
                 }
                 else
                 {
-                    // Rollback if equip failed
                     if (ownerA != null)
                     {
-                        ownerA.TryEquipTrinket(x);
+                        if (!ownerA.TryUnequipTrinket(x)) return;
+                    }
+
+                    // TryEquipTrinket will automatically put it in an empty slot or append
+                    if (TargetMember.TryEquipTrinket(x))
+                    {
+                        if (currentShop != null && ownerA == null)
+                        {
+                            currentShop.OnItemPurchased(draggedItem.SlotIndex);
+                        }
+
+                        // If we have a specific target slot, we want to try to place it exactly there.
+                        // TryEquipTrinket might have placed it in the first available slot.
+                        // We can reorder it to the TargetSlotIndex.
+                        int currentIndex = TargetMember.equippedTrinkets.IndexOf(x);
+                        if (currentIndex != -1 && TargetSlotIndex != -1 && currentIndex != TargetSlotIndex)
+                        {
+                            // Pad with nulls if necessary
+                            while (TargetMember.equippedTrinkets.Count <= TargetSlotIndex)
+                            {
+                                TargetMember.equippedTrinkets.Add(null);
+                            }
+                            
+                            // Swap
+                            var temp = TargetMember.equippedTrinkets[TargetSlotIndex];
+                            TargetMember.equippedTrinkets[TargetSlotIndex] = x;
+                            TargetMember.equippedTrinkets[currentIndex] = temp;
+                        }
+
+                        if (!isShopContext) SaveManager.SaveRun();
+                        var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                        if (containerUI != null)
+                        {
+                            containerUI.RefreshTrinketUI();
+                        }
+                        Destroy(draggedItem.gameObject);
+                    }
+                    else
+                    {
+                        // Rollback if equip failed
+                        if (ownerA != null)
+                        {
+                            ownerA.TryEquipTrinket(x);
+                        }
                     }
                 }
             }
@@ -113,15 +161,10 @@ namespace Nevergreen.UI
                     ownerA.equippedTrinkets[TargetSlotIndex] = x;
                     
                     if (!isShopContext) SaveManager.SaveRun();
-                    var controller = GetComponentInParent<PartyManagementPanelController>();
-                    if (controller != null)
+                    var containerUI = GetComponentInParent<ITrinketEquipContainerUI>();
+                    if (containerUI != null)
                     {
-                        controller.ForceRefresh();
-                    }
-                    var treasureController = GetComponentInParent<TreasureUIController>();
-                    if (treasureController != null)
-                    {
-                        treasureController.RefreshPanels();
+                        containerUI.RefreshTrinketUI();
                     }
                     Destroy(draggedItem.gameObject);
                 }

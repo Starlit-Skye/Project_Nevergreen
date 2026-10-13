@@ -885,5 +885,13 @@ namespace Nevergreen.Tests
 
             Assert.AreEqual(0, target.statusEffects.Count, "Target should NOT receive Bleed status because of 100% resistance.");
         }
+
+        [Test]
+        public void GetResistance_Shuffle_ReturnsMoveResist()
+        {
+            _character.baseStats.moveResist = 45;
+            int resistance = _character.GetResistance(StatusType.Shuffle);
+            Assert.AreEqual(45, resistance, "GetResistance(StatusType.Shuffle) should return character's moveResist value.");
+        }
     }
 }

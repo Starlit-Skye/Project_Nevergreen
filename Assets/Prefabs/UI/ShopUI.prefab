@@ -2663,9 +2663,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.9764706}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2793,6 +2793,12 @@ MonoBehaviour:
   - {fileID: 977494134631622206}
   - {fileID: 2297862764799803203}
   trinketUIPrefab: {fileID: 7638569640227091541, guid: 2682eb8993658be4fb3c44ca44d5d4f1, type: 3}
+  leaveShopButton: {fileID: 7756124865398420844}
+  trinketEquipPanels:
+  - {fileID: 5718316593159516340}
+  - {fileID: 8070072841155670759}
+  - {fileID: 9218248271621828307}
+  - {fileID: 4344242153052626322}
 --- !u!114 &6862391173478842131
 MonoBehaviour:
   m_ObjectHideFlags: 0

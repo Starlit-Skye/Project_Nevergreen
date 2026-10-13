@@ -13,13 +13,28 @@ namespace Nevergreen.Combat.AI.Nodes
     /// enemies using the same AI profile maintain independent positions.
     /// </summary>
     [Serializable]
+    public class SequenceStep
+    {
+        [Tooltip("Skill used if there is no condition, or when the condition is TRUE.")]
+        public SkillData skill;
+
+        [Tooltip("Optional. Leave empty for an unconditional step.")]
+        [SerializeReference]
+        [SubclassSelector]
+        public AIConditionNode condition;
+
+        [Tooltip("Skill used when the condition is FALSE. Leave empty to skip this step instead.")]
+        public SkillData elseSkill;
+    }
+
+    [Serializable]
     public class SequenceBehavior : AIBehaviorNode
     {
         [Tooltip("Unique identifier for this sequence. Different SequenceBehaviors should have different IDs.")]
         public string sequenceId = "default";
 
-        [Tooltip("The ordered list of skills to cycle through.")]
-        public List<SkillData> skillSequence = new List<SkillData>();
+        [Tooltip("Structured sequence steps with optional conditional branching.")]
+        public List<SequenceStep> steps = new List<SequenceStep>();
 
         [Tooltip("Targeting strategy used for all skills in this sequence.")]
         [SerializeReference]
@@ -34,45 +49,60 @@ namespace Nevergreen.Combat.AI.Nodes
         {
             decision = default;
 
-            if (skillSequence == null || skillSequence.Count == 0) return false;
+            if (steps == null || steps.Count == 0) return false;
             if (targeting == null) return false;
 
             int startIndex = brain.History.GetSequenceIndex(sequenceId);
-            int length = skillSequence.Count;
+            int length = steps.Count;
 
             // Try skills starting from the current index.
-            // If skipOnFailure is true, try up to the full sequence length before giving up.
-            int maxAttempts = skipOnFailure ? length : 1;
-
-            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            // We can check up to 'length' steps.
+            for (int attempt = 0; attempt < length; attempt++)
             {
                 int index = (startIndex + attempt) % length;
-                SkillData skill = skillSequence[index];
+                SequenceStep step = steps[index];
 
-                if (skill == null) continue;
+                if (step == null) continue;
+
+                SkillData chosen = null;
+
+                if (step.condition == null)
+                {
+                    chosen = step.skill;
+                }
+                else if (step.condition.IsMet(brain, battle, step.skill))
+                {
+                    chosen = step.skill;
+                }
+                else
+                {
+                    chosen = step.elseSkill;
+                }
+
+                if (chosen == null) continue;
 
                 // Check rank and usage constraints
-                if (!brain.Self.CanUseSkillFromRank(skill) || !brain.Self.HasRemainingUses(skill))
+                if (!brain.Self.CanUseSkillFromRank(chosen) || !brain.Self.HasRemainingUses(chosen))
                 {
                     if (skipOnFailure) continue;
                     return false;
                 }
 
                 // Resolve targets
-                if (!targeting.TryResolveTargets(brain, battle, skill, out List<CombatCharacter> targets))
+                if (!targeting.TryResolveTargets(brain, battle, chosen, out List<CombatCharacter> targets))
                 {
                     if (skipOnFailure) continue;
                     return false;
                 }
 
-                // Success — advance the sequence index past this skill
+                // Success — advance the sequence index past this step
                 // We advance by (attempt + 1) to account for any skipped entries
                 for (int i = 0; i <= attempt; i++)
                 {
                     brain.History.AdvanceSequenceIndex(sequenceId, length);
                 }
 
-                decision = AIDecision.UseSkill(skill, targets);
+                decision = AIDecision.UseSkill(chosen, targets);
                 return true;
             }
 

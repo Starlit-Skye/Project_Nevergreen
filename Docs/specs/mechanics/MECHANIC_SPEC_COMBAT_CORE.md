@@ -21,6 +21,7 @@ Define the baseline turn-based combat mechanic used for player team versus enemy
 - Data: `Assets/Scripts/Data/CombatConfig.cs`, `Assets/Scripts/Data/SkillData.cs`, `Assets/Scripts/Data/CharacterData.cs`
 - Guard: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_GUARD.md`
 - Buff/Debuff: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_BUFF_DEBUFF.md`
+- Flight: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_FLIGHT.md`
 - Pile: `Docs/specs/mechanics/MECHANIC_SPEC_PILE.md`
 - AI Rules: `Docs/specs/mechanics/MECHANIC_SPEC_AI_RULES.md`
 
@@ -169,7 +170,7 @@ is subtracted from the source's application chance when resolving status effects
 - Event: `character_removed`, Trigger: character state becomes `Destroyed`, Payload: character
 - Event: `character_action_resolved`, Trigger: action completion, Payload: actor, skill, target(s),
   hit/miss, crit, status results
-- Event: `battle_ended`, Trigger: combat end, Payload: battle type, outcome, rounds elapsed, casualties, parts granted, scraps granted
+- Event: `battle_ended`, Trigger: combat end, Payload: battle type, outcome, rounds elapsed, casualties, parts granted, scraps granted, trinket granted
 
 ## Acceptance Tests
 - Automated: `Assets/Editor/Tests/` (`GuardTests`, `StunTests`, `BuffDebuffTests`, `HitCritTests`, `MoveTests`)

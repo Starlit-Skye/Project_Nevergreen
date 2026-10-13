@@ -10,6 +10,7 @@ namespace Nevergreen.Data
         EarlyGame,
         MidGame,
         LateGame,
+        Elite,
         Boss
     }
 }

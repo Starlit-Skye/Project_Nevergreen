@@ -120,7 +120,8 @@ namespace Nevergreen.Combat
 
                 foreach (var target in targets)
                 {
-                    if (!target.IsAlive && !target.IsPile) continue;
+                    if (!target.IsAlive && !target.IsPile && !target.IsDowned) continue;
+                    if (target.IsDowned) continue; // Absorbs AOE slot but takes no effects
 
                     // 1. Resolve Target
                     CombatCharacter finalTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
