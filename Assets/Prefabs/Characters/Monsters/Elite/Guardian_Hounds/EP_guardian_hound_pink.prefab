@@ -127,7 +127,7 @@ GameObject:
   - component: {fileID: 7664516674936550575}
   - component: {fileID: -6436680502374432463}
   m_Layer: 0
-  m_Name: EP_life_link_test
+  m_Name: EP_guardian_hound_pink
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1d38a1085888ba41a4d9596efade610, type: 3}
-  m_Name: SBD_life_link_test
+  m_Name: SBD_guardian_hounds
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
-  attack: 1
-  accuracy: 0
-  critChance: 0
-  maxHP: 10
+  attack: 9
+  accuracy: 95
+  critChance: 5
+  maxHP: 100
   defense: 0
   dodge: 0
-  speed: 1
-  bleedResist: 0
-  blightResist: 0
-  stunResist: 0
-  debuffResist: 0
-  moveResist: 0
+  speed: 6
+  bleedResist: 60
+  blightResist: 30
+  stunResist: 70
+  debuffResist: 20
+  moveResist: 100

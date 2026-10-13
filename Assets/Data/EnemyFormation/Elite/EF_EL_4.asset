@@ -15,4 +15,4 @@ MonoBehaviour:
   formationId: EF_EL_4
   enemyPrefabs:
   - {fileID: 8677282494213934289, guid: 6692b10084177484a930fbabfb84b8a9, type: 3}
-  - {fileID: 8677282494213934289, guid: 6692b10084177484a930fbabfb84b8a9, type: 3}
+  - {fileID: 8677282494213934289, guid: 6f89cc44b5e2de7489fb69630a589c23, type: 3}
