@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using Nevergreen.Combat;
 using Nevergreen.Prototype;
+using Nevergreen.Data;
 
 namespace Nevergreen.Tests
 {
@@ -39,6 +40,7 @@ namespace Nevergreen.Tests
         [TearDown]
         public void Teardown()
         {
+            RunSessionManager.Clear();
             if (battleEndPanel != null) Object.DestroyImmediate(battleEndPanel);
             if (nextRoomButtonGo != null) Object.DestroyImmediate(nextRoomButtonGo);
             if (go != null) Object.DestroyImmediate(go);
@@ -73,6 +75,46 @@ namespace Nevergreen.Tests
             // Text should be Back to Main Menu
             var textComp = nextRoomButton.GetComponentInChildren<TextMeshProUGUI>();
             Assert.AreEqual("Back to Main Menu", textComp.text);
+        }
+
+        [Test]
+        public void HandleBattleEnded_ShowsBattleEndPanel_OnDefeat_EvenWhenNextRoomHasOnCombatVictoryEffect()
+        {
+            var testRoom = ScriptableObject.CreateInstance<RoomData>();
+            testRoom.activationType = RoomActivationType.OnCombatVictory;
+            RunSessionManager.NextRoomData = testRoom;
+
+            nextRoomButtonGo.transform.SetParent(battleEndPanel.transform, false);
+            battleEndPanel.SetActive(false);
+            nextRoomButton.gameObject.SetActive(false);
+
+            var handleEndedMethod = typeof(CombatUI).GetMethod("HandleBattleEnded", BindingFlags.NonPublic | BindingFlags.Instance);
+            handleEndedMethod.Invoke(combatUI, new object[] { BattleOutcome.Defeat });
+
+            Assert.IsTrue(battleEndPanel.activeSelf, "BattleEndPanel should be active on Defeat even if NextRoomData has an OnCombatVictory effect.");
+            Assert.IsTrue(nextRoomButton.gameObject.activeInHierarchy, "Next Room button should be active in hierarchy on Defeat.");
+
+            var textComp = nextRoomButton.GetComponentInChildren<TextMeshProUGUI>();
+            Assert.AreEqual("Back to Main Menu", textComp.text);
+
+            if (!UnityEditor.EditorUtility.IsPersistent(testRoom)) Object.DestroyImmediate(testRoom);
+        }
+
+        [Test]
+        public void HandleBattleEnded_HidesBattleEndPanel_OnVictory_WhenNextRoomHasOnCombatVictoryEffect()
+        {
+            var testRoom = ScriptableObject.CreateInstance<RoomData>();
+            testRoom.activationType = RoomActivationType.OnCombatVictory;
+            RunSessionManager.NextRoomData = testRoom;
+
+            battleEndPanel.SetActive(false);
+
+            var handleEndedMethod = typeof(CombatUI).GetMethod("HandleBattleEnded", BindingFlags.NonPublic | BindingFlags.Instance);
+            handleEndedMethod.Invoke(combatUI, new object[] { BattleOutcome.Victory });
+
+            Assert.IsFalse(battleEndPanel.activeSelf, "BattleEndPanel should remain inactive on Victory when an OnCombatVictory effect is pending.");
+
+            if (!UnityEditor.EditorUtility.IsPersistent(testRoom)) Object.DestroyImmediate(testRoom);
         }
 
         [Test]

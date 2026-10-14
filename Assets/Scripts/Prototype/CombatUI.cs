@@ -304,7 +304,7 @@ namespace Nevergreen.Prototype
             bool hasOnVictoryRoomEffect = RunSessionManager.NextRoomData != null 
                 && RunSessionManager.NextRoomData.activationType == RoomActivationType.OnCombatVictory;
 
-            if (battleEndPanel != null && !hasOnVictoryRoomEffect)
+            if (battleEndPanel != null && (outcome == BattleOutcome.Defeat || !hasOnVictoryRoomEffect))
             {
                 battleEndPanel.SetActive(true);
                 if (battleEndText != null)
