@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: smoke_bomb
   displayName: Smoke Bomb
-  description: 'Shuffle an enemy and give Acc Debuff.
+  description: 'Shuffle an enemy and give Acc Debuff. Guarenteed hit.
 
-    Usable Rank: 1-3
+    Usable
+    Rank: 1-3
 
-    Target
-    Rank: Any'
+    Target Rank: Any'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -34,7 +34,7 @@ MonoBehaviour:
   maxTargets: 1
   ignoresDefense: 0
   ignoresDodge: 0
-  guaranteedHit: 0
+  guaranteedHit: 1
   bypassGuard: 0
   ignoresStealth: 0
   hitCount: 1

@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: toss_dust
   displayName: Toss Dust
-  description: 'Apply Accuracy debuff and Crit debuff to enemies
+  description: 'Apply Accuracy debuff and Crit debuff to enemies. Guarenteed hit.
 
-    Usable Rank:
-    2-4'
+    Usable
+    Rank: 2-4'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -32,7 +32,7 @@ MonoBehaviour:
   maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
-  guaranteedHit: 0
+  guaranteedHit: 1
   bypassGuard: 0
   ignoresStealth: 0
   hitCount: 1

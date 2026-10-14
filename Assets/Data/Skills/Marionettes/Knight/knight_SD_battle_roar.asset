@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: battle_roar
   displayName: Battle Roar
-  description: 'Debuff dodge and defense on all enemies
+  description: 'Debuff dodge and defense on all enemies. Guarenteed hit.
 
-    Usable Rank: 1-2'
+    Usable
+    Rank: 1-2'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -31,7 +32,7 @@ MonoBehaviour:
   maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
-  guaranteedHit: 0
+  guaranteedHit: 1
   bypassGuard: 0
   ignoresStealth: 0
   hitCount: 1

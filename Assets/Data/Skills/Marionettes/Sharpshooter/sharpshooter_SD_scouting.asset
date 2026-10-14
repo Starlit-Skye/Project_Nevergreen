@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: scouting
   displayName: Scouting
-  description: 'Debuff all enemy Dodge
+  description: 'Debuff all enemy Dodge. Guarenteed hit.
 
     Usable Rank: 3-4'
   modifier:
@@ -30,7 +30,7 @@ MonoBehaviour:
   maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
-  guaranteedHit: 0
+  guaranteedHit: 1
   bypassGuard: 0
   ignoresStealth: 0
   hitCount: 1
