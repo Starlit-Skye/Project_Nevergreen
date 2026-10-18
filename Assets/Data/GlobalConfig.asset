@@ -17,3 +17,4 @@ MonoBehaviour:
   maxImperfections: 3
   marionetteChoiceCount: 4
   roomChoiceCount: 3
+  theatreRoomProjectorRepairCost: 30

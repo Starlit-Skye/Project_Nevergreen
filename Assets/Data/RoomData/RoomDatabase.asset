@@ -47,7 +47,7 @@ MonoBehaviour:
       type: {class: ProgressionScaledRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
         baseWeight: 0.1
-        weightPerRoom: 0.075
+        weightPerRoom: 0.083
         maxWeight: 1
     - rid: 7076122180511334476
       type: {class: ProgressionScaledRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
@@ -59,13 +59,13 @@ MonoBehaviour:
       type: {class: ProgressionScaledRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
         baseWeight: 0
-        weightPerRoom: 0.4
-        maxWeight: 2
+        weightPerRoom: 0.2
+        maxWeight: 1
     - rid: 7076122180511334479
       type: {class: ProgressionScaledRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
         baseWeight: 0
-        weightPerRoom: 0.4
+        weightPerRoom: 0.3
         maxWeight: 2
     - rid: 9162808348448653389
       type: {class: FixedWeightRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
@@ -74,5 +74,5 @@ MonoBehaviour:
     - rid: 9162808348448653390
       type: {class: PartyCountRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        baseWeight: 1
+        baseWeight: 0.5
         bonusPerMissingSlot: 3

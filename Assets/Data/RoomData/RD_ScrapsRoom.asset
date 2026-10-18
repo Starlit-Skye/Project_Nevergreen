@@ -24,6 +24,6 @@ MonoBehaviour:
     - rid: 7076121741356957771
       type: {class: ScrapsRewardRoomEffectStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        minScraps: 10
-        maxScraps: 25
+        minScraps: 15
+        maxScraps: 30
         scrapsRewardUiPrefab: {fileID: 3729592700914275890, guid: 357dbbc60b9aa9d4e88f7ed548da607e, type: 3}

@@ -27,7 +27,7 @@ MonoBehaviour:
         commonTrinketWeight: 70
         uncommonTrinketWeight: 30
         minCostCommon: 15
-        maxCostCommon: 30
+        maxCostCommon: 20
         minCostUncommon: 40
-        maxCostUncommon: 70
+        maxCostUncommon: 60
         shopUiPrefab: {fileID: 5935542236474885749, guid: 25040bfbd677b504b9bf0cc7b2fb52c0, type: 3}

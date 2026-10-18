@@ -24,10 +24,10 @@ MonoBehaviour:
     - rid: 7076121794380562510
       type: {class: TreasureRoomEffectStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        minScraps: 30
-        maxScraps: 40
-        minParts: 3
-        maxParts: 5
+        minScraps: 20
+        maxScraps: 30
+        minParts: 2
+        maxParts: 3
         commonTrinketWeight: 70
         uncommonTrinketWeight: 30
         treasureUiPrefab: {fileID: 3125939767771059409, guid: aa1f0dda99d79d140a8bed8fb61c7687, type: 3}

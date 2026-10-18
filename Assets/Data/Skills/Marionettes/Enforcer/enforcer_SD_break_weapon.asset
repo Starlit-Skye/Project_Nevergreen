@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: break_weapon
   displayName: Break Weapon
-  description: 'Deal low damage to an enemiy. Apply Attack Debuff
+  description: 'Deal lowq damage to an enemiy. Apply Attack Debuff
 
     Usable Rank:
     1-3
 
     Target Rank: 1/2'
   modifier:
-    damagePercent: 0.8
+    damagePercent: 0.6
     healPercent: 0
     accuracyMod: 0
     criticalMod: -3
