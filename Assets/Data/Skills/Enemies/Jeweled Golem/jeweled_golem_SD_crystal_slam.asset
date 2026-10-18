@@ -16,9 +16,9 @@ MonoBehaviour:
   displayName: Crystal Slam
   description: Deal damage to all enemies, chance to stun.
   modifier:
-    damagePercent: 0.5
+    damagePercent: 0.3
     healPercent: 0
-    accuracyMod: -5
+    accuracyMod: -10
     criticalMod: 0
   effects:
   - rid: 3336827785235398742
