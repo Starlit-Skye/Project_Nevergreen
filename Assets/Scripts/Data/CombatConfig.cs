@@ -247,5 +247,45 @@ namespace Nevergreen.Data
 
             return null;
         }
+
+        [Header("Exhaustion")]
+        [Tooltip("Exhaustion limit shared by Trivial and EarlyGame (no Heal Room between them). 0 = disabled.")]
+        [Min(0)]
+        public int earlyExhaustionLimit;
+
+        [Tooltip("Exhaustion limit for MidGame battles. 0 = disabled.")]
+        [Min(0)]
+        public int midExhaustionLimit;
+
+        [Tooltip("Exhaustion limit for LateGame battles. 0 = disabled.")]
+        [Min(0)]
+        public int lateExhaustionLimit;
+
+        [Tooltip("Exhaustion limit for Boss battles. 0 = disabled.")]
+        [Min(0)]
+        public int bossExhaustionLimit;
+
+        /// <summary>
+        /// Retrieves the exhaustion limit for the given encounter tier.
+        /// Trivial and EarlyGame share earlyExhaustionLimit.
+        /// Returns 0 if tier is disabled or not explicitly mapped (e.g. Elite uses caller's progression tier).
+        /// </summary>
+        public int GetExhaustionLimit(EnemyEncounterTier tier)
+        {
+            switch (tier)
+            {
+                case EnemyEncounterTier.Trivial:
+                case EnemyEncounterTier.EarlyGame:
+                    return earlyExhaustionLimit;
+                case EnemyEncounterTier.MidGame:
+                    return midExhaustionLimit;
+                case EnemyEncounterTier.LateGame:
+                    return lateExhaustionLimit;
+                case EnemyEncounterTier.Boss:
+                    return bossExhaustionLimit;
+                default:
+                    return 0;
+            }
+        }
     }
 }

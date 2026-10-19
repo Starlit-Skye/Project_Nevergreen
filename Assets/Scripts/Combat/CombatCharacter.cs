@@ -433,16 +433,32 @@ namespace Nevergreen.Combat
         }
 
         /// <summary>
-        /// Heal this character.
+        /// Heal this character. Blocked for the player team while the run is exhausted.
         /// </summary>
-        public void Heal(int amount)
+        /// <returns>The actual amount healed (never negative).</returns>
+        public int Heal(int amount)
         {
-            if (!IsAlive && !IsDowned) return;
+            if (IsPlayerTeam && RunSessionManager.IsExhausted)
+            {
+                amount = 0;
+            }
 
-            int actual = Mathf.Min(amount, baseStats.maxHP - currentHP);
+            return ApplyHeal(amount);
+        }
+
+        /// <summary>
+        /// Applies healing clamped to [0, missing HP]. Bypasses the exhaustion gate.
+        /// </summary>
+        private int ApplyHeal(int amount)
+        {
+            if (!IsAlive && !IsDowned) return 0;
+
+            int missing = Mathf.Max(0, baseStats.maxHP - currentHP);
+            int actual = Mathf.Clamp(amount, 0, missing);
             currentHP += actual;
 
             OnHealed?.Invoke(this, actual);
+            return actual;
         }
 
         public void EnterDownedState()
@@ -462,7 +478,7 @@ namespace Nevergreen.Combat
         {
             if (state != LifeState.Downed) return;
             state = LifeState.Alive;
-            Heal(hpToRestore);
+            ApplyHeal(hpToRestore);
         }
 
         public void ProcessDefeatFromDowned()

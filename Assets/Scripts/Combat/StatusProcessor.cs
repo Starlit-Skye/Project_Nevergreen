@@ -34,9 +34,10 @@ namespace Nevergreen.Combat
                 if (aggregateAmplitude <= 0) continue;
 
                 // Resolve the effect
+                int appliedAmount = aggregateAmplitude;
                 if (type == StatusType.Restore)
                 {
-                    character.Heal(aggregateAmplitude);
+                    appliedAmount = character.Heal(aggregateAmplitude);
                 }
                 else
                 {
@@ -44,7 +45,7 @@ namespace Nevergreen.Combat
                 }
 
                 // Trigger the character's event
-                character.TriggerPeriodicEffectApplied(type, aggregateAmplitude);
+                character.TriggerPeriodicEffectApplied(type, appliedAmount);
 
                 // Death Guard - Stop ticking if character died
                 if (!character.IsAlive) break;

@@ -43,6 +43,8 @@ Serialize and persist the active run session progress, parts count, scraps count
     - `hasActiveRun` (`bool`): Flag indicating if an active run session can be resumed.
     - `roomProgression` (`int`): The current progression count.
     - `parts` (`int`): The current parts count balance.
+    - `scraps` (`int`): The current scraps count balance.
+    - `exhaustionRound` (`int`): The saved pre-combat exhaustion round count.
     - `nextRoomId` (`string`): The room ID of the currently active/next room.
     - `lastSelectedFormationId` (`string`): The ID of the last enemy formation fought.
     - `roomCompleted` (`bool`): True if the current room has been cleared and the selection panel is active.

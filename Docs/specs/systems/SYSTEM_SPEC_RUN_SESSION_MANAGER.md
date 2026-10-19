@@ -21,6 +21,7 @@ Maintain the active run state, party composition, encounter databases, economy b
 - Manage economy balances (`Parts`, `Scraps`) via `Grant` and `TrySpend` methods.
 - Access the active databases (`EnemyFormationDatabase`, `TraitDatabase`, `RoomDatabase`) via `GameDatabase.Instance`.
 - Increment the run's `RoomProgression` count by 1 automatically whenever the `"CombatPrototype"` scene is loaded with an active party, unless the next room is a Healing Room (`roomId == "RD_HealRoom"`).
+- Maintain run exhaustion round tracking (`ExhaustionRound`, `ExhaustionLimit`, `PreCombatExhaustionRound`, `IsExhausted`), advance the round counter on `BattleSystem.OnRoundEnded`, refresh the limit from the progression tier on scene load, and reset the counter upon entering `RD_HealRoom`.
 - Subscribe to the current `BattleSystem`'s outcome event (`OnBattleEnded`) to handle victory outcome persistence.
 - Provide `TriggerPendingVictoryRoomEffect()` to activate the selected room's effect (`NextRoomData`) when the post-combat reward UI is closed if room activation timing is set to `OnCombatVictory`.
 - Prevent duplicate consecutive enemy formations within the requested tier via `GetNextRandomFormation(EnemyEncounterTier tier)` (with a fallback logic up to 100 random pick attempts).
@@ -34,8 +35,12 @@ Maintain the active run state, party composition, encounter databases, economy b
   - `LastSelectedFormation`: `EnemyFormationData` (cache of last encountered formation).
   - `NextRoomData`: `RoomData` (selected room template to resolve after battle).
   - `RoomProgression`: `int` (number of completed/entered rooms in the current run).
+  - `ExhaustionRound`: `int` (current rounds elapsed across encounters towards exhaustion).
+  - `ExhaustionLimit`: `int` (round limit for the active encounter tier before exhaustion blocks healing).
+  - `PreCombatExhaustionRound`: `int` (pre-combat snapshot of exhaustion round for save resumption).
+  - `IsExhausted`: `bool` (computed property indicating whether player team cannot receive healing).
   - `Parts`: `int` (current parts balance).
-- Persistence keys: Delegated to `SaveManager` (`Docs/specs/systems/SYSTEM_SPEC_SAVE_GAME_PERSISTENCE.md`), which serializes the active run progression, parts count, party member levels, room completed state, and room choices to `save.dat`.
+- Persistence keys: Delegated to `SaveManager` (`Docs/specs/systems/SYSTEM_SPEC_SAVE_GAME_PERSISTENCE.md`), which serializes the active run progression, parts count, exhaustion round, party member levels, room completed state, and room choices to `save.dat`.
 
 ## Event Contracts
 - Event: `UnityEngine.SceneManagement.SceneManager.sceneLoaded`
