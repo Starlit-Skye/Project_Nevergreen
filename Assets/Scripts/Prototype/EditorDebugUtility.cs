@@ -91,42 +91,72 @@ namespace Nevergreen.Prototype
                     Debug.Log($"[EditorDebugUtility] Left Arrow pressed. Decreased Room Progression by 1. New Room Progression: {RunSessionManager.RoomProgression}");
                 }
 
+                if (Keyboard.current.commaKey.wasPressedThisFrame)
+                {
+                    RunSessionManager.ExhaustionRound = Mathf.Max(0, RunSessionManager.ExhaustionRound - 1);
+                    Debug.Log($"[EditorDebugUtility] Comma (',') pressed. Decreased Exhaustion Round by 1. New Exhaustion Round: {RunSessionManager.ExhaustionRound}");
+                }
+
+                if (Keyboard.current.periodKey.wasPressedThisFrame)
+                {
+                    RunSessionManager.ExhaustionRound += 1;
+                    Debug.Log($"[EditorDebugUtility] Period ('.') pressed. Increased Exhaustion Round by 1. New Exhaustion Round: {RunSessionManager.ExhaustionRound}");
+                }
+
                 if (Keyboard.current.hKey.wasPressedThisFrame)
                 {
                     Debug.Log("[EditorDebugUtility] 'H' pressed. Instantly healing all player marionettes for 999999 HP...");
-                    
-                    var battleSystem = Object.FindAnyObjectByType<Nevergreen.Combat.BattleSystem>();
-                    if (battleSystem != null && battleSystem.CurrentState != Nevergreen.Combat.BattleState.Inactive && battleSystem.CurrentState != Nevergreen.Combat.BattleState.BattleEnd)
+
+                    bool wasExhausted = RunSessionManager.IsExhausted;
+                    int prevExhaustionRound = RunSessionManager.ExhaustionRound;
+                    if (wasExhausted)
                     {
-                        var players = new System.Collections.Generic.List<Nevergreen.Combat.CombatCharacter>(battleSystem.PlayerTeam);
-                        foreach (var player in players)
+                        Debug.Log("[EditorDebugUtility] Player team was exhausted. Temporarily bypassing exhaustion to heal.");
+                        RunSessionManager.ExhaustionRound = 0;
+                    }
+
+                    try
+                    {
+                        var battleSystem = Object.FindAnyObjectByType<Nevergreen.Combat.BattleSystem>();
+                        if (battleSystem != null && battleSystem.CurrentState != Nevergreen.Combat.BattleState.Inactive && battleSystem.CurrentState != Nevergreen.Combat.BattleState.BattleEnd)
                         {
-                            if (player != null)
+                            var players = new System.Collections.Generic.List<Nevergreen.Combat.CombatCharacter>(battleSystem.PlayerTeam);
+                            foreach (var player in players)
                             {
-                                if (!player.IsAlive)
+                                if (player != null)
                                 {
-                                    player.state = Nevergreen.Combat.LifeState.Alive;
+                                    if (!player.IsAlive)
+                                    {
+                                        player.state = Nevergreen.Combat.LifeState.Alive;
+                                    }
+                                    player.Heal(999999);
                                 }
-                                player.Heal(999999);
+                            }
+                        }
+                        else
+                        {
+                            if (RunSessionManager.CurrentParty != null)
+                            {
+                                foreach (var member in RunSessionManager.CurrentParty)
+                                {
+                                    if (member != null && member.character != null)
+                                    {
+                                        var stats = member.character.GetStatsForLevel(member.currentLevel);
+                                        if (stats != null)
+                                        {
+                                            member.currentHP = stats.maxHP;
+                                        }
+                                    }
+                                }
+                                SaveManager.SaveRun();
                             }
                         }
                     }
-                    else
+                    finally
                     {
-                        if (RunSessionManager.CurrentParty != null)
+                        if (wasExhausted)
                         {
-                            foreach (var member in RunSessionManager.CurrentParty)
-                            {
-                                if (member != null && member.character != null)
-                                {
-                                    var stats = member.character.GetStatsForLevel(member.currentLevel);
-                                    if (stats != null)
-                                    {
-                                        member.currentHP = stats.maxHP;
-                                    }
-                                }
-                            }
-                            SaveManager.SaveRun();
+                            RunSessionManager.ExhaustionRound = prevExhaustionRound;
                         }
                     }
                 }
