@@ -13,6 +13,7 @@ namespace Nevergreen
     {
         public static event System.Action OnPartsChanged;
         public static event System.Action OnScrapsChanged;
+        public static event System.Action OnExhaustionChanged;
 
         /// <summary>The active roster for the current run.</summary>
         public static List<PartyMemberInfo> CurrentParty { get; set; } = new List<PartyMemberInfo>();
@@ -93,11 +94,36 @@ namespace Nevergreen
         /// <summary>The number of rooms the player has progressed through in the current run.</summary>
         public static int RoomProgression { get; set; }
 
+        private static int _exhaustionRound;
+        private static int _exhaustionLimit;
+
         /// <summary>The current exhaustion round count in this run.</summary>
-        public static int ExhaustionRound { get; set; }
+        public static int ExhaustionRound
+        {
+            get => _exhaustionRound;
+            set
+            {
+                if (_exhaustionRound != value)
+                {
+                    _exhaustionRound = value;
+                    OnExhaustionChanged?.Invoke();
+                }
+            }
+        }
 
         /// <summary>The active exhaustion limit for the current battle tier. 0 means disabled.</summary>
-        public static int ExhaustionLimit { get; set; }
+        public static int ExhaustionLimit
+        {
+            get => _exhaustionLimit;
+            set
+            {
+                if (_exhaustionLimit != value)
+                {
+                    _exhaustionLimit = value;
+                    OnExhaustionChanged?.Invoke();
+                }
+            }
+        }
 
         /// <summary>Pre-combat snapshot of ExhaustionRound, used to restore state if quitting mid-battle.</summary>
         public static int PreCombatExhaustionRound { get; set; }
@@ -506,6 +532,7 @@ namespace Nevergreen
             _bossChancesLoaded = false;
             OnPartsChanged = null;
             OnScrapsChanged = null;
+            OnExhaustionChanged = null;
         }
     }
 }

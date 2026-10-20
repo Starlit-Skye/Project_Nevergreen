@@ -6,12 +6,12 @@
 Maintain the active run state, party composition, encounter databases, economy balances (`Parts` & `Scraps`), and progression statistics across scenes and battles. Provide core session lifetime initialization, room progression, currency management, and battle-victory room effect execution hooks.
 
 ## Scope
-- In scope: Static preservation of current run status including `CurrentParty` (list of `PartyMemberInfo`), economy balances (`Parts`, `Scraps`), economy transaction methods (`GrantParts`, `TrySpendParts`, `GrantScraps`, `TrySpendScraps`), economy change events (`OnPartsChanged`, `OnScrapsChanged`), room effect data (`RoomData`), last selected enemy formation, and room progression count. Accessing global database configurations (`EnemyFormationDatabase`, `TraitDatabase`, `RoomDatabase`) through `GameDatabase.Instance`. Auto-incrementation of room progression count when loading `"CombatPrototype"` during an active run. Subscribing to battle systems to execute room victory effects. Querying and filtering enemy formations by progression-derived difficulty tiers (`Trivial`, `EarlyGame`, `MidGame`, `LateGame`), and supporting room generation logic (e.g. forced Heal Room on tier transitions) by tracking `RoomProgression`.
+- In scope: Static preservation of current run status including `CurrentParty` (list of `PartyMemberInfo`), economy balances (`Parts`, `Scraps`), economy transaction methods (`GrantParts`, `TrySpendParts`, `GrantScraps`, `TrySpendScraps`), economy change events (`OnPartsChanged`, `OnScrapsChanged`), exhaustion state change events (`OnExhaustionChanged`), room effect data (`RoomData`), last selected enemy formation, and room progression count. Accessing global database configurations (`EnemyFormationDatabase`, `TraitDatabase`, `RoomDatabase`) through `GameDatabase.Instance`. Auto-incrementation of room progression count when loading `"CombatPrototype"` during an active run. Subscribing to battle systems to execute room victory effects. Querying and filtering enemy formations by progression-derived difficulty tiers (`Trivial`, `EarlyGame`, `MidGame`, `LateGame`), and supporting room generation logic (e.g. forced Heal Room on tier transitions) by tracking `RoomProgression`.
 - Out of scope: Scene loading triggers and scene transition logic (handled by room selection UI or controllers); saving/loading run data to disk; direct rendering of room progression stats in the UI.
 
 ## Source of Truth
 - Code: `Assets/Scripts/Data/RunSessionManager.cs` (`Nevergreen.RunSessionManager`), `Assets/Scripts/Prototype/CombatSceneBootstrap.cs` (`Nevergreen.Prototype.CombatSceneBootstrap`), `Assets/Scripts/Data/RoomData.cs` (`Nevergreen.Data.RoomData`)
-- Tests: `Assets/Editor/Tests/RoomEffectTests.cs`, `Assets/Editor/Tests/EnemyFormationSelectionTests.cs`, `Assets/Editor/Tests/EconomySystemTests.cs`
+- Tests: `Assets/Editor/Tests/RoomEffectTests.cs`, `Assets/Editor/Tests/EnemyFormationSelectionTests.cs`, `Assets/Editor/Tests/EconomySystemTests.cs`, `Assets/Editor/Tests/ExhaustionTests.cs`
 - Design: `Docs/specs/systems/SYSTEM_SPEC_ROOM_SELECTION.md`, `Docs/specs/systems/SYSTEM_SPEC_ECONOMY_RUNTIME.md`
 - Data: `Assets/Scripts/Data/EnemyFormationDatabase.cs` (`Nevergreen.Data.EnemyFormationDatabase` schema)
 - Issue/ADR: Unknown
@@ -21,7 +21,7 @@ Maintain the active run state, party composition, encounter databases, economy b
 - Manage economy balances (`Parts`, `Scraps`) via `Grant` and `TrySpend` methods.
 - Access the active databases (`EnemyFormationDatabase`, `TraitDatabase`, `RoomDatabase`) via `GameDatabase.Instance`.
 - Increment the run's `RoomProgression` count by 1 automatically whenever the `"CombatPrototype"` scene is loaded with an active party, unless the next room is a Healing Room (`roomId == "RD_HealRoom"`).
-- Maintain run exhaustion round tracking (`ExhaustionRound`, `ExhaustionLimit`, `PreCombatExhaustionRound`, `IsExhausted`), advance the round counter on `BattleSystem.OnRoundEnded`, refresh the limit from the progression tier on scene load, and reset the counter upon entering `RD_HealRoom`.
+- Maintain run exhaustion round tracking (`ExhaustionRound`, `ExhaustionLimit`, `PreCombatExhaustionRound`, `IsExhausted`), notify subscribers via `OnExhaustionChanged` when round or limit values change, advance the round counter on `BattleSystem.OnRoundEnded`, refresh the limit from the progression tier on scene load, and reset the counter upon entering `RD_HealRoom`.
 - Subscribe to the current `BattleSystem`'s outcome event (`OnBattleEnded`) to handle victory outcome persistence.
 - Provide `TriggerPendingVictoryRoomEffect()` to activate the selected room's effect (`NextRoomData`) when the post-combat reward UI is closed if room activation timing is set to `OnCombatVictory`.
 - Prevent duplicate consecutive enemy formations within the requested tier via `GetNextRandomFormation(EnemyEncounterTier tier)` (with a fallback logic up to 100 random pick attempts).
@@ -51,6 +51,10 @@ Maintain the active run state, party composition, encounter databases, economy b
   - Producer: `BattleSystem`
   - Consumers: `RunSessionManager` (via static callback `OnBattleEnded`)
   - Payload schema: `BattleOutcome` (Victory or Defeat enum values).
+- Event: `RunSessionManager.OnExhaustionChanged`
+  - Producer: `RunSessionManager` (when `ExhaustionRound` or `ExhaustionLimit` changes)
+  - Consumers: UI components (`ExhaustionDisplayUI`)
+  - Payload schema: `void` (inspects static `ExhaustionRound` and `ExhaustionLimit`)
 
 ## Timing Model
 - Update domain: Main thread synchronously.
@@ -102,6 +106,8 @@ Maintain the active run state, party composition, encounter databases, economy b
     - `GetNextRandomFormation_NeverReturnsConsecutiveDuplicates`: Verifies consecutive duplicate prevention within a tier.
     - `GetNextRandomFormation_ReturnsFromSpecifiedTier`: Verifies correct tier selection.
     - `Initialize_ResetsLastSelectedFormation`: Verifies state cleanup.
+  - `Assets/Editor/Tests/ExhaustionTests.cs`:
+    - Verifies exhaustion round advancement, clamping, persistence, heal blocking, and `OnExhaustionChanged` UI updates.
 - Playtest: Initiate a new run from the Main Menu, complete a combat encounter, select the next room, and verify that the progression count is incremented upon entering the next combat scene and the selected room's effect is correctly applied.
 
 ## Missing Evidence

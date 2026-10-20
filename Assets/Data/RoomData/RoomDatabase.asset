@@ -75,4 +75,4 @@ MonoBehaviour:
       type: {class: PartyCountRule, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
         baseWeight: 0.5
-        bonusPerMissingSlot: 3
+        bonusPerMissingSlot: 6

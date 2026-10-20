@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using Nevergreen.Combat;
 using Nevergreen.Data;
+using Nevergreen.UI;
+using TMPro;
 
 namespace Nevergreen.Tests
 {
@@ -497,6 +500,102 @@ namespace Nevergreen.Tests
             Assert.IsTrue(loaded);
             Assert.AreEqual(4, RunSessionManager.ExhaustionRound);
             Assert.AreEqual(4, RunSessionManager.PreCombatExhaustionRound);
+        }
+
+        // ============================================================
+        // 7. Exhaustion Event & UI Display
+        // ============================================================
+
+        [Test]
+        public void OnExhaustionChanged_FiresOnAdvance()
+        {
+            RunSessionManager.ExhaustionLimit = 5;
+            RunSessionManager.ExhaustionRound = 0;
+
+            int changeCount = 0;
+            RunSessionManager.OnExhaustionChanged += () => changeCount++;
+
+            RunSessionManager.AdvanceExhaustion();
+
+            Assert.AreEqual(1, changeCount, "OnExhaustionChanged should fire when AdvanceExhaustion changes round.");
+            Assert.AreEqual(1, RunSessionManager.ExhaustionRound);
+        }
+
+        [Test]
+        public void OnExhaustionChanged_FiresOnLimitChange()
+        {
+            int changeCount = 0;
+            RunSessionManager.OnExhaustionChanged += () => changeCount++;
+
+            RunSessionManager.ExhaustionLimit = 10;
+
+            Assert.AreEqual(1, changeCount, "OnExhaustionChanged should fire when ExhaustionLimit changes.");
+        }
+
+        [Test]
+        public void OnExhaustionChanged_DoesNotFire_WhenValueUnchanged()
+        {
+            RunSessionManager.ExhaustionLimit = 5;
+            RunSessionManager.ExhaustionRound = 2;
+
+            int changeCount = 0;
+            RunSessionManager.OnExhaustionChanged += () => changeCount++;
+
+            // Set identical values
+            RunSessionManager.ExhaustionLimit = 5;
+            RunSessionManager.ExhaustionRound = 2;
+
+            Assert.AreEqual(0, changeCount, "OnExhaustionChanged should not fire if the value did not change.");
+        }
+
+        [Test]
+        public void ExhaustionDisplayUI_ShowsFormattedText()
+        {
+            var go = TrackGo(new GameObject("ExhaustionUI"));
+            var tmp = go.AddComponent<TextMeshProUGUI>();
+            var displayUI = go.AddComponent<ExhaustionDisplayUI>();
+            displayUI.textMesh = tmp;
+            InvokeLifecycle(displayUI, "OnEnable");
+
+            RunSessionManager.ExhaustionLimit = 8;
+            RunSessionManager.ExhaustionRound = 3;
+
+            Assert.AreEqual("Exhaustion: 3/8", tmp.text, "Display should update to 'Exhaustion: 3/8'.");
+
+            RunSessionManager.AdvanceExhaustion();
+            Assert.AreEqual("Exhaustion: 4/8", tmp.text, "Display should update to 'Exhaustion: 4/8' after advance.");
+
+            InvokeLifecycle(displayUI, "OnDisable");
+        }
+
+        [Test]
+        public void ExhaustionDisplayUI_UnsubscribesOnDisable()
+        {
+            var go = TrackGo(new GameObject("ExhaustionUI"));
+            var tmp = go.AddComponent<TextMeshProUGUI>();
+            var displayUI = go.AddComponent<ExhaustionDisplayUI>();
+            displayUI.textMesh = tmp;
+            InvokeLifecycle(displayUI, "OnEnable");
+
+            RunSessionManager.ExhaustionLimit = 8;
+            RunSessionManager.ExhaustionRound = 2;
+            Assert.AreEqual("Exhaustion: 2/8", tmp.text);
+
+            InvokeLifecycle(displayUI, "OnDisable");
+
+            RunSessionManager.ExhaustionRound = 5;
+            Assert.AreEqual("Exhaustion: 2/8", tmp.text, "Display should not update while disabled.");
+
+            InvokeLifecycle(displayUI, "OnEnable");
+            Assert.AreEqual("Exhaustion: 5/8", tmp.text, "Display should refresh upon being re-enabled.");
+
+            InvokeLifecycle(displayUI, "OnDisable");
+        }
+
+        private static void InvokeLifecycle(MonoBehaviour mb, string methodName)
+        {
+            var method = mb.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            method?.Invoke(mb, null);
         }
     }
 }

@@ -110,3 +110,62 @@ All heal paths already go through `CombatCharacter.Heal`: `HealEffect`, `HealGua
   - `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_HEAL_REDUCTION.md`
   - `Docs/specs/mechanics/MECHANIC_SPEC_COMBAT_CORE.md`
 
+# Task: Exhaustion Display UI
+
+## Summary
+Implement a simple UI script `ExhaustionDisplayUI` (modeled after `EconomyDisplayUI.cs`) that updates a TextMeshPro component to display exhaustion status in the format `"Exhaustion: exhaustionRound/exhaustionLimit"`. Add `OnExhaustionChanged` event to `RunSessionManager` so the UI automatically updates whenever exhaustion round or limit changes.
+
+## Todo List
+- [x] 1. Add `OnExhaustionChanged` event to `RunSessionManager.cs` and back `ExhaustionRound` & `ExhaustionLimit` with backing fields that invoke the event on change <!-- id: 1 -->
+- [x] 2. Create `Assets/Scripts/UI/ExhaustionDisplayUI.cs` following `EconomyDisplayUI.cs` pattern <!-- id: 2 -->
+- [x] 3. Add unit tests for `OnExhaustionChanged` and `ExhaustionDisplayUI` in `Assets/Editor/Tests/ExhaustionTests.cs` <!-- id: 3 -->
+- [x] 4. Run tests and verify with test runner MCP tool (`tests-run`) <!-- id: 4 -->
+- [x] 5. Update specification documents (`MECHANIC_SPEC_EXHAUSTION.md`, `SYSTEM_SPEC_RUN_SESSION_MANAGER.md`) <!-- id: 5 -->
+- [x] 6. Document results and review in `tasks/todo.md` <!-- id: 6 -->
+
+## Review & Verification Results (Exhaustion Display UI)
+- **Unit Tests Added**:
+  - `OnExhaustionChanged_FiresOnAdvance`: verifies `RunSessionManager.AdvanceExhaustion()` fires `OnExhaustionChanged`.
+  - `OnExhaustionChanged_FiresOnLimitChange`: verifies mutating `RunSessionManager.ExhaustionLimit` fires `OnExhaustionChanged`.
+  - `OnExhaustionChanged_DoesNotFire_WhenValueUnchanged`: verifies assigning identical values suppresses duplicate events.
+  - `ExhaustionDisplayUI_ShowsFormattedText`: verifies formatting `"Exhaustion: {exhaustionRound}/{exhaustionLimit}"` dynamically on round advance.
+  - `ExhaustionDisplayUI_UnsubscribesOnDisable`: verifies `OnDisable` unhooks listener and re-enabling refreshes text.
+- **Suite Execution**:
+  - `ExhaustionTests`: 24/24 passed (0 failed, 0 skipped).
+  - Full EditMode test suite: 586/586 passed (0 failed, 0 skipped).
+- **Files Modified/Created**:
+  - `Assets/Scripts/Data/RunSessionManager.cs`: added `public static event System.Action OnExhaustionChanged`, backing fields `_exhaustionRound` and `_exhaustionLimit`, property change notifications, and `OnExhaustionChanged = null` reset in `ClearAll()`.
+  - `Assets/Scripts/UI/ExhaustionDisplayUI.cs`: created component following `EconomyDisplayUI.cs` lifecycle and formatting.
+  - `Assets/Editor/Tests/ExhaustionTests.cs`: added 5 tests for events and UI component with reflection lifecycle invocation.
+  - `Docs/specs/mechanics/MECHANIC_SPEC_EXHAUSTION.md`: updated scope, source of truth, event hooks, and acceptance test list.
+  - `Docs/specs/systems/SYSTEM_SPEC_RUN_SESSION_MANAGER.md`: documented `OnExhaustionChanged` in scope, source of truth, responsibilities, event contracts, and acceptance tests.
+
+# Task: Debug Utility Exhaustion Features
+
+## Summary
+Extend `EditorDebugUtility.cs` to add:
+1. Comma (`,`) key to decrease `RunSessionManager.ExhaustionRound` by 1 (clamped to 0).
+2. Period (`.`) key to increase `RunSessionManager.ExhaustionRound` by 1.
+3. Update `H` key heal utility: check if player team is exhausted (`RunSessionManager.IsExhausted`), if yes, set `IsExhausted` to false (temporarily set `ExhaustionRound = 0`), heal players, and restore `ExhaustionRound` to its original value in a `finally` block so `IsExhausted` becomes true again.
+Constraint: Do not modify any code outside of `EditorDebugUtility.cs`.
+
+## Todo List
+- [x] 1. Add `,` and `.` key handlers in `EditorDebugUtility.cs` to decrease/increase `RunSessionManager.ExhaustionRound` <!-- id: 1 -->
+- [x] 2. Update `H` key handler in `EditorDebugUtility.cs` to bypass exhaustion during heal when exhausted and restore state afterwards <!-- id: 2 -->
+- [x] 3. Verify compilation and run test suites with `tests-run` <!-- id: 3 -->
+- [x] 4. Verify behavioral execution via `script-execute` simulation <!-- id: 4 -->
+- [x] 5. Complete review and results section in `tasks/todo.md` <!-- id: 5 -->
+
+## Review & Verification Results
+- **Changes Implemented**:
+  - `Assets/Scripts/Prototype/EditorDebugUtility.cs`:
+    - Added `Keyboard.current.commaKey.wasPressedThisFrame`: decreases `RunSessionManager.ExhaustionRound` by 1 clamped to 0 via `Mathf.Max(0, ExhaustionRound - 1)`.
+    - Added `Keyboard.current.periodKey.wasPressedThisFrame`: increases `RunSessionManager.ExhaustionRound` by 1.
+    - Updated `Keyboard.current.hKey.wasPressedThisFrame`: checks `bool wasExhausted = RunSessionManager.IsExhausted`. If true, temporarily sets `RunSessionManager.ExhaustionRound = 0` (causing `IsExhausted` to evaluate to false), executes the healing logic, and restores `RunSessionManager.ExhaustionRound` in a `finally` block so `IsExhausted` returns to true.
+- **Verification**:
+  - Verified logic execution using Roslyn `script-execute`:
+    - Comma decrement from 5 to 4 and clamp at 0 verified.
+    - Period increment from 4 to 5 verified.
+    - Full heal of an in-combat exhausted player unit verified: `CombatCharacter.Heal` succeeded, restored character HP from 20 to 100, and restored `IsExhausted` back to true with `ExhaustionRound` preserved.
+  - Ran full project EditMode test suite via `tests-run`: 586/586 passed (0 failed, 0 skipped).
+  - Scope constraint honored: Zero code modified outside of `EditorDebugUtility.cs`.

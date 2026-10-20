@@ -9,12 +9,13 @@ Target build: Unity 6000.3.9f1 + Windows
 The Exhaustion mechanic limits prolonged stalling and infinite sustain in combat by preventing player-team healing once the combat round count across battles reaches a tier-configured limit. Entering a Healing Room resets the exhaustion counter to zero.
 
 ## Scope
-- In scope: Round-end exhaustion incrementing, per-tier exhaustion limits configured in `CombatConfig`, battle-to-battle exhaustion persistence, reset upon entering `RD_HealRoom`, player-team heal blocking when exhausted, Life Link revive bypass, non-negative heal guarantees.
-- Out of scope: HUD/UI visual indicators (deferred to separate UI task), enemy exhaustion (enemies do not exhaust).
+- In scope: Round-end exhaustion incrementing, per-tier exhaustion limits configured in `CombatConfig`, battle-to-battle exhaustion persistence, reset upon entering `RD_HealRoom`, player-team heal blocking when exhausted, Life Link revive bypass, non-negative heal guarantees, `OnExhaustionChanged` notification event, and `ExhaustionDisplayUI` component.
+- Out of scope: Detailed HUD animations/styling, enemy exhaustion (enemies do not exhaust).
 
 ## Source of Truth
 - Code:
-  - `Assets/Scripts/Data/RunSessionManager.cs` (`ExhaustionRound`, `ExhaustionLimit`, `AdvanceExhaustion`, `RefreshExhaustionLimit`)
+  - `Assets/Scripts/Data/RunSessionManager.cs` (`ExhaustionRound`, `ExhaustionLimit`, `AdvanceExhaustion`, `RefreshExhaustionLimit`, `OnExhaustionChanged`)
+  - `Assets/Scripts/UI/ExhaustionDisplayUI.cs` (TextMeshPro display formatted as `"Exhaustion: {exhaustionRound}/{exhaustionLimit}"`)
   - `Assets/Scripts/Data/CombatConfig.cs` (`earlyExhaustionLimit`, `midExhaustionLimit`, `lateExhaustionLimit`, `bossExhaustionLimit`, `GetExhaustionLimit`)
   - `Assets/Scripts/Combat/CombatCharacter.cs` (`Heal`, `ApplyHeal`, `ReviveFromDowned`)
   - `Assets/Scripts/Combat/Effects/HealEffect.cs` (Actual healed amount tracking)
@@ -86,6 +87,7 @@ currentHP = currentHP + actual_healed
 ## Event Hooks
 - Event: `BattleSystem.OnRoundEnded`, Trigger: round concludes, Payload: `roundNumber`
 - Event: `CombatCharacter.OnHealed`, Trigger: character health increased, Payload: `character, actualHealed`
+- Event: `RunSessionManager.OnExhaustionChanged`, Trigger: `ExhaustionRound` or `ExhaustionLimit` changes, Payload: `void`
 
 ## Acceptance Tests
 - Automated: `Assets/Editor/Tests/ExhaustionTests.cs`
@@ -108,6 +110,11 @@ currentHP = currentHP + actual_healed
   - `HealEffect_HealReductionOver100_NeverDamages`
   - `SaveRun_MidBattle_SavesPreCombatExhaustionRound`
   - `LoadRun_RestoresExhaustionRound`
+  - `OnExhaustionChanged_FiresOnAdvance`
+  - `OnExhaustionChanged_FiresOnLimitChange`
+  - `OnExhaustionChanged_DoesNotFire_WhenValueUnchanged`
+  - `ExhaustionDisplayUI_ShowsFormattedText`
+  - `ExhaustionDisplayUI_UnsubscribesOnDisable`
 
 ## Validation
 - [x] Facts match current code/content
