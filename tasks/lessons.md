@@ -106,3 +106,9 @@
 - **Pattern**: Creating mocked SkillData assets in tests via ScriptableObject.CreateInstance<SkillData>() without initializing identifying fields like skillId.
 - **Rule**: If the underlying game systems track state based on these IDs (e.g. _skillUseTracker.ContainsKey(skill.skillId)), failing to initialize the ID will cause unexpected ArgumentNullException: Value cannot be null. Parameter name: key during test execution.
 - **Verification**: Always assign a unique mock identifier (e.g., skillId = "test_skill_1") when dynamically creating ScriptableObjects that interact with collection-based tracking systems.
+
+### 20. MonoBehaviour Lifecycle in Unity EditMode Tests
+- **Pattern**: Adding a MonoBehaviour component in an EditMode unit test (`go.AddComponent<T>()`) and expecting `OnEnable()`, `Start()`, or `OnDisable()` to execute automatically.
+- **Rule**: In Unity NUnit EditMode tests, `AddComponent` does not automatically invoke `OnEnable` or `Start`, and setting `enabled = false` does not invoke `OnDisable`.
+- **Solution**: Explicitly invoke private lifecycle methods in EditMode tests using reflection (`typeof(T).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(...)`), following established project testing conventions.
+

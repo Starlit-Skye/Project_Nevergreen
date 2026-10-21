@@ -29,10 +29,10 @@ namespace Nevergreen.Combat
             }
 
             // 2. Application
-            context.calculatedValue += healAmount;
-            target.Heal(healAmount);
+            int actualHealed = target.Heal(healAmount);
+            context.calculatedValue += actualHealed;
 
-            Debug.Log($"  -> {target.DisplayName} healed for {healAmount} (HP: {target.currentHP}/{target.baseStats.maxHP})");
+            Debug.Log($"  -> {target.DisplayName} healed for {actualHealed} (HP: {target.currentHP}/{target.baseStats.maxHP})");
         }
     }
 }

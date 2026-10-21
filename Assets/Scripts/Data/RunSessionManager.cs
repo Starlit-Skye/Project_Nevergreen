@@ -13,6 +13,7 @@ namespace Nevergreen
     {
         public static event System.Action OnPartsChanged;
         public static event System.Action OnScrapsChanged;
+        public static event System.Action OnExhaustionChanged;
 
         /// <summary>The active roster for the current run.</summary>
         public static List<PartyMemberInfo> CurrentParty { get; set; } = new List<PartyMemberInfo>();
@@ -92,6 +93,69 @@ namespace Nevergreen
 
         /// <summary>The number of rooms the player has progressed through in the current run.</summary>
         public static int RoomProgression { get; set; }
+
+        private static int _exhaustionRound;
+        private static int _exhaustionLimit;
+
+        /// <summary>The current exhaustion round count in this run.</summary>
+        public static int ExhaustionRound
+        {
+            get => _exhaustionRound;
+            set
+            {
+                if (_exhaustionRound != value)
+                {
+                    _exhaustionRound = value;
+                    OnExhaustionChanged?.Invoke();
+                }
+            }
+        }
+
+        /// <summary>The active exhaustion limit for the current battle tier. 0 means disabled.</summary>
+        public static int ExhaustionLimit
+        {
+            get => _exhaustionLimit;
+            set
+            {
+                if (_exhaustionLimit != value)
+                {
+                    _exhaustionLimit = value;
+                    OnExhaustionChanged?.Invoke();
+                }
+            }
+        }
+
+        /// <summary>Pre-combat snapshot of ExhaustionRound, used to restore state if quitting mid-battle.</summary>
+        public static int PreCombatExhaustionRound { get; set; }
+
+        /// <summary>Whether the player team is currently exhausted (cannot receive healing).</summary>
+        public static bool IsExhausted => ExhaustionLimit > 0 && ExhaustionRound >= ExhaustionLimit;
+
+        /// <summary>
+        /// Advances the exhaustion round count by 1, clamped to ExhaustionLimit.
+        /// No-op if ExhaustionLimit is 0 or less.
+        /// </summary>
+        public static void AdvanceExhaustion()
+        {
+            if (ExhaustionLimit <= 0) return;
+            ExhaustionRound = Mathf.Min(ExhaustionRound + 1, ExhaustionLimit);
+        }
+
+        /// <summary>
+        /// Refreshes ExhaustionLimit based on the progression-derived tier from CombatConfig.
+        /// Also clamps ExhaustionRound to the new limit if limit > 0.
+        /// </summary>
+        public static void RefreshExhaustionLimit()
+        {
+            var config = GameDatabase.Instance?.CombatConfig;
+            ExhaustionLimit = config != null
+                ? config.GetExhaustionLimit(config.GetEncounterTierForRoom(RoomProgression))
+                : 0;
+            if (ExhaustionLimit > 0)
+            {
+                ExhaustionRound = Mathf.Min(ExhaustionRound, ExhaustionLimit);
+            }
+        }
 
         /// <summary>
         /// When true, the next combat scene load will skip incrementing RoomProgression.
@@ -180,6 +244,13 @@ namespace Nevergreen
                     NextRoomChoices.Clear();
                 }
 
+                if (IsHealRoom(CurrentRoomData))
+                {
+                    ExhaustionRound = 0;
+                }
+                RefreshExhaustionLimit();
+                PreCombatExhaustionRound = ExhaustionRound;
+
                 foreach (var member in CurrentParty)
                 {
                     if (member != null)
@@ -201,6 +272,9 @@ namespace Nevergreen
             Parts = 0;
             Scraps = 0;
             RoomProgression = 0;
+            ExhaustionRound = 0;
+            ExhaustionLimit = 0;
+            PreCombatExhaustionRound = 0;
             RoomCompleted = false;
             CurrentRoomData = null;
             NextRoomChoices.Clear();
@@ -228,6 +302,8 @@ namespace Nevergreen
             RoomCompleted = true;
             RoomComplete?.Invoke();
 
+            PreCombatExhaustionRound = ExhaustionRound;
+
             if (CurrentParty != null)
             {
                 foreach (var member in CurrentParty)
@@ -243,7 +319,8 @@ namespace Nevergreen
         }
 
         /// <summary>
-        /// Subscribes to the BattleSystem's OnBattleEnded event to handle victory room effects.
+        /// Subscribes to the BattleSystem's OnBattleEnded event to handle victory room effects
+        /// and OnRoundEnded event to advance exhaustion.
         /// Called by CombatSceneBootstrap.InitializeBattle().
         /// </summary>
         public static void SubscribeToBattle(BattleSystem battleSystem)
@@ -252,10 +329,17 @@ namespace Nevergreen
             if (_activeBattleSystem != null)
             {
                 _activeBattleSystem.OnBattleEnded -= OnBattleEnded;
+                _activeBattleSystem.OnRoundEnded -= OnRoundEnded;
             }
 
             _activeBattleSystem = battleSystem;
             _activeBattleSystem.OnBattleEnded += OnBattleEnded;
+            _activeBattleSystem.OnRoundEnded += OnRoundEnded;
+        }
+
+        private static void OnRoundEnded(int roundNumber)
+        {
+            AdvanceExhaustion();
         }
 
         private static void OnBattleEnded(BattleOutcome outcome)
@@ -264,6 +348,7 @@ namespace Nevergreen
             if (_activeBattleSystem != null)
             {
                 _activeBattleSystem.OnBattleEnded -= OnBattleEnded;
+                _activeBattleSystem.OnRoundEnded -= OnRoundEnded;
                 _activeBattleSystem = null;
             }
 
@@ -422,12 +507,16 @@ namespace Nevergreen
             ShouldUseSavedFormation = false;
             Parts = 0;
             Scraps = 0;
+            ExhaustionRound = 0;
+            ExhaustionLimit = 0;
+            PreCombatExhaustionRound = 0;
             RoomCompleted = false;
             NextRoomChoices.Clear();
 
             if (_activeBattleSystem != null)
             {
                 _activeBattleSystem.OnBattleEnded -= OnBattleEnded;
+                _activeBattleSystem.OnRoundEnded -= OnRoundEnded;
                 _activeBattleSystem = null;
             }
         }
@@ -443,6 +532,7 @@ namespace Nevergreen
             _bossChancesLoaded = false;
             OnPartsChanged = null;
             OnScrapsChanged = null;
+            OnExhaustionChanged = null;
         }
     }
 }

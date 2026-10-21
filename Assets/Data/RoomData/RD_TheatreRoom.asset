@@ -15,7 +15,7 @@ MonoBehaviour:
   roomId: RD_TheatreRoom
   roomName: Theatre
   description: Unlock skills.
-  activationType: 0
+  activationType: 2
   strategy:
     rid: 9162808082453495887
   references:

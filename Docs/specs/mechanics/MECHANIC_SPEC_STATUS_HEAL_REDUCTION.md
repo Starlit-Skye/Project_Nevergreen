@@ -74,7 +74,7 @@ Transitions:
   int resist = character.GetResistance(StatusType.HealReceivedReduction); // Maps to debuffResist
   ```
 - **Cumulative Stacking**: Multiple instances of `HealReceivedReduction` subtract additively from the same key `HealReceived_{Host.GetInstanceID()}`. For example, two 30% reduction debuffs combine to form a 60% reduction.
-- **Heal Reduction Cap**: Heal received reduction is capped at 100% (multiplier of 0). If the total heal reduction exceeds 100% (e.g., 120%), the multiplier `1f + bonusPercent` is clamped to `0f`. This ensures healing is reduced to 0 but never becomes negative, avoiding dealing damage to the target.
+- **Heal Reduction Cap**: Heal received reduction is capped at 100% (multiplier of 0). If the total heal reduction exceeds 100% (e.g., 120%), the multiplier `1f + bonusPercent` is clamped to `0f`. Furthermore, `CombatCharacter.ApplyHeal` centrally clamps all incoming healing to `[0, missing HP]`. This guarantees healing is reduced to 0 but never becomes negative, ensuring healing never deals damage to the target.
 
 ## Failure Modes
 - **Skill Missing Modifier**: If `ctx.skill.modifier` is null during calculation, the handler returns early without modifying the multiplier.

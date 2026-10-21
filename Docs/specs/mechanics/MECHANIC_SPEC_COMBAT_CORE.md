@@ -24,6 +24,7 @@ Define the baseline turn-based combat mechanic used for player team versus enemy
 - Flight: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_FLIGHT.md`
 - Pile: `Docs/specs/mechanics/MECHANIC_SPEC_PILE.md`
 - AI Rules: `Docs/specs/mechanics/MECHANIC_SPEC_AI_RULES.md`
+- Exhaustion: `Docs/specs/mechanics/MECHANIC_SPEC_EXHAUSTION.md`
 
 
 ## Inputs
@@ -64,6 +65,12 @@ Transitions:
   (4) Tick all status durations down by 1 and remove expired (`StatusProcessor.TickDurations`),
   (5) Character takes action (`ExecuteSkill` or `ExecuteEnemyAction`).
   Duration ticking occurs after the stun check so stun correctly skips the turn before expiring.
+- Round end order: at the end of each round (in `BattleSystem.EndRound`), processing occurs in order:
+  (1) Revive Downed characters with Life Link,
+  (2) Decay and tick duration for all Piles,
+  (3) Fire `OnRoundEnded` (subscribers advance exhaustion: `RunSessionManager.AdvanceExhaustion`),
+  (4) Wait for round-end animations,
+  (5) Evaluate win/loss conditions.
 - Code: `Assets/Scripts/Combat/StatusProcessor.cs`, `Assets/Scripts/Combat/BattleSystem.cs`
 - Spatial orientation: player team is on the left side of screen facing right; enemy team is on the
   right side of screen facing left

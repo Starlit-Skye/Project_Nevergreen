@@ -973,6 +973,14 @@ PrefabInstance:
       propertyPath: m_fontSizeBase
       value: 30
       objectReference: {fileID: 0}
+    - target: {fileID: 1197451558309125247, guid: d5f3a7ed01f4d794885592092bdf8096, type: 3}
+      propertyPath: m_fontSize
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 1197451558309125247, guid: d5f3a7ed01f4d794885592092bdf8096, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 40
+      objectReference: {fileID: 0}
     - target: {fileID: 2789204354979935551, guid: d5f3a7ed01f4d794885592092bdf8096, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

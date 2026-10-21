@@ -46,9 +46,9 @@ MonoBehaviour:
     tier: 1
   - roomCount: 10
     tier: 2
-  - roomCount: 14
+  - roomCount: 15
     tier: 3
-  - roomCount: 19
+  - roomCount: 20
     tier: 5
   statusIcons:
   - statusType: 1
@@ -119,3 +119,7 @@ MonoBehaviour:
     specifyStatTarget: 0
     targetStat: 0
     icon: {fileID: -5269892086520530636, guid: 7a9bc69035ecfed4ebbb5efdf591b791, type: 3}
+  earlyExhaustionLimit: 25
+  midExhaustionLimit: 25
+  lateExhaustionLimit: 35
+  bossExhaustionLimit: 15
