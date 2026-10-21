@@ -41,13 +41,17 @@ Define the baseline data model and runtime state management for player-controlle
 
 ## Event Contracts
 - Event: Trait addition query
-  - Producer: Trait selection UI or room reward strategy.
-  - Consumers: `PartyMemberInfo.TryAddTrait()`
+  - Producer: Trait selection UI, room reward strategy, or level-up upgrade.
+  - Consumers: `PartyMemberInfo.TryAddTrait()`, `PartyMemberInfo.CanAddTrait()`
   - Payload schema: Trait instance reference; returns boolean indicating success.
+- Event: Level-up trait acquisition
+  - Producer: `PartyManagementPanelController.OnUpgradeClicked()`
+  - Consumers: `MarionetteGenerator.TryGrantLevelUpTrait()`
+  - Payload schema: Rolls 50/50 Perfection/Imperfection, checks capacity (`IsTraitFull`) with fallback to other type, filters candidates by exclusion rules (`CanAddTrait`), and randomly grants an eligible trait.
 
 ## Timing Model
 - Update domain: Main thread.
-- Tick/update order: Initialized during run startup, updated when picking rewards or taking damage in combat, serialized on auto-save cycles.
+- Tick/update order: Initialized during run startup, updated when picking rewards or upgrading levels in party management, updated when taking damage in combat, serialized on auto-save cycles.
 - Budget: Under 0.1ms per operation.
 
 ## Determinism
@@ -67,19 +71,25 @@ Define the baseline data model and runtime state management for player-controlle
 ## Error Handling and Recovery
 - Limit Exceeded: If trait lists are at capacity, `TryAddTrait` returns `false` safely, ignoring the addition.
 - Duplicate Traits: Uniqueness checks prevent adding a trait with an identical `traitId` to the active lists.
+- Opposite Conflicts: Mutual exclusion rules prevent opposite traits from co-existing.
 
 ## Observability
 - Metrics: None.
-- Logs: None.
+- Logs: Logs granted trait name and type upon successful level-up.
 - Traces/profilers: None.
 
 ## Acceptance Tests
 - Automated:
   - `TraitTests.cs`:
-    - Tests verifying `PartyMemberInfo.TryAddTrait` checks uniqueness of IDs and prevents exceeding limits.
+    - Tests verifying `PartyMemberInfo.TryAddTrait` checks uniqueness of IDs, opposite-trait exclusions, and prevents exceeding limits.
+  - `MarionetteGeneratorTests.cs`:
+    - Tests verifying `TryGrantLevelUpTrait` rolls 50/50, swaps on full capacity, respects candidate exclusions, and returns null when both slots or candidates are exhausted.
+  - `PartyManagementPanelTests.cs`:
+    - Tests verifying `OnUpgradeClicked` deducts parts, increments level, and grants a trait from `GameDatabase.Instance.TraitDatabase`.
 - Playtest:
   1. In the main menu skill selection or reward screens, try equipping traits to a marionette.
   2. Verify that duplicate traits are blocked and trait count is capped.
+  3. In Party Management, upgrade a Marionette and verify that either a Perfection or an Imperfection is granted and displayed immediately.
 
 ## Missing Evidence
 - None.

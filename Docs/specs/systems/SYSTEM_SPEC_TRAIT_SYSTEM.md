@@ -89,7 +89,13 @@ Define the static definition and runtime lifecycle of the Trait System (Perfecti
     - `RemoveTrait_Perfection_Success`: Verifies trait cleanup.
     - `ModifyStats_StatModifierStrategy_Applied`: Verifies flat and percentage modifier integration.
     - `TestPerfection_AppliesFlatSpeedPlusTwo`: Verifies custom speed strategies.
-- Playtest: Verify spawned Marionettes initialize with exactly one random Perfection and one random Imperfection. Verify that UI stat displays match calculated values after applying trait modifiers.
+  - `Assets/Editor/Tests/MarionetteGeneratorTests.cs`
+    - `TryGrantLevelUpTrait_RollPerfection_GainsPerfection`: Verifies 50/50 roll awarding perfection.
+    - `TryGrantLevelUpTrait_RollImperfection_GainsImperfection`: Verifies 50/50 roll awarding imperfection.
+    - `TryGrantLevelUpTrait_PerfectionsFull_SwitchesToImperfection`: Verifies capacity fallback.
+    - `TryGrantLevelUpTrait_ImperfectionsFull_SwitchesToPerfection`: Verifies capacity fallback.
+    - `TryGrantLevelUpTrait_EligibleList_ExcludesOwnedAndOpposites`: Verifies uniqueness and bidirectional opposite exclusions.
+- Playtest: Verify spawned Marionettes initialize with exactly one random Perfection and one random Imperfection. Verify that leveling up a Marionette in Party Management grants either a Perfection or an Imperfection (or the non-full type if one is at capacity), and that stat displays update accordingly.
 
 ## Missing Evidence
 - Multiplayer authority constraints and replication schema.

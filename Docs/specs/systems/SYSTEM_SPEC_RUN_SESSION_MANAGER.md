@@ -40,7 +40,7 @@ Maintain the active run state, party composition, encounter databases, economy b
   - `PreCombatExhaustionRound`: `int` (pre-combat snapshot of exhaustion round for save resumption).
   - `IsExhausted`: `bool` (computed property indicating whether player team cannot receive healing).
   - `Parts`: `int` (current parts balance).
-- Persistence keys: Delegated to `SaveManager` (`Docs/specs/systems/SYSTEM_SPEC_SAVE_GAME_PERSISTENCE.md`), which serializes the active run progression, parts count, exhaustion round, party member levels, room completed state, and room choices to `save.dat`.
+- Persistence keys: Delegated to `SaveManager` (`Docs/specs/systems/SYSTEM_SPEC_SAVE_GAME_PERSISTENCE.md`), which serializes the active run progression, parts count, exhaustion round, party member levels and traits, room completed state, and room choices to `save.dat`.
 
 ## Event Contracts
 - Event: `UnityEngine.SceneManagement.SceneManager.sceneLoaded`

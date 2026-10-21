@@ -84,35 +84,30 @@ namespace Nevergreen.Data
         }
 
         /// <summary>
-        /// Attempts to add a trait. Returns false if the trait is already present
-        /// (by traitId) or the relevant list has reached its capacity.
+        /// Checks whether the character has reached the maximum capacity for the given trait type.
         /// </summary>
-        public bool TryAddTrait(TraitData trait)
+        public bool IsTraitFull(TraitType traitType)
+        {
+            var globalConfig = GameDatabase.Instance != null ? GameDatabase.Instance.GlobalConfig : null;
+            if (globalConfig == null) return true;
+
+            int max = traitType == TraitType.Perfection ? globalConfig.maxPerfections : globalConfig.maxImperfections;
+            int count = traitType == TraitType.Perfection ? perfections.Count : imperfections.Count;
+            return count >= max;
+        }
+
+        /// <summary>
+        /// Checks whether a trait can be added to this character based on uniqueness and
+        /// opposite-trait exclusion rules (does not check capacity).
+        /// </summary>
+        public bool CanAddTrait(TraitData trait)
         {
             if (trait == null) return false;
 
-            var globalConfig = GameDatabase.Instance.GlobalConfig;
-            if (globalConfig == null) return false;
-
-            List<TraitData> list;
-            int max;
-
-            if (trait.traitType == TraitType.Perfection)
-            {
-                list = perfections;
-                max = globalConfig.maxPerfections;
-            }
-            else
-            {
-                list = imperfections;
-                max = globalConfig.maxImperfections;
-            }
-
-            // Capacity check
-            if (list.Count >= max) return false;
+            var targetList = trait.traitType == TraitType.Perfection ? perfections : imperfections;
 
             // Uniqueness check (by traitId)
-            if (list.Any(t => t.traitId == trait.traitId)) return false;
+            if (targetList.Any(t => t != null && t.traitId == trait.traitId)) return false;
 
             // Opposite trait check (direct)
             if (trait.oppositeTrait != null)
@@ -125,6 +120,20 @@ namespace Nevergreen.Data
             if (perfections.Any(t => t != null && t.oppositeTrait != null && (t.oppositeTrait == trait || t.oppositeTrait.traitId == trait.traitId))) return false;
             if (imperfections.Any(t => t != null && t.oppositeTrait != null && (t.oppositeTrait == trait || t.oppositeTrait.traitId == trait.traitId))) return false;
 
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to add a trait. Returns false if the trait is already present
+        /// (by traitId), conflicts with an opposite trait, or the relevant list has reached its capacity.
+        /// </summary>
+        public bool TryAddTrait(TraitData trait)
+        {
+            if (trait == null) return false;
+            if (IsTraitFull(trait.traitType)) return false;
+            if (!CanAddTrait(trait)) return false;
+
+            var list = trait.traitType == TraitType.Perfection ? perfections : imperfections;
             list.Add(trait);
             return true;
         }

@@ -511,5 +511,249 @@ namespace Nevergreen.Tests
                 Assert.AreEqual(result.equippedSkills[i], result.unlockedSkills[i]);
             }
         }
+
+        // ==========================================
+        // Level Up Trait Grant Tests
+        // ==========================================
+
+        private class FixedRng : System.Random
+        {
+            private readonly int[] _sequence;
+            private int _index;
+            public FixedRng(params int[] sequence) => _sequence = sequence;
+            public override int Next(int maxValue)
+            {
+                if (_sequence != null && _sequence.Length > 0)
+                {
+                    int val = _sequence[_index % _sequence.Length];
+                    _index++;
+                    return val % maxValue;
+                }
+                return 0;
+            }
+        }
+
+        [Test]
+        public void PartyMemberInfo_IsTraitFull_RespectsCapacity()
+        {
+            var info = new PartyMemberInfo();
+            Assert.IsFalse(info.IsTraitFull(TraitType.Perfection));
+            Assert.IsFalse(info.IsTraitFull(TraitType.Imperfection));
+
+            for (int i = 0; i < _globalConfig.maxPerfections; i++)
+            {
+                var perf = ScriptableObject.CreateInstance<TraitData>();
+                perf.traitId = $"test_p_{i}";
+                perf.traitType = TraitType.Perfection;
+                info.perfections.Add(perf);
+            }
+
+            Assert.IsTrue(info.IsTraitFull(TraitType.Perfection));
+            Assert.IsFalse(info.IsTraitFull(TraitType.Imperfection));
+        }
+
+        [Test]
+        public void PartyMemberInfo_CanAddTrait_ChecksUniquenessAndOpposites()
+        {
+            var info = new PartyMemberInfo();
+            var traitA = ScriptableObject.CreateInstance<TraitData>();
+            traitA.traitId = "trait_a";
+            traitA.traitType = TraitType.Perfection;
+
+            var traitOpp = ScriptableObject.CreateInstance<TraitData>();
+            traitOpp.traitId = "trait_opp";
+            traitOpp.traitType = TraitType.Imperfection;
+            traitA.oppositeTrait = traitOpp;
+            traitOpp.oppositeTrait = traitA;
+
+            Assert.IsTrue(info.CanAddTrait(traitA));
+            info.perfections.Add(traitA);
+
+            // Duplicate ID check
+            var traitADup = ScriptableObject.CreateInstance<TraitData>();
+            traitADup.traitId = "trait_a";
+            traitADup.traitType = TraitType.Perfection;
+            Assert.IsFalse(info.CanAddTrait(traitADup));
+
+            // Opposite trait check (direct and reverse)
+            Assert.IsFalse(info.CanAddTrait(traitOpp));
+        }
+
+        [Test]
+        public void TryGrantLevelUpTrait_RollPerfection_GainsPerfection()
+        {
+            var member = new PartyMemberInfo { character = _template };
+            var rng = new FixedRng(0); // 0 % 2 == 0 -> Perfection
+
+            var granted = MarionetteGenerator.TryGrantLevelUpTrait(member, _traitDb, rng);
+
+            Assert.IsNotNull(granted);
+            Assert.AreEqual(TraitType.Perfection, granted.traitType);
+            Assert.AreEqual(1, member.perfections.Count);
+            Assert.AreEqual(0, member.imperfections.Count);
+            Assert.Contains(granted, member.perfections);
+        }
+
+        [Test]
+        public void TryGrantLevelUpTrait_RollImperfection_GainsImperfection()
+        {
+            var member = new PartyMemberInfo { character = _template };
+            var rng = new FixedRng(1); // 1 % 2 != 0 -> Imperfection
+
+            var granted = MarionetteGenerator.TryGrantLevelUpTrait(member, _traitDb, rng);
+
+            Assert.IsNotNull(granted);
+            Assert.AreEqual(TraitType.Imperfection, granted.traitType);
+            Assert.AreEqual(0, member.perfections.Count);
+            Assert.AreEqual(1, member.imperfections.Count);
+            Assert.Contains(granted, member.imperfections);
+        }
+
+        [Test]
+        public void TryGrantLevelUpTrait_PerfectionsFull_SwitchesToImperfection()
+        {
+            var member = new PartyMemberInfo { character = _template };
+            // Fill perfections
+            for (int i = 0; i < _globalConfig.maxPerfections; i++)
+            {
+                var perf = ScriptableObject.CreateInstance<TraitData>();
+                perf.traitId = $"owned_perf_{i}";
+                perf.traitType = TraitType.Perfection;
+                member.perfections.Add(perf);
+            }
+            Assert.IsTrue(member.IsTraitFull(TraitType.Perfection));
+
+            // Roll 0 (Perfection), but it is full -> should switch to Imperfection
+            var rng = new FixedRng(0);
+            var granted = MarionetteGenerator.TryGrantLevelUpTrait(member, _traitDb, rng);
+
+            Assert.IsNotNull(granted);
+            Assert.AreEqual(TraitType.Imperfection, granted.traitType);
+            Assert.AreEqual(_globalConfig.maxPerfections, member.perfections.Count);
+            Assert.AreEqual(1, member.imperfections.Count);
+        }
+
+        [Test]
+        public void TryGrantLevelUpTrait_ImperfectionsFull_SwitchesToPerfection()
+        {
+            var member = new PartyMemberInfo { character = _template };
+            // Fill imperfections
+            for (int i = 0; i < _globalConfig.maxImperfections; i++)
+            {
+                var imp = ScriptableObject.CreateInstance<TraitData>();
+                imp.traitId = $"owned_imp_{i}";
+                imp.traitType = TraitType.Imperfection;
+                member.imperfections.Add(imp);
+            }
+            Assert.IsTrue(member.IsTraitFull(TraitType.Imperfection));
+
+            // Roll 1 (Imperfection), but it is full -> should switch to Perfection
+            var rng = new FixedRng(1);
+            var granted = MarionetteGenerator.TryGrantLevelUpTrait(member, _traitDb, rng);
+
+            Assert.IsNotNull(granted);
+            Assert.AreEqual(TraitType.Perfection, granted.traitType);
+            Assert.AreEqual(1, member.perfections.Count);
+            Assert.AreEqual(_globalConfig.maxImperfections, member.imperfections.Count);
+        }
+
+        [Test]
+        public void TryGrantLevelUpTrait_BothFull_ReturnsNull()
+        {
+            var member = new PartyMemberInfo { character = _template };
+            for (int i = 0; i < _globalConfig.maxPerfections; i++)
+            {
+                var perf = ScriptableObject.CreateInstance<TraitData>();
+                perf.traitId = $"owned_perf_{i}";
+                perf.traitType = TraitType.Perfection;
+                member.perfections.Add(perf);
+            }
+            for (int i = 0; i < _globalConfig.maxImperfections; i++)
+            {
+                var imp = ScriptableObject.CreateInstance<TraitData>();
+                imp.traitId = $"owned_imp_{i}";
+                imp.traitType = TraitType.Imperfection;
+                member.imperfections.Add(imp);
+            }
+
+            var rng = new FixedRng(0);
+            var granted = MarionetteGenerator.TryGrantLevelUpTrait(member, _traitDb, rng);
+
+            Assert.IsNull(granted);
+            Assert.AreEqual(_globalConfig.maxPerfections, member.perfections.Count);
+            Assert.AreEqual(_globalConfig.maxImperfections, member.imperfections.Count);
+        }
+
+        [Test]
+        public void TryGrantLevelUpTrait_EligibleList_ExcludesOwnedAndOpposites()
+        {
+            var member = new PartyMemberInfo { character = _template };
+
+            // Suppose traitDb has perf_0, perf_1, perf_2
+            // Member already owns perf_0
+            member.perfections.Add(_traitDb.perfections[0]);
+
+            // perf_1 is opposite of an imperfection member owns
+            var oppositeToPerf1 = ScriptableObject.CreateInstance<TraitData>();
+            oppositeToPerf1.traitId = "imp_opp_to_perf1";
+            oppositeToPerf1.traitType = TraitType.Imperfection;
+            _traitDb.perfections[1].oppositeTrait = oppositeToPerf1;
+            oppositeToPerf1.oppositeTrait = _traitDb.perfections[1];
+            member.imperfections.Add(oppositeToPerf1);
+
+            // Roll 0 (Perfection). Only perf_2 is eligible!
+            var rng = new FixedRng(0);
+            var granted = MarionetteGenerator.TryGrantLevelUpTrait(member, _traitDb, rng);
+
+            Assert.IsNotNull(granted);
+            Assert.AreEqual(_traitDb.perfections[2].traitId, granted.traitId);
+        }
+
+        [Test]
+        public void TryGrantLevelUpTrait_EligibleListEmpty_ReturnsNull()
+        {
+            var member = new PartyMemberInfo { character = _template };
+
+            // Owns all perfections in DB, but maxPerfections is higher (not full)
+            _globalConfig.maxPerfections = 10;
+            foreach (var p in _traitDb.perfections)
+            {
+                member.perfections.Add(p);
+            }
+
+            // Roll 0 (Perfection). It is not full (count 3 < 10), but eligible list is empty -> returns null
+            var rng = new FixedRng(0);
+            var granted = MarionetteGenerator.TryGrantLevelUpTrait(member, _traitDb, rng);
+
+            Assert.IsNull(granted);
+        }
+
+        [Test]
+        public void TryGrantLevelUpTrait_NullInputs_ReturnsNull()
+        {
+            Assert.IsNull(MarionetteGenerator.TryGrantLevelUpTrait(null, _traitDb));
+            Assert.IsNull(MarionetteGenerator.TryGrantLevelUpTrait(new PartyMemberInfo(), null));
+        }
+
+        [Test]
+        public void TryGrantLevelUpTrait_Distribution_BothTypesAwarded()
+        {
+            var rng = new System.Random(42);
+            int perfectionCount = 0;
+            int imperfectionCount = 0;
+
+            for (int i = 0; i < 200; i++)
+            {
+                var member = new PartyMemberInfo { character = _template };
+                var granted = MarionetteGenerator.TryGrantLevelUpTrait(member, _traitDb, rng);
+                Assert.IsNotNull(granted);
+                if (granted.traitType == TraitType.Perfection) perfectionCount++;
+                else imperfectionCount++;
+            }
+
+            // Over 200 trials with 50% probability, counts should be reasonably balanced (e.g. between 70 and 130)
+            Assert.GreaterOrEqual(perfectionCount, 70, $"Perfection count {perfectionCount} unexpectedly low");
+            Assert.GreaterOrEqual(imperfectionCount, 70, $"Imperfection count {imperfectionCount} unexpectedly low");
+        }
     }
 }
