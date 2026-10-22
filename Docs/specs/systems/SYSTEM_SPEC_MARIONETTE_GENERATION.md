@@ -27,10 +27,12 @@ Handle the complete, encapsulated generation of randomized Marionette units (`Pa
 - Fallback to equipping fewer than 4 skills if the character's skill pool size is less than 4.
 - Randomly assign exactly 1 Perfection trait and 1 Imperfection trait from the provided `TraitDatabase` asset using a candidate pool retry strategy (selecting a new random trait if the chosen one is rejected due to opposite trait conflicts or duplicates).
 - Construct a new `PartyMemberInfo` object representing the fully populated, ready-to-use marionette runtime data.
+- Scale character level to the team's lowest level (`CalculateLowestTeamLevel`), granting baseline traits (1 Perfection + 1 Imperfection) plus `(currentLevel - 1)` additional level-up traits sequentially via `TryGrantLevelUpTrait`.
+- Grant a random trait upon level-up (`TryGrantLevelUpTrait`) following the 4-step process: roll 50/50 Perfection vs Imperfection, verify capacity (`IsTraitFull`) and swap to other type if full, compile eligible candidate list via exclusion rules (`CanAddTrait`), and randomly grant one via `TryAddTrait`.
 
 ## Data Model
 - Entity/component/object:
-  - `MarionetteGenerator` (static class): Encapsulates generation logic via `GenerateRandomMarionette`.
+  - `MarionetteGenerator` (static class): Encapsulates generation logic via `GenerateRandomMarionette`, `GenerateMarionetteFromTemplate`, and `TryGrantLevelUpTrait`.
   - `PartyMemberInfo` (runtime object): Holds reference to base template (`character`), `equippedSkills` list, `perfections` list, and `imperfections` list.
 - Persistence keys: None (generator is a stateless utility; persistence is handled by the party system save/load pipelines).
 
@@ -38,33 +40,33 @@ Handle the complete, encapsulated generation of randomized Marionette units (`Pa
 - Event: None (the generator does not publish events, but operates as a synchronous procedural utility invoked by the UI and run controllers).
 
 ## Timing Model
-- Update domain: Main thread synchronously during run-state transitions (e.g. loading a Marionette selection choice UI panel).
-- Tick/update order: Runs on-demand prior to displaying choices or adding members to the team.
-- Budget: Synchronous execution time must be under 0.05 ms per marionette generated.
+- Update domain: Main thread synchronously during run-state transitions (e.g. loading a Marionette selection choice UI panel) and during level upgrades in party management.
+- Tick/update order: Runs on-demand prior to displaying choices, adding members to the team, or when pressing Upgrade in Party Management.
+- Budget: Synchronous execution time must be under 0.05 ms per marionette generated or trait granted.
 
 ## Determinism
 - Required: Yes
-- Strategy: Uses a static `System.Random` instance (`_rng`) initialized globally on the main thread.
+- Strategy: Uses a static `System.Random` instance (`_rng`) initialized globally on the main thread, or an optional caller-supplied `rng` parameter for deterministic testing.
 - Known exceptions: Random selections depend on the state of the shared global `_rng` seed at runtime.
 
 ## Authority Model
-- Single-player/offline: The local client application has full authority to generate and assign marionettes.
+- Single-player/offline: The local client application has full authority to generate and assign marionettes and traits.
 - Multiplayer: Unknown
 
 ## Performance Budget
-- CPU: Under 0.05 ms per character generation.
+- CPU: Under 0.05 ms per character generation or level-up grant.
 - Memory: Low garbage collector allocation footprint (temporary copy list of skills is collected).
 - Entity scale target: Typically invoked 3 times sequentially during a selection choice prompt to present 3 choices.
 
 ## Error Handling and Recovery
 - Null GameDatabase.Instance: Returns `null` and logs an error block using `Debug.LogError`.
 - Null/Empty MarionetteDatabase: Returns `null` and logs an error block using `Debug.LogError`.
-- Null TraitDatabase: Safely logs a warning `Debug.LogWarning` and skips assigning traits to the generated marionette.
-- Capacity limit / Duplicate Trait / Opposite Trait: `PartyMemberInfo.TryAddTrait` returns `false` and generator removes the rejected trait from the candidate pool and picks another random candidate.
+- Null TraitDatabase: Safely logs a warning `Debug.LogWarning` and skips assigning traits to the generated marionette; returns `null` for `TryGrantLevelUpTrait`.
+- Capacity limit / Duplicate Trait / Opposite Trait: `PartyMemberInfo.TryAddTrait` returns `false` and generator removes the rejected trait from the candidate pool and picks another random candidate. During level-up, capacity check redirects to the other type, and exclusions prune the eligible list.
 
 ## Observability
 - Metrics: Choice generation count.
-- Logs: Logs errors for missing `GameDatabase.Instance` or `MarionetteDatabase` templates and warnings for missing `TraitDatabase` configurations.
+- Logs: Logs errors for missing `GameDatabase.Instance` or `MarionetteDatabase` templates and warnings for missing `TraitDatabase` configurations. Logs granted traits upon level-up.
 - Traces/profilers: None.
 
 ## Acceptance Tests
@@ -74,7 +76,22 @@ Handle the complete, encapsulated generation of randomized Marionette units (`Pa
     - `GenerateRandomMarionette_LessThan4SkillsInPool_EquipsAllAvailable`: Validates safety fallback when skill pool is small.
     - `GenerateRandomMarionette_EmptyTraitDb_NoTraitsAssigned`: Validates behavior when trait lists are empty.
     - `GenerateRandomMarionette_NullDatabase_ReturnsNull`: Validates safety check for missing character databases.
-- Playtest: Launch the Marionette Selection screen directly or during a run, and verify that the choice buttons display exactly 3 randomly selected classes, each with 4 distinct skills, 1 Perfection, and 1 Imperfection.
+    - `TryGrantLevelUpTrait_RollPerfection_GainsPerfection`: Validates 50/50 roll awarding perfection.
+    - `TryGrantLevelUpTrait_RollImperfection_GainsImperfection`: Validates 50/50 roll awarding imperfection.
+    - `TryGrantLevelUpTrait_PerfectionsFull_SwitchesToImperfection`: Validates capacity fallback to opposite type.
+    - `TryGrantLevelUpTrait_ImperfectionsFull_SwitchesToPerfection`: Validates capacity fallback to opposite type.
+    - `TryGrantLevelUpTrait_BothFull_ReturnsNull`: Validates graceful null return when both slots are full.
+    - `TryGrantLevelUpTrait_EligibleList_ExcludesOwnedAndOpposites`: Validates exclusion of owned and conflicting traits.
+    - `TryGrantLevelUpTrait_EligibleListEmpty_ReturnsNull`: Validates null return when eligible list is empty without fallback.
+    - `GenerateMarionetteFromTemplate_Level1_Has2Traits`: Validates Level 1 marionettes retain exactly 1 perfection and 1 imperfection.
+    - `GenerateMarionetteFromTemplate_Level2_Has3Traits`: Validates Level 2 marionettes receive 2 baseline + 1 level-up trait = 3 traits.
+    - `GenerateMarionetteFromTemplate_Level3_Has4Traits`: Validates Level 3 marionettes receive 2 baseline + 2 level-up traits = 4 traits.
+    - `GenerateMarionetteFromTemplate_Level5_Has6Traits_3Perf3Imp`: Validates Level 5 marionettes max out at 3 perfections and 3 imperfections.
+    - `GenerateMarionetteFromTemplate_Level10_CappedAtMax_NoOverflow`: Validates Level 10 marionettes do not exceed trait limits.
+    - `GenerateMarionetteFromTemplate_HighLevel_NoDuplicateOrOppositeTraits`: Validates uniqueness and opposite trait exclusions across all grants.
+    - `GenerateMarionetteFromTemplate_SmallTraitPool_StopsGracefully`: Validates graceful stopping when candidate trait pool is exhausted.
+    - `GenerateMarionetteFromTemplate_NullTraitDb_NoTraits`: Validates null safety when trait database is null.
+- Playtest: Launch the Marionette Selection screen directly or during a run, and verify that the choice buttons display exactly 3 randomly selected classes, each with 4 distinct skills, 1 Perfection, and 1 Imperfection (or additional traits if team level is > 1). Upgrade a marionette in Party Management and verify trait grant behavior.
 
 ## Missing Evidence
 - None

@@ -170,6 +170,8 @@ namespace Nevergreen.Data
 
         /// <summary>
         /// Populates skills and traits for a chosen template.
+        /// Scales character level to lowest team level, and grants baseline traits (1 Perfection + 1 Imperfection)
+        /// plus additional level-up traits for each level above 1.
         /// traitDb is passed internally from the centralized database.
         /// </summary>
         public static PartyMemberInfo GenerateMarionetteFromTemplate(CharacterData template, TraitDatabase traitDb)
@@ -235,6 +237,15 @@ namespace Nevergreen.Data
                         candidatePool.RemoveAt(index);
                     }
                 }
+
+                // Grant level-up traits for marionettes generated at levels higher than 1
+                if (info.currentLevel > 1)
+                {
+                    for (int lvl = 2; lvl <= info.currentLevel; lvl++)
+                    {
+                        TryGrantLevelUpTrait(info, traitDb);
+                    }
+                }
             }
             else
             {
@@ -242,6 +253,61 @@ namespace Nevergreen.Data
             }
 
             return info;
+        }
+
+        /// <summary>
+        /// Grants a trait to a marionette upon level-up according to the 4-step algorithm:
+        /// 1. Roll whether the trait grant will be Perfection or Imperfection (50/50).
+        /// 2. Check if that trait type is full; if not, proceed; if full, try the other type instead (if both full, return null).
+        /// 3. Create a list of eligible traits of the chosen type based on exclusion rules (member.CanAddTrait).
+        /// 4. Select a random trait from that list and grant it (via member.TryAddTrait).
+        /// Returns the granted TraitData, or null if no trait was granted.
+        /// </summary>
+        public static TraitData TryGrantLevelUpTrait(PartyMemberInfo member, TraitDatabase traitDb, System.Random rng = null)
+        {
+            if (member == null || traitDb == null) return null;
+
+            if (rng == null) rng = _rng;
+
+            // Step 1: Roll whether the trait grant will be perfection or imperfection (50/50)
+            TraitType chosenType = rng.Next(2) == 0 ? TraitType.Perfection : TraitType.Imperfection;
+
+            // Step 2: Check if that trait type is full or not, if not, proceed, if full, do the other type instead
+            if (member.IsTraitFull(chosenType))
+            {
+                chosenType = chosenType == TraitType.Perfection ? TraitType.Imperfection : TraitType.Perfection;
+                if (member.IsTraitFull(chosenType))
+                {
+                    return null; // Both trait types are full
+                }
+            }
+
+            // Step 3: Create a list of eligible traits of the chosen type based on exclusion rules
+            List<TraitData> pool = chosenType == TraitType.Perfection ? traitDb.perfections : traitDb.imperfections;
+            if (pool == null || pool.Count == 0) return null;
+
+            List<TraitData> eligible = new List<TraitData>();
+            for (int i = 0; i < pool.Count; i++)
+            {
+                var trait = pool[i];
+                if (trait != null && member.CanAddTrait(trait))
+                {
+                    eligible.Add(trait);
+                }
+            }
+
+            if (eligible.Count == 0) return null;
+
+            // Step 4: Select a random trait from that list and grant it
+            int selectedIndex = rng.Next(eligible.Count);
+            TraitData selectedTrait = eligible[selectedIndex];
+
+            if (member.TryAddTrait(selectedTrait))
+            {
+                return selectedTrait;
+            }
+
+            return null;
         }
     }
 }

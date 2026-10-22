@@ -108,6 +108,16 @@ namespace Nevergreen.UI
                 if (cost >= 0 && RunSessionManager.TrySpendParts(cost))
                 {
                     _currentSelectedMember.currentLevel++;
+
+                    if (GameDatabase.Instance.TraitDatabase != null)
+                    {
+                        var trait = MarionetteGenerator.TryGrantLevelUpTrait(_currentSelectedMember, GameDatabase.Instance.TraitDatabase);
+                        if (trait != null)
+                        {
+                            Debug.Log($"[PartyManagement] {_currentSelectedMember.character?.displayName ?? "Member"} leveled up to {_currentSelectedMember.currentLevel} and gained trait: {trait.displayName} ({trait.traitType})");
+                        }
+                    }
+
                     SaveManager.SaveRun();
                     DisplayCharacterData(_currentSelectedMember);
                 }

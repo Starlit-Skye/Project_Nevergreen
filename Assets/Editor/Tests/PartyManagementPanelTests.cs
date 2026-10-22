@@ -198,6 +198,66 @@ namespace Nevergreen.Tests
         }
 
         [Test]
+        public void OnUpgradeClicked_WithTraitDatabase_GrantsTrait()
+        {
+            // Arrange
+            var traitDb = ScriptableObject.CreateInstance<TraitDatabase>();
+            traitDb.perfections = new List<TraitData>();
+            traitDb.imperfections = new List<TraitData>();
+
+            var perf = ScriptableObject.CreateInstance<TraitData>();
+            perf.traitId = "perf_levelup_test";
+            perf.traitType = TraitType.Perfection;
+            perf.displayName = "Level Up Perfection";
+            traitDb.perfections.Add(perf);
+
+            var imp = ScriptableObject.CreateInstance<TraitData>();
+            imp.traitId = "imp_levelup_test";
+            imp.traitType = TraitType.Imperfection;
+            imp.displayName = "Level Up Imperfection";
+            traitDb.imperfections.Add(imp);
+
+            // Recreate test DB with TraitDatabase
+            CombatTestHelper.CleanupTestDatabase();
+            var combatConfig = CombatTestHelper.CreateDefaultConfig();
+            combatConfig.globalMaxLevel = 10;
+            combatConfig.levelUpCostCurve = new List<int> { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
+
+            var globalConfig = CombatTestHelper.CreateDefaultGlobalConfig();
+            globalConfig.maxPerfections = 3;
+            globalConfig.maxImperfections = 3;
+
+            var db = GameDatabase.CreateForTesting(
+                combatCfg: combatConfig,
+                globalCfg: globalConfig,
+                traits: traitDb
+            );
+            GameDatabase.SetInstanceForTesting(db);
+
+            var memberInfo = new PartyMemberInfo
+            {
+                character = dummyCharacter,
+                currentLevel = 1
+            };
+            RunSessionManager.CurrentParty.Add(memberInfo);
+            RunSessionManager.Parts = 15;
+
+            var startMethod = typeof(PartyManagementPanelController).GetMethod("Start", BindingFlags.NonPublic | BindingFlags.Instance);
+            startMethod.Invoke(controller, null);
+
+            var selectMethod = typeof(PartyManagementPanelController).GetMethod("OnSlotClicked", BindingFlags.NonPublic | BindingFlags.Instance);
+            selectMethod.Invoke(controller, new object[] { 0 });
+
+            // Act
+            upgradeButton.onClick.Invoke();
+
+            // Assert
+            Assert.AreEqual(2, memberInfo.currentLevel);
+            Assert.AreEqual(5, RunSessionManager.Parts);
+            Assert.AreEqual(1, memberInfo.perfections.Count + memberInfo.imperfections.Count, "Should have been granted 1 trait from TraitDatabase.");
+        }
+
+        [Test]
         public void MoveButton_TogglesMoveMode_AndHighlightsOtherSlots()
         {
             // Arrange

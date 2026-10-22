@@ -130,6 +130,7 @@ Serialize and persist the active run session progress, parts count, scraps count
     - `SaveRun_RoomCompleted_PersistsSelectionAndState`: Verifies that room completed flag and generated choices are persisted.
     - `LoadRun_RoomCompleted_ClearsShouldUseSavedFormation_ButRestoresLastSelectedFormation`: Verifies that loading a completed room clears team bootstrap bypass but retains anti-repeat history.
     - `SaveRun_PersistsPartyMemberLevel`: Verifies that individual party member levels are persisted and restored.
+    - `SaveAndLoadRun_PersistsLevelUpTraits`: Verifies that perfections and imperfections gained during progression or level-up persist and load accurately across sessions.
     - `SaveProfile_CreatesEncryptedProfileFile`: Verifies profile save creates encrypted `profile.dat`.
     - `ClearActiveRun_DoesNotDeleteOrAlterProfileFile`: Verifies clearing active run leaves `profile.dat` untouched.
     - `LoadProfile_RestoresBossChances_WithoutActiveRun`: Verifies loading profile data successfully restores boss chances even without an active run save.
@@ -140,7 +141,7 @@ Serialize and persist the active run session progress, parts count, scraps count
   2. Quit the game, then click Continue from the Main Menu.
   3. Verify that you load directly into the room selection UI with Room 1 cleared and the same choices displayed.
   4. Select a room, enter combat, and verify that the progression count is incremented to 2.
-  5. Upgrade a marionette, verify that parts count decreases, quit game, click Continue, and verify that parts count and marionette level are correctly loaded back.
+  5. Upgrade a marionette, verify that parts count decreases and a new trait is granted, quit game, click Continue, and verify that parts count, marionette level, and newly acquired traits are correctly loaded back.
   6. Reach the boss room, verify that one of the two bosses is chosen, then exit the run/game. Check that the probability offset (e.g. 40%/60%) is preserved and loaded on a subsequent new run session.
 
 ## Missing Evidence

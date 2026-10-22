@@ -169,3 +169,123 @@ Constraint: Do not modify any code outside of `EditorDebugUtility.cs`.
     - Full heal of an in-combat exhausted player unit verified: `CombatCharacter.Heal` succeeded, restored character HP from 20 to 100, and restored `IsExhausted` back to true with `ExhaustionRound` preserved.
   - Ran full project EditMode test suite via `tests-run`: 586/586 passed (0 failed, 0 skipped).
   - Scope constraint honored: Zero code modified outside of `EditorDebugUtility.cs`.
+
+# Task: Gain a Trait on Marionette Level-Up
+
+## Summary
+When a Marionette is upgraded (Party Management panel -> Upgrade button), it gains **one** trait: 50% a random Perfection, 50% a random Imperfection. If the rolled type is full (`GlobalConfig.maxPerfections` / `maxImperfections`), it gains the other type instead. The trait is picked at random from the list of traits of that type that are eligible under the exclusion rules. If both types are full, or the eligible list is empty, no trait is gained.
+
+## Findings (current code)
+- Level-up is done inline in `PartyManagementPanelController.OnUpgradeClicked` (spend parts -> `currentLevel++` -> `SaveManager.SaveRun()` -> `DisplayCharacterData`). No shared level-up method exists.
+- `PartyMemberInfo.TryAddTrait` already enforces capacity, unique ID, and opposite-trait exclusion.
+- `MarionetteGenerator.GenerateMarionetteFromTemplate` has the "pick random candidate until `TryAddTrait` succeeds" loop, duplicated per type, with a private static `_rng`.
+- Traits are already persisted (`perfectionIds` / `imperfectionIds` in the save DTO), and `PopulateTraits` redraws the trait lists after a level-up. **No save or prefab changes needed.**
+- The prefab `PartyManagementPanel.prefab` already has `perfectionsContainer`, `imperfectionsContainer`, and the trait item prefabs. It needs no changes unless we add a "gained trait" message (see Open Questions).
+
+## Design
+Put the logic in one reusable, testable place: a new `MarionetteGenerator.TryGrantLevelUpTrait(PartyMemberInfo member, TraitDatabase db, System.Random rng = null)` returning the `TraitData` gained (or `null`). The same method contains the shared "pick random candidate until it fits" helper, and `GenerateMarionetteFromTemplate` is refactored to use that helper (no behavior change).
+
+```
+OnUpgradeClicked
+  -> TrySpendParts OK
+  -> currentLevel++
+  -> gained = MarionetteGenerator.TryGrantLevelUpTrait(member, GameDatabase.Instance.TraitDatabase)
+  -> SaveManager.SaveRun()          // after the trait, so both are saved together
+  -> DisplayCharacterData(member)   // redraws traits
+```
+
+Algorithm for `TryGrantLevelUpTrait`:
+1. **Roll the type:** `isPerfection = rng.Next(2) == 0`.
+2. **Capacity check:** if the rolled type's list is full (`list.Count >= GlobalConfig.max...`), switch to the other type. If that one is full too, return `null`.
+3. **Build the eligible list** for the chosen type from the `TraitDatabase` pool: exclude traits already owned (by `traitId`) and traits blocked by the opposite-trait rule (either direction, against both lists). Same rules as `TryAddTrait`, exposed as a shared `IsTraitEligible` check.
+4. **Pick and grant:** choose a random trait from the eligible list and add it via `TryAddTrait` (which re-validates). If the eligible list is empty, return `null`.
+
+If the eligible list of the chosen type is empty (not full, but everything is excluded), the plan does **not** fall back to the other type; only "full" triggers the swap, as specified. (See Open Question 4.)
+
+## Todo List
+- [x] 1. `PartyMemberInfo.cs`: add `IsTraitFull(TraitType)` and `CanAddTrait(TraitData)` (uniqueness + opposite rule, no capacity), and make `TryAddTrait` use them so the rules live in one place. `MarionetteGenerator.GenerateMarionetteFromTemplate` stays unchanged.
+- [x] 2. `MarionetteGenerator.cs`: add public `TryGrantLevelUpTrait(member, traitDb, rng = null)` following the 4 steps (roll, full check/swap, build eligible list, random pick). Null-safe (null member / db / empty pools return `null`).
+- [x] 3. `PartyManagementPanelController.OnUpgradeClicked`: call it after `currentLevel++` and before `SaveRun`. Log the gained trait with `Debug.Log` (name + type).
+- [x] 4. Tests in `Assets/Editor/Tests/MarionetteGeneratorTests.cs`, `PartyManagementPanelTests.cs`, and `SaveManagerTests.cs`:
+  - [x] `PartyMemberInfo_IsTraitFull_RespectsCapacity`
+  - [x] `PartyMemberInfo_CanAddTrait_ChecksUniquenessAndOpposites`
+  - [x] `TryGrantLevelUpTrait_RollPerfection_GainsPerfection`
+  - [x] `TryGrantLevelUpTrait_RollImperfection_GainsImperfection`
+  - [x] `TryGrantLevelUpTrait_PerfectionsFull_SwitchesToImperfection`
+  - [x] `TryGrantLevelUpTrait_ImperfectionsFull_SwitchesToPerfection`
+  - [x] `TryGrantLevelUpTrait_BothFull_ReturnsNull`
+  - [x] `TryGrantLevelUpTrait_EligibleList_ExcludesOwnedAndOpposites`
+  - [x] `TryGrantLevelUpTrait_EligibleListEmpty_ReturnsNull`
+  - [x] `TryGrantLevelUpTrait_NullInputs_ReturnsNull`
+  - [x] `TryGrantLevelUpTrait_Distribution_BothTypesAwarded`
+  - [x] `OnUpgradeClicked_WithTraitDatabase_GrantsTrait`
+  - [x] `SaveAndLoadRun_PersistsLevelUpTraits`
+- [x] 5. Run the full EditMode suite (`tests-run`); 599/599 passed (0 failed, 0 skipped, +13 new tests).
+- [x] 6. Docs updated: `SYSTEM_SPEC_MARIONETTE_TEMPLATE.md`, `SYSTEM_SPEC_TRAIT_SYSTEM.md`, `SYSTEM_SPEC_SAVE_GAME_PERSISTENCE.md`, `SYSTEM_SPEC_MARIONETTE_GENERATION.md`, and `SYSTEM_SPEC_RUN_SESSION_MANAGER.md`.
+
+## Review & Verification Results
+- **Implementation**:
+  - `PartyMemberInfo.cs`: Added `IsTraitFull(TraitType)` and `CanAddTrait(TraitData)` helpers, refactored `TryAddTrait` to route through them.
+  - `MarionetteGenerator.cs`: Added `TryGrantLevelUpTrait(PartyMemberInfo, TraitDatabase, System.Random)` following the exact 4-step sequence (50/50 roll &rarr; capacity check & swap if full &rarr; eligible list filtered by exclusions &rarr; random pick & grant).
+  - `PartyManagementPanelController.cs`: Integrated `MarionetteGenerator.TryGrantLevelUpTrait` in `OnUpgradeClicked` before `SaveRun` and `DisplayCharacterData`.
+- **Automated Tests**:
+  - `Assets/Editor/Tests/MarionetteGeneratorTests.cs`: Added 11 unit tests covering capacity checks, uniqueness/opposite exclusions, forced perfection/imperfection rolls, full capacity fallbacks, both-full edge case, empty eligible pool edge case, null input handling, and 50/50 distribution sanity.
+  - `Assets/Editor/Tests/PartyManagementPanelTests.cs`: Added `OnUpgradeClicked_WithTraitDatabase_GrantsTrait` testing parts deduction, level increment, and trait grant through controller UI.
+  - `Assets/Editor/Tests/SaveManagerTests.cs`: Added `SaveAndLoadRun_PersistsLevelUpTraits` verifying disk serialization and deserialization of traits gained during progression/upgrades.
+- **Suite Execution**:
+  - Full project EditMode suite (`tests-run`): **599/599 tests passed** (0 failed, 0 skipped).
+- **Documentation**:
+  - Updated specifications across `SYSTEM_SPEC_MARIONETTE_TEMPLATE.md`, `SYSTEM_SPEC_TRAIT_SYSTEM.md`, `SYSTEM_SPEC_SAVE_GAME_PERSISTENCE.md`, `SYSTEM_SPEC_MARIONETTE_GENERATION.md`, and `SYSTEM_SPEC_RUN_SESSION_MANAGER.md`.
+
+# Task: Level-Up Traits for Marionettes Generated Above Level 1 (PLAN ONLY, no code yet)
+
+## Summary
+`MarionetteGenerator.GenerateMarionetteFromTemplate` sets `info.currentLevel = CalculateLowestTeamLevel(party)` but only grants the level-1 baseline (1 Perfection + 1 Imperfection). A marionette generated at level N must also get the traits it would have earned by leveling 1 -> 2 -> ... -> N: **N - 1 extra grants**, one per level, each using the existing `TryGrantLevelUpTrait` (roll type, swap if full, eligible list, random pick).
+
+Example: level 3 -> 2 baseline traits + 2 level-up grants = 4 traits.
+
+## Findings
+- `GenerateMarionetteFromTemplate` (MarionetteGenerator.cs) already sets the level, picks skills, then grants the baseline traits. Traits are assigned last, so the level is known by then.
+- `TryGrantLevelUpTrait(member, traitDb, rng)` returns `null` when both types are full or no eligible trait exists, so it is safe to call repeatedly.
+- Caps are 3 + 3 (`GlobalConfig`). Baseline is 2, so at most 4 grants fit: **levels 5 and above end with the same full 6 traits**. Extra grants simply return `null`.
+- `_rng` is a private static; `TryGrantLevelUpTrait` already defaults to it when `rng` is null.
+- Only the baseline-trait block of `GenerateMarionetteFromTemplate` needs to change. `PartyManagementPanelController` and save/load are untouched (traits are already persisted).
+
+## Design
+After the baseline Perfection/Imperfection block, inside the existing `traitDb != null` branch:
+
+```
+for (level = 2; level <= info.currentLevel; level++)
+    TryGrantLevelUpTrait(info, traitDb);   // _rng default
+```
+
+- The loop runs `currentLevel - 1` times (zero iterations at level 1, so level-1 generation is unchanged).
+- Optional early exit: `if (both types full) break;` to avoid pointless iterations. `TryGrantLevelUpTrait` already handles it, so only add this if profiling or readability calls for it (the cost is tiny: at most `maxLevel - 1` cheap calls).
+- Null `traitDb` keeps the current warning and skips everything.
+- No new public API. Per lesson 9, no wrapper method; edit the existing method directly.
+
+## Todo List
+- [x] 1. `MarionetteGenerator.GenerateMarionetteFromTemplate`: after the baseline traits, loop `info.currentLevel - 1` times calling `TryGrantLevelUpTrait(info, traitDb)`. Updated docstring to mention level-scaled traits.
+- [x] 2. Tests in `Assets/Editor/Tests/MarionetteGeneratorTests.cs`:
+  - [x] `GenerateMarionetteFromTemplate_Level1_Has2Traits` (regression: 1 + 1)
+  - [x] `GenerateMarionetteFromTemplate_Level2_Has3Traits`
+  - [x] `GenerateMarionetteFromTemplate_Level3_Has4Traits` (2 baseline + 2 level-up = 4 traits)
+  - [x] `GenerateMarionetteFromTemplate_Level5_Has6Traits_3Perf3Imp`
+  - [x] `GenerateMarionetteFromTemplate_Level10_CappedAtMax_NoOverflow` (3 + 3, no exception)
+  - [x] `GenerateMarionetteFromTemplate_HighLevel_NoDuplicateOrOppositeTraits`
+  - [x] `GenerateMarionetteFromTemplate_SmallTraitPool_StopsGracefully` (graceful stopping when trait pool exhausted)
+  - [x] `GenerateMarionetteFromTemplate_NullTraitDb_NoTraits` (null safety)
+  - [x] Verified existing `GenerateRandomMarionette_UsesLowestTeamLevel` continues to pass.
+- [x] 3. Run the full EditMode suite (`tests-run`); 607/607 passed (0 failed, 0 skipped, +8 new tests).
+- [x] 4. Selection UI verification: confirmed `MarionetteSelectionController` dynamically iterates and spawns items for all entries in `info.perfections` and `info.imperfections`.
+- [x] 5. Docs updated: `SYSTEM_SPEC_MARIONETTE_GENERATION.md`, `SYSTEM_SPEC_TRAIT_SYSTEM.md`, and `SYSTEM_SPEC_MARIONETTE_TEMPLATE.md`.
+
+## Review & Verification Results
+- **Implementation**:
+  - `MarionetteGenerator.cs`: In `GenerateMarionetteFromTemplate`, added a loop after the baseline 1 Perfection + 1 Imperfection assignment running for `level = 2` to `info.currentLevel`, calling `TryGrantLevelUpTrait(info, traitDb)`.
+- **Automated Tests**:
+  - `Assets/Editor/Tests/MarionetteGeneratorTests.cs`: Added 8 new unit tests covering levels 1, 2, 3 (4 traits), 5 (capped at 6), 10 (capacity limit respected), opposite/duplicate avoidance, small pool depletion safety, and null database handling.
+- **Suite Execution**:
+  - Full project EditMode suite (`tests-run`): **607/607 tests passed** (0 failed, 0 skipped).
+- **Documentation**:
+  - Updated specifications across `SYSTEM_SPEC_MARIONETTE_GENERATION.md`, `SYSTEM_SPEC_TRAIT_SYSTEM.md`, and `SYSTEM_SPEC_MARIONETTE_TEMPLATE.md`.

@@ -452,5 +452,59 @@ namespace Nevergreen.Tests
             // Cleanup database
             GameDatabase.Instance.MarionetteDatabase.marionettes.Remove(testCharacter);
         }
+
+        [Test]
+        public void SaveAndLoadRun_PersistsLevelUpTraits()
+        {
+            RunSessionManager.ClearAll();
+
+            var testCharacter = ScriptableObject.CreateInstance<CharacterData>();
+            testCharacter.characterId = "test_char_traits";
+            GameDatabase.Instance.MarionetteDatabase.marionettes.Add(testCharacter);
+
+            var perf = ScriptableObject.CreateInstance<TraitData>();
+            perf.traitId = "perf_persisted";
+            perf.traitType = TraitType.Perfection;
+            GameDatabase.Instance.TraitDatabase.perfections.Add(perf);
+
+            var imp = ScriptableObject.CreateInstance<TraitData>();
+            imp.traitId = "imp_persisted";
+            imp.traitType = TraitType.Imperfection;
+            GameDatabase.Instance.TraitDatabase.imperfections.Add(imp);
+
+            var member = new PartyMemberInfo
+            {
+                character = testCharacter,
+                currentLevel = 3
+            };
+            member.perfections.Add(perf);
+            member.imperfections.Add(imp);
+
+            RunSessionManager.CurrentParty.Add(member);
+
+            SaveManager.SaveRun();
+
+            // Clear in-memory state
+            RunSessionManager.ClearAll();
+
+            // Load
+            SaveManager.LoadRun();
+
+            Assert.AreEqual(1, RunSessionManager.CurrentParty.Count);
+            var loadedMember = RunSessionManager.CurrentParty[0];
+            Assert.AreEqual(3, loadedMember.currentLevel);
+            Assert.AreEqual(1, loadedMember.perfections.Count);
+            Assert.AreEqual("perf_persisted", loadedMember.perfections[0].traitId);
+            Assert.AreEqual(1, loadedMember.imperfections.Count);
+            Assert.AreEqual("imp_persisted", loadedMember.imperfections[0].traitId);
+
+            // Cleanup
+            GameDatabase.Instance.MarionetteDatabase.marionettes.Remove(testCharacter);
+            GameDatabase.Instance.TraitDatabase.perfections.Remove(perf);
+            GameDatabase.Instance.TraitDatabase.imperfections.Remove(imp);
+            Object.DestroyImmediate(testCharacter);
+            Object.DestroyImmediate(perf);
+            Object.DestroyImmediate(imp);
+        }
     }
 }
