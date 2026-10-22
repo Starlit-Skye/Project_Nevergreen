@@ -27,6 +27,7 @@ Handle the complete, encapsulated generation of randomized Marionette units (`Pa
 - Fallback to equipping fewer than 4 skills if the character's skill pool size is less than 4.
 - Randomly assign exactly 1 Perfection trait and 1 Imperfection trait from the provided `TraitDatabase` asset using a candidate pool retry strategy (selecting a new random trait if the chosen one is rejected due to opposite trait conflicts or duplicates).
 - Construct a new `PartyMemberInfo` object representing the fully populated, ready-to-use marionette runtime data.
+- Scale character level to the team's lowest level (`CalculateLowestTeamLevel`), granting baseline traits (1 Perfection + 1 Imperfection) plus `(currentLevel - 1)` additional level-up traits sequentially via `TryGrantLevelUpTrait`.
 - Grant a random trait upon level-up (`TryGrantLevelUpTrait`) following the 4-step process: roll 50/50 Perfection vs Imperfection, verify capacity (`IsTraitFull`) and swap to other type if full, compile eligible candidate list via exclusion rules (`CanAddTrait`), and randomly grant one via `TryAddTrait`.
 
 ## Data Model
@@ -82,7 +83,15 @@ Handle the complete, encapsulated generation of randomized Marionette units (`Pa
     - `TryGrantLevelUpTrait_BothFull_ReturnsNull`: Validates graceful null return when both slots are full.
     - `TryGrantLevelUpTrait_EligibleList_ExcludesOwnedAndOpposites`: Validates exclusion of owned and conflicting traits.
     - `TryGrantLevelUpTrait_EligibleListEmpty_ReturnsNull`: Validates null return when eligible list is empty without fallback.
-- Playtest: Launch the Marionette Selection screen directly or during a run, and verify that the choice buttons display exactly 3 randomly selected classes, each with 4 distinct skills, 1 Perfection, and 1 Imperfection. Upgrade a marionette in Party Management and verify trait grant behavior.
+    - `GenerateMarionetteFromTemplate_Level1_Has2Traits`: Validates Level 1 marionettes retain exactly 1 perfection and 1 imperfection.
+    - `GenerateMarionetteFromTemplate_Level2_Has3Traits`: Validates Level 2 marionettes receive 2 baseline + 1 level-up trait = 3 traits.
+    - `GenerateMarionetteFromTemplate_Level3_Has4Traits`: Validates Level 3 marionettes receive 2 baseline + 2 level-up traits = 4 traits.
+    - `GenerateMarionetteFromTemplate_Level5_Has6Traits_3Perf3Imp`: Validates Level 5 marionettes max out at 3 perfections and 3 imperfections.
+    - `GenerateMarionetteFromTemplate_Level10_CappedAtMax_NoOverflow`: Validates Level 10 marionettes do not exceed trait limits.
+    - `GenerateMarionetteFromTemplate_HighLevel_NoDuplicateOrOppositeTraits`: Validates uniqueness and opposite trait exclusions across all grants.
+    - `GenerateMarionetteFromTemplate_SmallTraitPool_StopsGracefully`: Validates graceful stopping when candidate trait pool is exhausted.
+    - `GenerateMarionetteFromTemplate_NullTraitDb_NoTraits`: Validates null safety when trait database is null.
+- Playtest: Launch the Marionette Selection screen directly or during a run, and verify that the choice buttons display exactly 3 randomly selected classes, each with 4 distinct skills, 1 Perfection, and 1 Imperfection (or additional traits if team level is > 1). Upgrade a marionette in Party Management and verify trait grant behavior.
 
 ## Missing Evidence
 - None

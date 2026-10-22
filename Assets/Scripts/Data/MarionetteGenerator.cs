@@ -170,6 +170,8 @@ namespace Nevergreen.Data
 
         /// <summary>
         /// Populates skills and traits for a chosen template.
+        /// Scales character level to lowest team level, and grants baseline traits (1 Perfection + 1 Imperfection)
+        /// plus additional level-up traits for each level above 1.
         /// traitDb is passed internally from the centralized database.
         /// </summary>
         public static PartyMemberInfo GenerateMarionetteFromTemplate(CharacterData template, TraitDatabase traitDb)
@@ -233,6 +235,15 @@ namespace Nevergreen.Data
                             break;
                         }
                         candidatePool.RemoveAt(index);
+                    }
+                }
+
+                // Grant level-up traits for marionettes generated at levels higher than 1
+                if (info.currentLevel > 1)
+                {
+                    for (int lvl = 2; lvl <= info.currentLevel; lvl++)
+                    {
+                        TryGrantLevelUpTrait(info, traitDb);
                     }
                 }
             }

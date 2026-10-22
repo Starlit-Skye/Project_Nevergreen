@@ -84,6 +84,7 @@ Define the baseline data model and runtime state management for player-controlle
     - Tests verifying `PartyMemberInfo.TryAddTrait` checks uniqueness of IDs, opposite-trait exclusions, and prevents exceeding limits.
   - `MarionetteGeneratorTests.cs`:
     - Tests verifying `TryGrantLevelUpTrait` rolls 50/50, swaps on full capacity, respects candidate exclusions, and returns null when both slots or candidates are exhausted.
+    - Tests verifying `GenerateMarionetteFromTemplate` grants baseline traits plus additional level-up traits when generated at levels higher than 1.
   - `PartyManagementPanelTests.cs`:
     - Tests verifying `OnUpgradeClicked` deducts parts, increments level, and grants a trait from `GameDatabase.Instance.TraitDatabase`.
 - Playtest:

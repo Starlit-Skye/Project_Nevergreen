@@ -755,5 +755,165 @@ namespace Nevergreen.Tests
             Assert.GreaterOrEqual(perfectionCount, 70, $"Perfection count {perfectionCount} unexpectedly low");
             Assert.GreaterOrEqual(imperfectionCount, 70, $"Imperfection count {imperfectionCount} unexpectedly low");
         }
+
+        // ==========================================
+        // Higher Level Marionette Generation Tests
+        // ==========================================
+
+        [Test]
+        public void GenerateMarionetteFromTemplate_Level1_Has2Traits()
+        {
+            // Empty party defaults to level 1
+            RunSessionManager.CurrentParty.Clear();
+
+            var result = MarionetteGenerator.GenerateMarionetteFromTemplate(_template, _traitDb);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.currentLevel);
+            Assert.AreEqual(1, result.perfections.Count);
+            Assert.AreEqual(1, result.imperfections.Count);
+            Assert.AreEqual(2, result.perfections.Count + result.imperfections.Count);
+        }
+
+        [Test]
+        public void GenerateMarionetteFromTemplate_Level2_Has3Traits()
+        {
+            // Team at level 2
+            RunSessionManager.CurrentParty.Clear();
+            var existingMember = new PartyMemberInfo { character = _template, currentLevel = 2 };
+            RunSessionManager.CurrentParty.Add(existingMember);
+
+            var result = MarionetteGenerator.GenerateMarionetteFromTemplate(_template, _traitDb);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.currentLevel);
+            Assert.AreEqual(3, result.perfections.Count + result.imperfections.Count, "Level 2 should have 2 baseline traits + 1 level up trait = 3 traits.");
+        }
+
+        [Test]
+        public void GenerateMarionetteFromTemplate_Level3_Has4Traits()
+        {
+            // Team at level 3 (user's explicit specification: 4 traits total)
+            RunSessionManager.CurrentParty.Clear();
+            var existingMember = new PartyMemberInfo { character = _template, currentLevel = 3 };
+            RunSessionManager.CurrentParty.Add(existingMember);
+
+            var result = MarionetteGenerator.GenerateMarionetteFromTemplate(_template, _traitDb);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(3, result.currentLevel);
+            Assert.AreEqual(4, result.perfections.Count + result.imperfections.Count, "Level 3 should have 2 baseline traits + 2 level up traits = 4 traits.");
+        }
+
+        [Test]
+        public void GenerateMarionetteFromTemplate_Level5_Has6Traits_3Perf3Imp()
+        {
+            // Team at level 5
+            RunSessionManager.CurrentParty.Clear();
+            var existingMember = new PartyMemberInfo { character = _template, currentLevel = 5 };
+            RunSessionManager.CurrentParty.Add(existingMember);
+
+            var result = MarionetteGenerator.GenerateMarionetteFromTemplate(_template, _traitDb);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(5, result.currentLevel);
+            Assert.AreEqual(3, result.perfections.Count, "Perfections should reach max capacity 3.");
+            Assert.AreEqual(3, result.imperfections.Count, "Imperfections should reach max capacity 3.");
+            Assert.AreEqual(6, result.perfections.Count + result.imperfections.Count);
+        }
+
+        [Test]
+        public void GenerateMarionetteFromTemplate_Level10_CappedAtMax_NoOverflow()
+        {
+            // Team at level 10
+            RunSessionManager.CurrentParty.Clear();
+            var existingMember = new PartyMemberInfo { character = _template, currentLevel = 10 };
+            RunSessionManager.CurrentParty.Add(existingMember);
+
+            var result = MarionetteGenerator.GenerateMarionetteFromTemplate(_template, _traitDb);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(10, result.currentLevel);
+            Assert.AreEqual(3, result.perfections.Count, "Should not exceed max perfections.");
+            Assert.AreEqual(3, result.imperfections.Count, "Should not exceed max imperfections.");
+            Assert.AreEqual(6, result.perfections.Count + result.imperfections.Count);
+        }
+
+        [Test]
+        public void GenerateMarionetteFromTemplate_HighLevel_NoDuplicateOrOppositeTraits()
+        {
+            // Add opposite trait relationships to traitDb
+            _traitDb.perfections[0].oppositeTrait = _traitDb.imperfections[0];
+            _traitDb.imperfections[0].oppositeTrait = _traitDb.perfections[0];
+
+            RunSessionManager.CurrentParty.Clear();
+            var existingMember = new PartyMemberInfo { character = _template, currentLevel = 4 };
+            RunSessionManager.CurrentParty.Add(existingMember);
+
+            var result = MarionetteGenerator.GenerateMarionetteFromTemplate(_template, _traitDb);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(4, result.currentLevel);
+
+            // Check no duplicates in perfections
+            var perfIds = new HashSet<string>();
+            foreach (var p in result.perfections)
+            {
+                Assert.IsTrue(perfIds.Add(p.traitId), $"Duplicate perfection found: {p.traitId}");
+            }
+
+            // Check no duplicates in imperfections
+            var impIds = new HashSet<string>();
+            foreach (var imp in result.imperfections)
+            {
+                Assert.IsTrue(impIds.Add(imp.traitId), $"Duplicate imperfection found: {imp.traitId}");
+            }
+
+            // Check opposite traits are never both equipped
+            foreach (var p in result.perfections)
+            {
+                if (p.oppositeTrait != null)
+                {
+                    Assert.IsFalse(result.imperfections.Contains(p.oppositeTrait), $"Opposite trait conflict: {p.traitId} and {p.oppositeTrait.traitId}");
+                }
+            }
+        }
+
+        [Test]
+        public void GenerateMarionetteFromTemplate_SmallTraitPool_StopsGracefully()
+        {
+            // TraitDb with only 1 perfection and 1 imperfection
+            var smallDb = ScriptableObject.CreateInstance<TraitDatabase>();
+            smallDb.perfections = new List<TraitData> { _traitDb.perfections[0] };
+            smallDb.imperfections = new List<TraitData> { _traitDb.imperfections[0] };
+
+            RunSessionManager.CurrentParty.Clear();
+            var existingMember = new PartyMemberInfo { character = _template, currentLevel = 5 };
+            RunSessionManager.CurrentParty.Add(existingMember);
+
+            // Level 5 requires 4 additional traits, but smallDb has no extra traits
+            var result = MarionetteGenerator.GenerateMarionetteFromTemplate(_template, smallDb);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(5, result.currentLevel);
+            Assert.AreEqual(1, result.perfections.Count);
+            Assert.AreEqual(1, result.imperfections.Count);
+            Assert.AreEqual(2, result.perfections.Count + result.imperfections.Count, "Should stop gracefully at 2 traits when trait pool is exhausted.");
+        }
+
+        [Test]
+        public void GenerateMarionetteFromTemplate_NullTraitDb_NoTraits()
+        {
+            RunSessionManager.CurrentParty.Clear();
+            var existingMember = new PartyMemberInfo { character = _template, currentLevel = 4 };
+            RunSessionManager.CurrentParty.Add(existingMember);
+
+            var result = MarionetteGenerator.GenerateMarionetteFromTemplate(_template, null);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(4, result.currentLevel);
+            Assert.AreEqual(0, result.perfections.Count);
+            Assert.AreEqual(0, result.imperfections.Count);
+        }
     }
 }

@@ -95,7 +95,7 @@ Define the static definition and runtime lifecycle of the Trait System (Perfecti
     - `TryGrantLevelUpTrait_PerfectionsFull_SwitchesToImperfection`: Verifies capacity fallback.
     - `TryGrantLevelUpTrait_ImperfectionsFull_SwitchesToPerfection`: Verifies capacity fallback.
     - `TryGrantLevelUpTrait_EligibleList_ExcludesOwnedAndOpposites`: Verifies uniqueness and bidirectional opposite exclusions.
-- Playtest: Verify spawned Marionettes initialize with exactly one random Perfection and one random Imperfection. Verify that leveling up a Marionette in Party Management grants either a Perfection or an Imperfection (or the non-full type if one is at capacity), and that stat displays update accordingly.
+- Playtest: Verify spawned Marionettes initialize with exactly one random Perfection and one random Imperfection at Level 1 (with additional traits when generated at higher team levels). Verify that leveling up a Marionette in Party Management grants either a Perfection or an Imperfection (or the non-full type if one is at capacity), and that stat displays update accordingly.
 
 ## Missing Evidence
 - Multiplayer authority constraints and replication schema.
