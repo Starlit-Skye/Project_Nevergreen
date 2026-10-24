@@ -98,6 +98,7 @@ namespace Nevergreen.Prototype
 
         private void HandleStatsChanged(CombatCharacter c) 
         { 
+            UpdateStateConfig();
             Refresh(); 
         }
 
@@ -111,7 +112,7 @@ namespace Nevergreen.Prototype
         {
             if (_target == null) return;
 
-            _currentMaxHP = _target.baseStats?.maxHP ?? 0;
+            _currentMaxHP = _target.baseStats != null ? _target.GetEffectiveStats().maxHP : 0;
             if (_target.IsPile)
             {
                 _currentMaxHP /= 2;

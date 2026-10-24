@@ -25,6 +25,7 @@ Define the baseline gameplay template and runtime setup for enemy units, includi
 - Bind unique ID (`characterId`), display name, base stats via levels, and a dedicated `defaultAIProfile` asset.
 - Automatically attach and configure an `AIBrain` component on runtime `CombatCharacter` instantiation for all enemy-aligned team units.
 - Support scaling actions per round via the `actionsPerRound` property on the template (e.g. 1 for standard units, 2+ for bosses).
+- Invariant: Base stats configured in `StatBlockData` must be non-negative (`[Min(0)]` / `[Range(0, 300)]`). During combat, all runtime effective stats are floored at 0 (and `maxHP` floored at 1); see [MECHANIC_SPEC_STATUS_BUFF_DEBUFF](../mechanics/MECHANIC_SPEC_STATUS_BUFF_DEBUFF.md).
 
 ## Data Model
 - Entity/component/object:

@@ -145,12 +145,12 @@ namespace Nevergreen.Tests
         }
 
         [Test]
-        public void Debuff_Resistance_CanGoBelowZero()
+        public void Debuff_Resistance_ClampedAtZero()
         {
             _character.baseStats.stunResist = 10;
             _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.StunResist, 30, 3));
             CombatStats effective = _character.GetEffectiveStats();
-            Assert.AreEqual(-20, effective.stunResist, "30 flat debuff on base 10 => -20.");
+            Assert.AreEqual(0, effective.stunResist, "30 flat debuff on base 10 clamps at 0.");
         }
 
         [Test]
@@ -893,5 +893,137 @@ namespace Nevergreen.Tests
             int resistance = _character.GetResistance(StatusType.Shuffle);
             Assert.AreEqual(45, resistance, "GetResistance(StatusType.Shuffle) should return character's moveResist value.");
         }
+
+        #region Stat Clamping Tests
+
+        [Test]
+        public void StatClamping_CorePercentStats_ClampedAtZero()
+        {
+            _character.baseStats.attack = 20;
+            _character.baseStats.speed = 15;
+            _character.baseStats.defense = 10;
+            _character.baseStats.accuracy = 90;
+            _character.baseStats.dodge = 25;
+
+            // Apply 150% debuffs to each
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.Attack, 150, 3));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.Speed, 150, 3));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.Defense, 150, 3));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.Accuracy, 150, 3));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.Dodge, 150, 3));
+
+            CombatStats eff = _character.GetEffectiveStats();
+            Assert.AreEqual(0, eff.attack, "Attack should be clamped at 0.");
+            Assert.AreEqual(0, eff.speed, "Speed should be clamped at 0.");
+            Assert.AreEqual(0, eff.defense, "Defense should be clamped at 0.");
+            Assert.AreEqual(0, eff.accuracy, "Accuracy should be clamped at 0.");
+            Assert.AreEqual(0, eff.dodge, "Dodge should be clamped at 0.");
+        }
+
+        [Test]
+        public void StatClamping_MaxHP_PercentDebuff_ClampedAtOne()
+        {
+            _character.baseStats.maxHP = 50;
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.MaxHP, 150, 3));
+
+            CombatStats eff = _character.GetEffectiveStats();
+            Assert.AreEqual(1, eff.maxHP, "MaxHP must be clamped at minimum 1.");
+        }
+
+        [Test]
+        public void StatClamping_MaxHP_FlatDebuff_ClampedAtOne()
+        {
+            _character.baseStats.maxHP = 50;
+            var flatDebuff = new StatusEffectInstance(StatusType.Debuff, StatTarget.MaxHP, 100, 3);
+            flatDebuff.amplitudeType = AmplitudeType.Flat;
+            _character.AddStatus(flatDebuff);
+
+            CombatStats eff = _character.GetEffectiveStats();
+            Assert.AreEqual(1, eff.maxHP, "MaxHP with excessive flat debuff must clamp at 1.");
+        }
+
+        [Test]
+        public void StatClamping_FlatStats_ClampedAtZero()
+        {
+            _character.baseStats.critChance = 5;
+            _character.baseStats.bleedResist = 10;
+            _character.baseStats.blightResist = 15;
+            _character.baseStats.stunResist = 20;
+            _character.baseStats.debuffResist = 25;
+            _character.baseStats.moveResist = 30;
+
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.CritChance, 50, 3));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.BleedResist, 50, 3));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.BlightResist, 50, 3));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.StunResist, 50, 3));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.DebuffResist, 50, 3));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.MoveResist, 50, 3));
+
+            CombatStats eff = _character.GetEffectiveStats();
+            Assert.AreEqual(0, eff.critChance, "CritChance clamped at 0.");
+            Assert.AreEqual(0, eff.bleedResist, "BleedResist clamped at 0.");
+            Assert.AreEqual(0, eff.blightResist, "BlightResist clamped at 0.");
+            Assert.AreEqual(0, eff.stunResist, "StunResist clamped at 0.");
+            Assert.AreEqual(0, eff.debuffResist, "DebuffResist clamped at 0.");
+            Assert.AreEqual(0, eff.moveResist, "MoveResist clamped at 0.");
+        }
+
+        [Test]
+        public void StatClamping_MixedBuffAndDebuff_EvaluatesAdditivelyAndClamps()
+        {
+            _character.baseStats.attack = 10;
+            // +50% buff and -200% debuff => net -150% multiplier => clamped at 0
+            _character.AddStatus(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 50, 3));
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.Attack, 200, 3));
+
+            CombatStats eff = _character.GetEffectiveStats();
+            Assert.AreEqual(0, eff.attack, "Net negative multiplier should clamp at 0.");
+        }
+
+        [Test]
+        public void StatClamping_DebuffExpiration_RestoresBaseValue()
+        {
+            _character.baseStats.attack = 10;
+            var debuff = new StatusEffectInstance(StatusType.Debuff, StatTarget.Attack, 150, 1);
+            _character.AddStatus(debuff);
+
+            Assert.AreEqual(0, _character.GetEffectiveStats().attack, "Clamped at 0 while debuffed.");
+
+            StatusProcessor.TickDurations(_character, 300);
+            Assert.AreEqual(10, _character.GetEffectiveStats().attack, "Returns to base attack after debuff expires.");
+        }
+
+        [Test]
+        public void StatClamping_MaxHPDebuff_ReclampsCurrentHP()
+        {
+            _character.baseStats.maxHP = 50;
+            _character.currentHP = 50;
+
+            // -60% MaxHP => effective maxHP = 20
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.MaxHP, 60, 3));
+
+            Assert.AreEqual(20, _character.GetEffectiveStats().maxHP);
+            Assert.AreEqual(20, _character.currentHP, "currentHP should be reclamped to effective maxHP.");
+
+            // Healing while debuffed cannot exceed effective maxHP
+            _character.Heal(100);
+            Assert.AreEqual(20, _character.currentHP, "Healing cannot exceed effective maxHP.");
+        }
+
+        [Test]
+        public void StatClamping_PileMoveResistBonus_AppliedOnTopOfClampedBase()
+        {
+            _character.baseStats.moveResist = 10;
+            _character.AddStatus(new StatusEffectInstance(StatusType.Debuff, StatTarget.MoveResist, 50, 3));
+
+            // Clamped to 0 while Alive
+            Assert.AreEqual(0, _character.GetEffectiveStats().moveResist);
+
+            // In Pile state, +300 is added to the clamped 0 base => 300
+            _character.state = LifeState.Pile;
+            Assert.AreEqual(300, _character.GetEffectiveStats().moveResist, "Pile bonus (+300) applies on top of clamped base (0).");
+        }
+
+        #endregion
     }
 }

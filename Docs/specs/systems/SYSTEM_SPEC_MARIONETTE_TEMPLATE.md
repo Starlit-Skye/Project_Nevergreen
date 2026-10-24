@@ -26,6 +26,7 @@ Define the baseline data model and runtime state management for player-controlle
 - Track persistent health using `currentHP` (active state) and `preCombatHP` (state at start of combat to guard against save manipulation).
 - Provide capacity-guarded trait slots using `TryAddTrait` and `RemoveTrait` methods.
 - Enforce unique trait constraints (by ID) and capacity limits configured globally in `GlobalConfig` (e.g. `maxPerfections` and `maxImperfections`).
+- Invariant: Base stats configured in `StatBlockData` must be non-negative (`[Min(0)]` / `[Range(0, 300)]`). During combat, all runtime effective stats are floored at 0 (and `maxHP` floored at 1); see [MECHANIC_SPEC_STATUS_BUFF_DEBUFF](../mechanics/MECHANIC_SPEC_STATUS_BUFF_DEBUFF.md).
 
 ## Data Model
 - Entity/component/object:

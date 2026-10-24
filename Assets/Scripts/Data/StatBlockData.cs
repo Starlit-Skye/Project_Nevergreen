@@ -11,6 +11,7 @@ namespace Nevergreen.Data
     {
         [Header("Offensive")]
         [Tooltip("Central attack value. Actual roll is 80%-120% of this.")]
+        [Min(0)]
         public int attack = 10;
 
         [Tooltip("Base accuracy percentage.")]
@@ -23,6 +24,7 @@ namespace Nevergreen.Data
 
         [Header("Defensive")]
         [Tooltip("Max hit points at this level.")]
+        [Min(0)]
         public int maxHP = 50;
 
         [Tooltip("Damage reduction percentage.")]
@@ -35,6 +37,7 @@ namespace Nevergreen.Data
 
         [Header("Misc")]
         [Tooltip("Determines turn order. Higher = acts earlier.")]
+        [Min(0)]
         public int speed = 5;
 
         [Header("Resistances")]
