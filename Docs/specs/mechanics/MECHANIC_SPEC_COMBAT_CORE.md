@@ -22,6 +22,7 @@ Define the baseline turn-based combat mechanic used for player team versus enemy
 - Guard: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_GUARD.md`
 - Buff/Debuff: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_BUFF_DEBUFF.md`
 - Flight: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_FLIGHT.md`
+- Stun: `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_STUN.md`
 - Pile: `Docs/specs/mechanics/MECHANIC_SPEC_PILE.md`
 - AI Rules: `Docs/specs/mechanics/MECHANIC_SPEC_AI_RULES.md`
 - Exhaustion: `Docs/specs/mechanics/MECHANIC_SPEC_EXHAUSTION.md`
@@ -156,6 +157,7 @@ is subtracted from the source's application chance when resolving status effects
   a rank, preventing immediate formation collapse unless the killing blow was a Critical Hit or
   the Pile expires/is destroyed.
 - If a character is stunned, it skips its turn.
+- Stun does not stack: if Stun is applied to a character that already has an active Stun, the new application is completely ignored (no new instance, no duration refresh/extension, no event fired).
 - After stun expires, target receives a `Buff` status effect targeting `StunResist` (`+300%`,
   1-turn duration). Buff/Debuff statuses use the `StatTarget` enum to specify which stat they
   modify, applied as additive percentage multipliers of the base stat.

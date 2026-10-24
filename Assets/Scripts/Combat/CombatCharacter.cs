@@ -498,10 +498,27 @@ namespace Nevergreen.Combat
         }
 
         /// <summary>
-        /// Add a status effect to this character.
+        /// Checks whether the character currently has an active (non-expired) status effect of the specified type.
         /// </summary>
-        public void AddStatus(StatusEffectInstance status)
+        public bool HasActiveStatus(StatusType type)
         {
+            return statusEffects.Any(s => s.type == type && !s.IsExpired);
+        }
+
+        /// <summary>
+        /// Add a status effect to this character.
+        /// Returns true if the status was successfully added, or false if it was ignored (e.g. duplicate Stun).
+        /// </summary>
+        public bool AddStatus(StatusEffectInstance status)
+        {
+            if (status == null) return false;
+
+            // Stun does not stack: if already stunned with an active stun, ignore subsequent applications completely
+            if (status.type == StatusType.Stun && HasActiveStatus(StatusType.Stun))
+            {
+                return false;
+            }
+
             statusEffects.Add(status);
             status.OnAdded(this);
 
@@ -512,6 +529,7 @@ namespace Nevergreen.Combat
 
             ClampCurrentHPToEffectiveMax();
             OnStatsChanged?.Invoke(this);
+            return true;
         }
 
         public void RemoveStatus(StatusEffectInstance status)
@@ -523,7 +541,7 @@ namespace Nevergreen.Combat
                 // Re-check stun state if a stun was removed
                 if (status.type == StatusType.Stun)
                 {
-                    isStunned = statusEffects.Any(s => s.type == StatusType.Stun && !s.IsExpired);
+                    isStunned = HasActiveStatus(StatusType.Stun);
                 }
                 
                 TriggerStatsChanged();

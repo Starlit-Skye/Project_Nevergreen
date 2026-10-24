@@ -163,5 +163,133 @@ namespace Nevergreen.Tests
             Assert.IsFalse(c.statusEffects.Any(s => s.type == StatusType.Buff && s.targetStat == StatTarget.Attack), 
                 "Buff should have expired on second tick.");
         }
+
+        [Test]
+        public void Stun_AppliedToAlreadyStunned_DirectAddStatus_ReturnsFalseAndCreatesNoInstance()
+        {
+            var c = Track("hero");
+            bool firstAdded = c.AddStatus(new StatusEffectInstance(StatusType.Stun, 1, 1));
+            Assert.IsTrue(firstAdded, "First stun should be added.");
+            Assert.AreEqual(1, c.statusEffects.Count(s => s.type == StatusType.Stun), "Should have exactly 1 stun.");
+
+            bool secondAdded = c.AddStatus(new StatusEffectInstance(StatusType.Stun, 1, 2));
+            Assert.IsFalse(secondAdded, "Second stun on already-stunned target should return false.");
+            Assert.AreEqual(1, c.statusEffects.Count(s => s.type == StatusType.Stun), "Stun count should remain 1.");
+            Assert.AreEqual(1, c.statusEffects.First(s => s.type == StatusType.Stun).remainingDuration, 
+                "Existing stun duration should not be changed.");
+        }
+
+        [Test]
+        public void Stun_AppliedToAlreadyStunned_ViaSkillEffect_IsCompletelyIgnored()
+        {
+            var user = Track("user");
+            var target = Track("target");
+            target.AddStatus(new StatusEffectInstance(StatusType.Stun, 1, 1));
+
+            bool eventFired = false;
+            target.OnStatusApplied += (character, type, success, stat) =>
+            {
+                if (type == StatusType.Stun) eventFired = true;
+            };
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.skillId = "test_stun_skill";
+
+            try
+            {
+                var rng = CombatTestHelper.CreateFixedRng(42);
+                var freshRng = CombatTestHelper.CreateFixedRng(42);
+                double expectedFirstRoll = freshRng.NextDouble();
+
+                var ctx = new SkillContext(user, skill, new List<CombatCharacter> { target }, null, rng);
+                ctx.didHit = true;
+                ctx.hasResolvedHit = true;
+
+                var effect = new StatusEffect
+                {
+                    statusType = StatusType.Stun,
+                    applicationChance = 100f,
+                    duration = 3,
+                    ignoreMiss = true
+                };
+
+                effect.Execute(ctx, target);
+
+                Assert.AreEqual(1, target.statusEffects.Count(s => s.type == StatusType.Stun), 
+                    "No additional stun instance should be added.");
+                Assert.AreEqual(1, target.statusEffects.First(s => s.type == StatusType.Stun).remainingDuration, 
+                    "Existing stun duration must remain untouched.");
+                Assert.IsFalse(eventFired, "OnStatusApplied should NOT be triggered for ignored stun.");
+                Assert.AreEqual(expectedFirstRoll, rng.NextDouble(), 
+                    "RNG roll must NOT be consumed when stun is ignored.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(skill);
+            }
+        }
+
+        [Test]
+        public void Stun_AppliedToAlreadyStunned_DoesNotExtendDuration()
+        {
+            var c = Track("hero");
+            c.AddStatus(new StatusEffectInstance(StatusType.Stun, 1, 1));
+            
+            // Attempt to apply a 3-turn stun
+            bool added = c.AddStatus(new StatusEffectInstance(StatusType.Stun, 1, 3));
+            Assert.IsFalse(added, "Duplicate stun should be rejected.");
+
+            // Turn 1 skip
+            StatusProcessor.TickDurations(c, _config.stunRecoveryResistBonus);
+
+            // Stun should now have expired because the 1-turn stun was not extended
+            Assert.IsFalse(c.isStunned, "Stun should expire after 1 tick since incoming 3-turn stun was ignored.");
+        }
+
+        [Test]
+        public void Stun_AppliedToAlreadyStunned_YieldsSingleRecoveryBuffOnExpiry()
+        {
+            var c = Track("hero");
+            c.AddStatus(new StatusEffectInstance(StatusType.Stun, 1, 1));
+            c.AddStatus(new StatusEffectInstance(StatusType.Stun, 1, 1)); // ignored
+
+            // Expire the stun
+            StatusProcessor.TickDurations(c, _config.stunRecoveryResistBonus);
+
+            var recoveryBuffs = c.statusEffects.Where(s => s.type == StatusType.Buff && s.targetStat == StatTarget.StunResist).ToList();
+            Assert.AreEqual(1, recoveryBuffs.Count, "Exactly 1 recovery buff should be granted, not 2.");
+            Assert.AreEqual(300, recoveryBuffs[0].amplitude, "Recovery buff amplitude should be +300%.");
+        }
+
+        [Test]
+        public void Stun_AppliedAfterPreviousExpired_AppliesNormally()
+        {
+            var c = Track("hero");
+            c.AddStatus(new StatusEffectInstance(StatusType.Stun, 1, 1));
+
+            // Expire the stun
+            StatusProcessor.TickDurations(c, _config.stunRecoveryResistBonus);
+            Assert.IsFalse(c.isStunned, "Character should no longer be stunned.");
+
+            // Apply a new stun after previous expired
+            bool added = c.AddStatus(new StatusEffectInstance(StatusType.Stun, 1, 2));
+            Assert.IsTrue(added, "New stun applied after previous expiration should succeed.");
+            Assert.IsTrue(c.isStunned, "Character should now be stunned again.");
+            Assert.AreEqual(2, c.statusEffects.First(s => s.type == StatusType.Stun).remainingDuration, 
+                "New stun duration should be 2.");
+        }
+
+        [Test]
+        public void NonStunStatus_LikeBleed_StillStacks()
+        {
+            var c = Track("hero");
+            bool bleed1 = c.AddStatus(new StatusEffectInstance(StatusType.Bleed, 2, 3));
+            bool bleed2 = c.AddStatus(new StatusEffectInstance(StatusType.Bleed, 4, 3));
+
+            Assert.IsTrue(bleed1, "First bleed should be added.");
+            Assert.IsTrue(bleed2, "Second bleed should also be added (bleed stacks).");
+            Assert.AreEqual(2, c.statusEffects.Count(s => s.type == StatusType.Bleed), 
+                "Character should have 2 distinct Bleed instances.");
+        }
     }
 }

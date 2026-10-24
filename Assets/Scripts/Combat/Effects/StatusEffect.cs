@@ -42,6 +42,12 @@ namespace Nevergreen.Combat
                 return;
             }
 
+            // Stun does not stack: if target already has an active Stun, ignore the new application completely
+            if (statusType == StatusType.Stun && target.HasActiveStatus(StatusType.Stun))
+            {
+                return;
+            }
+
             float finalChance = applicationChance;
             string key = $"StatusChanceBonus_{statusType}";
             if (context.extra.TryGetValue(key, out object bonusObj) && bonusObj is float bonus)
@@ -80,8 +86,11 @@ namespace Nevergreen.Combat
                     amplitudeType
                 );
 
-                target.AddStatus(instance);
-                Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (amp:{finalAmplitude}, dur:{finalDuration})");
+                bool added = target.AddStatus(instance);
+                if (added)
+                {
+                    Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (amp:{finalAmplitude}, dur:{finalDuration})");
+                }
             }
 
             target.TriggerStatusApplied(statusType, applied, targetStat);

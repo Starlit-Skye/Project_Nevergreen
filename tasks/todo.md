@@ -77,3 +77,89 @@ Refactor the combat stat system so that stats cannot be reduced below 0. Specifi
   - `Docs/specs/systems/SYSTEM_SPEC_MARIONETTE_TEMPLATE.md`
   - `Docs/specs/systems/SYSTEM_SPEC_ENEMY_TEMPLATE.md`
   - `Docs/specs/systems/SYSTEM_SPEC_CHARACTER_DATABASE.md`
+
+---
+
+# Task: Ignore Stun Applied To Already-Stunned Character
+
+## Summary
+Currently a successful Stun on an already-stunned target appends a second `StatusEffectInstance`
+(no refresh, concurrent ticking, stacked +300 recovery buffs). New behavior: if the target already has
+a non-expired Stun, the new application is **completely ignored**: no new instance, no duration
+refresh/extension, no extra recovery buff, no `OnStatusApplied` event, no "afflicted" log.
+PLAN ONLY - no code or spec has been modified yet.
+
+## Design Decisions (proposed)
+- **Central guard in `CombatCharacter.AddStatus`** (single choke point; all effect paths funnel through it:
+  `StatusEffect`, `SelfStatusEffect`, `AdjacentAllyStatusEffect`, `ApplyStatusToGuardianEffect`,
+  `StatusEffectOnSpawn`, `LivingFragmentsStatusEffect`). Prevents future callers from re-introducing stacking.
+  Change signature `void` -> `bool` (true = added) so callers can react; existing call sites compile unchanged.
+- **Early-out in `StatusEffect.Execute` (before the RNG roll)** so an ignored Stun does not consume an RNG value,
+  and does not fire `TriggerStatusApplied` / log "afflicted". Same pre-check for the other effect classes that
+  can apply Stun (Self/AdjacentAlly/Guardian) via a shared helper.
+- **"Already stunned" predicate**: new `CombatCharacter.HasActiveStatus(StatusType)` =
+  `statusEffects.Any(s => s.type == type && !s.IsExpired)`. Do not rely on the `isStunned` flag (can be stale,
+  e.g. duration-0 stun).
+- **Scope**: Stun only (type-specific, e.g. a `StatusType`-based "non-stackable" set so other types like Bleed
+  keep stacking). Guard has its own Last-In-Wins logic and is untouched.
+- **Existing instance wins**: remaining duration of the existing stun is unchanged (longer incoming stun does NOT extend it).
+
+## Todo List
+
+### 1. Pre-flight
+- [x] Re-read `tasks/lessons.md` for relevant patterns.
+- [x] Confirm with user: user approved proceeding with plan.
+- [x] Grep tests that add 2 Stun instances to the same character (`BuffDebuffTests` ~L614/652, `GuardTests`
+      ~L88/207, `CumulativeDamageTests` ~L233 duration-0 stun) and confirm none rely on stacking.
+
+### 2. Runtime (`CombatCharacter.cs`)
+- [x] Add `HasActiveStatus(StatusType type)` helper.
+- [x] Add non-stackable guard at top of `AddStatus`: if `status.type == StatusType.Stun && HasActiveStatus(Stun)`
+      -> return false without `OnAdded`, flag change, clamp or `OnStatsChanged`.
+- [x] Make `AddStatus` return `bool`.
+
+### 3. Effect call sites
+- [x] `StatusEffect.Execute`: after hit check, early return if `statusType == Stun` and target already has active Stun
+      (before chance/resistance/RNG).
+- [x] Apply same early-out in `SelfStatusEffect`, `AdjacentAllyStatusEffect`, `ApplyStatusToGuardianEffect`.
+- [x] Ensure "afflicted" log and `TriggerStatusApplied(..., applied)` use the AddStatus return value.
+
+### 4. Tests (`StunTests.cs`)
+- [x] `Stun_AppliedToAlreadyStunned_DirectAddStatus_ReturnsFalseAndCreatesNoInstance`: count of Stun instances stays 1.
+- [x] `Stun_AppliedToAlreadyStunned_ViaSkillEffect_IsCompletelyIgnored`: no OnStatusApplied event and no RNG consumed.
+- [x] `Stun_AppliedToAlreadyStunned_DoesNotExtendDuration`: existing 1-turn stun + incoming 3-turn -> still 1 remaining.
+- [x] `Stun_AppliedToAlreadyStunned_YieldsSingleRecoveryBuffOnExpiry`: after expiry exactly one `Buff(StunResist,+300,1)`.
+- [x] `Stun_AppliedAfterPreviousExpired_AppliesNormally`: re-stun after recovery still works.
+- [x] `NonStunStatus_LikeBleed_StillStacks`: Bleed still stacks.
+- [x] Run full EditMode suite (baseline: 615 passed; now 621 passed).
+
+### 5. Docs
+- [x] `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_STUN.md`: updated State Model, Formulas, Edge Cases, Event Hooks, Acceptance Tests; removed stacking items from Missing Evidence.
+- [x] `Docs/specs/mechanics/MECHANIC_SPEC_COMBAT_CORE.md`: added note under stun edge cases.
+- [x] `MECHANIC_SPEC_STATUS_GUARD.md`: verified Guard breakage on first Stun unchanged.
+
+### 6. Verification
+- [x] All new + existing tests green (621/621 passed).
+- [x] Verified zero console compilation errors.
+
+## Review & Verification Results
+- **Unit Tests**:
+  - Added 6 new unit tests in `Assets/Editor/Tests/StunTests.cs`:
+    - `Stun_AppliedToAlreadyStunned_DirectAddStatus_ReturnsFalseAndCreatesNoInstance`
+    - `Stun_AppliedToAlreadyStunned_ViaSkillEffect_IsCompletelyIgnored`
+    - `Stun_AppliedToAlreadyStunned_DoesNotExtendDuration`
+    - `Stun_AppliedToAlreadyStunned_YieldsSingleRecoveryBuffOnExpiry`
+    - `Stun_AppliedAfterPreviousExpired_AppliesNormally`
+    - `NonStunStatus_LikeBleed_StillStacks`
+  - Full suite EditMode tests: **621 passed, 0 failed, 0 skipped**.
+- **Files Modified**:
+  - `Assets/Scripts/Combat/CombatCharacter.cs` (`HasActiveStatus(StatusType)`, `AddStatus` returns `bool` and blocks duplicate Stun, `RemoveStatus` uses `HasActiveStatus`)
+  - `Assets/Scripts/Combat/StatusProcessor.cs` (`HasActiveStatus(StatusType.Stun)` used in `TickDurations`)
+  - `Assets/Scripts/Combat/Effects/StatusEffect.cs` (early return before resistance/RNG check if target already has active Stun)
+  - `Assets/Scripts/Combat/Effects/SelfStatusEffect.cs` (early return if user already has active Stun)
+  - `Assets/Scripts/Combat/Effects/AdjacentAllyStatusEffect.cs` (early return if target ally already has active Stun)
+  - `Assets/Scripts/Combat/Effects/ApplyStatusToGuardianEffect.cs` (early return if guardian already has active Stun)
+  - `Assets/Editor/Tests/StunTests.cs` (6 new unit tests)
+  - `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_STUN.md` (updated spec)
+  - `Docs/specs/mechanics/MECHANIC_SPEC_COMBAT_CORE.md` (updated Combat Core spec)
+

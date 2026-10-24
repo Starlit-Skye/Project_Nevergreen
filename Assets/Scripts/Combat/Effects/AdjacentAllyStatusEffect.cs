@@ -87,6 +87,12 @@ namespace Nevergreen.Combat
                 return;
             }
 
+            // Stun does not stack: if target ally already has an active Stun, ignore the new application completely
+            if (statusType == StatusType.Stun && targetAlly.HasActiveStatus(StatusType.Stun))
+            {
+                return;
+            }
+
             // Self/Ally buffs generally bypass resistances, so we use 0 resistance
             bool applied = CombatCalculator.ResolveStatusApplication(applicationChance, 0, context.rng);
 
@@ -102,8 +108,11 @@ namespace Nevergreen.Combat
                     guardian: targetAlly
                 );
 
-                targetAlly.AddStatus(instance);
-                Debug.Log($"  -> {context.user.DisplayName} applied adjacent ally status {statusType} to {targetAlly.DisplayName} (amp:{amplitude}, dur:{duration})");
+                bool added = targetAlly.AddStatus(instance);
+                if (added)
+                {
+                    Debug.Log($"  -> {context.user.DisplayName} applied adjacent ally status {statusType} to {targetAlly.DisplayName} (amp:{amplitude}, dur:{duration})");
+                }
             }
 
             // Trigger the status applied event on the target ally

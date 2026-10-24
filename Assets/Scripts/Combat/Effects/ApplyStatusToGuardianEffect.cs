@@ -84,6 +84,12 @@ namespace Nevergreen.Combat
             }
             context.extra[appliedKey] = true;
 
+            // Stun does not stack: if guardian already has an active Stun, ignore the new application completely
+            if (statusType == StatusType.Stun && guardianToTarget.HasActiveStatus(StatusType.Stun))
+            {
+                return;
+            }
+
             // Evaluate resistance on the guardian
             int resistance = guardianToTarget.GetResistance(statusType);
             bool applied = CombatCalculator.ResolveStatusApplication(applicationChance, resistance, context.rng);
@@ -99,8 +105,11 @@ namespace Nevergreen.Combat
                     amplitudeType
                 );
 
-                guardianToTarget.AddStatus(instance);
-                Debug.Log($"  -> Guardian {guardianToTarget.DisplayName} afflicted with {statusType} (amp:{amplitude}, dur:{duration})");
+                bool added = guardianToTarget.AddStatus(instance);
+                if (added)
+                {
+                    Debug.Log($"  -> Guardian {guardianToTarget.DisplayName} afflicted with {statusType} (amp:{amplitude}, dur:{duration})");
+                }
             }
 
             guardianToTarget.TriggerStatusApplied(statusType, applied, targetStat);

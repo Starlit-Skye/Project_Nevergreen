@@ -42,6 +42,12 @@ namespace Nevergreen.Combat
                 return;
             }
 
+            // Stun does not stack: if user already has an active Stun, ignore the new application completely
+            if (statusType == StatusType.Stun && context.user.HasActiveStatus(StatusType.Stun))
+            {
+                return;
+            }
+
             // Ensure we only apply this effect once per skill execution (handling multi-hit/multi-target)
             string appliedKey = $"SelfStatusApplied_{this.GetHashCode()}";
             if (context.extra.ContainsKey(appliedKey))
@@ -64,8 +70,11 @@ namespace Nevergreen.Combat
                     amplitudeType
                 );
 
-                context.user.AddStatus(instance);
-                Debug.Log($"  -> {context.user.DisplayName} applied self-status {statusType} (amp:{amplitude}, dur:{duration})");
+                bool added = context.user.AddStatus(instance);
+                if (added)
+                {
+                    Debug.Log($"  -> {context.user.DisplayName} applied self-status {statusType} (amp:{amplitude}, dur:{duration})");
+                }
             }
 
             // Trigger the status applied event on the user

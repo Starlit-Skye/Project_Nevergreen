@@ -74,7 +74,7 @@ namespace Nevergreen.Combat
             }
 
             // Re-check stun state
-            character.isStunned = character.statusEffects.Any(s => s.type == StatusType.Stun && !s.IsExpired);
+            character.isStunned = character.HasActiveStatus(StatusType.Stun);
             character.TriggerStatsChanged();
         }
     }
