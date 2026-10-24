@@ -262,6 +262,8 @@ namespace Nevergreen.Combat
                 }
             }
 
+            ClampCurrentHPToEffectiveMax();
+
             animator = GetComponentInChildren<Animator>();
             if (animator == null)
             {
@@ -274,6 +276,8 @@ namespace Nevergreen.Combat
         /// </summary>
         public CombatStats GetEffectiveStats()
         {
+            if (baseStats == null) return new CombatStats();
+
             // --- Phase 0: Collect passive trait modifiers ---
             var traitMod = new TraitStatModifier();
             foreach (var trait in activeTraits)
@@ -382,13 +386,16 @@ namespace Nevergreen.Combat
         /// Centralized mathematical logic for stat modifiers.
         /// DESIGNER SPEC: Applies flat additions first, then scales by percentage multipliers.
         /// Formula: (Base + FlatMod) * (1.0 + PercentMod)
+        /// Clamped: MaxHP is clamped at minimum 1; all other stats are clamped at minimum 0.
         /// </summary>
         private int GetModifiedStatValue(int baseVal, StatTarget target, Dictionary<StatTarget, float> netPercent, Dictionary<StatTarget, int> netFlat)
         {
             float percentMod = netPercent.TryGetValue(target, out float p) ? p : 0f;
             int flatMod = netFlat.TryGetValue(target, out int f) ? f : 0;
             
-            return Mathf.RoundToInt((baseVal + flatMod) * (1f + percentMod));
+            int raw = Mathf.RoundToInt((baseVal + flatMod) * (1f + percentMod));
+            int minVal = (target == StatTarget.MaxHP) ? 1 : 0;
+            return Mathf.Max(minVal, raw);
         }
 
         /// <summary>
@@ -453,7 +460,8 @@ namespace Nevergreen.Combat
         {
             if (!IsAlive && !IsDowned) return 0;
 
-            int missing = Mathf.Max(0, baseStats.maxHP - currentHP);
+            int effMax = GetEffectiveStats().maxHP;
+            int missing = Mathf.Max(0, effMax - currentHP);
             int actual = Mathf.Clamp(amount, 0, missing);
             currentHP += actual;
 
@@ -502,6 +510,7 @@ namespace Nevergreen.Combat
                 isStunned = true;
             }
 
+            ClampCurrentHPToEffectiveMax();
             OnStatsChanged?.Invoke(this);
         }
 
@@ -533,7 +542,17 @@ namespace Nevergreen.Combat
 
         public void TriggerStatsChanged()
         {
+            ClampCurrentHPToEffectiveMax();
             OnStatsChanged?.Invoke(this);
+        }
+
+        public void ClampCurrentHPToEffectiveMax()
+        {
+            int effMax = GetEffectiveStats().maxHP;
+            if (currentHP > effMax)
+            {
+                currentHP = effMax;
+            }
         }
 
         /// <summary>

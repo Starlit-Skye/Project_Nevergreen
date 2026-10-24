@@ -27,6 +27,7 @@ Define ScriptableObject-backed character data templates for both player units (m
 - Provide helper methods (`GetStatsForLevel`) that safely clamp level indexing to valid bounds of the stat list.
 - Store available/equipped skill lists and the overall selection pool for player customisation.
 - Categorize rank sizes (1-4) and toggles for corpse pile generation upon unit death.
+- Invariant: Base stats configured in `StatBlockData` must be non-negative (`[Min(0)]` / `[Range(0, 300)]`). During combat, all runtime effective stats are floored at 0 (and `maxHP` floored at 1); see [MECHANIC_SPEC_STATUS_BUFF_DEBUFF](../mechanics/MECHANIC_SPEC_STATUS_BUFF_DEBUFF.md).
 
 ## Data Model
 - Entity/component/object:

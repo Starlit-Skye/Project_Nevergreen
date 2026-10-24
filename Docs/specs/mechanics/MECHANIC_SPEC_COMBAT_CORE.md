@@ -2,7 +2,7 @@
 
 Owner: Combat Engineering Team
 Status: active
-Last verified: 2026-05-21
+Last verified: 2026-10-23
 Verified commit: HEAD
 Target build: Unity 2022.3 + Windows
 
@@ -99,13 +99,20 @@ final_hit_chance_percent = min(95, attacker_accuracy_percent - target_dodge_perc
 final_status_chance_percent = source_status_chance_percent - target_resistance_percent
 
 # effective stat calculation
-# Core Stats (Attack, Defense, MaxHP, Speed, etc.) use percentage stacking:
-core_multiplier = 1.0 + (sum(buff_amplitudes) - sum(debuff_amplitudes)) / 100.0
-effective_core_stat = round_to_int(base_stat * core_multiplier)
+# All 12 stats apply flat additions first, then scale by percentage multipliers:
+# Formula: (Base + FlatMod) * (1.0 + PercentMod)
+net_flat_modifier = sum(buff_flat_amplitudes) - sum(debuff_flat_amplitudes) + trait_flat_bonuses
+net_percentage_modifier = (sum(buff_percent_amplitudes) - sum(debuff_percent_amplitudes) + trait_percent_bonuses) / 100.0
 
-# Flat Stats (CritChance and all Resistances) use flat additive stacking:
-net_flat_modifier = sum(buff_amplitudes) - sum(debuff_amplitudes)
-effective_flat_stat = base_stat + net_flat_modifier
+raw_stat = round_to_int((base_stat + net_flat_modifier) * (1.0 + net_percentage_modifier))
+
+# Floor clamping:
+effective_core_stat = max(0, raw_stat)        # Attack, Accuracy, CritChance, Defense, Dodge, Speed, and all Resistances
+effective_max_hp = max(1, raw_stat)          # MaxHP cannot be reduced below 1
+
+# Upper caps (CombatConfig):
+effective_defense = min(effective_core_stat, defense_cap)
+effective_dodge = min(effective_core_stat, dodge_cap)
 ```
 
 ## Resistances
@@ -163,6 +170,8 @@ is subtracted from the source's application chance when resolving status effects
 - On equal Speed between enemy and player entries, enemy entry resolves first.
 - On equal Speed among characters on the same team, the front-most rank resolves first.
 - **Standalone Hit Resolution for Status-Only Skills**: Skills that do not deal damage or heal (and thus lack a Damage or Heal effect strategy) still perform standard accuracy/dodge calculation via `SkillContext.EnsureHitResolved` prior to executing any of their status effects. Standard accuracy/dodge calculations apply for hostile targets, while healing or allied/self skills automatically hit.
+- **Stat Floor Clamping**: No effective stat (`attack`, `accuracy`, `critChance`, `defense`, `dodge`, `speed`, `bleedResist`, `blightResist`, `stunResist`, `debuffResist`, `moveResist`) can be reduced below 0. `maxHP` cannot be reduced below 1.
+- **Current HP Clamping**: When effective `maxHP` is reduced by debuffs or modifiers, `currentHP` is immediately clamped to `effective_max_hp`.
 
 
 ## Failure Modes
