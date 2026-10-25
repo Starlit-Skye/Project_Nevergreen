@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: hold_the_line
   displayName: Hold The Line
-  description: 'Gain attack and move res buff
+  description: 'Gain attack and move res buff for the rest of battle.
 
-    Usable Rank: 1-2
+    Usable
+    Rank: 1-2
 
-    Target Rank:
-    Self'
+    Target Rank: Self'
   modifier:
     damagePercent: 0
     healPercent: 0
@@ -52,7 +52,7 @@ MonoBehaviour:
         applicationChance: 300
         amplitude: 20
         amplitudeType: 1
-        duration: 3
+        duration: 99
         ignoreMiss: 0
     - rid: 356131240495284227
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
@@ -62,5 +62,5 @@ MonoBehaviour:
         applicationChance: 100
         amplitude: 20
         amplitudeType: 2
-        duration: 3
+        duration: 99
         ignoreMiss: 0

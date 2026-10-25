@@ -52,7 +52,7 @@ MonoBehaviour:
         applicationChance: 300
         amplitude: 100
         amplitudeType: 0
-        duration: 2
+        duration: 3
         ignoreMiss: 1
     - rid: 356131228942336008
       type: {class: SelfStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}

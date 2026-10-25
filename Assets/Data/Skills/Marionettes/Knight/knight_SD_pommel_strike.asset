@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: pommel_strike
   displayName: Pommel Strike
-  description: 'Deal low damage to 1 enemy. Stun and knockback 1
+  description: 'Deal low damage to 1 enemy. Stun enemy.
 
-    Usable Rank:
-    1-2
+    Usable Rank: 1-2
 
-    Target Rank: 1/2'
+    Target
+    Rank: 1/2'
   modifier:
     damagePercent: 0.6
     healPercent: 0
@@ -28,7 +28,6 @@ MonoBehaviour:
   effects:
   - rid: 356131240495284224
   - rid: 356131240495284226
-  - rid: 356131240495284227
   useRanks: 0100000002000000
   targetRanks: 0100000002000000
   targetScope: 2
@@ -52,16 +51,6 @@ MonoBehaviour:
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
         statusType: 2
-        targetStat: 5
-        applicationChance: 100
-        amplitude: 1
-        amplitudeType: 0
-        duration: 1
-        ignoreMiss: 0
-    - rid: 356131240495284227
-      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
-        statusType: 9
         targetStat: 5
         applicationChance: 100
         amplitude: 1

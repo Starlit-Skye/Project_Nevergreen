@@ -20,7 +20,7 @@ MonoBehaviour:
   modifier:
     damagePercent: 0
     healPercent: 0
-    accuracyMod: 20
+    accuracyMod: 0
     criticalMod: 0
   effects:
   - rid: 356131309606142047
@@ -46,7 +46,7 @@ MonoBehaviour:
         statusType: 3
         targetStat: 3
         applicationChance: 100
-        amplitude: 20
+        amplitude: 30
         amplitudeType: 2
         duration: 3
         ignoreMiss: 0

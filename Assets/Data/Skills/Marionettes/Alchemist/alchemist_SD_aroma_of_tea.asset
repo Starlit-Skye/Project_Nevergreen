@@ -53,7 +53,7 @@ MonoBehaviour:
         applicationChance: 300
         amplitude: 30
         amplitudeType: 2
-        duration: 3
+        duration: 5
         ignoreMiss: 1
     - rid: 356131354717192197
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
@@ -63,7 +63,7 @@ MonoBehaviour:
         applicationChance: 100
         amplitude: 30
         amplitudeType: 2
-        duration: 3
+        duration: 5
         ignoreMiss: 1
     - rid: 4415245392192733261
       type: {class: HealEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}

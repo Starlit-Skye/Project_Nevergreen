@@ -22,7 +22,7 @@ MonoBehaviour:
     Rank: Any'
   modifier:
     damagePercent: 0
-    healPercent: 0.3
+    healPercent: 0.5
     accuracyMod: 0
     criticalMod: 0
   effects:
