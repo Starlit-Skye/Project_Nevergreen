@@ -36,7 +36,7 @@ Define how skill definitions are authored and consumed through ScriptableObject-
     - `displayName` (`string`): UI name.
     - `description` (`string`): Explanatory text.
     - `modifier` (`SkillModifier`): Baseline stat modifiers.
-    - `effects` (`List<ISkillEffect>`): Custom behaviors applied on execution.
+    - `effects` (`List<ISkillEffect>`): Custom behaviors applied on execution (e.g. `StatusEffect`; for DoT types `Bleed`, `Blight`, `Burn`, `amplitude` specifies percentage of applier effective Attack dealt per tick).
     - `useRanks` (`List<int>`): Set of valid source ranks (1 = front, 4 = back).
     - `targetRanks` (`List<int>`): Set of valid target ranks.
     - `targetScope` (`TargetScope`): targeting restrictions (Self, Allies, Enemies).

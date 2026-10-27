@@ -107,7 +107,7 @@ namespace Nevergreen.UI
             if (firstStatus == null) return "";
             if (firstStatus.Host == null)
             {
-                int amp = firstStatus.amplitude;
+                int amp = StatusProcessor.IsDotType(firstStatus.type) ? firstStatus.damagePerTick : firstStatus.amplitude;
                 if (firstStatus is SkillBoostStatusInstance sb) amp = sb.customAmplitude;
                 // Fallback to single status formatting
                 return FormatSingleTooltipText(firstStatus, amp, firstStatus.remainingDuration);
@@ -157,8 +157,10 @@ namespace Nevergreen.UI
             else
             {
                 // For Bleed, Blight, Burn, Restore, HealReceivedReduction, Stun, Mark, Guard, Riposte, etc.
-                // We aggregate amplitude and max duration across ALL active statuses of this type
-                int totalAmp = activeStatuses.Sum(s => s.amplitude);
+                // We aggregate damagePerTick for DOTs (Bleed/Blight/Burn) or amplitude for other periodic/stat types
+                int totalAmp = StatusProcessor.IsDotType(firstStatus.type)
+                    ? activeStatuses.Sum(s => s.damagePerTick)
+                    : activeStatuses.Sum(s => s.amplitude);
                 int maxDur = activeStatuses.Max(s => s.remainingDuration);
                 // Also handles Guard, Stun, Riposte (which ignore amplitude/duration or handle them generically)
                 return FormatSingleTooltipText(firstStatus, totalAmp, maxDur);

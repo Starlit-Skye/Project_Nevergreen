@@ -5,9 +5,14 @@ namespace Nevergreen.Combat
 {
     public static class StatusProcessor
     {
+        public static bool IsDotType(StatusType type)
+        {
+            return type == StatusType.Bleed || type == StatusType.Blight || type == StatusType.Burn;
+        }
+
         public static bool IsPeriodicType(StatusType type)
         {
-            return type == StatusType.Bleed || type == StatusType.Blight || type == StatusType.Restore || type == StatusType.Burn;
+            return IsDotType(type) || type == StatusType.Restore;
         }
 
         public static void ProcessPeriodicEffects(CombatCharacter character)
@@ -17,7 +22,7 @@ namespace Nevergreen.Combat
             {
                 if (status.type == StatusType.Burn && !status.IsExpired)
                 {
-                    status.amplitude += 1;
+                    status.damagePerTick += 1;
                 }
             }
 
@@ -29,19 +34,19 @@ namespace Nevergreen.Combat
             foreach (var group in periodicGroups)
             {
                 StatusType type = group.Key;
-                int aggregateAmplitude = group.Sum(s => s.amplitude);
+                int aggregateAmount = IsDotType(type) ? group.Sum(s => s.damagePerTick) : group.Sum(s => s.amplitude);
 
-                if (aggregateAmplitude <= 0) continue;
+                if (aggregateAmount <= 0) continue;
 
                 // Resolve the effect
-                int appliedAmount = aggregateAmplitude;
+                int appliedAmount = aggregateAmount;
                 if (type == StatusType.Restore)
                 {
-                    appliedAmount = character.Heal(aggregateAmplitude);
+                    appliedAmount = character.Heal(aggregateAmount);
                 }
                 else
                 {
-                    character.TakeDamage(aggregateAmplitude);
+                    character.TakeDamage(aggregateAmount);
                 }
 
                 // Trigger the character's event

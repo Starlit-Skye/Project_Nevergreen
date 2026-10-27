@@ -39,6 +39,14 @@ namespace Nevergreen.Tests
             return c;
         }
 
+        private StatusEffectInstance CreateDotStatus(StatusType type, int dmgPerTick, int duration)
+        {
+            return new StatusEffectInstance(type, StatTarget.MaxHP, dmgPerTick, duration)
+            {
+                damagePerTick = dmgPerTick
+            };
+        }
+
         // --- Restore (HoT) Tests ---
 
         [Test]
@@ -93,7 +101,7 @@ namespace Nevergreen.Tests
         public void Bleed_SingleStack_DealsCorrectDamage()
         {
             var c = Track("hero", maxHP: 100, currentHP: 100);
-            c.AddStatus(new StatusEffectInstance(StatusType.Bleed, StatTarget.MaxHP, 12, 3));
+            c.AddStatus(CreateDotStatus(StatusType.Bleed, 12, 3));
             
             StatusProcessor.ProcessPeriodicEffects(c);
             
@@ -104,8 +112,8 @@ namespace Nevergreen.Tests
         public void Blight_MultipleStacks_AggregatesDamage()
         {
             var c = Track("hero", maxHP: 100, currentHP: 100);
-            c.AddStatus(new StatusEffectInstance(StatusType.Blight, StatTarget.MaxHP, 10, 3));
-            c.AddStatus(new StatusEffectInstance(StatusType.Blight, StatTarget.MaxHP, 8, 3));
+            c.AddStatus(CreateDotStatus(StatusType.Blight, 10, 3));
+            c.AddStatus(CreateDotStatus(StatusType.Blight, 8, 3));
             
             StatusProcessor.ProcessPeriodicEffects(c);
             
@@ -118,7 +126,7 @@ namespace Nevergreen.Tests
         public void Burn_SingleStack_IncrementsAmplitudeAndDealsDamage()
         {
             var c = Track("hero", maxHP: 100, currentHP: 100);
-            c.AddStatus(new StatusEffectInstance(StatusType.Burn, StatTarget.MaxHP, 2, 3));
+            c.AddStatus(CreateDotStatus(StatusType.Burn, 2, 3));
             
             StatusProcessor.ProcessPeriodicEffects(c);
             
@@ -130,8 +138,8 @@ namespace Nevergreen.Tests
         public void Burn_MultipleStacks_IncrementsIndependently()
         {
             var c = Track("hero", maxHP: 100, currentHP: 100);
-            c.AddStatus(new StatusEffectInstance(StatusType.Burn, StatTarget.MaxHP, 2, 3));
-            c.AddStatus(new StatusEffectInstance(StatusType.Burn, StatTarget.MaxHP, 3, 3));
+            c.AddStatus(CreateDotStatus(StatusType.Burn, 2, 3));
+            c.AddStatus(CreateDotStatus(StatusType.Burn, 3, 3));
             
             StatusProcessor.ProcessPeriodicEffects(c);
             
@@ -143,7 +151,7 @@ namespace Nevergreen.Tests
         public void PeriodicDamage_DoesNotDropHPBelowZero()
         {
             var c = Track("hero", maxHP: 100, currentHP: 5);
-            c.AddStatus(new StatusEffectInstance(StatusType.Bleed, StatTarget.MaxHP, 10, 3));
+            c.AddStatus(CreateDotStatus(StatusType.Bleed, 10, 3));
             
             StatusProcessor.ProcessPeriodicEffects(c);
             
@@ -156,7 +164,7 @@ namespace Nevergreen.Tests
         {
             var c = Track("hero", maxHP: 100, currentHP: 50);
             c.AddStatus(new StatusEffectInstance(StatusType.Restore, StatTarget.MaxHP, 20, 3));
-            c.AddStatus(new StatusEffectInstance(StatusType.Bleed, StatTarget.MaxHP, 10, 3));
+            c.AddStatus(CreateDotStatus(StatusType.Bleed, 10, 3));
             
             StatusProcessor.ProcessPeriodicEffects(c);
             
@@ -173,7 +181,7 @@ namespace Nevergreen.Tests
             // 5 HP + 10 Heal (lives) -> 15 HP - 10 Damage -> 5 HP (End).
             var c1 = Track("hero1", maxHP: 100, currentHP: 5);
             c1.AddStatus(new StatusEffectInstance(StatusType.Restore, StatTarget.MaxHP, 10, 3));
-            c1.AddStatus(new StatusEffectInstance(StatusType.Bleed, StatTarget.MaxHP, 10, 3));
+            c1.AddStatus(CreateDotStatus(StatusType.Bleed, 10, 3));
             
             StatusProcessor.ProcessPeriodicEffects(c1);
             Assert.AreEqual(5, c1.currentHP, "Restore applied first should allow character to survive the Bleed.");
@@ -182,7 +190,7 @@ namespace Nevergreen.Tests
             // Scenario 2: Bleed then Restore.
             // 5 HP - 10 Damage (dies) -> 0 HP. Restore should not fire on dead character.
             var c2 = Track("hero2", maxHP: 100, currentHP: 5);
-            c2.AddStatus(new StatusEffectInstance(StatusType.Bleed, StatTarget.MaxHP, 10, 3));
+            c2.AddStatus(CreateDotStatus(StatusType.Bleed, 10, 3));
             c2.AddStatus(new StatusEffectInstance(StatusType.Restore, StatTarget.MaxHP, 10, 3));
             
             StatusProcessor.ProcessPeriodicEffects(c2);

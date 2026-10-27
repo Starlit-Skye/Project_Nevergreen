@@ -32,4 +32,4 @@ MonoBehaviour:
       data:
         statTarget: 8
         amplitudeType: 2
-        amount: 20
+        amount: -20

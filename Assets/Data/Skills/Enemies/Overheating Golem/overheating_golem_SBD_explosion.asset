@@ -36,6 +36,7 @@ MonoBehaviour:
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
+  animationClip: {fileID: 0}
   references:
     version: 2
     RefIds:
@@ -48,7 +49,7 @@ MonoBehaviour:
         statusType: 0
         targetStat: 5
         applicationChance: 100
-        amplitude: 3
+        amplitude: 33
         amplitudeType: 0
         duration: 3
         ignoreMiss: 0

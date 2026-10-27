@@ -15,6 +15,11 @@ namespace Nevergreen.Combat
         public int remainingDuration;
         public AmplitudeType amplitudeType;
 
+        /// <summary>
+        /// Resolved damage dealt each tick for Bleed/Blight/Burn. Snapshot of applier attack * amplitude% at application. Unused by other types.
+        /// </summary>
+        public int damagePerTick;
+
         public CombatCharacter Source { get; set; }
         public CombatCharacter Host { get; set; }
 

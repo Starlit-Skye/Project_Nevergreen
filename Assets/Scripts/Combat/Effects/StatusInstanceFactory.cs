@@ -65,7 +65,22 @@ namespace Nevergreen.Combat
             }
 
             instance.Source = context.user;
+            if (StatusProcessor.IsDotType(type))
+            {
+                instance.damagePerTick = ResolveDotDamage(context.user, amplitude);
+            }
             return instance;
+        }
+
+        /// <summary>
+        /// Calculates the snapshot damage dealt per tick for DOT statuses (Bleed, Blight, Burn)
+        /// based on the applier's effective attack and authored amplitude (as percentage of attack).
+        /// </summary>
+        public static int ResolveDotDamage(CombatCharacter applier, int amplitudePercent)
+        {
+            int effAttack = applier != null ? applier.GetEffectiveStats().attack : 0;
+            int rounded = (int)Math.Round(effAttack * amplitudePercent / 100.0, MidpointRounding.AwayFromZero);
+            return Math.Max(1, rounded);
         }
     }
 }

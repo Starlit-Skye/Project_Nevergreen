@@ -45,7 +45,14 @@ namespace Nevergreen.Editor
             else
             {
                 // Standard status fields
-                EditorGUILayout.PropertyField(amplitudeProp);
+                if (StatusProcessor.IsDotType(selectedType))
+                {
+                    EditorGUILayout.PropertyField(amplitudeProp, new GUIContent("Amplitude (% Attack)", "Percent of the character's effective Attack dealt per tick."));
+                }
+                else
+                {
+                    EditorGUILayout.PropertyField(amplitudeProp);
+                }
                 EditorGUILayout.PropertyField(amplitudeTypeProp);
                 EditorGUILayout.PropertyField(targetStatProp);
             }

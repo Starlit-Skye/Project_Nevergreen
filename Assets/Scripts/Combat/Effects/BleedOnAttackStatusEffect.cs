@@ -24,7 +24,7 @@ namespace Nevergreen.Combat
         public bool ignoreMiss = true;
 
         [Header("Bleed on Attack Config")]
-        [Tooltip("Amplitude of the applied bleed status.")]
+        [Tooltip("Amplitude of the applied bleed status (percent of the host's effective Attack dealt per tick).")]
         public int bleedAmplitude = 1;
 
         [Tooltip("Duration of the applied bleed status.")]

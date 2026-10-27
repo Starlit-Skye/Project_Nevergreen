@@ -293,7 +293,7 @@ namespace Nevergreen.Tests
             }
 
             // Bleed
-            TestFormat(new StatusEffectInstance(StatusType.Bleed, StatTarget.Attack, 10, 3), "10 dmg for 3 turns");
+            TestFormat(new StatusEffectInstance(StatusType.Bleed, StatTarget.Attack, 10, 3) { damagePerTick = 10 }, "10 dmg for 3 turns");
             
             // Buff/Debuff
             TestFormat(new StatusEffectInstance(StatusType.Buff, StatTarget.Attack, 15, 2, AmplitudeType.Default), "+15% Attack for 2 turns");
@@ -312,7 +312,7 @@ namespace Nevergreen.Tests
             TestFormat(new Nevergreen.Combat.BleedOnAttackStatusInstance(null, 2, 5, 3, 25f), "Attacks apply Bleed(25% chance) for 2 turns");
             
             // Burn
-            TestFormat(new StatusEffectInstance(StatusType.Burn, StatTarget.Speed, 5, 2), "5dmg, dmg + 1 each turn, for 2 turns");
+            TestFormat(new StatusEffectInstance(StatusType.Burn, StatTarget.Speed, 5, 2) { damagePerTick = 5 }, "5dmg, dmg + 1 each turn, for 2 turns");
 
             // SkillBoost
             TestFormat(new Nevergreen.Combat.SkillBoostStatusInstance("slash", 50, 2, "Slash"), "Slash + 50% dmg for 2 turns");
@@ -417,8 +417,8 @@ namespace Nevergreen.Tests
 
             // Test 1: Bleed (Aggregation by StatusType)
             character.statusEffects.Clear();
-            var bleed1 = new StatusEffectInstance(StatusType.Bleed, StatTarget.Speed, 10, 3);
-            var bleed2 = new StatusEffectInstance(StatusType.Bleed, StatTarget.Speed, 5, 2);
+            var bleed1 = new StatusEffectInstance(StatusType.Bleed, StatTarget.Speed, 10, 3) { damagePerTick = 10 };
+            var bleed2 = new StatusEffectInstance(StatusType.Bleed, StatTarget.Speed, 5, 2) { damagePerTick = 5 };
             character.AddStatus(bleed1);
             character.AddStatus(bleed2);
             TestFormat(bleed1, "15 dmg for 3 turns");
