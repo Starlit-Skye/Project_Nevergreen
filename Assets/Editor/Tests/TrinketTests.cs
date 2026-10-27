@@ -385,7 +385,7 @@ namespace Nevergreen.Tests
             var statusEffect = new StatusEffect
             {
                 statusType = StatusType.Bleed,
-                amplitude = 3,
+                amplitude = 30,
                 duration = 3,
                 applicationChance = 200f // ensure it hits
             };
@@ -404,7 +404,7 @@ namespace Nevergreen.Tests
             var appliedBleed = enemy.statusEffects.Find(s => s.type == StatusType.Bleed);
             Assert.IsNotNull(appliedBleed, "Bleed status was not applied.");
             Assert.AreEqual(1, appliedBleed.remainingDuration, "Duration was not compressed to 1.");
-            Assert.AreEqual(9, appliedBleed.amplitude, "Amplitude was not multiplied by original duration.");
+            Assert.AreEqual(9, appliedBleed.damagePerTick, "damagePerTick was not multiplied by original duration.");
 
             Object.DestroyImmediate(enemyGo);
         }

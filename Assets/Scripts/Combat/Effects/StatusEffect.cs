@@ -21,7 +21,7 @@ namespace Nevergreen.Combat
         [Range(0, 300)]
         public float applicationChance = 100f;
 
-        [Tooltip("Power/Stack size of the status.")]
+        [Tooltip("Power/Stack size. For Bleed/Blight/Burn this is the percent of the applier's effective Attack dealt per tick (e.g. 30 = 30%).")]
         public int amplitude = 1;
 
         [Tooltip("How the amplitude is applied (Default uses standard stat rules, Flat adds directly, Percentage scales base).")]
@@ -69,12 +69,17 @@ namespace Nevergreen.Combat
             {
                 int finalAmplitude = amplitude;
                 int finalDuration = duration;
+                bool isBurst = false;
                 
                 string burstKey = $"StatusBurst_{statusType}";
                 if (context.extra.TryGetValue(burstKey, out object burstObj) && burstObj is bool burst && burst)
                 {
-                    finalAmplitude = amplitude * duration;
-                    finalDuration = 1;
+                    isBurst = true;
+                    if (!StatusProcessor.IsDotType(statusType))
+                    {
+                        finalAmplitude = amplitude * duration;
+                        finalDuration = 1;
+                    }
                 }
 
                 StatusEffectInstance instance = StatusInstanceFactory.Create(
@@ -86,10 +91,23 @@ namespace Nevergreen.Combat
                     amplitudeType
                 );
 
+                if (isBurst && StatusProcessor.IsDotType(statusType))
+                {
+                    instance.damagePerTick *= duration;
+                    instance.remainingDuration = 1;
+                }
+
                 bool added = target.AddStatus(instance);
                 if (added)
                 {
-                    Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (amp:{finalAmplitude}, dur:{finalDuration})");
+                    if (StatusProcessor.IsDotType(statusType))
+                    {
+                        Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (dmg/tick:{instance.damagePerTick}, amp:{finalAmplitude}%, dur:{instance.remainingDuration})");
+                    }
+                    else
+                    {
+                        Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (amp:{finalAmplitude}, dur:{instance.remainingDuration})");
+                    }
                 }
             }
 

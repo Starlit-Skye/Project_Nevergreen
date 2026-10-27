@@ -40,6 +40,13 @@ namespace Nevergreen.Combat
                     duration,
                     amplitudeType
                 );
+
+                // Defensive check in case a prefab configures a DOT status on spawn (none currently do)
+                if (StatusProcessor.IsDotType(statusType))
+                {
+                    instance.damagePerTick = StatusInstanceFactory.ResolveDotDamage(character, Mathf.RoundToInt(amplitude));
+                    instance.Source = character;
+                }
             }
 
             character.AddStatus(instance);

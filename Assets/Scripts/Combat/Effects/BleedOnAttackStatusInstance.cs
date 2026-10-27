@@ -58,8 +58,14 @@ namespace Nevergreen.Combat
                 bool applied = CombatCalculator.ResolveStatusApplication(_bleedChance, resistance, ctx.rng);
                 if (applied)
                 {
-                    var bleedInstance = new StatusEffectInstance(StatusType.Bleed, _bleedAmplitude, _bleedDuration);
-                    bleedInstance.Source = Host;
+                    // Route through the factory so damagePerTick is resolved from Host's effective attack (ctx.user == Host).
+                    var bleedInstance = StatusInstanceFactory.Create(
+                        ctx,
+                        StatusType.Bleed,
+                        StatTarget.Speed,
+                        _bleedAmplitude,
+                        _bleedDuration,
+                        AmplitudeType.Default);
                     ctx.primaryTarget.AddStatus(bleedInstance);
                 }
                 ctx.primaryTarget.TriggerStatusApplied(StatusType.Bleed, applied);

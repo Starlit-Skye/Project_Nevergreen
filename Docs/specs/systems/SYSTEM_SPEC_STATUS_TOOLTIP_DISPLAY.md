@@ -10,7 +10,7 @@ Target build: Unknown
 To consolidate active status effects into visually distinct groups on a character's HP bar (Buffs, Debuffs, Bleed, etc.) and accurately aggregate their underlying values inside multi-line tooltips. Reduces UI clutter while preserving full statistical visibility.
 
 ## Scope
-- In scope: Grouping HP Bar status icons by `StatusType`, retrieving generic icon mappings, aggregating identical status instances inside tooltips (summing amplitudes and displaying maximum durations).
+- In scope: Grouping HP Bar status icons by `StatusType`, retrieving generic icon mappings, aggregating identical status instances inside tooltips (summing `damagePerTick` for DoTs Bleed/Blight/Burn, summing amplitudes for buffs/debuffs/Restore, and displaying maximum durations).
 - Out of scope: The underlying combat and simulation logic for executing status effects.
 
 ## Source of Truth
@@ -23,11 +23,11 @@ To consolidate active status effects into visually distinct groups on a characte
 ## Responsibilities
 - Group all active `StatusEffectInstance` objects solely by their `StatusType` when generating icons on the HP bar.
 - Display exactly one generic mapped icon per active status type per character.
-- Format detailed multi-line tooltips summarizing total amplitudes, custom amplitudes (for Skill Boosts), proc chances, and longest remaining durations.
+- Format detailed multi-line tooltips summarizing total amplitudes / DoT damage, custom amplitudes (for Skill Boosts), proc chances, and longest remaining durations.
 
 ## Data Model
 - Entity/component/object: 
-  - `StatusEffectInstance`: Core fields including `type`, `targetStat`, `amplitude`, `remainingDuration`, and `Host`.
+  - `StatusEffectInstance`: Core fields including `type`, `targetStat`, `amplitude`, `damagePerTick` (resolved damage per tick for DoTs Bleed, Blight, Burn), `remainingDuration`, and `Host`.
   - `SkillBoostStatusInstance`: Inherits and adds `targetSkillId`, `targetSkillDisplayName`, and `customAmplitude`.
   - `BleedOnAttackStatusInstance`: Inherits and adds `BleedChance`.
 - Persistence keys: None (In-memory battle state).

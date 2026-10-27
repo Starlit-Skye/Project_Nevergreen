@@ -60,7 +60,7 @@ Define the runtime `SkillContext` container used to execute one skill action in 
 - Field explanation: `pending_statuses` queues statuses for ordered application after resolution.
 - Field explanation: `battle_system_ref` exposes runtime battle-system context for interactions.
 - Field explanation: `rng_ref` is the random source used for reproducible combat rolls.
-- Field explanation: `extra` is an extension dictionary for special-case mechanic data.
+- Field explanation: `extra` is an extension dictionary for special-case mechanic data (e.g. `StatusBurst_{type}` which compresses duration to 1 and multiplies `damagePerTick` by duration for DoTs or multiplies amplitude for non-DoTs; `StatusChanceBonus_{type}`; and `StatusUnresistable_{type}_{targetId}`). Status creation via `StatusInstanceFactory` consumes `context.user` to snapshot applier effective attack into `damagePerTick` for DoTs.
 - Method explanation: `EnsureHitResolved(CombatCharacter target)` performs a lazy/cached hit check using `CombatCalculator.ResolveHit`. Healing/allied/self skills automatically hit, whereas other targets undergo standard accuracy vs dodge calculation.
 - Persistence keys: none (runtime-only object by design)
 

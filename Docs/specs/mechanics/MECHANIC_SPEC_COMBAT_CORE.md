@@ -93,6 +93,11 @@ Transitions:
 4. critted_damage = is_critical ? round_to_int(buffed_damage * crit_multiplier) : buffed_damage
 5. final_damage = ignores_defense ? critted_damage : round_to_int(critted_damage * (1.0 - target_defense / 100.0))
 
+# damage over time calculation (Bleed, Blight, Burn)
+# Evaluated at status application time (snapshot). Ignores attack roll, skill scaling, crit, and target defense.
+dot_damage_per_tick = max(1, round_away_from_zero(applier_effective_attack * status_amplitude / 100.0))
+# Periodic tick deals sum(damage_per_tick) directly to target HP (Burn increments damage_per_tick by +1 each turn).
+
 # hit chance
 final_hit_chance_percent = min(95, attacker_accuracy_percent - target_dodge_percent)
 
