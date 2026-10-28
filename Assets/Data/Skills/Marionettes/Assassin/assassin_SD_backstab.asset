@@ -21,7 +21,7 @@ MonoBehaviour:
 
     Target Rank: 1/2'
   modifier:
-    damagePercent: 0.6
+    damagePercent: 0.8
     healPercent: 0
     accuracyMod: 0
     criticalMod: 2

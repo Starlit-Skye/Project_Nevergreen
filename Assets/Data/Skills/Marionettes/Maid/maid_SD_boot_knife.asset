@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: boot_knife
   displayName: Boot Knife
-  description: 'Deal damage to 1 enemy, high crit
+  description: 'Deal damage to 1 enemy, high crit, ignores Guard.
 
-    Usable Rank: 1-2
+    Usable Rank:
+    1-2
 
-    Target
-    Rank: 1/2'
+    Target Rank: 1/2'
   modifier:
     damagePercent: 1
     healPercent: 0
@@ -34,7 +34,7 @@ MonoBehaviour:
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
-  bypassGuard: 0
+  bypassGuard: 1
   ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
