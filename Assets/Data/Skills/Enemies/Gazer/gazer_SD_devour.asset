@@ -14,14 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: gazer_SD_devour
   displayName: Devour
-  description: Deal large damage to frontmost character.
+  description: Deal large damage to frontmost character. +50% damage if target has
+    Unraveled.
   modifier:
     damagePercent: 1.5
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 3336827746509651968
+  - rid: 3336828217463930957
   useRanks: 01000000020000000300000004000000
   targetRanks: 01000000
   targetScope: 2
@@ -38,6 +39,9 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 3336827746509651968
-      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data: 
+    - rid: 3336828217463930957
+      type: {class: ConditionalDamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        conditionSource: 0
+        requiredStatus: 16
+        bonusScaling: 0.5
