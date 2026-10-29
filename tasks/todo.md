@@ -163,3 +163,49 @@ PLAN ONLY - no code or spec has been modified yet.
   - `Docs/specs/mechanics/MECHANIC_SPEC_STATUS_STUN.md` (updated spec)
   - `Docs/specs/mechanics/MECHANIC_SPEC_COMBAT_CORE.md` (updated Combat Core spec)
 
+---
+
+# Task: GenericEventRoomEffectStrategy Multi-Prefab Selection
+
+## Summary
+Modify `GenericEventRoomEffectStrategy.cs` to accept a list of UI prefabs (`eventUiPrefabs`) and randomly select one when activated, keeping the implementation simple and clean.
+
+## Todo List
+
+### 1. Refactor `GenericEventRoomEffectStrategy.cs`
+- [x] Replace single `eventUiPrefab` with `public List<GameObject> eventUiPrefabs = new List<GameObject>();`
+- [x] Implement simple `GetRandomPrefab()` helper method (`UnityEngine.Random.Range(0, eventUiPrefabs.Count)`).
+- [x] Update `ExecuteRoomEffect()` to instantiate the randomly chosen prefab.
+- [x] Update `RD_TheatreRoom.asset` and `RD_EventRoom.asset` to serialize `eventUiPrefabs`.
+
+### 2. Unit Testing
+- [x] Create `GenericEventRoomEffectStrategyTests.cs` in `Assets/Editor/Tests/` verifying:
+  - Returns null if list is empty or null.
+  - Chooses single prefab if list has 1 item.
+  - Chooses among prefabs when multiple are provided.
+  - Executes instantiation onto Canvas if valid Canvas exists.
+- [x] Run all EditMode tests using `tests-run` MCP tool to verify 0 regressions.
+
+### 3. Review & Verification
+- [x] Verify Unity compilation and logs.
+- [x] Document results in `tasks/todo.md`.
+- [x] Record Lesson 21 in `tasks/lessons.md` to avoid over-engineering migration shims.
+
+## Review & Verification Results
+- **Unit Tests**:
+  - `Assets/Editor/Tests/GenericEventRoomEffectStrategyTests.cs` (5 tests):
+    - `GetRandomPrefab_WhenPrefabsListIsEmptyOrNull_ReturnsNull`
+    - `GetRandomPrefab_WhenPrefabsListHasSingleItem_ReturnsThatItem`
+    - `GetRandomPrefab_WhenPrefabsListHasMultipleItems_ReturnsOneOfItems`
+    - `ExecuteRoomEffect_WhenNoPrefabsAssigned_LogsErrorAndDoesNotThrow`
+    - `ExecuteRoomEffect_WhenValidPrefabAndCanvasExist_InstantiatesUnderCanvas`
+  - Full suite EditMode test run: **652 passed, 0 failed, 0 skipped**.
+- **Files Modified**:
+  - `Assets/Scripts/Data/GenericEventRoomEffectStrategy.cs` (simplified to clean list + random index helper)
+  - `Assets/Data/RoomData/RD_TheatreRoom.asset` (updated field to `eventUiPrefabs`)
+  - `Assets/Data/RoomData/RD_EventRoom.asset` (updated field to `eventUiPrefabs`)
+  - `Assets/Editor/Tests/GenericEventRoomEffectStrategyTests.cs` (unit test suite)
+
+
+
+

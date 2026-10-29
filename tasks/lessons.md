@@ -112,3 +112,8 @@
 - **Rule**: In Unity NUnit EditMode tests, `AddComponent` does not automatically invoke `OnEnable` or `Start`, and setting `enabled = false` does not invoke `OnDisable`.
 - **Solution**: Explicitly invoke private lifecycle methods in EditMode tests using reflection (`typeof(T).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(...)`), following established project testing conventions.
 
+### 21. Avoid Over-Engineering Compatibility / Migration Shims Unless Explicitly Requested
+- **Pattern**: Adding serialization callback interfaces (`ISerializationCallbackReceiver`), deprecated hidden fields, and multi-tier fallback boilerplate when asked to perform a simple refactor (e.g. converting a single field to a list).
+- **Rule**: Follow "Simplicity First" strictly. Implement the cleanest, most direct solution. Do not introduce defensive serialization migration scaffolding or backward-compatibility wrappers unless explicitly requested. If existing data assets need updating, update the asset file directly rather than polluting runtime script architecture with legacy support code.
+
+

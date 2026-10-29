@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Nevergreen.Data
@@ -7,14 +8,21 @@ namespace Nevergreen.Data
     public class GenericEventRoomEffectStrategy : RoomEffectStrategy
     {
         [SerializeField]
-        [Tooltip("The Generic Event UI prefab to instantiate.")]
-        public GameObject eventUiPrefab;
+        [Tooltip("List of Generic Event UI prefabs to choose from randomly.")]
+        public List<GameObject> eventUiPrefabs = new List<GameObject>();
+
+        public GameObject GetRandomPrefab()
+        {
+            if (eventUiPrefabs == null || eventUiPrefabs.Count == 0) return null;
+            return eventUiPrefabs[UnityEngine.Random.Range(0, eventUiPrefabs.Count)];
+        }
 
         public override void ExecuteRoomEffect()
         {
-            if (eventUiPrefab == null)
+            GameObject selectedPrefab = GetRandomPrefab();
+            if (selectedPrefab == null)
             {
-                Debug.LogError("[GenericEventRoomEffectStrategy] eventUiPrefab is not assigned!");
+                Debug.LogError("[GenericEventRoomEffectStrategy] No eventUiPrefabs assigned!");
                 return;
             }
 
@@ -51,7 +59,7 @@ namespace Nevergreen.Data
                 return;
             }
 
-            GameObject instance = GameObject.Instantiate(eventUiPrefab, canvas.transform);
+            GameObject instance = GameObject.Instantiate(selectedPrefab, canvas.transform);
             RectTransform rt = instance.GetComponent<RectTransform>();
             if (rt != null)
             {
@@ -59,7 +67,8 @@ namespace Nevergreen.Data
                 rt.localScale = Vector3.one;
             }
 
-            Debug.Log("[GenericEventRoomEffectStrategy] Generic Event UI instantiated.");
+            Debug.Log($"[GenericEventRoomEffectStrategy] Generic Event UI '{selectedPrefab.name}' instantiated.");
         }
     }
 }
+
