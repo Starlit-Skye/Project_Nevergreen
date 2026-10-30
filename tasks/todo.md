@@ -273,29 +273,53 @@ Create a new MonoBehaviour script `WritingMonsterRoomButtons.cs` in `Assets/Scri
 ## Todo List
 
 ### 1. Script Implementation (`WritingMonsterRoomButtons.cs`)
-- [ ] Create `Assets/Scripts/UI/WritingMonsterRoomButtons.cs` in namespace `Nevergreen.UI`.
-- [ ] Add serialized configurable fields `exhaustionReduction` and `partsReward` (both defaulting to 1).
-- [ ] Add `_hasChosen` flag for one-choice-per-visit enforcement.
-- [ ] Implement `HelpMonster()` to reduce `ExhaustionRound` (clamped at 0).
-- [ ] Implement `AttackMonster()` to grant `partsReward` via `RunSessionManager.GrantParts()`.
-- [ ] Implement `Close()` to deactivate GameObject and notify `CombatUI`.
+- [x] Create `Assets/Scripts/UI/WritingMonsterRoomButtons.cs` in namespace `Nevergreen.UI`.
+- [x] Add serialized configurable fields `exhaustionReduction` and `partsReward` (both defaulting to 1).
+- [x] Add `_hasChosen` flag for one-choice-per-visit enforcement.
+- [x] Implement `HelpMonster()` to reduce `ExhaustionRound` (clamped at 0).
+- [x] Implement `AttackMonster()` to grant `partsReward` via `RunSessionManager.GrantParts()`.
+- [x] Implement `Close()` to deactivate GameObject and notify `CombatUI`.
 
 ### 2. Unit Testing (`WritingMonsterRoomButtonsTests.cs`)
-- [ ] Create `Assets/Editor/Tests/WritingMonsterRoomButtonsTests.cs`.
-- [ ] Test: `HelpMonster` reduces `ExhaustionRound` by configured amount.
-- [ ] Test: `HelpMonster` clamps at 0.
-- [ ] Test: `HelpMonster` triggers `OnExhaustionChanged` when value changes.
-- [ ] Test: `HelpMonster` works as normal when `ExhaustionLimit <= 0`.
-- [ ] Test: `AttackMonster` grants configured Parts and triggers `OnPartsChanged`.
-- [ ] Test: Field defaults are 1.
-- [ ] Test: One-choice rule blocks subsequent Help or Attack calls.
-- [ ] Test: `Close` deactivates GameObject and notifies `CombatUI`.
-- [ ] Test: `Close` logs error when `CombatUI` is not found.
-- [ ] Run all EditMode tests via `tests-run` MCP tool.
+- [x] Create `Assets/Editor/Tests/WritingMonsterRoomButtonsTests.cs`.
+- [x] Test: `HelpMonster` reduces `ExhaustionRound` by configured amount.
+- [x] Test: `HelpMonster` clamps at 0.
+- [x] Test: `HelpMonster` triggers `OnExhaustionChanged` when value changes.
+- [x] Test: `HelpMonster` works as normal when `ExhaustionLimit <= 0`.
+- [x] Test: `AttackMonster` grants configured Parts and triggers `OnPartsChanged`.
+- [x] Test: Field defaults are 1.
+- [x] Test: One-choice rule blocks subsequent Help or Attack calls.
+- [x] Test: `Close` deactivates GameObject and notifies `CombatUI`.
+- [x] Test: `Close` logs error when `CombatUI` is not found.
+- [x] Run all EditMode tests via `tests-run` MCP tool.
 
 ### 3. Review & Verification
-- [ ] Verify Unity console logs for zero compilation errors or warnings.
-- [ ] Verify all tests pass with zero regressions.
-- [ ] Update `tasks/todo.md` with verification results.
+- [x] Verify Unity console logs for zero compilation errors or warnings.
+- [x] Verify all tests pass with zero regressions.
+- [x] Update `tasks/todo.md` with verification results.
+
+## Review & Verification Results
+- **Unit Tests**:
+  - `Assets/Editor/Tests/WritingMonsterRoomButtonsTests.cs` (13 tests):
+    - `WritingMonsterRoomButtons_Defaults_AreSetToOne`
+    - `HelpMonster_ReducesExhaustionRound_ByConfiguredAmount`
+    - `HelpMonster_ClampsAtZero_WhenReductionExceedsCurrent`
+    - `HelpMonster_FiresOnExhaustionChanged_OnlyWhenValueChanged`
+    - `HelpMonster_WorksNormally_WhenExhaustionLimitIsZero`
+    - `AttackMonster_GrantsParts_AndFiresOnPartsChanged`
+    - `AttackMonster_ZeroReward_DoesNotChangeParts`
+    - `OneChoiceRule_HelpThenAttack_BlocksAttack`
+    - `OneChoiceRule_AttackThenHelp_BlocksHelp`
+    - `OneChoiceRule_RepeatedCalls_OnlyApplyOnce`
+    - `Close_DeactivatesGameObject_AndNotifiesCombatUI`
+    - `Close_WhenCombatUIMissing_LogsErrorAndStillDeactivates`
+    - `Close_WorksRegardlessOfHasChosen`
+  - Full suite EditMode test run: **672 passed, 0 failed, 0 skipped**.
+- **Files Created**:
+  - `Assets/Scripts/UI/WritingMonsterRoomButtons.cs`
+  - `Assets/Editor/Tests/WritingMonsterRoomButtonsTests.cs`
+- **Zero Modifications to Existing Code**:
+  - `RunSessionManager.cs`, `MarionetteHealChoiceController.cs`, and `CombatUI.cs` left intact.
+
 
 
