@@ -206,6 +206,96 @@ Modify `GenericEventRoomEffectStrategy.cs` to accept a list of UI prefabs (`even
   - `Assets/Data/RoomData/RD_EventRoom.asset` (updated field to `eventUiPrefabs`)
   - `Assets/Editor/Tests/GenericEventRoomEffectStrategyTests.cs` (unit test suite)
 
+---
 
+# Task: Implement SafeRoomController
+
+## Summary
+Create a new MonoBehaviour script `SafeRoomController.cs` in `Assets/Scripts/UI/` based on `MarionetteHealChoiceController.cs`.
+- Removes `healAllButton` and `hpTexts`.
+- Heals the selected Marionette by a configurable percentage of her max HP (`healPercent`).
+- Everything else (party slot buttons, displayName text setting, room completion via CombatUI) behaves identically.
+- Add comprehensive EditMode unit tests in `Assets/Editor/Tests/SafeRoomControllerTests.cs`.
+
+## Todo List
+
+### 1. Script Implementation (`SafeRoomController.cs`)
+- [x] Create `Assets/Scripts/UI/SafeRoomController.cs` in namespace `Nevergreen.UI`.
+- [x] Add `marionetteButtons` array and configurable `healPercent` field.
+- [x] Implement `Initialize(List<PartyMemberInfo> party)` to setup buttons with display names and click listeners.
+- [x] Implement `OnMarionetteClicked(PartyMemberInfo member)` to calculate percentage healing, cap at maxHP, set `currentHP = null` if full, and complete room.
+- [x] Implement `CompleteRoom()` deactivating gameObject and notifying `CombatUI`.
+
+### 2. Unit Testing (`SafeRoomControllerTests.cs`)
+- [x] Create `Assets/Editor/Tests/SafeRoomControllerTests.cs`.
+- [x] Test: Selected Marionette heals by configured percentage (e.g. 25% or 50%).
+- [x] Test: Heal configurability (setting a different percentage heals accordingly).
+- [x] Test: Overheal clamps to maxHP and sets `currentHP` to `null`.
+- [x] Test: Already full HP (`currentHP == null`) remains `null`.
+- [x] Test: Room completion deactivates UI and calls `CombatUI.ShowRoomSelectionImmediately()`.
+- [x] Test: Buttons for empty or missing party slots are deactivated.
+- [x] Run all EditMode tests via `tests-run` MCP tool.
+
+### 3. Review & Verification
+- [x] Verify Unity console logs for zero compilation errors or warnings.
+- [x] Verify all tests pass with zero regressions.
+- [x] Update `tasks/todo.md` with verification results.
+
+## Review & Verification Results
+- **Unit Tests**:
+  - `Assets/Editor/Tests/SafeRoomControllerTests.cs` (7 tests):
+    - `SafeRoom_SingleMarionetteSelected_HealsConfiguredPercentOfMaxHP`
+    - `SafeRoom_HealPercentIsConfigurable`
+    - `SafeRoom_OverhealCapsAtMaxHP_AndSetsCurrentHPToNull`
+    - `SafeRoom_AlreadyFullHP_RemainsNull`
+    - `SafeRoom_CompletesRoom_DeactivatesGameObjectAndNotifiesCombatUI`
+    - `SafeRoom_MissingOrEmptyPartySlots_DeactivatesButtonsAndUpdatesLabels`
+    - `SafeRoom_NullPartyMemberOrNullCharacter_DeactivatesButton`
+  - Full suite EditMode test run: **659 passed, 0 failed, 0 skipped**.
+- **Files Created**:
+  - `Assets/Scripts/UI/SafeRoomController.cs` (controller implementing single marionette healing by percentage, no heal-all button, no hpTexts)
+  - `Assets/Editor/Tests/SafeRoomControllerTests.cs` (unit test suite)
+- **Unmodified References**:
+  - `Assets/Scripts/UI/MarionetteHealChoiceController.cs` left completely intact.
+
+---
+
+# Task: Implement WritingMonsterRoomButtons
+
+## Summary
+Create a new MonoBehaviour script `WritingMonsterRoomButtons.cs` in `Assets/Scripts/UI/` with 3 public methods for button OnClick assignment:
+1. `HelpMonster()`: reduces exhaustion by configurable `exhaustionReduction` (default 1), clamped at 0.
+2. `AttackMonster()`: grants configurable `partsReward` (default 1) Parts to player team.
+3. `Close()`: performs `CompleteRoom()` flow deactivating UI and triggering `CombatUI.ShowRoomSelectionImmediately()`.
+- Implements one-choice rule: `_hasChosen` flag ensures only the first choice (Help or Attack) is applied during a visit. `Close()` is always available.
+- Unit tests in `Assets/Editor/Tests/WritingMonsterRoomButtonsTests.cs`.
+
+## Todo List
+
+### 1. Script Implementation (`WritingMonsterRoomButtons.cs`)
+- [ ] Create `Assets/Scripts/UI/WritingMonsterRoomButtons.cs` in namespace `Nevergreen.UI`.
+- [ ] Add serialized configurable fields `exhaustionReduction` and `partsReward` (both defaulting to 1).
+- [ ] Add `_hasChosen` flag for one-choice-per-visit enforcement.
+- [ ] Implement `HelpMonster()` to reduce `ExhaustionRound` (clamped at 0).
+- [ ] Implement `AttackMonster()` to grant `partsReward` via `RunSessionManager.GrantParts()`.
+- [ ] Implement `Close()` to deactivate GameObject and notify `CombatUI`.
+
+### 2. Unit Testing (`WritingMonsterRoomButtonsTests.cs`)
+- [ ] Create `Assets/Editor/Tests/WritingMonsterRoomButtonsTests.cs`.
+- [ ] Test: `HelpMonster` reduces `ExhaustionRound` by configured amount.
+- [ ] Test: `HelpMonster` clamps at 0.
+- [ ] Test: `HelpMonster` triggers `OnExhaustionChanged` when value changes.
+- [ ] Test: `HelpMonster` works as normal when `ExhaustionLimit <= 0`.
+- [ ] Test: `AttackMonster` grants configured Parts and triggers `OnPartsChanged`.
+- [ ] Test: Field defaults are 1.
+- [ ] Test: One-choice rule blocks subsequent Help or Attack calls.
+- [ ] Test: `Close` deactivates GameObject and notifies `CombatUI`.
+- [ ] Test: `Close` logs error when `CombatUI` is not found.
+- [ ] Run all EditMode tests via `tests-run` MCP tool.
+
+### 3. Review & Verification
+- [ ] Verify Unity console logs for zero compilation errors or warnings.
+- [ ] Verify all tests pass with zero regressions.
+- [ ] Update `tasks/todo.md` with verification results.
 
 
