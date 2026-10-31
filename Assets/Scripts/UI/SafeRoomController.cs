@@ -17,6 +17,11 @@ namespace Nevergreen.UI
             set => healPercent = Mathf.Clamp01(value);
         }
 
+        void Start()
+        {
+            Initialize(RunSessionManager.CurrentParty);
+        }
+
         public void Initialize(List<PartyMemberInfo> party)
         {
             int buttonCount = marionetteButtons != null ? marionetteButtons.Length : 0;

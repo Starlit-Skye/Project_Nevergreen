@@ -321,5 +321,78 @@ Create a new MonoBehaviour script `WritingMonsterRoomButtons.cs` in `Assets/Scri
 - **Zero Modifications to Existing Code**:
   - `RunSessionManager.cs`, `MarionetteHealChoiceController.cs`, and `CombatUI.cs` left intact.
 
+---
+
+# Task: Implement ArmamentBuilderRoomController
+
+## Summary
+Create `ArmamentBuilderRoomController.cs` in `Assets/Scripts/UI/` based on `TreasureUIController.cs`.
+- Takes `recvEquipmentButton`, `leaveButton1`, `leaveButton2`, `rewardPanel`, `rewardText`.
+- Exposes `commonTrinketWeight` (default 70) and `uncommonTrinketWeight` (default 30) for Common/Uncommon drop chance.
+- Exposes `scrapsCost` (default 20) to set Scraps cost.
+- Implements `Initialize(List<PartyMemberInfo> party = null)` following the Treasure flow (only trinket reward).
+- Updates `recvEquipmentButton` text to `"Spend [ScrapCost] Scraps, receive a random equipment."`.
+- When clicking `recvEquipmentButton`, rolls a random trinket, spends Scraps, and displays reward in `rewardPanel`.
+- When clicking either Leave button, completes room via the `WritingMonsterRoomButtons` flow.
+- Implements `ITrinketEquipContainerUI` to support drag-and-drop trinket equipping.
+- Unit tests in `Assets/Editor/Tests/ArmamentBuilderRoomControllerTests.cs`.
+
+## Todo List
+
+### 1. Script Implementation (`ArmamentBuilderRoomController.cs`)
+- [x] Create `Assets/Scripts/UI/ArmamentBuilderRoomController.cs` implementing `ITrinketEquipContainerUI`.
+- [x] Add serialized UI fields: `recvEquipmentButton`, `leaveButton1`, `leaveButton2`, `rewardPanel`, `rewardText`, `trinketUIItemPrefab`, `testTrinketDroppedContainer`, `trinketEquipPanels`.
+- [x] Add configurable fields: `commonTrinketWeight` (70), `uncommonTrinketWeight` (30), `scrapsCost` (20).
+- [x] Implement `OnEnable` / `OnDisable` listener wiring.
+- [x] Implement `Initialize(List<PartyMemberInfo> party = null)` setting up UI state and button text.
+- [x] Implement `OnRecvEquipmentClicked()` handling roll, spend, and reward panel activation.
+- [x] Implement `RollTrinketReward()` matching weighted two-stage selection.
+- [x] Implement `OnLeaveClicked()` / `CompleteRoom()` flow.
+- [x] Implement `ITrinketEquipContainerUI` members (`RefreshTrinketUI`, `OnUnassignedTrinketChanged`, `RefreshPanels`, `SetupTrinketSlot`).
+
+### 2. Unit Testing (`ArmamentBuilderRoomControllerTests.cs`)
+- [x] Create `Assets/Editor/Tests/ArmamentBuilderRoomControllerTests.cs`.
+- [x] Test: `Initialize` sets button text with configured `scrapsCost`.
+- [x] Test: `Initialize` hides reward panel and activates receive button.
+- [x] Test: Click receive with sufficient Scraps spends Scraps, reveals reward panel, hides receive button, displays trinket.
+- [x] Test: Click receive with insufficient Scraps does nothing.
+- [x] Test: Roll respects weights (pure Common vs pure Uncommon).
+- [x] Test: Roll with 0 total weight or empty pool does not spend Scraps and logs warning.
+- [x] Test: Receive cannot be triggered multiple times.
+- [x] Test: `leaveButton1` and `leaveButton2` both complete room.
+- [x] Test: Leave flow without CombatUI logs error and still deactivates.
+- [x] Test: Listeners properly unregistered on `OnDisable`.
+- [x] Test: `OnUnassignedTrinketChanged` updates internal rolled trinket.
+- [x] Run all EditMode tests via `tests-run` MCP tool.
+
+### 3. Review & Verification
+- [x] Verify Unity console logs for zero compilation errors or warnings.
+- [x] Verify all tests pass with zero regressions.
+- [x] Update `tasks/todo.md` with verification results.
+
+## Review & Verification Results
+- **Unit Tests**:
+  - `Assets/Editor/Tests/ArmamentBuilderRoomControllerTests.cs` (12 tests):
+    - `Initialize_SetsVisualStateAndCostText`
+    - `OnRecvEquipmentClicked_WithSufficientScraps_SpendsScrapsAndShowsReward`
+    - `OnRecvEquipmentClicked_WithInsufficientScraps_DoesNotSpendOrShowReward`
+    - `OnRecvEquipmentClicked_OnlyExecutesOnce`
+    - `RollTrinketReward_WeightsPureCommon_ReturnsCommon`
+    - `RollTrinketReward_WeightsPureUncommon_ReturnsUncommon`
+    - `OnRecvEquipmentClicked_WhenNoTrinketAvailable_DoesNotSpendScraps`
+    - `LeaveButton1_DeactivatesGameObjectAndNotifiesCombatUI`
+    - `LeaveButton2_DeactivatesGameObjectAndNotifiesCombatUI`
+    - `LeaveButton_WhenCombatUIMissing_LogsErrorAndStillDeactivates`
+    - `OnDisable_RemovesListeners`
+    - `OnUnassignedTrinketChanged_UpdatesRolledTrinket`
+  - Full suite EditMode test run: **684 passed, 0 failed, 0 skipped**.
+- **Files Created**:
+  - `Assets/Scripts/UI/ArmamentBuilderRoomController.cs`
+  - `Assets/Editor/Tests/ArmamentBuilderRoomControllerTests.cs`
+- **Zero Modifications to Existing Code**:
+  - `TreasureUIController.cs`, `TreasureRoomEffectStrategy.cs`, `WritingMonsterRoomButtons.cs`, and `CombatUI.cs` left intact.
+
+
+
 
 

@@ -24,4 +24,7 @@ MonoBehaviour:
     - rid: 3336828243439255552
       type: {class: GenericEventRoomEffectStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        eventUiPrefabs: []
+        eventUiPrefabs:
+        - {fileID: 3125939767771059409, guid: b2e7aade495a47145a7f14177bbb2fbe, type: 3}
+        - {fileID: 7150488376427839475, guid: fb144e07ca536b449b27ab62da57c0b3, type: 3}
+        - {fileID: 7150488376427839475, guid: 0a4b85b908134c242ba703895d768869, type: 3}
