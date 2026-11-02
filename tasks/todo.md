@@ -392,6 +392,103 @@ Create `ArmamentBuilderRoomController.cs` in `Assets/Scripts/UI/` based on `Trea
 - **Zero Modifications to Existing Code**:
   - `TreasureUIController.cs`, `TreasureRoomEffectStrategy.cs`, `WritingMonsterRoomButtons.cs`, and `CombatUI.cs` left intact.
 
+---
+
+# Task: Implement UpgradeEquipController & Extract TrinketEquipPanelHelper
+
+## Summary
+Two-phase task:
+1. Extract duplicated trinket equip panel discovery and refresh logic (`RefreshPanels` / `SetupTrinketSlot`) into `TrinketEquipPanelHelper.cs`, refactor `TreasureUIController`, `ArmamentBuilderRoomController`, and `EliteRewardUIController` to use it, and write unit tests in `TrinketEquipPanelHelperTests.cs`.
+2. Implement `UpgradeEquipController.cs` in `Assets/Scripts/UI/` based on `ArmamentBuilderRoomController` using the helper:
+   - Takes `reforgePanel`, `reforgeButton`, `leaveButton`, `testTrinketDroppedContainer`, `trinketUIItemPrefab`, `trinketEquipPanels`.
+   - `Initialize()` hides `reforgePanel` and refreshes panels.
+   - Reforge checks for a `TrinketUIItem` in `testTrinketDroppedContainer`.
+   - Replaces the trinket in-place with a random trinket from the next rarity tier (Common -> Uncommon, Uncommon -> Rare, Rare -> different Rare).
+   - If no upgrade is possible, logs a warning and does nothing.
+   - On successful reforge, changes `reforgeButton` text to `"Leave"` and transitions it to complete room.
+   - `leaveButton` runs the `CompleteRoom()` flow.
+   - Implements `ITrinketEquipContainerUI`.
+   - Write comprehensive unit tests in `UpgradeEquipControllerTests.cs`.
+
+## Todo List
+
+### 1. Phase 1: Shared Equip Panel Helper (`TrinketEquipPanelHelper.cs`)
+- [x] Create `Assets/Scripts/UI/TrinketEquipPanelHelper.cs` with `FindEquipPanels`, `RefreshPanels`, and `SetupTrinketSlot`.
+- [x] Refactor `TreasureUIController.cs` to use `TrinketEquipPanelHelper`.
+- [x] Refactor `ArmamentBuilderRoomController.cs` to use `TrinketEquipPanelHelper`.
+- [x] Refactor `EliteRewardUIController.cs` to use `TrinketEquipPanelHelper`.
+- [x] Create `Assets/Editor/Tests/TrinketEquipPanelHelperTests.cs` and verify helper behavior.
+- [x] Run existing tests (`TreasureUIControllerTests`, `ArmamentBuilderRoomControllerTests`, etc.) to verify 0 regressions.
+
+### 2. Phase 2: Script Implementation (`UpgradeEquipController.cs`)
+- [x] Create `Assets/Scripts/UI/UpgradeEquipController.cs` implementing `ITrinketEquipContainerUI`.
+- [x] Add serialized fields: `reforgePanel`, `reforgeButton`, `leaveButton`, `testTrinketDroppedContainer`, `trinketUIItemPrefab`, `trinketEquipPanels`.
+- [x] Implement `Initialize(List<PartyMemberInfo> party = null)` hiding `reforgePanel` and calling `RefreshPanels()`.
+- [x] Implement `OnEnable` / `OnDisable` for button listeners.
+- [x] Implement `OnReforgeClicked()`:
+  - If `_hasReforged`: invoke `CompleteRoom()`.
+  - Look for first child `TrinketUIItem` with non-null `TrinketData`.
+  - Determine tier from `TrinketDatabase` (Common, Uncommon, Rare).
+  - Select target pool (Common -> Uncommon, Uncommon -> Rare, Rare -> different Rare).
+  - If no valid upgrade available, log warning and return.
+  - Re-initialize `TrinketUIItem` in-place with new trinket, set `_hasReforged = true`, update `reforgeButton` text to `"Leave"`.
+- [x] Implement `OnLeaveClicked()` / `CompleteRoom()`.
+- [x] Implement `ITrinketEquipContainerUI` members (`RefreshTrinketUI`, `OnUnassignedTrinketChanged`).
+
+### 3. Phase 3: Unit Testing & Verification (`UpgradeEquipControllerTests.cs`)
+- [x] Create `Assets/Editor/Tests/UpgradeEquipControllerTests.cs`.
+- [x] Test: `Initialize` hides `reforgePanel` and resets state.
+- [x] Test: Reforge with empty dropper does nothing.
+- [x] Test: Reforge Common rolls Uncommon.
+- [x] Test: Reforge Uncommon rolls Rare.
+- [x] Test: Reforge Rare rolls a different Rare.
+- [x] Test: Reforge Rare with only 1 Rare in pool logs warning and does not change.
+- [x] Test: Reforge with empty target pool logs warning and does not change.
+- [x] Test: Reforge with trinket not in any pool logs warning and does not change.
+- [x] Test: Successful reforge updates button label to "Leave" and modifies dropper item in-place.
+- [x] Test: Clicking reforge button after reforge completes room.
+- [x] Test: Leave button completes room before and after reforge.
+- [x] Test: CompleteRoom logs error when CombatUI missing and deactivates.
+- [x] Test: `OnDisable` unhooks button listeners.
+- [x] Run full EditMode suite via `tests-run` MCP tool.
+- [x] Update `tasks/todo.md` with verification results.
+
+## Review & Verification Results
+
+- **Unit Tests**:
+  - `TrinketEquipPanelHelperTests.cs`: 6 new tests added and verified.
+    - `FindEquipPanels_WhenRootNull_ReturnsEmptyList`
+    - `FindEquipPanels_ReturnsPanelsWithMatchingChildNames`
+    - `RefreshPanels_WhenPartyNull_DoesNothing`
+    - `RefreshPanels_ConfiguresActivePanelsAndHidesExcess`
+    - `SetupTrinketSlot_CreatesDropHandlerAndInstantiatesItem`
+    - `SetupTrinketSlot_WhenTrinketSlotEmpty_ClearsChildrenAndCreatesNoItem`
+  - `UpgradeEquipControllerTests.cs`: 13 new tests added and verified.
+    - `Initialize_HidesReforgePanel_AndResetsReforgedState`
+    - `OnReforgeClicked_WhenDropperEmpty_DoesNothing`
+    - `OnReforgeClicked_WhenDropperItemHasNullData_DoesNothing`
+    - `OnReforgeClicked_WithCommonTrinket_UpgradesToUncommon`
+    - `OnReforgeClicked_WithUncommonTrinket_UpgradesToRare`
+    - `OnReforgeClicked_WithRareTrinket_UpgradesToDifferentRare`
+    - `OnReforgeClicked_WithRareTrinket_WhenOnlySameRareInPool_LogsWarningAndDoesNothing`
+    - `OnReforgeClicked_WhenTargetPoolEmpty_LogsWarningAndDoesNothing`
+    - `OnReforgeClicked_WhenTrinketNotInAnyPool_LogsWarningAndDoesNothing`
+    - `OnReforgeClicked_WhenAlreadyReforged_CompletesRoomFlow`
+    - `OnLeaveClicked_CompletesRoomFlow`
+    - `CompleteRoom_WhenCombatUIMissing_LogsErrorAndStillDeactivates`
+    - `OnDisable_RemovesListeners`
+  - Full suite EditMode test run: **703 passed, 0 failed, 0 skipped**.
+- **Files Created**:
+  - `Assets/Scripts/UI/TrinketEquipPanelHelper.cs`
+  - `Assets/Editor/Tests/TrinketEquipPanelHelperTests.cs`
+  - `Assets/Scripts/UI/UpgradeEquipController.cs`
+  - `Assets/Editor/Tests/UpgradeEquipControllerTests.cs`
+- **Files Refactored to Shared Helper**:
+  - `Assets/Scripts/UI/TreasureUIController.cs` (eliminated duplicate equip panel discovery and slot setup)
+  - `Assets/Scripts/UI/ArmamentBuilderRoomController.cs` (eliminated duplicate equip panel discovery and slot setup)
+  - `Assets/Scripts/UI/EliteRewardUIController.cs` (eliminated duplicate equip panel discovery and slot setup)
+
+
 
 
 
