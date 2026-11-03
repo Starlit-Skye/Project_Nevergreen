@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Enforcer
   characterPrefab: {fileID: 5047933170817855005, guid: 758109ad9135a724bb7b09ac7347e4dc, type: 3}
   teamType: 0
+  takeDamageClip: {fileID: 7400000, guid: f647db235fd6d4e499e988ee1412e397, type: 2}
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 1b9277e86e19df24d958a4a46298ce90, type: 2}
