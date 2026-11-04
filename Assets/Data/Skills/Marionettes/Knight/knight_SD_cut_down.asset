@@ -38,7 +38,7 @@ MonoBehaviour:
   ignoresStealth: 0
   hitCount: 1
   maxUsesPerBattle: -1
-  sfx: {fileID: 0}
+  sfx: {fileID: 8300000, guid: 4e84ab96ed4ad764c92e56c7fdb7f690, type: 3}
   animationClip: {fileID: 7400000, guid: 81862fdd9bc359f4a976ec2161b3ca5c, type: 2}
   references:
     version: 2
