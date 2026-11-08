@@ -19,23 +19,21 @@ MonoBehaviour:
   illustration: {fileID: 21300000, guid: b30a75dd0794ad845a27a4207d9ff260, type: 3}
   effectStrategies:
   - rid: 3450807880175059039
-  - rid: 3450807880175059040
+  - rid: 2199788711370031105
   - rid: 3450807880175059041
   references:
     version: 2
     RefIds:
+    - rid: 2199788711370031105
+      type: {class: CritDamageMultiplierBonusTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
+      data:
+        critMultiplierBonus: 0.5
     - rid: 3450807880175059039
       type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
         statTarget: 5
         amplitudeType: 2
         amount: 3
-    - rid: 3450807880175059040
-      type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
-      data:
-        statTarget: 4
-        amplitudeType: 2
-        amount: 5
     - rid: 3450807880175059041
       type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:

@@ -26,5 +26,5 @@ MonoBehaviour:
       type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
         statTarget: 5
-        amplitudeType: 0
+        amplitudeType: 2
         amount: 4

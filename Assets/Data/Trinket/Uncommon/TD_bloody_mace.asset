@@ -32,6 +32,6 @@ MonoBehaviour:
     - rid: 3450807880175059046
       type: {class: StatModifierTrinketStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
-        statTarget: 2
+        statTarget: 1
         amplitudeType: 2
-        amount: -10
+        amount: 10
