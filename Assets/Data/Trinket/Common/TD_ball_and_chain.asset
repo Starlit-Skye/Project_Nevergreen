@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TD_ball_and_chain
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
   trinketId: TD_ball_and_chain
-  displayName: Ball and Chain
+  displayName: Heavy Anchor
   description: Increase Move chance + Increase Stun chance
   cannotBeRemoved: 0
   illustration: {fileID: 21300000, guid: b30a75dd0794ad845a27a4207d9ff260, type: 3}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TD_sniper_scope
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
   trinketId: TD_sniper_scope
-  displayName: Sniper Scope
+  displayName: Lioness Rifle
   description: Increased Critical Rate + Increased Critical Damage + Decreases Dodge
     Chance + Decreased Defense
   cannotBeRemoved: 0

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TR_berserker_module
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
   trinketId: TR_berserker_module
-  displayName: Berserker Module
+  displayName: Comet Studded Labrys
   description: 'Increased Attack
 
     Increased Damage Dealt

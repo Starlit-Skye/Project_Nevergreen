@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TD_bloody_mace
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
   trinketId: TD_bloody_mace
-  displayName: Bloody Mace
+  displayName: Oni Twinblade
   description: Increased Attack + Decreased Accuracy
   cannotBeRemoved: 0
   illustration: {fileID: 21300000, guid: b30a75dd0794ad845a27a4207d9ff260, type: 3}

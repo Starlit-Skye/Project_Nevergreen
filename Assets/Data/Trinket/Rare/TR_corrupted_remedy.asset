@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TR_corrupted_remedy
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.TrinketData
   trinketId: TR_corrupted_remedy
-  displayName: Corrupted Remedy
+  displayName: Coyote Alchemy Set
   description: 'Bleed and Blight Duration decreased to 1 and deals its full damage
     on expiration
 
