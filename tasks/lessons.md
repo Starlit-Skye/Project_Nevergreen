@@ -116,4 +116,9 @@
 - **Pattern**: Adding serialization callback interfaces (`ISerializationCallbackReceiver`), deprecated hidden fields, and multi-tier fallback boilerplate when asked to perform a simple refactor (e.g. converting a single field to a list).
 - **Rule**: Follow "Simplicity First" strictly. Implement the cleanest, most direct solution. Do not introduce defensive serialization migration scaffolding or backward-compatibility wrappers unless explicitly requested. If existing data assets need updating, update the asset file directly rather than polluting runtime script architecture with legacy support code.
 
+### 22. Never Add Test-Specific Helper Methods to Production Code
+- **Pattern**: Adding methods like `SetRngForTesting(...)` or other test-only hooks directly into runtime production classes (`MonoBehaviour` controllers, etc.).
+- **Rule**: Keep production code completely free of test-specific methods or hooks. When unit tests need to inject a deterministic dependency (such as a mock `System.Random`) into a private field, use reflection inside the test class (`SetPrivateField`) rather than adding test helper methods to production scripts.
+
+
 

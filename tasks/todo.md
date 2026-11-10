@@ -488,6 +488,71 @@ Two-phase task:
   - `Assets/Scripts/UI/ArmamentBuilderRoomController.cs` (eliminated duplicate equip panel discovery and slot setup)
   - `Assets/Scripts/UI/EliteRewardUIController.cs` (eliminated duplicate equip panel discovery and slot setup)
 
+---
+
+# Task: Implement RandomProcedureRoomController
+
+## Summary
+Implement `RandomProcedureRoomController.cs` in `Assets/Scripts/UI/` and unit tests in `Assets/Editor/Tests/RandomProcedureRoomControllerTests.cs`:
+1. Two procedure buttons:
+   - Procedure 1 (`LoseTrait`): Randomly lose 1 Perfection or 1 Imperfection (50/50 if both exist; if 0 of one, pick the other; if neither, do nothing).
+   - Procedure 2 (`Gamble`): Configurable `goodOutcomeChance` (default 0.5). Bad outcome adds a random Imperfection (respecting `IsTraitFull` and `CanAddTrait`). Good outcome removes a random Imperfection (skipped if 0) and adds a random Perfection (respecting `IsTraitFull` and `CanAddTrait`).
+2. Remembers which procedure button the player clicked (`ChosenProcedure`), highlights the chosen procedure button, keeps the two-button view active, and activates `selectionPanel`.
+3. Marionette Selection UI (`selectionPanel`):
+   - Populates choice buttons in Choices Panel from active party members (all selectable, including Cecilia).
+   - Clicking a Marionette button updates Info Panel (Name + Level, Core Stats, Resistances, Perfections, Imperfections with `TraitTooltipTrigger`).
+4. Clicking Confirm executes the remembered procedure on the selected Marionette and runs `CompleteRoom()`.
+
+## Todo List
+
+### 1. Script Implementation (`RandomProcedureRoomController.cs`)
+- [x] Create `Assets/Scripts/UI/RandomProcedureRoomController.cs`.
+- [x] Add serialized fields for Procedure UI, Selection UI, Info Panel, Styling, and Configuration (`goodOutcomeChance`).
+- [x] Implement `Initialize(List<PartyMemberInfo> party = null)` and `OnEnable` / `OnDisable` button listeners.
+- [x] Implement `OnProcedure1Clicked()` and `OnProcedure2Clicked()`, keeping two-button view visible, activating `selectionPanel`, and populating Marionette choice buttons.
+- [x] Implement `OnMarionetteChoiceClicked(int index)`, `UpdateInfoPanel(PartyMemberInfo info)`, `ClearInfoPanel()`, and `EvaluateConfirmButton()`.
+- [x] Implement `ApplyLoseTrait(PartyMemberInfo target)` and `ApplyGamble(PartyMemberInfo target)`.
+- [x] Implement `OnConfirmClicked()` and `CompleteRoom()`.
+
+### 2. Unit Testing & Verification (`RandomProcedureRoomControllerTests.cs`)
+- [x] Create `Assets/Editor/Tests/RandomProcedureRoomControllerTests.cs`.
+- [x] Test: `Initialize` resets state, disables confirm button, hides selection panel, keeps procedure buttons visible.
+- [x] Test: Clicking Procedure 1 or Procedure 2 stores choice, highlights button, activates selection panel, and populates party member choice buttons (including Cecilia).
+- [x] Test: Clicking a Marionette choice button updates Info Panel (name, stats, resistances, perfections, imperfections) and enables confirm button.
+- [x] Test: Procedure 1 (`LoseTrait`) with only Perfections, only Imperfections, both (50/50 via deterministic RNG), and neither.
+- [x] Test: Procedure 2 (`Gamble`) Good Outcome removes Imperfection and adds Perfection (skipping removal if 0 Imperfections, skipping addition if Perfections full, respecting `CanAddTrait` duplicates/opposite-traits).
+- [x] Test: Procedure 2 (`Gamble`) Bad Outcome adds Imperfection (skipping if Imperfections full, respecting `CanAddTrait` duplicates/opposite-traits).
+- [x] Test: `OnConfirmClicked` applies procedure to selected Marionette and runs `CompleteRoom()`.
+- [x] Test: `CompleteRoom` logs error when `CombatUI` missing and still deactivates.
+- [x] Test: `OnDisable` removes listeners.
+- [x] Run full EditMode test suite via `tests-run` MCP tool.
+- [x] Update `tasks/todo.md` with review and verification results.
+
+## Review & Verification Results
+- **Unit Tests**:
+  - `RandomProcedureRoomControllerTests.cs`: 16 new unit tests added and verified.
+    - `Initialize_SetsDefaultState_AndKeepsProcedurePanelVisible`
+    - `ProcedureButtons_StoreRememberedChoice_KeepTwoButtonViewVisible_AndShowSelectionPanel`
+    - `PopulateChoiceButtons_IncludesAllPartyMembers_IncludingCecilia`
+    - `SelectingMarionette_PopulatesInfoPanel_AndEnablesConfirmButton`
+    - `ApplyLoseTrait_WhenNeitherTraitPresent_DoesNothing`
+    - `ApplyLoseTrait_WhenOnlyPerfectionPresent_RemovesPerfection`
+    - `ApplyLoseTrait_WhenOnlyImperfectionPresent_RemovesImperfection`
+    - `ApplyLoseTrait_WhenBothPresent_Uses5050Roll`
+    - `ApplyGamble_BadOutcome_AddsImperfection_RespectingDuplicateAndOppositeRules`
+    - `ApplyGamble_BadOutcome_WhenImperfectionsFull_DoesNothing`
+    - `ApplyGamble_GoodOutcome_RemovesImperfectionAndGainsPerfection`
+    - `ApplyGamble_GoodOutcome_SkipsRemovalWhenNoImperfections_AndStillGainsPerfection`
+    - `ApplyGamble_GoodOutcome_RemovesImperfection_AndSkipsGainWhenPerfectionsFull`
+    - `OnConfirmClicked_AppliesRememberedProcedureToSelectedMarionette_AndCompletesRoom`
+    - `CompleteRoom_WhenCombatUIMissing_LogsErrorAndStillDeactivates`
+    - `OnDisable_RemovesButtonListeners`
+  - Full suite EditMode test run: **719 passed, 0 failed, 0 skipped**.
+- **Files Created**:
+  - `Assets/Scripts/UI/RandomProcedureRoomController.cs`
+  - `Assets/Editor/Tests/RandomProcedureRoomControllerTests.cs`
+
+
 
 
 

@@ -25,4 +25,4 @@ MonoBehaviour:
       type: {class: GenericEventRoomEffectStrategy, ns: Nevergreen.Data, asm: Assembly-CSharp}
       data:
         eventUiPrefabs:
-        - {fileID: 3125939767771059409, guid: 1e0a95c58a6e0a34f876f46121ff303a, type: 3}
+        - {fileID: 7150488376427839475, guid: 60215be717519cc41b8dfd92c67a606e, type: 3}
