@@ -552,6 +552,65 @@ Implement `RandomProcedureRoomController.cs` in `Assets/Scripts/UI/` and unit te
   - `Assets/Scripts/UI/RandomProcedureRoomController.cs`
   - `Assets/Editor/Tests/RandomProcedureRoomControllerTests.cs`
 
+---
+
+# Task: Implement RerollPerfectionsRoomController & PartyMemberStatCalculator
+
+## Summary
+1. Make `CombatCharacter.GetModifiedStatValue` `public static` and create `Assets/Scripts/Combat/PartyMemberStatCalculator.cs` (`GetEffectiveMaxHP(PartyMemberInfo member)`) to compute trait-modified (and trinket-modified) Max HP outside combat.
+2. Create `Assets/Scripts/UI/RerollPerfectionsRoomController.cs`:
+   - 4 Marionette buttons displaying party member names (extra buttons greyed out as `"Empty Slot"`). Cecilia selectable.
+   - Reroll and Leave buttons; `rerollDamagePercent` field (`[Range(0f, 1f)]`, default `0.25f`, tooltip specifying fraction from 0 to 1).
+   - Perfections panel and HP text panel (`"HP: current/max"`), activated when a Marionette is selected.
+   - Reroll button text: `"Randomize all Perfections. -{damage} HP"`, interactable when `currentHP - damage >= 1` and `perfections.Count > 0`.
+   - Clicking Reroll deals damage, replaces all current Perfections with an equal number of new Perfections (excluding all old Perfections, respecting `CanAddTrait` no-duplicate and opposite-trait exclusion rules; partial reroll allowed if pool exhausted), clamps `currentHP` if effective Max HP drops, and refreshes panels/button (repeatable).
+   - Clicking Leave runs `CompleteRoom()`.
+3. Create unit tests in `Assets/Editor/Tests/PartyMemberStatCalculatorTests.cs` and `Assets/Editor/Tests/RerollPerfectionsRoomControllerTests.cs`.
+
+## Todo List
+
+### 1. Out-of-Combat Effective Max HP Helper (`PartyMemberStatCalculator.cs`)
+- [x] Make `CombatCharacter.GetModifiedStatValue` `public static`.
+- [x] Create `Assets/Scripts/Combat/PartyMemberStatCalculator.cs` with `GetEffectiveMaxHP(PartyMemberInfo member)`.
+- [x] Create `Assets/Editor/Tests/PartyMemberStatCalculatorTests.cs`.
+
+### 2. Script Implementation (`RerollPerfectionsRoomController.cs`)
+- [x] Create `Assets/Scripts/UI/RerollPerfectionsRoomController.cs` with serialized fields, `Initialize`, `OnEnable`/`OnDisable`, Marionette selection, panel refresh, reroll button evaluation, repeatable reroll execution, and `CompleteRoom()`.
+
+### 3. Unit Testing & Verification (`RerollPerfectionsRoomControllerTests.cs`)
+- [x] Create `Assets/Editor/Tests/RerollPerfectionsRoomControllerTests.cs` covering all requirements and edge cases.
+- [x] Run full EditMode test suite via `tests-run` MCP tool.
+- [x] Update `tasks/todo.md` with review and verification results.
+
+## Review & Verification Results
+- **Unit Tests**:
+  - `PartyMemberStatCalculatorTests.cs`: 4 new unit tests added and verified.
+    - `GetEffectiveMaxHP_WithNoTraitsOrTrinkets_ReturnsBaseMaxHP`
+    - `GetEffectiveMaxHP_AppliesFlatAndPercentageModifiersFromTraitsAndTrinkets`
+    - `GetEffectiveMaxHP_ClampsMinimumAtOne`
+    - `GetEffectiveMaxHP_SafelyIgnoresCombatOnlyStrategiesRequiringOwner`
+  - `RerollPerfectionsRoomControllerTests.cs`: 12 new unit tests added and verified.
+    - `Initialize_SetsMemberNames_GreysOutExtraButtons_AndHidesPanels`
+    - `SelectingMarionette_ActivatesPanels_UpdatesTraitModifiedHPAndPerfections_AndSetsRerollButtonText`
+    - `SelectingMarionette_WithExactlyOneHpRemainingAfterDamage_EnablesRerollButton`
+    - `SelectingMarionette_WhenCannotSurviveReroll_DisablesRerollButton`
+    - `SelectingMarionette_WithZeroPerfections_DisablesRerollButton`
+    - `OnRerollClicked_DealsDamage_ReplacesAllPerfectionsExcludingOldAndOpposite_AndRefreshesUI`
+    - `OnRerollClicked_IsRepeatableUntilMarionetteCannotSurvive`
+    - `OnRerollClicked_ClampsCurrentHpWhenMaxHpPerfectionIsLost`
+    - `OnRerollClicked_WhenFewerValidCandidatesExist_AddsAsManyAsPossibleAndDealsDamage`
+    - `OnLeaveClicked_CompletesRoomFlow`
+    - `CompleteRoom_WhenCombatUIMissing_LogsErrorAndStillDeactivates`
+    - `OnDisable_RemovesButtonListeners`
+  - Full suite EditMode test run: **736 passed, 0 failed, 0 skipped**.
+- **Files Created / Modified**:
+  - `Assets/Scripts/Combat/CombatCharacter.cs` (`GetModifiedStatValue` made `public static`)
+  - `Assets/Scripts/Combat/PartyMemberStatCalculator.cs`
+  - `Assets/Scripts/UI/RerollPerfectionsRoomController.cs`
+  - `Assets/Editor/Tests/PartyMemberStatCalculatorTests.cs`
+  - `Assets/Editor/Tests/RerollPerfectionsRoomControllerTests.cs`
+
+
 
 
 

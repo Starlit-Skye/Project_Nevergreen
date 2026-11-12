@@ -388,7 +388,7 @@ namespace Nevergreen.Combat
         /// Formula: (Base + FlatMod) * (1.0 + PercentMod)
         /// Clamped: MaxHP is clamped at minimum 1; all other stats are clamped at minimum 0.
         /// </summary>
-        private int GetModifiedStatValue(int baseVal, StatTarget target, Dictionary<StatTarget, float> netPercent, Dictionary<StatTarget, int> netFlat)
+        public static int GetModifiedStatValue(int baseVal, StatTarget target, Dictionary<StatTarget, float> netPercent, Dictionary<StatTarget, int> netFlat)
         {
             float percentMod = netPercent.TryGetValue(target, out float p) ? p : 0f;
             int flatMod = netFlat.TryGetValue(target, out int f) ? f : 0;
