@@ -610,6 +610,52 @@ Implement `RandomProcedureRoomController.cs` in `Assets/Scripts/UI/` and unit te
   - `Assets/Editor/Tests/PartyMemberStatCalculatorTests.cs`
   - `Assets/Editor/Tests/RerollPerfectionsRoomControllerTests.cs`
 
+---
+
+# Task: Implement RecycleRoomController
+
+## Summary
+Implement `RecycleRoomController.cs` in `Assets/Scripts/UI/` (implementing `ITrinketEquipContainerUI`) and unit tests in `Assets/Editor/Tests/RecycleRoomControllerTests.cs`:
+1. Three buttons: `recycleButton`, `confirmButton`, `leaveButton`.
+2. Clicking `recycleButton` opens `recycleSelectionPanel` (while keeping `recycleButton` visible).
+3. `recycleSelectionPanel` uses `TrinketEquipPanelHelper` for party equip panels and `testTrinketDroppedContainer`, without generating a trinket in the dropper.
+4. `confirmButton` is uninteractable until a valid trinket is placed in `testTrinketDroppedContainer`.
+5. Clicking `confirmButton` consumes the trinket(s) in the dropper and grants configurable Scraps based on rarity (`commonScraps` = 10, `uncommonScraps` = 20, `rareScraps` = 40), keeping the room open so multiple trinkets can be recycled.
+6. Clicking `leaveButton` runs `CompleteRoom()`.
+
+## Todo List
+
+### 1. Script Implementation (`RecycleRoomController.cs`)
+- [x] Create `Assets/Scripts/UI/RecycleRoomController.cs` implementing `ITrinketEquipContainerUI`.
+- [x] Add serialized fields for buttons, panel, trinket UI, and scrap values (`commonScraps`, `uncommonScraps`, `rareScraps`).
+- [x] Implement `Initialize`, `OnEnable`/`OnDisable`, `OnRecycleClicked`, `EvaluateConfirmButton`, `OnConfirmClicked`, `OnLeaveClicked`, and `CompleteRoom()`.
+
+### 2. Unit Testing & Verification (`RecycleRoomControllerTests.cs`)
+- [x] Create `Assets/Editor/Tests/RecycleRoomControllerTests.cs` covering all requirements and edge cases.
+- [x] Run full EditMode test suite via `tests-run` MCP tool.
+- [x] Update `tasks/todo.md` with review and verification results.
+
+## Review & Verification Results
+- **Unit Tests**:
+  - `RecycleRoomControllerTests.cs`: 12 new unit tests added and verified.
+    - `Initialize_HidesSelectionPanel_ShowsRecycleButton_DisablesConfirm_AndClearsDropper`
+    - `OnRecycleClicked_OpensSelectionPanel_KeepsRecycleButtonVisible_AndSpawnsNoTrinket`
+    - `ConfirmButton_EnablesWhenTrinketInDropper_AndDisablesWhenRemoved`
+    - `OnConfirmClicked_WithCommonTrinket_ConsumesTrinket_GrantsCommonScraps_AndKeepsRoomOpen`
+    - `OnConfirmClicked_WithUncommonTrinket_GrantsUncommonScraps`
+    - `OnConfirmClicked_WithRareTrinket_GrantsRareScraps`
+    - `OnConfirmClicked_AllowsRecyclingMultipleTrinketsSequentially`
+    - `OnConfirmClicked_WithMultipleTrinketsInDropper_ConsumesAllAndSumsScraps`
+    - `OnConfirmClicked_WhenTrinketNotInAnyPool_LogsWarning_DoesNotConsume_AndGrantsNoScraps`
+    - `OnLeaveClicked_CompletesRoomFlow`
+    - `CompleteRoom_WhenCombatUIMissing_LogsErrorAndStillDeactivates`
+    - `OnDisable_RemovesButtonListeners`
+  - Full suite EditMode test run: **748 passed, 0 failed, 0 skipped**.
+- **Files Created**:
+  - `Assets/Scripts/UI/RecycleRoomController.cs`
+  - `Assets/Editor/Tests/RecycleRoomControllerTests.cs`
+
+
 
 
 
