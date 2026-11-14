@@ -17,7 +17,7 @@ Status: COMPLETED. Pattern source: `SafeRoomController.cs` / `RecycleRoomControl
 - [x] Run automated tests and verify all test cases pass
 
 ### Review
-- Implemented `Nevergreen.UI.RubblesEventController` with `goAroundButton`, `clearRubbleButton`, configurable `exhaustionIncrease` (default `2`) and `damagePercent` (default `0.25f`, with tooltip examples `0.10 = 10%`, `0.25 = 25%`, `0.50 = 50%`, `1.00 = 100%`).
+- Implemented `Nevergreen.UI.RubblesEventController` with `goAroundButton`, `clearRubbleButton`, configurable `exhaustionIncrease` (default `2`) and `damagePercent` (default `0.25f`, with tooltip example `0.25 = 25%`).
 - `OnGoAroundClicked` disables both buttons, increases `RunSessionManager.ExhaustionRound` clamped to `RunSessionManager.ExhaustionLimit` (no-op when `ExhaustionLimit <= 0`), and invokes `CompleteRoom()`.
 - `OnClearRubbleClicked` disables both buttons, applies percentage max-HP damage via pure helper `ComputeDamagedHP` (flooring at 1 HP and preserving members already <= 1 HP, storing `null` when at full HP), and invokes `CompleteRoom()`.
 - `CompleteRoom()` deactivates the event GameObject and calls `CombatUI.ShowRoomSelectionImmediately()`.

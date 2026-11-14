@@ -24,7 +24,7 @@ namespace Nevergreen.UI
         [SerializeField] private int exhaustionIncrease = 2;
 
         [Range(0f, 1f)]
-        [Tooltip("Fraction of Max HP dealt to all party members when choosing Clear Rubble (e.g. 0.10 = 10%, 0.25 = 25%, 0.50 = 50%, 1.00 = 100%).")]
+        [Tooltip("Fraction of Max HP dealt to all party members when choosing Clear Rubble (e.g. 0.25 = 25%).")]
         [SerializeField] private float damagePercent = 0.25f;
 
         private List<PartyMemberInfo> _party;
@@ -39,8 +39,7 @@ namespace Nevergreen.UI
         }
 
         /// <summary>
-        /// Fraction of Max HP dealt when choosing Clear Rubble, clamped to [0, 1]
-        /// (e.g. 0.10 = 10%, 0.25 = 25%, 0.50 = 50%, 1.00 = 100%).
+        /// Fraction of Max HP dealt when choosing Clear Rubble, clamped to [0, 1] (e.g. 0.25 = 25%).
         /// </summary>
         public float DamagePercent
         {
