@@ -1,24 +1,26 @@
 # Task Management
 
-## Plan: RubblesEventController
+## Plan: MuralRoomController
 
-Status: COMPLETED. Pattern source: `SafeRoomController.cs` / `RecycleRoomController.cs`.
+Status: COMPLETED. Pattern source: `RubblesEventController.cs` / `RerollPerfectionsRoomController.cs`.
 
-### Confirmed Requirements & Decisions
-- **Go Around**: Increases `RunSessionManager.ExhaustionRound` by configured amount (default: 2), clamped to `ExhaustionLimit`. If limit <= 0, no-op (no penalty).
-- **Clear Rubble**: Deals damage to all members in party by percentage of max HP (default: 0.25 = 25%). Leaves members at a minimum of 1 HP if damage would kill them. If already <= 1 HP, unchanged.
-- **Percentage mapping**: `0.10 = 10%`, `0.25 = 25%`, `0.50 = 50%`, `1.00 = 100%`.
-- **Room Completion Flow**: Deactivates self, calls `FindFirstObjectByType<CombatUI>().ShowRoomSelectionImmediately()` (which persists state via `RunSessionManager.CompleteRoom()`).
-- **Scope**: Script (`RubblesEventController.cs`) and EditMode tests (`RubblesEventControllerTests.cs`). Prefab creation & wiring will be handled by the user. Spec updates are skipped.
+### Requirements & Flow
+- **Buttons**: `destroyButton`, `gazeButton`, `leaveButton`.
+- **Destroy**: All party members take configurable % max HP damage (clamped at minimum 1 HP; if already <= 1 HP, unchanged). Grants configurable Scraps (`RunSessionManager.GrantScraps`).
+- **Gaze**: Increases exhaustion by configurable amount (`RunSessionManager.ExhaustionRound`, clamped to `ExhaustionLimit`; no-op if limit <= 0). Grants each party member a random Perfection from `TraitDatabase.perfections` respecting no-dupes, exclusion, and max cap rules.
+- **Button Transition**: After clicking either Destroy or Gaze, hide Destroy and Gaze buttons, and enable the Leave button (disabled by default in the UI; script never disables it). Defaults: damagePercent 0.25, scrapReward 50, exhaustionIncrease 2. Prefab wiring done by user.
+- **Leave**: Completes room flow (`gameObject.SetActive(false)`, `CombatUI.ShowRoomSelectionImmediately()`).
 
 ### Checklist
-- [x] Implement `Assets/Scripts/UI/RubblesEventController.cs`
-- [x] Implement `Assets/Editor/Tests/RubblesEventControllerTests.cs`
-- [x] Run automated tests and verify all test cases pass
+- [x] Review & approve plan
+- [x] Implement `Assets/Scripts/UI/MuralRoomController.cs`
+- [x] Implement `Assets/Editor/Tests/MuralRoomControllerTests.cs`
+- [x] Run automated tests and verify 100% pass rate
 
 ### Review
-- Implemented `Nevergreen.UI.RubblesEventController` with `goAroundButton`, `clearRubbleButton`, configurable `exhaustionIncrease` (default `2`) and `damagePercent` (default `0.25f`, with tooltip example `0.25 = 25%`).
-- `OnGoAroundClicked` disables both buttons, increases `RunSessionManager.ExhaustionRound` clamped to `RunSessionManager.ExhaustionLimit` (no-op when `ExhaustionLimit <= 0`), and invokes `CompleteRoom()`.
-- `OnClearRubbleClicked` disables both buttons, applies percentage max-HP damage via pure helper `ComputeDamagedHP` (flooring at 1 HP and preserving members already <= 1 HP, storing `null` when at full HP), and invokes `CompleteRoom()`.
-- `CompleteRoom()` deactivates the event GameObject and calls `CombatUI.ShowRoomSelectionImmediately()`.
-- Verified via `tests-run` (`EditMode`): 12/12 tests in `Nevergreen.Tests.RubblesEventControllerTests` passed and 760/760 total EditMode tests passed (0 failed, 0 skipped).
+- Implemented `Nevergreen.UI.MuralRoomController` with `destroyButton`, `gazeButton`, `leaveButton`, `damagePercent` (`0.25f`), `scrapReward` (`50`), and `exhaustionIncrease` (`2`).
+- `Initialize()` leaves `leaveButton` untouched (since it is disabled by default in the UI prefab) and sets `destroyButton` and `gazeButton` interactable.
+- `OnDestroyClicked()` deals non-lethal percentage Max HP damage (clamped at minimum 1 HP), grants Scraps via `RunSessionManager.GrantScraps()`, hides `destroyButton` and `gazeButton`, and enables `leaveButton`.
+- `OnGazeClicked()` increases `RunSessionManager.ExhaustionRound` clamped to `ExhaustionLimit` (no-op when limit <= 0), grants each party member a random Perfection from `TraitDatabase.perfections` via `TryGrantRandomPerfection` (respecting max cap, duplicate ID, and direct/reverse opposite trait rules), hides `destroyButton` and `gazeButton`, and enables `leaveButton`.
+- `OnLeaveClicked()` executes `CompleteRoom()` (`gameObject.SetActive(false)` + `CombatUI.ShowRoomSelectionImmediately()`).
+- Verified via `tests-run` (`EditMode`): 15/15 tests in `Nevergreen.Tests.MuralRoomControllerTests` passed, and 775/775 total EditMode tests passed (0 failed, 0 skipped).
