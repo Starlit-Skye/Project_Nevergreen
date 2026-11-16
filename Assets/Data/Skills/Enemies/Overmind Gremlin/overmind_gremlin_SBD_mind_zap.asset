@@ -19,7 +19,7 @@ MonoBehaviour:
     damagePercent: 0.7
     healPercent: 0
     accuracyMod: 0
-    criticalMod: -10
+    criticalMod: 0
   effects:
   - rid: 4415245648690151427
   - rid: 4415245648690151428
@@ -37,6 +37,7 @@ MonoBehaviour:
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
+  animationClip: {fileID: 0}
   references:
     version: 2
     RefIds:

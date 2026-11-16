@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
   attack: 15
   accuracy: 95
-  critChance: 5
+  critChance: 0
   maxHP: 90
   defense: 0
   dodge: 40

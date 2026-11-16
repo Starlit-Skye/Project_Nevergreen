@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SBD_god_eye
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.StatBlockData
   attack: 7
-  accuracy: 85
-  critChance: 10
+  accuracy: 100
+  critChance: 0
   maxHP: 180
   defense: 0
   dodge: 40

@@ -19,7 +19,7 @@ MonoBehaviour:
     damagePercent: 1
     healPercent: 0
     accuracyMod: 0
-    criticalMod: 0
+    criticalMod: 5
   effects:
   - rid: 3450807426638151756
   - rid: 3450807426638151757
