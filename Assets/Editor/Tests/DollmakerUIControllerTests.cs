@@ -226,6 +226,8 @@ namespace Nevergreen.Tests
         [Test]
         public void TraitSelection_AppliesStrikethrough_AndTogglesConfirmButton()
         {
+            RunSessionManager.Parts = 20;
+
             var party = new List<PartyMemberInfo>
             {
                 new PartyMemberInfo 
@@ -274,8 +276,10 @@ namespace Nevergreen.Tests
         }
 
         [Test]
-        public void ConfirmImperfection_RemovesTrait_AndCallsCompleteRoom()
+        public void ConfirmImperfection_RemovesTrait_SpendsParts_AndCallsCompleteRoom()
         {
+            RunSessionManager.Parts = 25;
+
             var partyMember = new PartyMemberInfo 
             { 
                 character = _mockCharacter1,
@@ -297,12 +301,15 @@ namespace Nevergreen.Tests
 
             confirmBtn.onClick.Invoke(); // Confirm removal
 
+            Assert.AreEqual(15, RunSessionManager.Parts, "Parts should be deducted by partCost (10).");
             Assert.IsFalse(partyMember.imperfections.Contains(_mockImperfection), "Imperfection should be removed.");
             Assert.IsFalse(_uiRoot.activeSelf, "UI should be deactivated (room complete flow).");
         }
         [Test]
         public void ConfirmPerfection_ShowsReplacePanel_AndPopulatesOptions()
         {
+            RunSessionManager.Parts = 20;
+
             var globalCfg = ScriptableObject.CreateInstance<GlobalConfig>();
             globalCfg.maxPerfections = 10;
             globalCfg.maxImperfections = 10;
@@ -342,6 +349,7 @@ namespace Nevergreen.Tests
 
             confirmBtn.onClick.Invoke(); // Confirm triggers replace panel
 
+            Assert.AreEqual(20, RunSessionManager.Parts, "Opening replace panel should not deduct Parts yet.");
             Assert.IsTrue(replacePanel.activeSelf, "Replace Panel should be enabled.");
             Assert.AreEqual(1, replacementContainer.childCount, "Replacement container should have 1 option populated.");
             
@@ -352,8 +360,10 @@ namespace Nevergreen.Tests
         }
 
         [Test]
-        public void ConfirmReplacement_RemovesOldPerfection_AndAddsNewPerfection()
+        public void ConfirmReplacement_RemovesOldPerfection_AddsNewPerfection_AndSpendsParts()
         {
+            RunSessionManager.Parts = 25;
+
             var globalCfg = ScriptableObject.CreateInstance<GlobalConfig>();
             globalCfg.maxPerfections = 10;
             globalCfg.maxImperfections = 10;
@@ -389,6 +399,7 @@ namespace Nevergreen.Tests
 
             confirmRepBtn.onClick.Invoke();
 
+            Assert.AreEqual(15, RunSessionManager.Parts, "Parts should be deducted by partCost (10).");
             Assert.IsFalse(partyMember.perfections.Contains(_mockPerfection), "Old perfection should be removed.");
             Assert.IsTrue(partyMember.perfections.Contains(newPerfection), "New perfection should be added.");
             Assert.IsFalse(_uiRoot.activeSelf, "UI should be deactivated (room complete flow).");
@@ -399,6 +410,8 @@ namespace Nevergreen.Tests
         [Test]
         public void ReplacementSelection_AppliesUnderlineHighlight()
         {
+            RunSessionManager.Parts = 20;
+
             var globalCfg = ScriptableObject.CreateInstance<GlobalConfig>();
             globalCfg.maxPerfections = 10;
             globalCfg.maxImperfections = 10;
@@ -446,6 +459,238 @@ namespace Nevergreen.Tests
             repBtn.onClick.Invoke();
 
             Assert.AreEqual(FontStyles.Underline, repLabel.fontStyle, "Replacement option label should have underline font style.");
+
+            GameDatabase.SetInstanceForTesting(null);
+        }
+
+        [Test]
+        public void TraitSelection_WhenInsufficientParts_ConfirmButtonRemainsUninteractable()
+        {
+            RunSessionManager.Parts = 5; // Less than cost of 10
+
+            var party = new List<PartyMemberInfo>
+            {
+                new PartyMemberInfo 
+                { 
+                    character = _mockCharacter1,
+                    perfections = new List<TraitData> { _mockPerfection },
+                    imperfections = new List<TraitData> { _mockImperfection }
+                }
+            };
+
+            var confirmBtn = _uiRoot.AddComponent<Button>();
+            typeof(DollmakerUIController).GetField("confirmButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmBtn);
+            typeof(DollmakerUIController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(_controller, null);
+
+            _controller.Initialize(10, 3, party);
+            _controller.SelectMarionette(0);
+
+            var imperfBtn = _imperfectionsContainer.GetChild(0).GetComponent<Button>();
+            imperfBtn.onClick.Invoke();
+
+            Assert.IsFalse(confirmBtn.interactable, "Confirm button should remain uninteractable when Parts < partCost.");
+
+            // Granting enough parts updates button interactability via OnPartsChanged
+            RunSessionManager.GrantParts(5);
+            Assert.IsTrue(confirmBtn.interactable, "Confirm button should become interactable when Parts reaches partCost.");
+        }
+
+        [Test]
+        public void ReplacementSelection_WhenInsufficientParts_ConfirmReplacementButtonRemainsUninteractable()
+        {
+            RunSessionManager.Parts = 10;
+
+            var globalCfg = ScriptableObject.CreateInstance<GlobalConfig>();
+            globalCfg.maxPerfections = 10;
+            globalCfg.maxImperfections = 10;
+
+            var traitDb = ScriptableObject.CreateInstance<TraitDatabase>();
+            var newPerfection = ScriptableObject.CreateInstance<TraitData>();
+            newPerfection.displayName = "New Perfection Option";
+            newPerfection.traitType = TraitType.Perfection;
+            newPerfection.traitId = "new_perf_1";
+            traitDb.perfections = new List<TraitData> { newPerfection };
+
+            var gameDb = GameDatabase.CreateForTesting(globalCfg: globalCfg, traits: traitDb);
+            GameDatabase.SetInstanceForTesting(gameDb);
+
+            var partyMember = new PartyMemberInfo
+            {
+                character = _mockCharacter1,
+                perfections = new List<TraitData> { _mockPerfection }
+            };
+            var party = new List<PartyMemberInfo> { partyMember };
+
+            var confirmBtn = _uiRoot.AddComponent<Button>();
+            var confirmRepBtn = new GameObject("ConfirmRepBtn").AddComponent<Button>();
+            confirmRepBtn.transform.SetParent(_uiRoot.transform);
+            var replacePanel = new GameObject("ReplacePanel");
+            replacePanel.transform.SetParent(_uiRoot.transform);
+            var replacementContainer = new GameObject("ReplacementContainer").transform;
+            replacementContainer.SetParent(_uiRoot.transform);
+
+            typeof(DollmakerUIController).GetField("confirmButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmBtn);
+            typeof(DollmakerUIController).GetField("confirmReplacementButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmRepBtn);
+            typeof(DollmakerUIController).GetField("replacePanel", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, replacePanel);
+            typeof(DollmakerUIController).GetField("replacementContainer", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, replacementContainer);
+
+            typeof(DollmakerUIController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(_controller, null);
+
+            _controller.Initialize(10, 3, party);
+            _controller.SelectMarionette(0);
+
+            // Select perfection and open replace panel while affordable
+            var perfBtn = _perfectionsContainer.GetChild(0).GetComponent<Button>();
+            perfBtn.onClick.Invoke();
+            confirmBtn.onClick.Invoke();
+
+            // Simulate parts dropping below cost before selecting replacement
+            RunSessionManager.TrySpendParts(5); // 5 remaining < 10
+
+            var repBtn = replacementContainer.GetChild(0).GetComponent<Button>();
+            repBtn.onClick.Invoke();
+
+            Assert.IsFalse(confirmRepBtn.interactable, "Confirm replacement button should be uninteractable when Parts < partCost.");
+
+            GameDatabase.SetInstanceForTesting(null);
+        }
+
+        [Test]
+        public void ConfirmHandlers_WhenInsufficientParts_AbortWithoutMutatingTraitsOrSpending()
+        {
+            RunSessionManager.Parts = 5; // Less than cost of 10
+
+            var partyMember = new PartyMemberInfo
+            {
+                character = _mockCharacter1,
+                perfections = new List<TraitData> { _mockPerfection },
+                imperfections = new List<TraitData> { _mockImperfection }
+            };
+            var party = new List<PartyMemberInfo> { partyMember };
+
+            var confirmBtn = _uiRoot.AddComponent<Button>();
+            var confirmRepBtn = new GameObject("ConfirmRepBtn").AddComponent<Button>();
+            confirmRepBtn.transform.SetParent(_uiRoot.transform);
+
+            typeof(DollmakerUIController).GetField("confirmButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmBtn);
+            typeof(DollmakerUIController).GetField("confirmReplacementButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmRepBtn);
+            typeof(DollmakerUIController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(_controller, null);
+
+            _controller.Initialize(10, 3, party);
+            _controller.SelectMarionette(0);
+
+            // Select imperfection and directly invoke confirm button onClick
+            var imperfBtn = _imperfectionsContainer.GetChild(0).GetComponent<Button>();
+            imperfBtn.onClick.Invoke();
+            confirmBtn.onClick.Invoke();
+
+            Assert.AreEqual(5, RunSessionManager.Parts, "Parts should remain unchanged.");
+            Assert.IsTrue(partyMember.imperfections.Contains(_mockImperfection), "Imperfection should not be removed when unaffordable.");
+            Assert.IsTrue(_uiRoot.activeSelf, "Room should not complete when unaffordable.");
+
+            // Test replacement handler guard
+            var newPerfection = ScriptableObject.CreateInstance<TraitData>();
+            newPerfection.displayName = "New Perfection Option";
+            newPerfection.traitType = TraitType.Perfection;
+            newPerfection.traitId = "new_perf_1";
+
+            typeof(DollmakerUIController).GetField("_selectedTrait", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, _mockPerfection);
+            typeof(DollmakerUIController).GetField("_selectedReplacement", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, newPerfection);
+
+            confirmRepBtn.onClick.Invoke();
+
+            Assert.AreEqual(5, RunSessionManager.Parts, "Parts should remain unchanged.");
+            Assert.IsTrue(partyMember.perfections.Contains(_mockPerfection), "Old perfection should remain.");
+            Assert.IsFalse(partyMember.perfections.Contains(newPerfection), "New perfection should not be added.");
+
+            Object.DestroyImmediate(newPerfection);
+        }
+
+        [Test]
+        public void ConfirmImperfection_ExactBalance_SucceedsAndLeavesZeroParts()
+        {
+            RunSessionManager.Parts = 10;
+
+            var partyMember = new PartyMemberInfo
+            {
+                character = _mockCharacter1,
+                imperfections = new List<TraitData> { _mockImperfection }
+            };
+            var party = new List<PartyMemberInfo> { partyMember };
+
+            var confirmBtn = _uiRoot.AddComponent<Button>();
+            typeof(DollmakerUIController).GetField("confirmButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmBtn);
+            typeof(DollmakerUIController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(_controller, null);
+
+            _controller.Initialize(10, 3, party);
+            _controller.SelectMarionette(0);
+
+            var imperfBtn = _imperfectionsContainer.GetChild(0).GetComponent<Button>();
+            imperfBtn.onClick.Invoke();
+
+            Assert.IsTrue(confirmBtn.interactable, "Confirm button should be interactable when Parts == partCost.");
+
+            confirmBtn.onClick.Invoke();
+
+            Assert.AreEqual(0, RunSessionManager.Parts, "Parts should be 0 after spending exact balance.");
+            Assert.IsFalse(partyMember.imperfections.Contains(_mockImperfection), "Imperfection should be removed.");
+        }
+
+        [Test]
+        public void SelectAnother_CancelsReplacement_WithoutSpendingParts()
+        {
+            RunSessionManager.Parts = 15;
+
+            var globalCfg = ScriptableObject.CreateInstance<GlobalConfig>();
+            globalCfg.maxPerfections = 10;
+            globalCfg.maxImperfections = 10;
+
+            var traitDb = ScriptableObject.CreateInstance<TraitDatabase>();
+            var newPerfection = ScriptableObject.CreateInstance<TraitData>();
+            newPerfection.displayName = "New Perfection Option";
+            newPerfection.traitType = TraitType.Perfection;
+            newPerfection.traitId = "new_perf_1";
+            traitDb.perfections = new List<TraitData> { newPerfection };
+
+            var gameDb = GameDatabase.CreateForTesting(globalCfg: globalCfg, traits: traitDb);
+            GameDatabase.SetInstanceForTesting(gameDb);
+
+            var partyMember = new PartyMemberInfo
+            {
+                character = _mockCharacter1,
+                perfections = new List<TraitData> { _mockPerfection }
+            };
+            var party = new List<PartyMemberInfo> { partyMember };
+
+            var confirmBtn = _uiRoot.AddComponent<Button>();
+            var selectAnotherBtn = new GameObject("SelectAnotherBtn").AddComponent<Button>();
+            selectAnotherBtn.transform.SetParent(_uiRoot.transform);
+            var replacePanel = new GameObject("ReplacePanel");
+            replacePanel.transform.SetParent(_uiRoot.transform);
+            var replacementContainer = new GameObject("ReplacementContainer").transform;
+            replacementContainer.SetParent(_uiRoot.transform);
+
+            typeof(DollmakerUIController).GetField("confirmButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, confirmBtn);
+            typeof(DollmakerUIController).GetField("selectAnotherButton", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, selectAnotherBtn);
+            typeof(DollmakerUIController).GetField("replacePanel", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, replacePanel);
+            typeof(DollmakerUIController).GetField("replacementContainer", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_controller, replacementContainer);
+
+            typeof(DollmakerUIController).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(_controller, null);
+
+            _controller.Initialize(10, 3, party);
+            _controller.SelectMarionette(0);
+
+            var perfBtn = _perfectionsContainer.GetChild(0).GetComponent<Button>();
+            perfBtn.onClick.Invoke();
+            confirmBtn.onClick.Invoke();
+
+            Assert.IsTrue(replacePanel.activeSelf);
+
+            selectAnotherBtn.onClick.Invoke();
+
+            Assert.IsFalse(replacePanel.activeSelf, "Replace panel should be hidden after clicking Select Another.");
+            Assert.AreEqual(15, RunSessionManager.Parts, "No Parts should be spent when cancelling replacement.");
+            Assert.IsTrue(partyMember.perfections.Contains(_mockPerfection), "Original perfection should remain untouched.");
 
             GameDatabase.SetInstanceForTesting(null);
         }

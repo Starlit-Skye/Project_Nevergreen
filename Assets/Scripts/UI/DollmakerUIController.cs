@@ -96,16 +96,49 @@ namespace Nevergreen.UI
                 SelectMarionette(0);
             }
 
-            if (confirmButton != null) confirmButton.interactable = false;
+            RefreshConfirmButtons();
             if (replacePanel != null) replacePanel.SetActive(false);
+        }
+
+        private bool CanAfford() => RunSessionManager.Parts >= _partCost;
+
+        private void RefreshConfirmButtons()
+        {
+            if (confirmButton != null)
+            {
+                confirmButton.interactable = _selectedTrait != null && CanAfford();
+            }
+
+            if (confirmReplacementButton != null)
+            {
+                confirmReplacementButton.interactable = _selectedReplacement != null && CanAfford();
+            }
         }
 
         private void OnEnable()
         {
-            if (skipButton != null) skipButton.onClick.AddListener(OnSkipClicked);
-            if (confirmButton != null) confirmButton.onClick.AddListener(OnConfirmClicked);
-            if (confirmReplacementButton != null) confirmReplacementButton.onClick.AddListener(OnConfirmReplacementClicked);
-            if (selectAnotherButton != null) selectAnotherButton.onClick.AddListener(OnSelectAnotherClicked);
+            if (skipButton != null)
+            {
+                skipButton.onClick.RemoveListener(OnSkipClicked);
+                skipButton.onClick.AddListener(OnSkipClicked);
+            }
+            if (confirmButton != null)
+            {
+                confirmButton.onClick.RemoveListener(OnConfirmClicked);
+                confirmButton.onClick.AddListener(OnConfirmClicked);
+            }
+            if (confirmReplacementButton != null)
+            {
+                confirmReplacementButton.onClick.RemoveListener(OnConfirmReplacementClicked);
+                confirmReplacementButton.onClick.AddListener(OnConfirmReplacementClicked);
+            }
+            if (selectAnotherButton != null)
+            {
+                selectAnotherButton.onClick.RemoveListener(OnSelectAnotherClicked);
+                selectAnotherButton.onClick.AddListener(OnSelectAnotherClicked);
+            }
+            RunSessionManager.OnPartsChanged -= RefreshConfirmButtons;
+            RunSessionManager.OnPartsChanged += RefreshConfirmButtons;
         }
 
         private void OnDisable()
@@ -114,6 +147,12 @@ namespace Nevergreen.UI
             if (confirmButton != null) confirmButton.onClick.RemoveListener(OnConfirmClicked);
             if (confirmReplacementButton != null) confirmReplacementButton.onClick.RemoveListener(OnConfirmReplacementClicked);
             if (selectAnotherButton != null) selectAnotherButton.onClick.RemoveListener(OnSelectAnotherClicked);
+            RunSessionManager.OnPartsChanged -= RefreshConfirmButtons;
+        }
+
+        private void OnDestroy()
+        {
+            RunSessionManager.OnPartsChanged -= RefreshConfirmButtons;
         }
 
         public void SelectMarionette(int index)
@@ -182,7 +221,7 @@ namespace Nevergreen.UI
                     _selectedTraitLabel.fontStyle = FontStyles.Strikethrough;
                 }
 
-                if (confirmButton != null) confirmButton.interactable = true;
+                RefreshConfirmButtons();
             }
         }
 
@@ -194,7 +233,7 @@ namespace Nevergreen.UI
             }
             _selectedTrait = null;
             _selectedTraitLabel = null;
-            if (confirmButton != null) confirmButton.interactable = false;
+            RefreshConfirmButtons();
         }
 
         private void ClearContainers()
@@ -226,11 +265,13 @@ namespace Nevergreen.UI
         private void OnConfirmClicked()
         {
             if (_selectedTrait == null || _selectedMemberIndex < 0 || _selectedMemberIndex >= _party.Count) return;
+            if (!CanAfford()) return;
 
             PartyMemberInfo member = _party[_selectedMemberIndex];
 
             if (_selectedTrait.traitType == TraitType.Imperfection)
             {
+                if (!RunSessionManager.TrySpendParts(_partCost)) return;
                 member.RemoveTrait(_selectedTrait);
                 CompleteRoomFlow();
             }
@@ -246,7 +287,7 @@ namespace Nevergreen.UI
             
             _selectedReplacement = null;
             _selectedReplacementLabel = null;
-            if (confirmReplacementButton != null) confirmReplacementButton.interactable = false;
+            RefreshConfirmButtons();
 
             if (replacementContainer != null)
             {
@@ -364,12 +405,13 @@ namespace Nevergreen.UI
                 _selectedReplacementLabel.fontStyle = FontStyles.Underline;
             }
 
-            if (confirmReplacementButton != null) confirmReplacementButton.interactable = true;
+            RefreshConfirmButtons();
         }
 
         private void OnConfirmReplacementClicked()
         {
             if (_selectedReplacement == null || _selectedTrait == null || _selectedMemberIndex < 0 || _selectedMemberIndex >= _party.Count) return;
+            if (!RunSessionManager.TrySpendParts(_partCost)) return;
 
             PartyMemberInfo member = _party[_selectedMemberIndex];
             
@@ -388,7 +430,7 @@ namespace Nevergreen.UI
             _selectedReplacement = null;
             _selectedReplacementLabel = null;
             
-            if (confirmReplacementButton != null) confirmReplacementButton.interactable = false;
+            RefreshConfirmButtons();
             
             if (replacePanel != null) replacePanel.SetActive(false);
         }
