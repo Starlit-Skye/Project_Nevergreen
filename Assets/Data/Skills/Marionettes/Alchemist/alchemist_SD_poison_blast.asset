@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: alchemist_SD_poison_blast
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: poison_blast
-  displayName: Poison Blast
-  description: 'Low damage. Deal damage to 1 target and apply Blight
+  displayName: What's In This Vial?
+  description: 'Deal low damage to 1 target and apply Blight
 
-    Usable
-    Rank: 3-4
+    Usable Rank: 3-4
 
-    Target Rank: 1/2
+    Target
+    Rank: 1/2/3/4
 
 '
   modifier:
@@ -30,7 +30,7 @@ MonoBehaviour:
   effects:
   - rid: 356131354717192195
   useRanks: 0300000004000000
-  targetRanks: 0100000002000000
+  targetRanks: 01000000020000000300000004000000
   targetScope: 2
   maxTargets: 1
   ignoresDefense: 0

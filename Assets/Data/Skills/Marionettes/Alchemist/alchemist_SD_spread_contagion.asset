@@ -10,28 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: alchemist_SD_really_good_tea
+  m_Name: alchemist_SD_spread_contagion
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: really_good_tea
-  displayName: Really Good Tea
-  description: 'Cleanse Blight and small heal to an ally.
+  skillId: spread_contagion
+  displayName: Spread Contagion
+  description: 'Deal low damage to all enemies. Apply Blight.
 
     Usable Rank: 3-4
 
     Target
     Rank: Any'
   modifier:
-    damagePercent: 0
-    healPercent: 0.5
+    damagePercent: 0.1
+    healPercent: 0
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 356131354717192192
-  - rid: 356131354717192194
+  - rid: 2199788907271553024
+  - rid: 2199788907271553025
   useRanks: 0300000004000000
-  targetRanks: 01000000020000000300000004000000
-  targetScope: 1
-  maxTargets: 1
+  targetRanks: 01000000
+  targetScope: 2
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -44,12 +44,16 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131354717192192
-      type: {class: HealEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+    - rid: 2199788907271553024
+      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 
-    - rid: 356131354717192194
-      type: {class: RemoveStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+    - rid: 2199788907271553025
+      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        removeAll: 0
-        targetStatusType: 1
-        ignoreMiss: 1
+        statusType: 1
+        targetStat: 5
+        applicationChance: 100
+        amplitude: 10
+        amplitudeType: 0
+        duration: 3
+        ignoreMiss: 0

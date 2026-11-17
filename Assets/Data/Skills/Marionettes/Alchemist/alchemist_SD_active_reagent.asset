@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: alchemist_SD_toxic_grenade
+  m_Name: alchemist_SD_active_reagent
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: toxic_grenade
-  displayName: Toxic Grenade
-  description: 'Apply Blight to 2 back rank enemies
+  skillId: active_reagent
+  displayName: Active Reagent
+  description: 'Deal low damage to all enemies. +50% damage if target Blighted.
 
-    Usable Rank: 3-4'
+    Usable
+    Rank: 3-4'
   modifier:
-    damagePercent: 0.2
+    damagePercent: 0.25
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 356131354717192196
-  - rid: 356131354717192195
+  - rid: 2199788907271553026
   useRanks: 0300000004000000
-  targetRanks: 03000000
+  targetRanks: 01000000
   targetScope: 2
-  maxTargets: 2
+  maxTargets: 4
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -41,16 +41,9 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131354717192195
-      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+    - rid: 2199788907271553026
+      type: {class: ConditionalDamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 1
-        targetStat: 5
-        applicationChance: 100
-        amplitude: 30
-        amplitudeType: 0
-        duration: 3
-        ignoreMiss: 0
-    - rid: 356131354717192196
-      type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data: 
+        conditionSource: 0
+        requiredStatus: 1
+        bonusScaling: 0.5

@@ -10,29 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7848a3da5d152104a8baebf31eb3eaf5, type: 3}
-  m_Name: alchemist_SD_aroma_of_tea
+  m_Name: alchemist_SD_experimental_concoction
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
-  skillId: aroma_of_tea
-  displayName: Aroma of Tea
-  description: 'Small heal and apply blight and bleed res to team.
+  skillId: experimental_concoction
+  displayName: Experimental Concoction
+  description: 'Large heal to an ally, applies Blight
 
-    Usable Rank:
-    3-4
+    Usable Rank: 3-4
 
-    Target Rank: 1'
+    Target
+    Rank: 1-4'
   modifier:
     damagePercent: 0
-    healPercent: 0.1
+    healPercent: 1
     accuracyMod: 0
     criticalMod: 0
   effects:
-  - rid: 356131354717192195
-  - rid: 356131354717192197
   - rid: 4415245392192733261
+  - rid: 356131354717192197
   useRanks: 0300000004000000
-  targetRanks: 01000000
+  targetRanks: 01000000020000000300000004000000
   targetScope: 1
-  maxTargets: 4
+  maxTargets: 1
   ignoresDefense: 0
   ignoresDodge: 0
   guaranteedHit: 0
@@ -45,23 +44,13 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 356131354717192195
-      type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
-      data:
-        statusType: 5
-        targetStat: 7
-        applicationChance: 300
-        amplitude: 30
-        amplitudeType: 2
-        duration: 5
-        ignoreMiss: 1
     - rid: 356131354717192197
       type: {class: StatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data:
-        statusType: 5
+        statusType: 1
         targetStat: 8
-        applicationChance: 100
-        amplitude: 30
+        applicationChance: 300
+        amplitude: 22
         amplitudeType: 2
         duration: 5
         ignoreMiss: 1
