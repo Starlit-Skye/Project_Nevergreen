@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Eldritch Grasp
   description: Move 1 target to front, apply Unraveled, cannot miss, ignores Stealth.
   modifier:
-    damagePercent: 0.6
+    damagePercent: 0.4
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0

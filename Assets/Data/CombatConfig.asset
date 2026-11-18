@@ -36,9 +36,9 @@ MonoBehaviour:
     maxParts: 3
     minScraps: 0
     maxScraps: 0
-  eliteTrinketCommonWeight: 45
-  eliteTrinketUncommonWeight: 35
-  eliteTrinketRareWeight: 20
+  eliteTrinketCommonWeight: 0
+  eliteTrinketUncommonWeight: 60
+  eliteTrinketRareWeight: 40
   roomTierMappings:
   - roomCount: 1
     tier: 0

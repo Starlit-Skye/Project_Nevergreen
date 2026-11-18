@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Abyss Gazes Back
   description: Hits all enemies, apply Move Res Debuff
   modifier:
-    damagePercent: 0.3
+    damagePercent: 0.25
     healPercent: 0
     accuracyMod: 0
     criticalMod: 0
