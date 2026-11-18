@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Nevergreen.Data.SkillData
   skillId: scalding_grasp
   displayName: Scalding Grasp
-  description: Deal damage to 1 enemy
+  description: Deal damage to 1 enemy. Move self to front.
   modifier:
     damagePercent: 1
     healPercent: 0
@@ -22,6 +22,7 @@ MonoBehaviour:
     criticalMod: -10
   effects:
   - rid: 4415245653262205014
+  - rid: 2199788931206086737
   useRanks: 01000000020000000300000004000000
   targetRanks: 0100000002000000
   targetScope: 2
@@ -34,9 +35,20 @@ MonoBehaviour:
   hitCount: 1
   maxUsesPerBattle: -1
   sfx: {fileID: 0}
+  animationClip: {fileID: 0}
   references:
     version: 2
     RefIds:
+    - rid: 2199788931206086737
+      type: {class: SelfStatusEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
+      data:
+        statusType: 9
+        targetStat: 5
+        applicationChance: 100
+        amplitude: -3
+        amplitudeType: 0
+        duration: 1
+        ignoreMiss: 1
     - rid: 4415245653262205014
       type: {class: DamageEffect, ns: Nevergreen.Combat, asm: Assembly-CSharp}
       data: 
