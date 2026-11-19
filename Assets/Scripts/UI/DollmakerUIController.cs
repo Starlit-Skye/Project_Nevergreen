@@ -115,6 +115,11 @@ namespace Nevergreen.UI
             }
         }
 
+        private void Start()
+        {
+            RefreshConfirmButtons();
+        }
+
         private void OnEnable()
         {
             if (skipButton != null)
@@ -139,6 +144,7 @@ namespace Nevergreen.UI
             }
             RunSessionManager.OnPartsChanged -= RefreshConfirmButtons;
             RunSessionManager.OnPartsChanged += RefreshConfirmButtons;
+            RefreshConfirmButtons();
         }
 
         private void OnDisable()

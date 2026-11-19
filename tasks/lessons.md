@@ -120,5 +120,10 @@
 - **Pattern**: Adding methods like `SetRngForTesting(...)` or other test-only hooks directly into runtime production classes (`MonoBehaviour` controllers, etc.).
 - **Rule**: Keep production code completely free of test-specific methods or hooks. When unit tests need to inject a deterministic dependency (such as a mock `System.Random`) into a private field, use reflection inside the test class (`SetPrivateField`) rather than adding test helper methods to production scripts.
 
+### 23. Restrict File Reads to User-Provided Context When Sufficient
+- **Pattern**: Searching and reading unrelated scripts, prefabs, and git history when the user explicitly provides the target script and relevant specification documents.
+- **Rule**: When the user provides specific files and documentation for a focused tweak, rely on those provided files rather than expanding the search across the repository.
+
+
 
 
