@@ -201,5 +201,48 @@ namespace Nevergreen.Tests
                 instanceField.SetValue(null, null);
             }
         }
+
+        [Test]
+        public void MusicLoopRoutine_SourceStoppedBeforeTriggerTime_DoesNotRestartOrSwap()
+        {
+            // 5 second clip with 1 second fade -> triggerTime = 4.0s
+            AudioClip clip = AudioClip.Create("TestBgmLoop", 44100 * 5, 1, 44100, false);
+            var type = typeof(AudioManager);
+            var mainField = type.GetField("_bgmSourceMain", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var loopMethod = type.GetMethod("MusicLoopRoutine", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            _sourceMain.clip = clip;
+            _sourceMain.Play();
+            AudioSource initialMain = (AudioSource)mainField.GetValue(_audioManager);
+
+            var routine = (IEnumerator)loopMethod.Invoke(_audioManager, new object[] { clip, 1.0f });
+
+            // Step 1: enters routine and yields WaitUntil(() => _bgmSourceMain.isPlaying)
+            Assert.IsTrue(routine.MoveNext());
+
+            // Simulate transient focus/audio interruption before triggerTime (isPlaying == false, time < 4.0s)
+            initialMain.Pause();
+            initialMain.time = 1.5f;
+            Assert.IsFalse(initialMain.isPlaying);
+
+            // Step 2+: advancing the coroutine while !isPlaying and time < triggerTime must NOT swap/restart
+            Assert.IsTrue(routine.MoveNext());
+            Assert.IsNull(routine.Current, "Routine should yield null inside the time < triggerTime wait loop.");
+            Assert.AreSame(initialMain, mainField.GetValue(_audioManager), "Main source must not swap when stopped before triggerTime.");
+
+            Assert.IsTrue(routine.MoveNext());
+            Assert.AreSame(initialMain, mainField.GetValue(_audioManager), "Main source must still not swap on subsequent frames before triggerTime.");
+
+            // Once playback time reaches triggerTime (>= 4.0s), the next step should trigger SwapSourcesAndPlay
+            initialMain.time = 4.1f;
+            Assert.IsTrue(routine.MoveNext());
+            Assert.AreNotSame(initialMain, mainField.GetValue(_audioManager), "Main source should swap once time reaches triggerTime.");
+
+            if (_audioManager.config != null && !UnityEditor.EditorUtility.IsPersistent(_audioManager.config))
+            {
+                Object.DestroyImmediate(_audioManager.config);
+            }
+            Object.DestroyImmediate(clip);
+        }
     }
 }

@@ -2,8 +2,8 @@
 
 Owner: Engineering
 Status: active
-Last verified: 2026-05-15
-Verified commit: 4ea78565e7d646b5a59f1f7d7510b3765ed680ee
+Last verified: 2026-11-20
+Verified commit: 322944907ecba84046f25dca22bd77bb56f961e5
 Target build: Unity 6000.3.9f1 (Windows)
 
 ## Purpose
@@ -74,7 +74,8 @@ Provide immersive audio feedback through dynamic background music (BGM) transiti
 
 ## Timing Model
 - **Update domain**: `Update` (Input polling), `Coroutine` (Volume fades/Loop monitoring).
-- **Loop Trigger**: Triggered when `AudioSource.time >= clip.length - fadeDuration`.
+- **Loop Trigger**: Triggered strictly when `AudioSource.time >= clip.length - fadeDuration` (does not prematurely loop if `isPlaying` transiently drops before `triggerTime`).
+- **Background Playback**: Requires `runInBackground: 1` in `ProjectSettings/ProjectSettings.asset` so BGM and SFX continue playing when the application window loses focus.
 - **Fade Duration**: Default 1500ms (BGM) / Variable (SFX).
 - **Update order**: SFX triggered immediately upon animation step execution.
 
@@ -100,10 +101,11 @@ Provide immersive audio feedback through dynamic background music (BGM) transiti
 - Logs: `[Audio] Transitioning to BattleMusic`, `[Audio] Loop triggered for: <ClipName>`.
 
 ## Acceptance Tests
-- Automated: `AudioManagerTests` verifying routine cleanup and idempotency.
+- Automated: `AudioManagerTests` verifying routine cleanup, idempotency, and that transient stops before `triggerTime` do not restart or swap the BGM track.
 - Automated: `BattleMusicControllerTests` verifying battle event integration.
 - Playtest: Trigger combat and verify exploration BGM fades into battle BGM.
 - Playtest: Wait for BGM end and verify seamless overlap-looping.
+- Playtest: Alt-tab / switch window focus mid-track and verify audio continues without cutting out or restarting.
 
 ## Missing Evidence
 - **Exploration System Integration**: The "Exploration" state is currently placeholder; integration with a real exploration controller is Unknown.

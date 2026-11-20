@@ -127,3 +127,7 @@
 
 
 
+
+### 24. Implementation Plans Must Be Created as Artifacts
+- **Pattern**: Writing an implementation plan only into chat or appending to a file like `tasks/todo.md` without presenting it in an artifact.
+- **Rule**: When instructed to create an implementation plan, ALWAYS create a structured markdown artifact in the artifact directory (`<appDataDir>\brain\<conversation-id>`) with `ArtifactMetadata` (`RequestFeedback: true`, `UserFacing: true`). This enables the user to cleanly review, comment on, and approve the plan within the UI.

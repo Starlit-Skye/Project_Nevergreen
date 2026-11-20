@@ -175,7 +175,7 @@ namespace Nevergreen.Audio
                 // Wait until it's time to trigger the next loop's crossfade.
                 // Using a while loop with source.time makes this reactive to debug skips!
                 float triggerTime = clip.length - fadeDuration;
-                while (_bgmSourceMain.isPlaying && _bgmSourceMain.time < triggerTime)
+                while (_bgmSourceMain.time < triggerTime)
                 {
                     yield return null;
                 }
