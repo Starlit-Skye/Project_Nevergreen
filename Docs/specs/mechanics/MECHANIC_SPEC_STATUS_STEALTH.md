@@ -17,11 +17,14 @@ The Stealth status effect prevents enemies from targeting a character with skill
 - Code: 
   - `Assets/Scripts/Combat/CombatCharacter.cs` (`IsStealthed`)
   - `Assets/Scripts/Combat/Effects/StealthStatusInstance.cs` (`StealthStatusInstance`, `StealthTextTracker`)
-  - `Assets/Scripts/Combat/BattleSystem.cs` (`GetValidTargets` target filtration)
+  - `Assets/Scripts/Combat/TargetResolver.cs` (`GetValidTargets`, `IsTargetable`)
+  - `Assets/Scripts/Combat/BattleSystem.cs` (`GetValidTargets` wrapper)
   - `Assets/Scripts/Combat/StatusEffectOnSpawn.cs` (`ApplyTo` factory logic)
   - `Assets/Scripts/Data/SkillData.cs` (`ignoresStealth` flag)
   - `Assets/Scripts/Combat/Effects/RemoveStealthEffect.cs`
 - Tests: 
+  - `Assets/Editor/Tests/StealthTests.cs` (verifies direct targeting restrictions, AOE damage, duration, and removal)
+  - `Assets/Editor/Tests/AoeTargetingTests.cs` (verifies AOE stealthed-anchor resolution for Marionette and Monster skills)
   - `Assets/Editor/Tests/StatusEffectOnSpawnTests.cs` (verifies spawn application of Stealth status)
 - Design: Unknown
 - Data: `Assets/Scripts/Data/SkillData.cs` (`StatusType.Stealth` enum value)
@@ -54,9 +57,11 @@ Transitions:
 
 ## Formulas
 ```csharp
-// From BattleSystem.cs: GetValidTargets target filtering logic
-if (skill.targetScope == TargetScope.Enemies && c.IsStealthed && !skill.ignoresStealth)
-    return false; // Character cannot be targeted
+// From TargetResolver.cs: IsTargetable & GetValidTargets
+// Single target: anchor must satisfy IsTargetable(c, skill)
+// AOE (maxTargets > 1): anchor is valid if aoeTargets.Any(t => IsTargetable(t, skill))
+if (skill.targetScope == TargetScope.Enemies && target.IsStealthed && !skill.ignoresStealth)
+    return false; // Character is not directly targetable
 ```
 
 ## Tuning Variables
@@ -66,7 +71,7 @@ if (skill.targetScope == TargetScope.Enemies && c.IsStealthed && !skill.ignoresS
 
 ## Edge Cases
 - **HPBar timing on spawn**: When a monster spawns with Stealth, its `HPBar` is not yet instantiated. The `StealthTextTracker` constantly polls in its `Update` function until it finds the matching `HPBar` (via the private `_target` field mapped with Reflection) and parents the UI text.
-- **AOE targeting expansion**: While Stealth prevents a character from being selected as the primary target of an enemy skill, it does not protect them from being hit by multi-target/AOE skills if an adjacent ally is selected as the primary target (e.g. `BattleSystem.GetAOETargets` doesn't filter out stealthed characters).
+- **AOE targeting expansion**: While Stealth prevents a character from being directly targeted by single-target enemy skills, an AOE skill (`maxTargets > 1`) **can** use a stealthed enemy as its primary anchor (or hit them as a secondary target) as long as at least one targetable unit exists within the resulting AOE range (`TargetResolver.GetAOETargets`). An AOE skill is only uncastable if all units in the AOE range are untargetable. Stealthed targets hit by AOE take damage/effects normally and retain Stealth unless explicitly removed.
 - **Stealth Bypass**: Skills with the `ignoresStealth` flag set to `true` on their `SkillData` asset bypass targeting restrictions and can target stealthed characters directly.
 
 ## Failure Modes

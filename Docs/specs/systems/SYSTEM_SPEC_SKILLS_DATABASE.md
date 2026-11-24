@@ -45,7 +45,7 @@ Define how skill definitions are authored and consumed through ScriptableObject-
     - `ignoresDodge` (`bool`): Bypasses target dodge stats.
     - `guaranteedHit` (`bool`): Bypasses accuracy resolution.
     - `bypassGuard` (`bool`): Bypasses target guard status.
-    - `ignoresStealth` (`bool`): Bypasses target stealth status.
+    - `ignoresStealth` (`bool`): Bypasses target stealth status for direct targeting and AOE targetability checks.
     - `hitCount` (`int`): Hit resolution count per skill activation.
     - `maxUsesPerBattle` (`int`): Maximum execution allowance per match.
     - `sfx` (`AudioClip`): Auditory feedback on activation.

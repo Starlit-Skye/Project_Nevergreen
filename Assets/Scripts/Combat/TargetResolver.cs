@@ -20,6 +20,20 @@ namespace Nevergreen.Combat
         }
 
         /// <summary>
+        /// Checks whether a character can be directly targeted by a skill (or count as a valid
+        /// targetable unit inside an AOE skill's range).
+        /// </summary>
+        public static bool IsTargetable(CombatCharacter target, SkillData skill)
+        {
+            if (target == null) return false;
+            if (target.IsDowned) return false;
+            if (skill.targetScope == TargetScope.Enemies && target.IsStealthed && !skill.ignoresStealth)
+                return false;
+
+            return IsValidReceiver(target, skill);
+        }
+
+        /// <summary>
         /// Get valid targets for a skill based on scope and rank constraints.
         /// </summary>
         public static List<CombatCharacter> GetValidTargets(
@@ -46,30 +60,25 @@ namespace Nevergreen.Combat
             }
 
             return pool
-                .Where(c => 
+                .Where(c =>
                 {
-                    if (c.IsDowned) return false;
+                    if (!c.IsAlive && !c.IsPile && !c.IsDowned)
+                        return false;
 
                     if (!c.OccupiedRanks.Intersect(skill.targetRanks).Any())
-                        return false;
-                    if (skill.targetScope == TargetScope.Enemies && c.IsStealthed && !skill.ignoresStealth)
                         return false;
 
                     if (skill.maxTargets > 1)
                     {
-                        // For AOE, anchor is valid if at least one unit in the resulting AOE range is a valid receiver
+                        // For AOE, anchor is valid if at least one unit in the resulting AOE range is targetable
                         var aoeTargets = GetAOETargets(skill, c, playerTeam, enemyTeam);
-                        if (!aoeTargets.Any(t => IsValidReceiver(t, skill)))
-                            return false;
+                        return aoeTargets.Any(t => IsTargetable(t, skill));
                     }
                     else
                     {
-                        // For single target, the anchor must be a valid receiver directly
-                        if (!IsValidReceiver(c, skill))
-                            return false;
+                        // For single target, the anchor itself must be targetable
+                        return IsTargetable(c, skill);
                     }
-
-                    return true;
                 })
                 .ToList();
         }

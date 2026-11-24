@@ -1,4 +1,4 @@
-﻿# Task Management
+# Task Management
 
 ## Plan: MuralRoomController
 
@@ -28,7 +28,7 @@ Status: COMPLETED. Pattern source: `RubblesEventController.cs` / `RerollPerfecti
 
 ## Plan: Harden `AudioManager.MusicLoopRoutine` (minimal guard, revised)
 
-Status: COMPLETED. Prereq done: `runInBackground` enabled. Full plan: see the implementation_plan_audio_hardening.md artifact.
+Status: PLAN ONLY, awaiting approval. Prereq done: `runInBackground` enabled. Full plan: see the implementation_plan_audio_hardening.md artifact.
 
 ### Problem
 `MusicLoopRoutine` inner loop `while (isPlaying && time < triggerTime)` exits when `isPlaying` is false, so `SwapSourcesAndPlay` restarts the track from 0:00.
@@ -40,16 +40,13 @@ Only the inner loop changes, to `while (_bgmSourceMain.time < triggerTime) yield
 If the source stops and `time` resets to 0 (for example a hitch longer than `fadeDuration`), the routine waits until the next `TransitionToBGM`.
 
 ### Checklist
-- [x] Review & approve plan
-- [x] Read `AudioManagerTests.cs`
-- [x] Edit the inner while condition (about 1 line)
-- [x] Add test: the source is stopped before `triggerTime` and the track does not restart
-- [x] Run `tests-run` + `console-get-logs`
+- [ ] Review & approve plan
+- [ ] Read `AudioManagerTests.cs`
+- [ ] Edit the inner while condition (about 1 line)
+- [ ] Add one PlayMode test: the source is stopped before `triggerTime` and the track does not restart
+- [ ] Run `tests-run` + `console-get-logs`
 - [ ] Playtest: alt-tab 10+ s, and loop at track end
-- [x] Update `SYSTEM_SPEC_AUDIO.md`
+- [ ] Update `SYSTEM_SPEC_AUDIO.md`
 
 ### Review
-- Changed the inner loop condition in `AudioManager.MusicLoopRoutine` (`Assets/Scripts/Audio/AudioManager.cs`) from `while (_bgmSourceMain.isPlaying && _bgmSourceMain.time < triggerTime)` to `while (_bgmSourceMain.time < triggerTime)` so transient drops in `isPlaying` do not exit early into `SwapSourcesAndPlay(clip)`.
-- Added `MusicLoopRoutine_SourceStoppedBeforeTriggerTime_DoesNotRestartOrSwap` in `Assets/Editor/Tests/AudioManagerTests.cs` verifying that pausing/stopping `_bgmSourceMain` before `triggerTime` does not swap or restart the track, and advancing `time` past `triggerTime` triggers the loop swap as expected.
-- Verified via `tests-run` (`EditMode`, `AudioManagerTests`): 8/8 tests passed (0 failed).
-- Updated `Docs/specs/systems/SYSTEM_SPEC_AUDIO.md` with the `time`-based loop trigger guard, `runInBackground: 1` dependency, and acceptance test coverage.
+- _pending_

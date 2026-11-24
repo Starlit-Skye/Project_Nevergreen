@@ -22,6 +22,7 @@ The Area of Effect (AOE) targeting system uses a rank-based linear propagation m
 
 ## Source of Truth
 - **Code**:
+  - `Assets/Scripts/Combat/TargetResolver.cs` (`GetValidTargets`, `GetAOETargets`, `IsTargetable`, `IsValidReceiver`)
   - `Assets/Scripts/Combat/BattleSystem.cs` (`GetAOETargets`, `GetValidTargets`)
   - `Assets/Scripts/Prototype/CombatUI.cs` (`UpdateTargetHoverHighlight`, `TrySelectTarget`)
   - `Assets/Scripts/Combat/AI/Nodes/SimpleTargeting.cs` (`TryResolveTargets`)
@@ -65,6 +66,7 @@ No complex algebraic formulas. Target propagation is resolved by:
 - **Multi-Rank Characters**: Large enemies (size 2/3) only count as a single target in the result list (preventing double-hitting), but they consume multiple rank-slots of the AOE budget proportional to their size. A size-2 character consumes 2 of the `maxTargets` rank budget. This means an AOE skill with `maxTargets = 2` targeting a size-2 enemy will only hit that single enemy. The primary target is always included, even if its size exceeds the total `maxTargets` budget.
 - **Piles (Deceased Units)**: Piles are treated as valid targets and count towards the trailing target limit for both damaging and healing skills. However, healing skills do not apply any healing or positive effects to them (as piles refuse healing).
 - **AOE Healing/Status on Piles**: For AOE skills (`maxTargets > 1`), a Pile can be selected as the primary anchor target for a healing or status-only skill **if and only if** the resulting AOE range includes at least one active, living target. If no living targets exist behind the Pile in the AOE range, the Pile is rejected as an anchor.
+- **Untargetable Anchors (e.g., Stealth, Downed)**: For AOE skills (`maxTargets > 1`), an untargetable character (such as a stealthed or downed unit) on a valid `targetRanks` rank is still a valid primary anchor **if and only if** at least one character in the resulting `GetAOETargets` range is targetable (`TargetResolver.IsTargetable`). The skill is only uncastable when all characters within the AOE range are untargetable (or when no valid anchors exist on `targetRanks`). This applies equally to Marionette and Monster skills; stealthed targets inside the AOE range are hit normally and retain Stealth unless explicitly removed by an effect.
 
 ## Failure Modes
 - **No Valid Targets**: If `GetValidTargets` returns zero eligible targets, targeting mode cannot be completed. The AI will fall back to passing the turn.
@@ -81,6 +83,13 @@ No complex algebraic formulas. Target propagation is resolved by:
   - `AoeTargetingTests.GetAOETargets_HealingSkill_IncludesPilesButDoesNotHeal`
   - `AoeTargetingTests.GetValidTargets_AOEHealingSkill_AllowsPileAnchorIfLivingUnitInAOERange`
   - `AoeTargetingTests.GetValidTargets_AOEHealingSkill_RejectsPileAnchorIfNoLivingUnitInAOERange`
+  - `AoeTargetingTests.GetValidTargets_AOE_AllowsStealthedAnchorWhenTargetableUnitInRange`
+  - `AoeTargetingTests.GetValidTargets_AOE_RejectsAllAnchorsWhenAllUnitsInRangeAreStealthed`
+  - `AoeTargetingTests.GetValidTargets_AOE_AllowsStealthedAnchorsWhenIgnoresStealthIsTrue`
+  - `AoeTargetingTests.GetValidTargets_AOE_RejectsStealthedBackAnchorWhenNoTargetableBehind`
+  - `AoeTargetingTests.GetValidTargets_AOE_AllowsDownedAnchorWhenTargetableUnitInRange_AndRejectsWhenNone`
+  - `AoeTargetingTests.GetValidTargets_AOE_MonsterSkill_AllowsStealthedMarionetteAnchorWhenTargetableMarionetteInRange`
+  - `AoeTargetingTests.GetValidTargets_AOE_Size2StealthedAnchor_RespectsRankBudget`
 - **Playtest**:
   - Enter combat, select an AOE skill with `maxTargets = 2`. Hovering over rank 1 enemy must highlight rank 1 (green) and rank 2 (green), while remaining valid targets (rank 3, 4) highlight yellow. Hovering over a pile with a healing skill must highlight it (since it is targeted) but applying the skill will not heal it.
 
