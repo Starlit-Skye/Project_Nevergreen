@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using Nevergreen.Combat;
 using Nevergreen.Data;
 
@@ -37,19 +39,24 @@ namespace Nevergreen.Tests
         }
 
         private (BattleSystem bs, SkillContext ctx) MakeCtx(
-            CombatCharacter attacker, CombatCharacter target, SkillData skill, System.Random rng)
+            CombatCharacter user, CombatCharacter targetChar, SkillData skill, System.Random random)
         {
             var bsGo = new GameObject("BS");
             var bs = bsGo.AddComponent<BattleSystem>();
-            var ctx = new SkillContext(attacker, skill, new System.Collections.Generic.List<CombatCharacter> { target }, bs, rng);
+            var ctx = new SkillContext(user, skill, new List<CombatCharacter> { targetChar }, bs, random);
             return (bs, ctx);
         }
 
         [Test]
         public void Redirection_DamageIsRedirectedToGuardian()
         {
-            // Apply guard
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            // Apply guard status onto the guardian, protecting target
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
+
+            var guard = GuardResolver.GetGuardStatusHeldBy(guardian);
+            Assert.IsNotNull(guard, "Guardian should hold the Guard status.");
+            Assert.AreEqual(target, guard.GuardedTarget, "Guard status should track the protected target.");
+            Assert.AreEqual(0, target.statusEffects.Count, "Protected target should not hold the Guard status.");
 
             // Create damage skill
             var skill = CombatTestHelper.CreateDamageSkill();
@@ -73,41 +80,64 @@ namespace Nevergreen.Tests
 
             Assert.AreEqual(50, target.currentHP, "Target should take no damage.");
             Assert.Less(guardian.currentHP, 100, "Guardian should take damage.");
-            
+
             Object.DestroyImmediate(bs.gameObject);
         }
 
         [Test]
         public void ImmediateBreak_StunOnGuardianRemovesGuard()
         {
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
 
-            Assert.AreEqual(1, target.statusEffects.Count, "Target should have guard status.");
+            Assert.IsNotNull(GuardResolver.GetGuardStatusHeldBy(guardian), "Guardian should hold guard status.");
 
             // Apply stun to guardian
             var stunStatus = new StatusEffectInstance(StatusType.Stun, 1, 1);
             guardian.AddStatus(stunStatus);
             guardian.TriggerStatusApplied(StatusType.Stun, true); // Simulate StunEffect executing
 
-            Assert.AreEqual(0, target.statusEffects.Count, "Guard status should be removed when guardian is stunned.");
+            Assert.IsNull(GuardResolver.GetGuardStatusHeldBy(guardian), "Guard status should be removed when guardian is stunned.");
+            Assert.IsNull(GuardResolver.GetActiveGuardian(target), "Target should no longer have an active guardian.");
         }
 
         [Test]
         public void LastInWins_ApplyingNewGuardRemovesOldGuard()
         {
             var oldGuardian = CombatTestHelper.CreateCombatCharacter("OldGuardian", Team.Player, 3);
-            
-            target.AddStatus(new GuardStatusInstance(oldGuardian, 3));
-            Assert.AreEqual(1, target.statusEffects.Count);
-            Assert.AreEqual(oldGuardian, target.statusEffects[0].Source);
 
-            // Apply new guard
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            oldGuardian.AddStatus(new GuardStatusInstance(oldGuardian, target, 3));
+            Assert.AreEqual(1, oldGuardian.statusEffects.Count);
+            Assert.AreEqual(oldGuardian, GuardResolver.GetActiveGuardian(target));
 
-            Assert.AreEqual(1, target.statusEffects.Count, "Should only have one guard status.");
-            Assert.AreEqual(guardian, target.statusEffects[0].Source, "Guardian should be the new source.");
+            // Apply new guard protecting the same target
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
+
+            Assert.AreEqual(0, oldGuardian.statusEffects.Count, "Old guardian's guard should be removed.");
+            Assert.AreEqual(1, guardian.statusEffects.Count, "New guardian should hold the guard status.");
+            Assert.AreEqual(target, GuardResolver.GetGuardStatusHeldBy(guardian).GuardedTarget);
+            Assert.AreEqual(guardian, GuardResolver.GetActiveGuardian(target), "New guardian should be the active guardian.");
 
             Object.DestroyImmediate(oldGuardian.gameObject);
+        }
+
+        [Test]
+        public void ReGuard_GuardingNewTargetBreaksPreviousGuard()
+        {
+            var secondTarget = CombatTestHelper.CreateCombatCharacter("SecondTarget", Team.Player, 3, maxHP: 50);
+
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
+            Assert.AreEqual(guardian, GuardResolver.GetActiveGuardian(target));
+
+            // Guardian guards a different ally
+            guardian.AddStatus(new GuardStatusInstance(guardian, secondTarget, 3));
+
+            var guardStatuses = guardian.statusEffects.OfType<GuardStatusInstance>().ToList();
+            Assert.AreEqual(1, guardStatuses.Count, "Guardian should only hold one Guard status at a time.");
+            Assert.AreEqual(secondTarget, guardStatuses[0].GuardedTarget, "Guardian should now guard the new target.");
+            Assert.IsNull(GuardResolver.GetActiveGuardian(target), "Previous target should no longer be guarded.");
+            Assert.AreEqual(guardian, GuardResolver.GetActiveGuardian(secondTarget), "New target should be guarded.");
+
+            Object.DestroyImmediate(secondTarget.gameObject);
         }
 
         [Test]
@@ -116,46 +146,92 @@ namespace Nevergreen.Tests
             var grandGuardian = CombatTestHelper.CreateCombatCharacter("GrandGuardian", Team.Player, 3);
 
             // guardian guards target
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
-            Assert.AreEqual(1, target.statusEffects.Count);
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
+            Assert.AreEqual(1, guardian.statusEffects.Count);
 
             // grandGuardian guards guardian
-            guardian.AddStatus(new GuardStatusInstance(grandGuardian, 3));
+            grandGuardian.AddStatus(new GuardStatusInstance(grandGuardian, guardian, 3));
 
-            // Due to Nested Guarding rule, guardian should break its guard on target
-            Assert.AreEqual(0, target.statusEffects.Count, "Guard on target should be broken.");
-            Assert.AreEqual(1, guardian.statusEffects.Count, "Guardian should still have guard from GrandGuardian.");
+            // Due to Mutual Exclusivity rule, guardian should break its guard on target
+            Assert.AreEqual(0, guardian.statusEffects.Count, "Guardian's guard on target should be broken.");
+            Assert.IsNull(GuardResolver.GetActiveGuardian(target), "Target should no longer be guarded.");
+            Assert.AreEqual(1, grandGuardian.statusEffects.Count, "GrandGuardian should hold guard on guardian.");
+            Assert.AreEqual(guardian, GuardResolver.GetGuardStatusHeldBy(grandGuardian).GuardedTarget);
+            Assert.AreEqual(grandGuardian, GuardResolver.GetActiveGuardian(guardian));
 
             Object.DestroyImmediate(grandGuardian.gameObject);
         }
 
         [Test]
+        public void MutualExclusivity_ProtectedBecomingGuardianBreaksGuardProtectingThem()
+        {
+            var grandGuardian = CombatTestHelper.CreateCombatCharacter("GrandGuardian", Team.Player, 3);
+
+            // grandGuardian guards guardian
+            grandGuardian.AddStatus(new GuardStatusInstance(grandGuardian, guardian, 3));
+            Assert.AreEqual(grandGuardian, GuardResolver.GetActiveGuardian(guardian));
+
+            // guardian now guards target
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
+
+            // Mutual Exclusivity (both directions): grandGuardian's guard on guardian must break
+            Assert.AreEqual(0, grandGuardian.statusEffects.Count, "Guard protecting the new guardian should be broken.");
+            Assert.IsNull(GuardResolver.GetActiveGuardian(guardian), "New guardian should no longer be protected.");
+            Assert.AreEqual(1, guardian.statusEffects.Count, "Guardian should hold guard on target.");
+            Assert.AreEqual(guardian, GuardResolver.GetActiveGuardian(target), "Target should be guarded by guardian.");
+
+            Object.DestroyImmediate(grandGuardian.gameObject);
+        }
+
+        [Test]
+        public void CircularGuard_NewestWinsAndBreaksPreviousLoop()
+        {
+            // guardian guards target
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
+            Assert.AreEqual(guardian, GuardResolver.GetActiveGuardian(target));
+
+            // target guards guardian (circular)
+            target.AddStatus(new GuardStatusInstance(target, guardian, 3));
+
+            Assert.AreEqual(0, guardian.statusEffects.Count, "Previous guard in circular pair should be broken.");
+            Assert.AreEqual(1, target.statusEffects.Count, "Newest guard should remain active.");
+            Assert.AreEqual(guardian, GuardResolver.GetGuardStatusHeldBy(target).GuardedTarget);
+            Assert.AreEqual(target, GuardResolver.GetActiveGuardian(guardian));
+            Assert.IsNull(GuardResolver.GetActiveGuardian(target));
+
+            // Verify redirection resolves cleanly without infinite loop
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(attacker, skill, new List<CombatCharacter> { guardian }, null, rng);
+            Assert.AreEqual(target, CombatCalculator.GetEffectiveTarget(guardian, ctx));
+        }
+
+        [Test]
         public void AOEBypass_GuardIgnoredIfGuardianAlsoTargeted()
         {
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
 
             var skill = CombatTestHelper.CreateDamageSkill();
             skill.guaranteedHit = true;
-            
+
             // Skill targets both Target and Guardian (AOE)
-            var targets = new System.Collections.Generic.List<CombatCharacter> { target, guardian };
+            var targets = new List<CombatCharacter> { target, guardian };
             var ctx = new SkillContext(attacker, skill, targets, null, rng);
 
             // Evaluate target
             CombatCharacter effectiveTargetForTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
-            
+
             Assert.AreEqual(target, effectiveTargetForTarget, "Guard should be bypassed during AOE.");
         }
 
         [Test]
         public void Bypass_SkillBypassFlag_GuardIgnored()
         {
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
 
             var skill = CombatTestHelper.CreateDamageSkill();
             skill.bypassGuard = true;
 
-            var ctx = new SkillContext(attacker, skill, new System.Collections.Generic.List<CombatCharacter> { target }, null, rng);
+            var ctx = new SkillContext(attacker, skill, new List<CombatCharacter> { target }, null, rng);
             CombatCharacter effectiveTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
 
             Assert.AreEqual(target, effectiveTarget, "Guard should be ignored if skill has bypassGuard flag.");
@@ -164,13 +240,13 @@ namespace Nevergreen.Tests
         [Test]
         public void NoRedirection_AllyTargetSkill_GuardIgnored()
         {
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
 
             var skill = CombatTestHelper.CreateDamageSkill(); // Using damage skill for test but setting scope to Allies
             skill.targetScope = TargetScope.Allies;
 
             // Player character casting on ally
-            var ctx = new SkillContext(guardian, skill, new System.Collections.Generic.List<CombatCharacter> { target }, null, rng);
+            var ctx = new SkillContext(guardian, skill, new List<CombatCharacter> { target }, null, rng);
             CombatCharacter effectiveTarget = CombatCalculator.GetEffectiveTarget(target, ctx);
 
             Assert.AreEqual(target, effectiveTarget, "Guard should NOT redirect ally-targeted skills (buffs/heals).");
@@ -179,25 +255,27 @@ namespace Nevergreen.Tests
         [Test]
         public void ImmediateBreak_GuardianDeath_GuardRemoved()
         {
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
-            Assert.AreEqual(1, target.statusEffects.Count);
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
+            Assert.AreEqual(1, guardian.statusEffects.Count);
 
             // Kill guardian
             guardian.TakeDamage(1000);
-            
-            Assert.AreEqual(0, target.statusEffects.Count, "Guard status should be removed when guardian is defeated.");
+
+            Assert.AreEqual(0, guardian.statusEffects.Count, "Guard status should be removed when guardian is defeated.");
+            Assert.IsNull(GuardResolver.GetActiveGuardian(target));
         }
 
         [Test]
         public void ImmediateBreak_TargetDeath_GuardRemoved()
         {
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
-            Assert.AreEqual(1, target.statusEffects.Count);
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
+            Assert.AreEqual(1, guardian.statusEffects.Count);
 
-            // Kill target
+            // Kill protected target
             target.TakeDamage(1000);
 
-            Assert.AreEqual(0, target.statusEffects.Count, "Guard status should be removed when protected character is defeated.");
+            Assert.AreEqual(0, guardian.statusEffects.Count, "Guard status should be removed when protected character is defeated.");
+            Assert.IsNull(GuardResolver.GetActiveGuardian(target));
         }
 
         [Test]
@@ -206,26 +284,31 @@ namespace Nevergreen.Tests
             // Stun the guardian first
             var stunStatus = new StatusEffectInstance(StatusType.Stun, 1, 1);
             guardian.AddStatus(stunStatus);
-            
-            // Apply guard
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
 
-            // It should either not apply, or immediately break.
-            Assert.AreEqual(0, target.statusEffects.Count, "Guard should not be applied or should immediately break if the guardian is already stunned.");
+            // Attempt to apply guard
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
+
+            Assert.IsNull(GuardResolver.GetGuardStatusHeldBy(guardian), "Guard should not persist if the guardian is already stunned.");
+            Assert.IsNull(GuardResolver.GetActiveGuardian(target));
         }
 
         [Test]
         public void Expiry_GuardRemovedAfterDurationTicks()
         {
-            var guard = new GuardStatusInstance(guardian, 1); // 1 turn duration
-            target.AddStatus(guard);
+            var guard = new GuardStatusInstance(guardian, target, 1); // 1 turn duration
+            guardian.AddStatus(guard);
 
-            Assert.AreEqual(1, target.statusEffects.Count);
+            Assert.AreEqual(1, guardian.statusEffects.Count);
 
-            // Tick durations using StatusProcessor (simulating turn pass for target)
+            // Ticking the protected target should NOT tick or expire the guard
             StatusProcessor.TickDurations(target, 0);
+            Assert.AreEqual(1, guardian.statusEffects.Count, "Guard duration should not tick on protected target's turn.");
 
-            Assert.AreEqual(0, target.statusEffects.Count, "Guard should be removed after its duration expires.");
+            // Tick durations on guardian (simulating turn pass for guardian)
+            StatusProcessor.TickDurations(guardian, 0);
+
+            Assert.AreEqual(0, guardian.statusEffects.Count, "Guard should be removed after its duration expires on guardian's turn.");
+            Assert.IsNull(GuardResolver.GetActiveGuardian(target));
         }
 
         [Test]
@@ -235,10 +318,10 @@ namespace Nevergreen.Tests
             target.state = LifeState.Pile;
 
             // Act
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
 
             // Assert
-            Assert.AreEqual(0, target.statusEffects.Count, "Guard should not be applied to a Pile.");
+            Assert.AreEqual(0, guardian.statusEffects.Count, "Guard should not be applied to protect a Pile.");
         }
 
         [Test]
@@ -248,14 +331,60 @@ namespace Nevergreen.Tests
             guardian.state = LifeState.Pile;
 
             // Act
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
 
             // Assert
-            Assert.AreEqual(0, target.statusEffects.Count, "Guard should not be applied if the guardian is a Pile.");
+            Assert.AreEqual(0, guardian.statusEffects.Count, "Guard should not be applied if the guardian is a Pile.");
         }
 
         [Test]
-        public void TargetGuardsUserEffect_AppliesGuardToUser()
+        public void Application_FailsWhenGuardingSelf()
+        {
+            guardian.AddStatus(new GuardStatusInstance(guardian, guardian, 3));
+
+            Assert.AreEqual(0, guardian.statusEffects.Count, "A character cannot guard themselves.");
+        }
+
+        [Test]
+        public void StatusEffect_Guard_AppliesStatusToUserGuardingTarget()
+        {
+            var effect = new StatusEffect
+            {
+                statusType = StatusType.Guard,
+                applicationChance = 100f,
+                duration = 3,
+                ignoreMiss = true
+            };
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.skillId = "test_protect";
+            skill.targetScope = TargetScope.Allies;
+            skill.effects.Add(effect);
+
+            var (bs, ctx) = MakeCtx(guardian, target, skill, rng);
+            ctx.primaryTarget = target;
+
+            bool eventFiredOnGuardian = false;
+            bool eventFiredOnTarget = false;
+            guardian.OnStatusApplied += (c, t, s, _) => { if (t == StatusType.Guard && s) eventFiredOnGuardian = true; };
+            target.OnStatusApplied += (c, t, s, _) => { if (t == StatusType.Guard) eventFiredOnTarget = true; };
+
+            effect.Execute(ctx, target);
+
+            var guard = GuardResolver.GetGuardStatusHeldBy(guardian);
+            Assert.IsNotNull(guard, "Guardian (skill user) should hold the Guard status.");
+            Assert.AreEqual(target, guard.GuardedTarget, "Guard status should track the targeted ally.");
+            Assert.AreEqual(3, guard.remainingDuration);
+            Assert.AreEqual(0, target.statusEffects.Count, "Protected ally should not hold the Guard status.");
+            Assert.IsTrue(eventFiredOnGuardian, "OnStatusApplied should fire on the guardian.");
+            Assert.IsFalse(eventFiredOnTarget, "OnStatusApplied should not fire on the protected target.");
+
+            Object.DestroyImmediate(bs.gameObject);
+            ScriptableObject.DestroyImmediate(skill, true);
+        }
+
+        [Test]
+        public void TargetGuardsUserEffect_AppliesGuardToTargetProtectingUser()
         {
             var effect = new TargetGuardsUserEffect
             {
@@ -264,24 +393,118 @@ namespace Nevergreen.Tests
                 ignoreMiss = true
             };
 
-            var skill = CombatTestHelper.CreateDamageSkill();
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.skillId = "test_target_guards_user";
+            skill.targetScope = TargetScope.Allies;
             skill.effects.Add(effect);
 
-            var (bs, ctx) = MakeCtx(attacker, target, skill, rng);
+            // target (user) commands guardian (targeted ally) to guard target
+            var (bs, ctx) = MakeCtx(target, guardian, skill, rng);
 
-            ctx.primaryTarget = target;
-            effect.Execute(ctx, target);
+            ctx.primaryTarget = guardian;
+            effect.Execute(ctx, guardian);
 
-            Assert.AreEqual(1, attacker.statusEffects.Count, "Attacker (user) should be guarded.");
-            Assert.AreEqual(target, attacker.statusEffects[0].Source, "Target should be the guardian.");
+            var guard = GuardResolver.GetGuardStatusHeldBy(guardian);
+            Assert.IsNotNull(guard, "Targeted ally (guardian) should hold the Guard status.");
+            Assert.AreEqual(guardian, guard.Source, "Guardian should be the Source.");
+            Assert.AreEqual(target, guard.GuardedTarget, "User should be the GuardedTarget.");
+            Assert.AreEqual(0, target.statusEffects.Count, "User (protected) should not hold the Guard status.");
+            Assert.AreEqual(guardian, GuardResolver.GetActiveGuardian(target, ctx));
 
             Object.DestroyImmediate(bs.gameObject);
+            ScriptableObject.DestroyImmediate(skill, true);
+        }
+
+        [Test]
+        public void AdjacentAllyStatusEffect_Guard_UserGuardsAdjacentAlly()
+        {
+            // guardian is at rank 1, target is at rank 2 (Behind guardian)
+            var effect = new AdjacentAllyStatusEffect
+            {
+                statusType = StatusType.Guard,
+                direction = AllyDirection.Behind,
+                applicationChance = 100f,
+                duration = 2,
+                ignoreMiss = true
+            };
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.skillId = "test_adjacent_guard";
+            skill.targetScope = TargetScope.Self;
+            skill.effects.Add(effect);
+
+            var bsGo = new GameObject("BS");
+            var bs = bsGo.AddComponent<BattleSystem>();
+            bs.StartBattle(new List<CombatCharacter> { guardian, target }, new List<CombatCharacter> { attacker });
+
+            var ctx = new SkillContext(guardian, skill, new List<CombatCharacter> { guardian }, bs, rng);
+            ctx.primaryTarget = guardian;
+
+            effect.Execute(ctx, guardian);
+
+            var guard = GuardResolver.GetGuardStatusHeldBy(guardian);
+            Assert.IsNotNull(guard, "User should hold Guard status.");
+            Assert.AreEqual(target, guard.GuardedTarget, "User should guard the adjacent ally.");
+            Assert.AreEqual(0, target.statusEffects.Count, "Adjacent ally should not hold Guard status.");
+            Assert.AreEqual(guardian, GuardResolver.GetActiveGuardian(target, ctx));
+
+            Object.DestroyImmediate(bsGo);
+            ScriptableObject.DestroyImmediate(skill, true);
+        }
+
+        [Test]
+        public void SelfStatusEffect_Guard_LogsWarningAndSkips()
+        {
+            var effect = new SelfStatusEffect
+            {
+                statusType = StatusType.Guard,
+                applicationChance = 100f,
+                duration = 2,
+                ignoreMiss = true
+            };
+
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.skillId = "test_self_guard";
+            skill.targetScope = TargetScope.Self;
+            skill.effects.Add(effect);
+
+            var (bs, ctx) = MakeCtx(guardian, guardian, skill, rng);
+            ctx.primaryTarget = guardian;
+
+            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("SelfStatusEffect.*Guard"));
+            effect.Execute(ctx, guardian);
+
+            Assert.AreEqual(0, guardian.statusEffects.Count, "SelfStatusEffect with Guard should not apply any status.");
+
+            Object.DestroyImmediate(bs.gameObject);
+            ScriptableObject.DestroyImmediate(skill, true);
+        }
+
+        [Test]
+        public void GuardResolver_WorksWithAndWithoutBattleSystem()
+        {
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
+
+            // Without BattleSystem (null context)
+            Assert.AreEqual(guardian, GuardResolver.GetActiveGuardian(target, null), "Should resolve guardian via scene fallback when BattleSystem is null.");
+
+            // With initialized BattleSystem teams
+            var bsGo = new GameObject("BS");
+            var bs = bsGo.AddComponent<BattleSystem>();
+            bs.StartBattle(new List<CombatCharacter> { guardian, target }, new List<CombatCharacter> { attacker });
+
+            var skill = CombatTestHelper.CreateDamageSkill();
+            var ctx = new SkillContext(attacker, skill, new List<CombatCharacter> { target }, bs, rng);
+
+            Assert.AreEqual(guardian, GuardResolver.GetActiveGuardian(target, ctx), "Should resolve guardian via BattleSystem team list.");
+
+            Object.DestroyImmediate(bsGo);
         }
 
         [Test]
         public void ApplyStatusToGuardianEffect_AppliesStatusToGuardian_WhenRedirectionOccurs()
         {
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
 
             var effect = new ApplyStatusToGuardianEffect
             {
@@ -316,7 +539,7 @@ namespace Nevergreen.Tests
         [Test]
         public void ApplyStatusToGuardianEffect_AppliesStatusToGuardian_WhenGuardBypassed()
         {
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
 
             var effect = new ApplyStatusToGuardianEffect
             {
@@ -378,7 +601,7 @@ namespace Nevergreen.Tests
         [Test]
         public void ApplyStatusToGuardianEffect_AppliesStatusToGuardian_WhenTargetIsSelfAndGuarded()
         {
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
 
             var effect = new ApplyStatusToGuardianEffect
             {
@@ -417,7 +640,7 @@ namespace Nevergreen.Tests
         {
             guardian.TakeDamage(50);
             Assert.AreEqual(50, guardian.currentHP);
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
 
             var effect = new HealGuardianEffect { ignoreMiss = true };
 
@@ -443,6 +666,7 @@ namespace Nevergreen.Tests
             Assert.AreEqual(50, target.currentHP, "Target (user) should not be healed.");
 
             Object.DestroyImmediate(bs.gameObject);
+            ScriptableObject.DestroyImmediate(skill, true);
         }
 
         [Test]
@@ -472,6 +696,7 @@ namespace Nevergreen.Tests
             Assert.AreEqual(50, guardian.currentHP, "Guardian should not be healed if target is not guarded.");
 
             Object.DestroyImmediate(bs.gameObject);
+            ScriptableObject.DestroyImmediate(skill, true);
         }
     }
 }

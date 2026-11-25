@@ -7,6 +7,16 @@ namespace Nevergreen.Combat
     public static class StatusInstanceFactory
     {
         /// <summary>
+        /// Resolves which character should hold the status effect instance.
+        /// Guard lives on the guardian (<paramref name="user"/> for standard Guard skills);
+        /// all other statuses live on <paramref name="target"/>.
+        /// </summary>
+        public static CombatCharacter ResolveStatusHost(StatusType type, CombatCharacter user, CombatCharacter target)
+        {
+            return type == StatusType.Guard ? user : target;
+        }
+
+        /// <summary>
         /// Creates the appropriate StatusEffectInstance subclass based on the StatusType.
         /// </summary>
         /// <param name="context">The skill context initiating the status application.</param>
@@ -15,8 +25,9 @@ namespace Nevergreen.Combat
         /// <param name="amplitude">The power/stack size.</param>
         /// <param name="duration">Duration in turns.</param>
         /// <param name="amplitudeType">How the amplitude is applied.</param>
-        /// <param name="guardian">Who protects the host when type == Guard. Defaults to context.user when null.</param>
-        /// <returns>A new StatusEffectInstance with its Source assigned to context.user.</returns>
+        /// <param name="guardian">Who protects <paramref name="protectedTarget"/> when type == Guard. Defaults to context.user when null.</param>
+        /// <param name="protectedTarget">Who is protected by the guardian when type == Guard.</param>
+        /// <returns>A new StatusEffectInstance with its Source assigned to context.user (or guardian for Guard).</returns>
         public static StatusEffectInstance Create(
             SkillContext context,
             StatusType type,
@@ -24,14 +35,20 @@ namespace Nevergreen.Combat
             int amplitude,
             int duration,
             AmplitudeType amplitudeType,
-            CombatCharacter guardian = null)
+            CombatCharacter guardian = null,
+            CombatCharacter protectedTarget = null)
         {
             StatusEffectInstance instance;
             switch (type)
             {
                 case StatusType.Guard:
-                    // Guard's constructor already sets Source = guardian
-                    return new GuardStatusInstance(guardian ?? context.user, duration);
+                    if (protectedTarget == null)
+                    {
+                        Debug.LogError("[StatusInstanceFactory] Guard status requires a non-null protectedTarget.");
+                        return null;
+                    }
+                    // Guard's constructor sets Source = guardian and GuardedTarget = protectedTarget
+                    return new GuardStatusInstance(guardian ?? context.user, protectedTarget, duration);
                 case StatusType.Move:
                     instance = new MoveStatusInstance(context.battleSystem, amplitude);
                     break;

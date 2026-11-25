@@ -168,7 +168,7 @@ is subtracted from the source's application chance when resolving status effects
   modify, applied as additive percentage multipliers of the base stat.
 - Buff/Debuff Stacking: Multiple modifiers to the same stat are added together before being applied
   to the base stat (e.g., a +10% buff and a +20% buff result in a 1.3x multiplier, not 1.32x).
-- Guard breaks when guardian is stunned, re-guards, or guard target changes.
+- Guard lives on the guardian (tracking its `GuardedTarget`), ticks down on the guardian's turns, enforces one guard per guardian and mutual exclusivity in both directions, and breaks immediately when the guardian is stunned/defeated, the protected target is defeated, the guardian re-guards, the guardian is guarded, or another guardian takes over.
 - AOE that hits both guarded and guardian bypasses guard redirect.
 - Some enemies can act more than once per round; each action still enters turn order.
 - Ranks are mirrored between teams; rank-target legality must resolve against mirrored mapping.

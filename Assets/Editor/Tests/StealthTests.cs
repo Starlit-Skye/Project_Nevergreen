@@ -173,11 +173,12 @@ namespace Nevergreen.Tests
 
             // Guardian is stealthed
             var guardian = CombatTestHelper.CreateCombatCharacter("Guardian", Team.Player, 2, maxHP: 100);
+            bs.PlayerTeam.Add(guardian);
             guardian.AddStatus(new StealthStatusInstance(3));
             Assert.IsTrue(guardian.IsStealthed, "Guardian should be stealthed.");
 
-            // Player is guarded by Guardian
-            player.AddStatus(new GuardStatusInstance(guardian, 3));
+            // Player is guarded by Guardian (Guard status lives on guardian)
+            guardian.AddStatus(new GuardStatusInstance(guardian, player, 3));
 
             // Setup a damage skill
             var skill = CombatTestHelper.CreateDamageSkill();

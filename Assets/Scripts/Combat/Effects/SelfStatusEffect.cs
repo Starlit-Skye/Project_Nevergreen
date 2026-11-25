@@ -35,6 +35,13 @@ namespace Nevergreen.Combat
 
         public void Execute(SkillContext context, CombatCharacter target)
         {
+            // Guard cannot be applied to self (a character cannot guard themselves)
+            if (statusType == StatusType.Guard)
+            {
+                Debug.LogWarning("[SelfStatusEffect] Guard cannot be applied to self. Skipping.");
+                return;
+            }
+
             // If the attack missed and we don't ignore misses, do nothing
             context.EnsureHitResolved(target);
             if (!context.didHit && !ignoreMiss)

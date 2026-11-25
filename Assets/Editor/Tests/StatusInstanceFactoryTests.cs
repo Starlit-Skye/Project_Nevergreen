@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using Nevergreen.Combat;
 using Nevergreen.Data;
 
@@ -33,19 +34,35 @@ namespace Nevergreen.Tests
         }
 
         [Test]
-        public void Create_Guard_CreatesGuardInstanceWithCorrectGuardian()
+        public void Create_Guard_CreatesGuardInstanceWithCorrectGuardianAndProtectedTarget()
         {
-            var instance = StatusInstanceFactory.Create(_context, StatusType.Guard, StatTarget.Speed, 1, 2, AmplitudeType.Default);
+            var allyGo = new GameObject("ProtectedAlly");
+            var ally = allyGo.AddComponent<CombatCharacter>();
+
+            var instance = StatusInstanceFactory.Create(
+                _context, StatusType.Guard, StatTarget.Speed, 1, 2, AmplitudeType.Default, protectedTarget: ally);
             Assert.IsInstanceOf<GuardStatusInstance>(instance);
             Assert.AreEqual(_caster, instance.Source, "By default, context.user should be the guardian (Source).");
+            Assert.AreEqual(ally, ((GuardStatusInstance)instance).GuardedTarget, "GuardedTarget should match protectedTarget.");
 
             var otherGuardianGo = new GameObject("OtherGuardian");
             var otherGuardian = otherGuardianGo.AddComponent<CombatCharacter>();
-            var instance2 = StatusInstanceFactory.Create(_context, StatusType.Guard, StatTarget.Speed, 1, 2, AmplitudeType.Default, guardian: otherGuardian);
-            
+            var instance2 = StatusInstanceFactory.Create(
+                _context, StatusType.Guard, StatTarget.Speed, 1, 2, AmplitudeType.Default, guardian: otherGuardian, protectedTarget: ally);
+
             Assert.IsInstanceOf<GuardStatusInstance>(instance2);
             Assert.AreEqual(otherGuardian, instance2.Source, "Should use explicitly provided guardian.");
-            
+            Assert.AreEqual(ally, ((GuardStatusInstance)instance2).GuardedTarget, "GuardedTarget should match protectedTarget.");
+
+            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("StatusInstanceFactory.*protectedTarget"));
+            var invalidInstance = StatusInstanceFactory.Create(
+                _context, StatusType.Guard, StatTarget.Speed, 1, 2, AmplitudeType.Default);
+            Assert.IsNull(invalidInstance, "Guard without protectedTarget should return null.");
+
+            Assert.AreEqual(_caster, StatusInstanceFactory.ResolveStatusHost(StatusType.Guard, _caster, ally));
+            Assert.AreEqual(ally, StatusInstanceFactory.ResolveStatusHost(StatusType.Buff, _caster, ally));
+
+            Object.DestroyImmediate(allyGo);
             Object.DestroyImmediate(otherGuardianGo);
         }
 

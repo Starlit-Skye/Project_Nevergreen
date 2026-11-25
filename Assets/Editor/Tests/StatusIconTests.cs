@@ -302,8 +302,10 @@ namespace Nevergreen.Tests
             TestFormat(new StatusEffectInstance(StatusType.Debuff, StatTarget.Speed, 15, 2, AmplitudeType.Flat), "-15 Speed for 2 turns");
 
             // Guard
-            var guardStatus = new Nevergreen.Combat.GuardStatusInstance(character, 2);
-            TestFormat(guardStatus, $"Guarded by {character.DisplayName} for 2 turns");
+            var guardedAlly = CombatTestHelper.CreateCombatCharacter("GuardedAlly", Team.Player, 2, maxHP: 50);
+            var guardStatus = new Nevergreen.Combat.GuardStatusInstance(character, guardedAlly, 2);
+            TestFormat(guardStatus, $"Guarding {guardedAlly.DisplayName} for 2 turns");
+            Object.DestroyImmediate(guardedAlly.gameObject);
 
             // HealReceivedReduction
             TestFormat(new StatusEffectInstance(StatusType.HealReceivedReduction, StatTarget.Speed, 50, 2), "Heal received -50% for 2 turns");

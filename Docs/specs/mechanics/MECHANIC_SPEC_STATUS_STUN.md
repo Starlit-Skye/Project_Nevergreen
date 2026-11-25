@@ -150,8 +150,8 @@ isStunned = HasActiveStatus(StatusType.Stun);
 - **Full Resistance**: If `applicationChance + bonus - stunResist <= 0`, Stun cannot apply and no
   RNG roll is consumed.
 - **DoT While Stunned**: Bleed/Blight/Restore still tick before the stun check.
-- **Guard**: A successful Stun on a guardian immediately breaks all Guard effects they maintain
-  (via `OnStatusApplied`). A stunned guardian cannot intercept attacks or have Guard applied.
+- **Guard**: A successful Stun on a guardian immediately breaks their active Guard status
+  (via `OnStatusApplied` on the guardian). A stunned guardian cannot intercept attacks or apply Guard.
 - **Riposte**: A stunned character does not counter-attack. A Stun applied by the incoming
   attack takes effect before the Riposte check, so the counter is skipped.
 - **Stun on Self-Turn**: A Stun applied to the acting character during their own turn (e.g., via

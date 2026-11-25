@@ -96,6 +96,8 @@ namespace Nevergreen.Combat
             // Self/Ally buffs generally bypass resistances, so we use 0 resistance
             bool applied = CombatCalculator.ResolveStatusApplication(applicationChance, 0, context.rng);
 
+            CombatCharacter statusHost = StatusInstanceFactory.ResolveStatusHost(statusType, context.user, targetAlly);
+
             if (applied)
             {
                 StatusEffectInstance instance = StatusInstanceFactory.Create(
@@ -105,18 +107,29 @@ namespace Nevergreen.Combat
                     amplitude, 
                     duration, 
                     amplitudeType,
-                    guardian: targetAlly
+                    guardian: statusType == StatusType.Guard ? context.user : null,
+                    protectedTarget: statusType == StatusType.Guard ? targetAlly : null
                 );
 
-                bool added = targetAlly.AddStatus(instance);
-                if (added)
+                if (instance != null)
                 {
-                    Debug.Log($"  -> {context.user.DisplayName} applied adjacent ally status {statusType} to {targetAlly.DisplayName} (amp:{amplitude}, dur:{duration})");
+                    bool added = statusHost.AddStatus(instance);
+                    if (added)
+                    {
+                        if (statusType == StatusType.Guard)
+                        {
+                            Debug.Log($"  -> {statusHost.DisplayName} is now guarding adjacent ally {targetAlly.DisplayName} (dur:{duration})");
+                        }
+                        else
+                        {
+                            Debug.Log($"  -> {context.user.DisplayName} applied adjacent ally status {statusType} to {targetAlly.DisplayName} (amp:{amplitude}, dur:{duration})");
+                        }
+                    }
                 }
             }
 
-            // Trigger the status applied event on the target ally
-            targetAlly.TriggerStatusApplied(statusType, applied, targetStat);
+            // Trigger the status applied event on the status host
+            statusHost.TriggerStatusApplied(statusType, applied, targetStat);
         }
     }
 }

@@ -184,8 +184,8 @@ namespace Nevergreen.Tests
         {
             var bs = MakeBattleSystem();
             
-            // target is guarded by guardian
-            target.AddStatus(new GuardStatusInstance(guardian, 3));
+            // target is guarded by guardian (Guard status lives on guardian)
+            guardian.AddStatus(new GuardStatusInstance(guardian, target, 3));
             
             // guardian has riposte
             guardian.AddStatus(new StatusEffectInstance(StatusType.Riposte, 100, 3));
