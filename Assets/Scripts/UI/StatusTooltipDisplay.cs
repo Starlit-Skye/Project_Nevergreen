@@ -190,8 +190,10 @@ namespace Nevergreen.UI
                 case StatusType.Mark:
                     return $"Marked as target for {maxDuration} turns";
                 case StatusType.Guard:
-                    string guardianName = (status.Source != null) ? status.Source.DisplayName : "unknown";
-                    return $"Guarded by {guardianName} for {maxDuration} turns";
+                    string guardedName = (status is GuardStatusInstance guardStatus && guardStatus.GuardedTarget != null)
+                        ? guardStatus.GuardedTarget.DisplayName
+                        : "unknown";
+                    return $"Guarding {guardedName} for {maxDuration} turns";
                 case StatusType.Restore:
                     return $"Heal {aggregateAmplitude} for {maxDuration} turns";
                 case StatusType.Stealth:

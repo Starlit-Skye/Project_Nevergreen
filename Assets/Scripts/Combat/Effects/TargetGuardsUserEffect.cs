@@ -5,8 +5,8 @@ using UnityEngine;
 namespace Nevergreen.Combat
 {
     /// <summary>
-    /// Applies a Guard status effect to the user, making the targeted character the guardian.
-    /// This causes the targeted character to protect the user.
+    /// Applies a Guard status effect to the targeted character (the guardian),
+    /// causing the targeted character to protect the user.
     /// </summary>
     [Serializable]
     public class TargetGuardsUserEffect : ISkillEffect
@@ -38,21 +38,21 @@ namespace Nevergreen.Combat
             }
             context.extra[appliedKey] = true;
 
-            // Apply the guard status to the user, with the target as the source (guardian)
+            // Apply the guard status to the target (guardian), protecting the user
             bool applied = CombatCalculator.ResolveStatusApplication(applicationChance, 0, context.rng);
 
             if (applied)
             {
-                // The target acts as the guardian (Source)
-                StatusEffectInstance instance = new GuardStatusInstance(target, duration);
-                
-                // The user is the one being protected (Host)
-                context.user.AddStatus(instance);
+                // The target acts as the guardian (Host/Source), protecting the user (GuardedTarget)
+                StatusEffectInstance instance = new GuardStatusInstance(target, context.user, duration);
+
+                // The guardian holds the Guard status
+                target.AddStatus(instance);
                 Debug.Log($"  -> {target.DisplayName} is now guarding {context.user.DisplayName} (dur:{duration})");
             }
 
-            // Trigger the status applied event on the user
-            context.user.TriggerStatusApplied(StatusType.Guard, applied);
+            // Trigger the status applied event on the guardian (status host)
+            target.TriggerStatusApplied(StatusType.Guard, applied);
         }
     }
 }

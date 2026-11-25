@@ -1,6 +1,5 @@
 using Nevergreen.Data;
 using UnityEngine;
-using System.Linq;
 
 namespace Nevergreen.Combat
 {
@@ -127,17 +126,16 @@ namespace Nevergreen.Combat
             if (context.skill != null && context.skill.targetScope != TargetScope.Enemies)
                 return target;
 
-            // Find the active guard status on the intended target
-            var guard = target.statusEffects.OfType<GuardStatusInstance>()
-                .FirstOrDefault(s => !s.IsExpired);
+            // Find the active guardian protecting the intended target
+            var guardian = GuardResolver.GetActiveGuardian(target, context);
 
-            if (guard == null || guard.Source == null || !guard.Source.IsAlive || guard.Source.isStunned) return target;
+            if (guardian == null) return target;
 
             // AOE Bypass Check: No redirection if both target and guardian are targeted.
-            if (context.targets != null && context.targets.Contains(target) && context.targets.Contains(guard.Source))
+            if (context.targets != null && context.targets.Contains(target) && context.targets.Contains(guardian))
                 return target;
 
-            return guard.Source;
+            return guardian;
         }
     }
 }

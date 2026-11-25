@@ -65,6 +65,8 @@ namespace Nevergreen.Combat
 
             bool applied = CombatCalculator.ResolveStatusApplication(finalChance, resistance, context.rng);
 
+            CombatCharacter statusHost = StatusInstanceFactory.ResolveStatusHost(statusType, context.user, target);
+
             if (applied)
             {
                 int finalAmplitude = amplitude;
@@ -88,30 +90,39 @@ namespace Nevergreen.Combat
                     targetStat, 
                     finalAmplitude, 
                     finalDuration, 
-                    amplitudeType
+                    amplitudeType,
+                    guardian: statusType == StatusType.Guard ? context.user : null,
+                    protectedTarget: statusType == StatusType.Guard ? target : null
                 );
 
-                if (isBurst && StatusProcessor.IsDotType(statusType))
+                if (instance != null)
                 {
-                    instance.damagePerTick *= duration;
-                    instance.remainingDuration = 1;
-                }
-
-                bool added = target.AddStatus(instance);
-                if (added)
-                {
-                    if (StatusProcessor.IsDotType(statusType))
+                    if (isBurst && StatusProcessor.IsDotType(statusType))
                     {
-                        Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (dmg/tick:{instance.damagePerTick}, amp:{finalAmplitude}%, dur:{instance.remainingDuration})");
+                        instance.damagePerTick *= duration;
+                        instance.remainingDuration = 1;
                     }
-                    else
+
+                    bool added = statusHost.AddStatus(instance);
+                    if (added)
                     {
-                        Debug.Log($"  -> {target.DisplayName} afflicted with {statusType} (amp:{finalAmplitude}, dur:{instance.remainingDuration})");
+                        if (statusType == StatusType.Guard)
+                        {
+                            Debug.Log($"  -> {statusHost.DisplayName} is now guarding {target.DisplayName} (dur:{instance.remainingDuration})");
+                        }
+                        else if (StatusProcessor.IsDotType(statusType))
+                        {
+                            Debug.Log($"  -> {statusHost.DisplayName} afflicted with {statusType} (dmg/tick:{instance.damagePerTick}, amp:{finalAmplitude}%, dur:{instance.remainingDuration})");
+                        }
+                        else
+                        {
+                            Debug.Log($"  -> {statusHost.DisplayName} afflicted with {statusType} (amp:{finalAmplitude}, dur:{instance.remainingDuration})");
+                        }
                     }
                 }
             }
 
-            target.TriggerStatusApplied(statusType, applied, targetStat);
+            statusHost.TriggerStatusApplied(statusType, applied, targetStat);
         }
     }
 }

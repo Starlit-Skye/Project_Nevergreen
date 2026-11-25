@@ -347,7 +347,7 @@ namespace Nevergreen.Tests
             guarded.characterData = tData;
             guarded.InitializeForCombat(Team.Player, 2);
 
-            guarded.AddStatus(new GuardStatusInstance(guardian, 3));
+            guardian.AddStatus(new GuardStatusInstance(guardian, guarded, 3));
 
             var effect = new HealGuardianEffect { ignoreMiss = true };
             var skill = TrackSo(ScriptableObject.CreateInstance<SkillData>());

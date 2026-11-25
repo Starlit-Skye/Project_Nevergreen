@@ -50,3 +50,25 @@ If the source stops and `time` resets to 0 (for example a hitch longer than `fad
 
 ### Review
 - _pending_
+
+
+## Plan: Guard Status Refactor (status lives on the Guardian)
+
+Status: COMPLETED. Approved plan: `implementation_plan.md` artifact.
+
+### Checklist
+- [x] Inspect remaining Guard references across code, UI, and tests
+- [x] Implement `GuardResolver` and rewrite `GuardStatusInstance` + `StatusInstanceFactory`
+- [x] Update `CombatCalculator`, Guard-related effects (`StatusEffect`, `TargetGuardsUserEffect`, `HealGuardianEffect`, `ApplyStatusToGuardianEffect`, `AdjacentAllyStatusEffect`, `SelfStatusEffect`), and `StatusTooltipDisplay`
+- [x] Update and expand unit tests (`GuardTests`, `StatusInstanceFactoryTests`, `StatusIconTests`, `RiposteTests`, `StealthTests`, `ExhaustionTests`)
+- [x] Run EditMode tests and check Unity console logs
+- [x] Update Guard mechanic specifications (`MECHANIC_SPEC_STATUS_GUARD.md`, `MECHANIC_SPEC_COMBAT_CORE.md`, `MECHANIC_SPEC_STATUS_STUN.md`)
+
+### Review
+- Created stateless `Assets/Scripts/Combat/GuardResolver.cs` (`GetTeam`, `GetActiveGuardStatus`, `FindAllGuardsProtecting`, `GetActiveGuardian`, `GetGuardStatusHeldBy`); `CombatCharacter` was not modified.
+- Rewrote `GuardStatusInstance` so the status lives on the guardian (`Host == Source == guardian`) with `GuardedTarget`, enforcing validation (alive, distinct, non-stunned), one guard per guardian (re-guard replaces previous), Last-In-Wins on the same target, mutual exclusivity in both directions (nested/circular), and immediate break on guardian stun/death or protected target death.
+- Updated `StatusInstanceFactory` (`ResolveStatusHost` + `protectedTarget` parameter), `CombatCalculator.GetEffectiveTarget`, `StatusEffect`, `TargetGuardsUserEffect`, `AdjacentAllyStatusEffect` (user guards adjacent ally), `SelfStatusEffect` (log warning & skip), `HealGuardianEffect`, `ApplyStatusToGuardianEffect`, and `StatusTooltipDisplay` (`"Guarding {name} for N turns"`).
+- No SkillData ScriptableObject assets were modified.
+- Updated and expanded unit tests (`GuardTests`: 28 tests, plus `StatusInstanceFactoryTests`, `StatusIconTests`, `RiposteTests`, `StealthTests`, `ExhaustionTests`).
+- Verified via Unity MCP `tests-run` (`EditMode`): 796/796 total EditMode tests passed (0 failed, 0 skipped), zero compilation errors.
+- Updated `MECHANIC_SPEC_STATUS_GUARD.md`, `MECHANIC_SPEC_COMBAT_CORE.md`, and `MECHANIC_SPEC_STATUS_STUN.md`.
