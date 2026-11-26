@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Princess
   characterPrefab: {fileID: 3493555024726022384, guid: 1b65598f9faa0dc48936612d26c648de, type: 3}
   teamType: 0
+  takeDamageClip: {fileID: 7400000, guid: 58fcd46caf021324f9a85e8ac105612c, type: 2}
   actionsPerRound: 1
   statPerLevel:
   - {fileID: 11400000, guid: 3b236c93e0882674e950d3c3d9d3411c, type: 2}
