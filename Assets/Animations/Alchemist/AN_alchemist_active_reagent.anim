@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: AN_alchemist_poison_blast
+  m_Name: AN_alchemist_active_reagent
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -46,7 +46,7 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: 18041736186315564, guid: 96aca5556d26a46438241425490f4ace, type: 3}
+      value: {fileID: -2231083692317683450, guid: feace66f994ce6c448ac0881d6d0b82e, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -78,7 +78,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
-    - {fileID: 18041736186315564, guid: 96aca5556d26a46438241425490f4ace, type: 3}
+    - {fileID: -2231083692317683450, guid: feace66f994ce6c448ac0881d6d0b82e, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}

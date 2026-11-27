@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: AN_alchemis_aroma_of_tea
+  m_Name: AN_alchemist_whats_in_this_vial
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -22,14 +22,14 @@ AnimationClip:
         time: 0
         value: {x: 0, y: 2.19, z: 0}
         inSlope: {x: 7.924306, y: 0, z: 0}
-        outSlope: {x: 0, y: 0, z: 0}
+        outSlope: {x: 7.924306, y: 0, z: 0}
         tangentMode: 0
         weightedMode: 2
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
         outWeight: {x: 0.10116731, y: 0.33333334, z: 0.33333334}
       - serializedVersion: 3
         time: 1.4166666
-        value: {x: 0, y: 2.19, z: 0}
+        value: {x: 1.59, y: 2.19, z: 0}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -46,7 +46,7 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: -789927582681725259, guid: 96aca5556d26a46438241425490f4ace, type: 3}
+      value: {fileID: 5748452177490740481, guid: feace66f994ce6c448ac0881d6d0b82e, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -78,7 +78,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
-    - {fileID: -789927582681725259, guid: 96aca5556d26a46438241425490f4ace, type: 3}
+    - {fileID: 5748452177490740481, guid: feace66f994ce6c448ac0881d6d0b82e, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
@@ -108,14 +108,14 @@ AnimationClip:
         time: 0
         value: 0
         inSlope: 7.924306
-        outSlope: 0
-        tangentMode: 69
+        outSlope: 7.924306
+        tangentMode: 0
         weightedMode: 2
         inWeight: 0.33333334
         outWeight: 0.10116731
       - serializedVersion: 3
         time: 1.4166666
-        value: 0
+        value: 1.59
         inSlope: 0
         outSlope: 0
         tangentMode: 136
